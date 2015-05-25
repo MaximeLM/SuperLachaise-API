@@ -24,6 +24,7 @@ class OpenStreetMapPOI(SuperLachaiseModel):
     name = models.CharField(max_length=255)
     latitude = models.DecimalField(max_digits=10,decimal_places=7)
     longitude = models.DecimalField(max_digits=10,decimal_places=7)
+    wikipedia = models.CharField(max_length=255,blank=True)
     wikidata = models.CharField(max_length=255,blank=True)
     wikimedia_commons = models.CharField(max_length=255,blank=True)
     historic = models.CharField(max_length=255,blank=True)
@@ -34,19 +35,6 @@ class OpenStreetMapPOI(SuperLachaiseModel):
     class Meta:
         verbose_name = u'OpenStreetMap POI'
         verbose_name_plural = u'OpenStreetMap POIs'
-
-class LocalizedOpenStreetMapPOI(SuperLachaiseModel):
-    openStreetMapPOI = models.ForeignKey('OpenStreetMapPOI')
-    language = models.ForeignKey('Language')
-    wikipedia = models.CharField(max_length=255,blank=True)
-    
-    def __unicode__(self):
-        return self.language.name+":"+self.openStreetMapPOI.name
-    
-    class Meta:
-        unique_together = ('openStreetMapPOI', 'language',)
-        verbose_name = u'localized OpenStreetMap POI'
-        verbose_name_plural = u'localized OpenStreetMap POIs'
 
 class PendingModification(SuperLachaiseModel):
     CREATE = u'create'
@@ -62,7 +50,7 @@ class PendingModification(SuperLachaiseModel):
     target_object_class = models.CharField(max_length=255)
     target_object_id = models.BigIntegerField()
     action = models.CharField(max_length=255, choices=action_choices)
-    new_values = models.CharField(max_length=255,blank=True)
+    new_values = models.CharField(max_length=2000,blank=True)
     apply = models.BooleanField(default=False)
     
     def target_model(self):
@@ -125,3 +113,11 @@ class ArchivedModification(SuperLachaiseModel):
     
     def __unicode__(self):
         return self.action + u': ' + str(self.target_object())
+
+class Setting(SuperLachaiseModel):
+    key = models.CharField(max_length=255)
+    value = models.CharField(max_length=255, blank=True)
+    description = models.CharField(max_length=255, blank=True)
+    
+    def __unicode__(self):
+        return self.key

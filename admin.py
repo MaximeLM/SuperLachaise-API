@@ -5,8 +5,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 
-from superlachaise_api.models import Language, OpenStreetMapPOI, LocalizedOpenStreetMapPOI
-from superlachaise_api.models import PendingModification, ArchivedModification
+from superlachaise_api.models import Language, OpenStreetMapPOI, PendingModification, ArchivedModification, Setting
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'created', 'modified')
@@ -18,38 +17,17 @@ class LanguageAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('created', 'modified')
 
-class LocalizedOpenStreetMapPOIInline(admin.StackedInline):
-    model = LocalizedOpenStreetMapPOI
-    extra = 0
-    fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['language', 'wikipedia']}),
-    ]
-    readonly_fields = ('created', 'modified')
-
 class OpenStreetMapPOIAdmin(admin.ModelAdmin):
-    list_display = ('name', 'id', 'historic', 'wikidata', 'wikimedia_commons', 'latitude', 'longitude', 'localizations', 'created', 'modified')
+    list_display = ('name', 'id', 'historic', 'wikipedia', 'wikidata', 'wikimedia_commons', 'latitude', 'longitude', 'created', 'modified')
     ordering = ('name', 'id',)
     search_fields = ('name', 'id', 'wikidata', 'wikimedia_commons',)
     actions=None
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
         (None, {'fields': ['name', 'id', 'latitude', 'longitude']}),
-        (u'Tags', {'fields': ['historic', 'wikidata', 'wikimedia_commons']}),
-    ]
-    inlines = [
-        LocalizedOpenStreetMapPOIInline,
+        (u'Tags', {'fields': ['historic', 'wikipedia', 'wikidata', 'wikimedia_commons']}),
     ]
     readonly_fields = ('created', 'modified')
-    
-    def localizations(self, obj):
-        return obj.localizedopenstreetmappoi_set.count()
-    localizations.admin_order_field = 'localizedopenstreetmappoi__count'
-    
-    def get_queryset(self, request):
-        qs = super(OpenStreetMapPOIAdmin, self).get_queryset(request)
-        qs = qs.annotate(models.Count('localizedopenstreetmappoi'))
-        return qs
 
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'new_values', 'created', 'modified')
@@ -104,7 +82,18 @@ class ArchivedModificationAdmin(admin.ModelAdmin):
             return None
     target_object_link.allow_tags = True
 
+class SettingAdmin(admin.ModelAdmin):
+    list_display = ('key', 'value', 'description', 'created', 'modified')
+    ordering = ('key', )
+    search_fields = ('key', 'value', 'description', )
+    readonly_fields = ('created', 'modified')
+    fieldsets = [
+        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['key', 'value', 'description']}),
+    ]
+
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(OpenStreetMapPOI, OpenStreetMapPOIAdmin)
 admin.site.register(PendingModification, PendingModificationAdmin)
 admin.site.register(ArchivedModification, ArchivedModificationAdmin)
+admin.site.register(Setting, SettingAdmin)
