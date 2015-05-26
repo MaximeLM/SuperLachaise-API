@@ -5,7 +5,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 
-from superlachaise_api.models import Language, OpenStreetMapPOI, PendingModification, ArchivedModification, Setting
+from superlachaise_api.models import Language, OpenStreetMapPOI, PendingModification, ArchivedModification, Setting, SyncOperation
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'created', 'modified')
@@ -90,8 +90,28 @@ class SettingAdmin(admin.ModelAdmin):
         (None, {'fields': ['category', 'key', 'value', 'description']}),
     ]
 
+class SyncOperationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'last_executed', 'last_result', 'description', 'created', 'modified')
+    ordering = ('name', )
+    search_fields = ('name', )
+    readonly_fields = ('last_executed', 'last_result', 'created', 'modified')
+    fieldsets = [
+        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['name', 'last_executed', 'last_result', 'description']}),
+    ]
+    
+    def perform_sync(self, request, queryset):
+        for sync_operation in queryset:
+            try:
+                sync_operation.perform_sync()
+            except Exception as exception:
+                print exception
+    
+    actions=[perform_sync]
+
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(OpenStreetMapPOI, OpenStreetMapPOIAdmin)
 admin.site.register(PendingModification, PendingModificationAdmin)
 admin.site.register(ArchivedModification, ArchivedModificationAdmin)
 admin.site.register(Setting, SettingAdmin)
+admin.site.register(SyncOperation, SyncOperationAdmin)

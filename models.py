@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, json
+from django.core.management import call_command
 from decimal import Decimal
 from django.db import models
 from django.apps import apps
@@ -166,3 +167,15 @@ class Setting(SuperLachaiseModel):
     
     class Meta:
         unique_together = ('category', 'key',)
+
+class SyncOperation(SuperLachaiseModel):
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    last_executed = models.DateTimeField(null=True)
+    last_result = models.TextField(blank=True, null=True)
+    
+    def __unicode__(self):
+        return self.name
+    
+    def perform_sync(self):
+        call_command('sync_' + self.name)
