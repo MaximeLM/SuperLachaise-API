@@ -4,8 +4,9 @@ from django.contrib import admin
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
+from django.utils import translation
 
-from superlachaise_api.models import Language, OpenStreetMapPOI, PendingModification, ArchivedModification, Setting, SyncOperation
+from superlachaise_api.models import Language, OpenStreetMapPOI, PendingModification, ArchivedModification, Setting, AdminCommand
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'created', 'modified')
@@ -17,15 +18,50 @@ class LanguageAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
 
 class OpenStreetMapPOIAdmin(admin.ModelAdmin):
-    list_display = ('name', 'id', 'historic', 'wikipedia', 'wikidata', 'wikimedia_commons', 'latitude', 'longitude', 'created', 'modified')
+    list_display = ('name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified')
     ordering = ('name', 'id',)
-    search_fields = ('name', 'id', 'wikidata', 'wikimedia_commons',)
+    search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['name', 'id', 'latitude', 'longitude']}),
+        (None, {'fields': ['name', 'type', 'id', 'latitude', 'longitude']}),
         (u'Tags', {'fields': ['historic', 'wikipedia', 'wikidata', 'wikimedia_commons']}),
     ]
-    readonly_fields = ('created', 'modified')
+    readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link')
+    
+    def openstreetmap_link(self, obj):
+        url = 'https://www.openstreetmap.org/{type}/{id}'.format(type=obj.type, id=str(obj.id))
+        return mark_safe("<a href='%s'>%s</a>" % (url, str(obj.id)))
+    openstreetmap_link.allow_tags = True
+    openstreetmap_link.short_description = 'OpenStreetMap'
+    
+    def wikipedia_link(self, obj):
+        if obj.wikipedia:
+            language = translation.get_language().split("-", 1)[0]
+            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(obj.wikipedia))
+            return mark_safe("<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
+        else:
+            return None
+    wikipedia_link.allow_tags = True
+    wikipedia_link.short_description = 'wikipedia'
+    
+    def wikidata_link(self, obj):
+        if obj.wikidata:
+            language = translation.get_language().split("-", 1)[0]
+            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata), language=language)
+            return mark_safe("<a href='%s'>%s</a>" % (url, unicode(obj.wikidata)))
+        else:
+            return None
+    wikidata_link.allow_tags = True
+    wikidata_link.short_description = 'wikidata'
+    
+    def wikimedia_commons_link(self, obj):
+        if obj.wikimedia_commons:
+            url = u'http://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons))
+            return mark_safe("<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons)))
+        else:
+            return None
+    wikimedia_commons_link.allow_tags = True
+    wikimedia_commons_link.short_description = 'wikimedia commons'
 
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'new_values', 'created', 'modified')
@@ -90,7 +126,7 @@ class SettingAdmin(admin.ModelAdmin):
         (None, {'fields': ['category', 'key', 'value', 'description']}),
     ]
 
-class SyncOperationAdmin(admin.ModelAdmin):
+class AdminCommandAdmin(admin.ModelAdmin):
     list_display = ('name', 'last_executed', 'last_result', 'description', 'created', 'modified')
     ordering = ('name', )
     search_fields = ('name', )
@@ -100,18 +136,18 @@ class SyncOperationAdmin(admin.ModelAdmin):
         (None, {'fields': ['name', 'last_executed', 'last_result', 'description']}),
     ]
     
-    def perform_sync(self, request, queryset):
-        for sync_operation in queryset:
+    def perform_command(self, request, queryset):
+        for admin_command in queryset:
             try:
-                sync_operation.perform_sync()
+                admin_command.perform_command()
             except Exception as exception:
                 print exception
     
-    actions=[perform_sync]
+    actions=[perform_command]
 
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(OpenStreetMapPOI, OpenStreetMapPOIAdmin)
 admin.site.register(PendingModification, PendingModificationAdmin)
 admin.site.register(ArchivedModification, ArchivedModificationAdmin)
 admin.site.register(Setting, SettingAdmin)
-admin.site.register(SyncOperation, SyncOperationAdmin)
+admin.site.register(AdminCommand, AdminCommandAdmin)

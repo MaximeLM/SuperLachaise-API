@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from superlachaise_api.models import Setting, OpenStreetMapPOI, PendingModification, Language, SyncOperation
+from superlachaise_api.models import Setting, OpenStreetMapPOI, PendingModification, Language, AdminCommand
 
 def area_for_polygon(polygon):
     result = 0
@@ -70,6 +70,9 @@ class Command(BaseCommand):
     
         if openStreetMap_POI:
             modified_values = {}
+            type = overpass_POI.__class__.__name__.lower()
+            if xstr(type) != openStreetMap_POI.type:
+                modified_values['type'] = type
             name = overpass_POI.tags.get("name")
             if xstr(name) != openStreetMap_POI.name:
                 modified_values['name'] = name
@@ -114,7 +117,8 @@ class Command(BaseCommand):
         else:
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=overpass_POI.id)
         
-            new_values_dict = { 'name': overpass_POI.tags.get("name"),
+            new_values_dict = { 'type': overpass_POI.__class__.__name__.lower(),
+                                'name': overpass_POI.tags.get("name"),
                                 'latitude': str(coordinate['x']),
                                 'longitude': str(coordinate['y']),
                                 'historic': overpass_POI.tags.get("historic"),
@@ -169,7 +173,7 @@ class Command(BaseCommand):
             bounding_box = Setting.objects.get(category='OpenStreetMap', key=u'bounding_box').value
             result = self.download_data(bounding_box)
         else:
-            tree = ET.parse(os.path.dirname(os.path.realpath(__file__)) + '/fetch_data_OSM.osm')
+            tree = ET.parse(os.path.dirname(os.path.realpath(__file__)) + '/sync_OpenStreetMap.osm')
             result = overpy.Result.from_xml(tree.getroot())
     
         fetched_ids = []
@@ -211,7 +215,7 @@ class Command(BaseCommand):
             default=False)
     
     def handle(self, *args, **options):
-        sync_operation = SyncOperation.objects.get(name='OpenStreetMap')
+        admin_command = AdminCommand.objects.get(name='sync_OpenStreetMap')
         
         self.created_POIs = 0
         self.modified_POIs = 0
@@ -219,7 +223,7 @@ class Command(BaseCommand):
         
         try:
             self.fetch_data_OSM(options['use_file'])
-            print self.modified_POIs
+            
             result_list = []
             if self.created_POIs > 0:
                 result_list.append(u'{nb} OpenStreetMap POI(s) created'.format(nb=self.created_POIs))
@@ -229,12 +233,12 @@ class Command(BaseCommand):
                 result_list.append(u'{nb} OpenStreetMap POI(s) deleted'.format(nb=self.deleted_POIs))
             
             if result_list:
-                sync_operation.last_result = ''.join(result_list)
+                admin_command.last_result = ''.join(result_list)
             else:
-                sync_operation.last_result = u"No modifications"
+                admin_command.last_result = u"No modifications"
         except:
             exception = sys.exc_info()[0]
-            sync_operation.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+            admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
         
-        sync_operation.last_executed = timezone.now()
-        sync_operation.save()
+        admin_command.last_executed = timezone.now()
+        admin_command.save()

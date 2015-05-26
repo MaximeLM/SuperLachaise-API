@@ -27,7 +27,14 @@ class Language(SuperLachaiseModel):
         return self.name
 
 class OpenStreetMapPOI(SuperLachaiseModel):
+    type_choices = (
+            ('node', 'node'),
+            ('way', 'way'),
+            ('relation', 'relation'),
+        )
+    
     id = models.BigIntegerField(primary_key=True)
+    type = models.CharField(max_length=255, choices=type_choices)
     name = models.CharField(max_length=255)
     latitude = models.DecimalField(max_digits=10,decimal_places=7)
     longitude = models.DecimalField(max_digits=10,decimal_places=7)
@@ -115,7 +122,9 @@ class PendingModification(SuperLachaiseModel):
                 if not openStreetMapPOI:
                     openStreetMapPOI = OpenStreetMapPOI(id=self.target_object_id)
                 for key, value in json.loads(self.new_values).iteritems():
-                    if key == 'name':
+                    if key =='type':
+                        openStreetMapPOI.type = xstr(value)
+                    elif key == 'name':
                         openStreetMapPOI.name = xstr(value)
                     elif key =='latitude':
                         openStreetMapPOI.latitude = Decimal(value)
@@ -168,7 +177,7 @@ class Setting(SuperLachaiseModel):
     class Meta:
         unique_together = ('category', 'key',)
 
-class SyncOperation(SuperLachaiseModel):
+class AdminCommand(SuperLachaiseModel):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     last_executed = models.DateTimeField(null=True)
@@ -177,5 +186,5 @@ class SyncOperation(SuperLachaiseModel):
     def __unicode__(self):
         return self.name
     
-    def perform_sync(self):
-        call_command('sync_' + self.name)
+    def perform_command(self):
+        call_command(self.name)
