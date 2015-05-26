@@ -20,17 +20,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.core import serializers
-import os
 
 class Command(BaseCommand):
     
     def handle(self, *args, **options):
-        with open(os.path.dirname(os.path.realpath(__file__)) + '/../../initial_data/settings.json') as data_file:    
+        with open(settings.BASE_DIR + '/superlachaise_api/initial_data/settings.json') as data_file:    
             for obj in serializers.deserialize("json", data_file):
                 obj.save()
         
-        with open(os.path.dirname(os.path.realpath(__file__)) + '/../../initial_data/admin_commands.json') as data_file:    
+        with open(settings.BASE_DIR + '/superlachaise_api/initial_data/admin_commands.json') as data_file:    
             for obj in serializers.deserialize("json", data_file):
                 obj.save()

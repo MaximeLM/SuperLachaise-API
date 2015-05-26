@@ -1,2 +1,1 @@
 *.pyc
-management/commands/sync_OpenStreetMap.osm
