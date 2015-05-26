@@ -1,5 +1,25 @@
 # -*- coding: utf-8 -*-
 
+"""
+sync_OpenStreetMap.py
+superlachaise_api
+
+Created by Maxime Le Moine on 26/05/2015.
+Copyright (c) 2015 Maxime Le Moine.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    
+    http:www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
 import overpy, traceback
 import os, json, math, sys
 from decimal import *
@@ -7,7 +27,7 @@ import xml.etree.ElementTree as ET
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from superlachaise_api.models import Setting, OpenStreetMapPOI, PendingModification, Language, AdminCommand
+from superlachaise_api.models import Setting, OpenStreetMapPOI, PendingModification, AdminCommand
 
 def area_for_polygon(polygon):
     result = 0
@@ -97,7 +117,7 @@ class Command(BaseCommand):
         
             if modified_values:
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=overpass_POI.id)
-                pendingModification.new_values = json.dumps(modified_values)
+                pendingModification.modified_fields = json.dumps(modified_values)
                 pendingModification.action = "modify"
                 
                 try:
@@ -117,7 +137,7 @@ class Command(BaseCommand):
         else:
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=overpass_POI.id)
         
-            new_values_dict = { 'type': overpass_POI.__class__.__name__.lower(),
+            modified_fields_dict = { 'type': overpass_POI.__class__.__name__.lower(),
                                 'name': overpass_POI.tags.get("name"),
                                 'latitude': str(coordinate['x']),
                                 'longitude': str(coordinate['y']),
@@ -128,7 +148,7 @@ class Command(BaseCommand):
                                 }
         
             pendingModification.action = "create"
-            pendingModification.new_values = json.dumps(new_values_dict)
+            pendingModification.modified_fields = json.dumps(modified_fields_dict)
             try:
                 pendingModification.full_clean()
                 pendingModification.save()
@@ -201,7 +221,7 @@ class Command(BaseCommand):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=openStreetMap_POI.id)
             
                 pendingModification.action = "delete"
-                pendingModification.new_values = ''
+                pendingModification.modified_fields = ''
                 pendingModification.save()
                 self.deleted_POIs = self.deleted_POIs + 1
             
