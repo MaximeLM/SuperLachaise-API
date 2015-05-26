@@ -37,7 +37,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
         (u'Target object', {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
-        (u'Modification', {'fields': ['action', 'new_values', 'apply']}),
+        (u'Modification', {'fields': ['action', 'new_values']}),
     ]
     
     def target_object_link(self, obj):
@@ -56,17 +56,13 @@ class PendingModificationAdmin(admin.ModelAdmin):
             try:
                 pending_modification.apply_modification()
             except Exception as exception:
-                None
+                print exception
     
     actions=[apply_modification]
-    
-    def get_queryset(self, request):
-        qs = super(PendingModificationAdmin, self).get_queryset(request)
-        return qs.filter(apply=False)
 
 class ArchivedModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'new_values', 'created', 'modified')
-    ordering = ('target_object_class', 'target_object_id', )
+    ordering = ('-created', )
     search_fields = ('target_object_class', 'target_object_id', 'action', 'new_values', )
     readonly_fields = ('target_object_link', 'created', 'modified')
     fieldsets = [

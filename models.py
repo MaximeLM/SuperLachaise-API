@@ -56,7 +56,7 @@ class ArchivedModification(SuperLachaiseModel):
     target_object_class = models.CharField(max_length=255)
     target_object_id = models.BigIntegerField()
     action = models.CharField(max_length=255, choices=action_choices)
-    new_values = models.CharField(max_length=255,blank=True)
+    new_values = models.CharField(max_length=2000,blank=True)
     
     def target_model(self):
         try:
@@ -71,7 +71,7 @@ class ArchivedModification(SuperLachaiseModel):
             return None
     
     def __unicode__(self):
-        return self.action + u': ' + str(self.target_object())
+        return self.action + u': ' + unicode(self.target_object())
 
 class PendingModification(SuperLachaiseModel):
     CREATE = u'create'
@@ -88,7 +88,6 @@ class PendingModification(SuperLachaiseModel):
     target_object_id = models.BigIntegerField()
     action = models.CharField(max_length=255, choices=action_choices)
     new_values = models.CharField(max_length=2000,blank=True)
-    apply = models.BooleanField(default=False)
     
     def target_model(self):
         try:
@@ -102,66 +101,56 @@ class PendingModification(SuperLachaiseModel):
         except Exception as exception: # TODO 404
             return None
     
-    def _update_errors(self, e):
-        None
-    
     def clean(self):
         if self.action == u'delete' and not self.target_object():
             raise ValidationError('Target object does not exist')
         if self.action == u'delete' and self.new_values:
             raise ValidationError('Delete actions cannot have new values')
-        if self.apply:
-            if self.action in ['create', 'modify']:
-                if self.target_object_class == 'OpenStreetMapPOI':
-                    openStreetMapPOI = OpenStreetMapPOI.objects.filter(id=self.target_object_id).first()
-                    if not openStreetMapPOI:
-                        openStreetMapPOI = OpenStreetMapPOI(id=self.target_object_id)
-                    for key, value in json.loads(self.new_values).iteritems():
-                        if key == 'name':
-                            openStreetMapPOI.name = xstr(value)
-                        elif key =='latitude':
-                            openStreetMapPOI.latitude = Decimal(value)
-                        elif key =='longitude':
-                            openStreetMapPOI.longitude = Decimal(value)
-                        elif key =='historic':
-                            openStreetMapPOI.historic = xstr(value)
-                        elif key =='wikipedia':
-                            openStreetMapPOI.wikipedia = xstr(value)
-                        elif key =='wikidata':
-                            openStreetMapPOI.wikidata = xstr(value)
-                        elif key =='wikimedia_commons':
-                            openStreetMapPOI.wikimedia_commons = xstr(value)
-                        else:
-                            raise ValidationError('Invalid key {key}'.format(key=key))
-                    try:
-                        openStreetMapPOI.full_clean()
-                        openStreetMapPOI.save()
-                    except Exception as exception:
-                        raise ValidationError(exception)
-                    
-                    archivedModification = ArchivedModification(target_object_class=self.target_object_class, target_object_id=self.target_object_id, action=self.action, new_values=self.new_values)
-                    try:
-                        archivedModification.full_clean()
-                        archivedModification.save()
-                    except Exception as exception:
-                        raise ValidationError(exception)
-                    
-                    self.delete()
-                else:
-                    raise ValidationError('Invalid target object class')
-            elif self.action == 'delete':
-                target_object = self.target_object()
-                if target_object:
-                    target_object.delete()
-            else:
-                raise ValidationError('Invalid action')
     
     def apply_modification(self):
-        self.apply = True
-        self.full_clean()
+        if self.action in ['create', 'modify']:
+            if self.target_object_class == 'OpenStreetMapPOI':
+                openStreetMapPOI = OpenStreetMapPOI.objects.filter(id=self.target_object_id).first()
+                if not openStreetMapPOI:
+                    openStreetMapPOI = OpenStreetMapPOI(id=self.target_object_id)
+                for key, value in json.loads(self.new_values).iteritems():
+                    if key == 'name':
+                        openStreetMapPOI.name = xstr(value)
+                    elif key =='latitude':
+                        openStreetMapPOI.latitude = Decimal(value)
+                    elif key =='longitude':
+                        openStreetMapPOI.longitude = Decimal(value)
+                    elif key =='historic':
+                        openStreetMapPOI.historic = xstr(value)
+                    elif key =='wikipedia':
+                        openStreetMapPOI.wikipedia = xstr(value)
+                    elif key =='wikidata':
+                        openStreetMapPOI.wikidata = xstr(value)
+                    elif key =='wikimedia_commons':
+                        openStreetMapPOI.wikimedia_commons = xstr(value)
+                    else:
+                        raise ValidationError('Invalid key {key}'.format(key=key))
+                try:
+                    openStreetMapPOI.full_clean()
+                    openStreetMapPOI.save()
+                except Exception as exception:
+                    raise ValidationError(exception)
+                
+            else:
+                raise ValidationError('Invalid target object class')
+        elif self.action == 'delete':
+            target_object = self.target_object()
+            if target_object:
+                target_object.delete()
+        else:
+            raise ValidationError('Invalid action')
+        
+        archivedModification = ArchivedModification(target_object_class=self.target_object_class, target_object_id=self.target_object_id, action=self.action, new_values=self.new_values)
+        archivedModification.save()
+        self.delete()
     
     def __unicode__(self):
-        return self.action + u': ' + str(self.target_object())
+        return self.action + u': ' + unicode(self.target_object())
     
     class Meta:
         unique_together = ('target_object_class', 'target_object_id',)

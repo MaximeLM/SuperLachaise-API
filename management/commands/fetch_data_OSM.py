@@ -1,11 +1,36 @@
 # -*- coding: utf-8 -*-
 
 import overpy
-import os, json
+import os, json, math
+from decimal import *
 import xml.etree.ElementTree as ET
 from django.core.management.base import BaseCommand, CommandError
 
 from superlachaise_api.models import Setting, OpenStreetMapPOI, PendingModification, Language
+
+def area_for_polygon(polygon):
+    result = 0
+    imax = len(polygon) - 1
+    for i in range(0,imax):
+        result += (polygon[i]['x'] * polygon[i+1]['y']) - (polygon[i+1]['x'] * polygon[i]['y'])
+    result += (polygon[imax]['x'] * polygon[0]['y']) - (polygon[0]['x'] * polygon[imax]['y'])
+    return result / 2.
+
+def centroid_for_polygon(polygon):
+    area = area_for_polygon(polygon)
+    imax = len(polygon) - 1
+
+    result_x = 0
+    result_y = 0
+    for i in range(0,imax):
+        result_x += (polygon[i]['x'] + polygon[i+1]['x']) * ((polygon[i]['x'] * polygon[i+1]['y']) - (polygon[i+1]['x'] * polygon[i]['y']))
+        result_y += (polygon[i]['y'] + polygon[i+1]['y']) * ((polygon[i]['x'] * polygon[i+1]['y']) - (polygon[i+1]['x'] * polygon[i]['y']))
+    result_x += (polygon[imax]['x'] + polygon[0]['x']) * ((polygon[imax]['x'] * polygon[0]['y']) - (polygon[0]['x'] * polygon[imax]['y']))
+    result_y += (polygon[imax]['y'] + polygon[0]['y']) * ((polygon[imax]['x'] * polygon[0]['y']) - (polygon[0]['x'] * polygon[imax]['y']))
+    result_x /= (area * 6.0)
+    result_y /= (area * 6.0)
+
+    return {'x': result_x, 'y': result_y}
 
 def xstr(s):
     if s is None:
@@ -30,7 +55,7 @@ def download_data(bounding_box):
     
     return result
 
-def handle_POI(overpass_POI):
+def handle_POI(overpass_POI, coordinate):
     openStreetMap_POI = OpenStreetMapPOI.objects.filter(id=overpass_POI.id).first()
     
     if openStreetMap_POI:
@@ -50,10 +75,10 @@ def handle_POI(overpass_POI):
         wikimedia_commons = overpass_POI.tags.get("wikimedia_commons")
         if xstr(wikimedia_commons) != openStreetMap_POI.wikimedia_commons:
             modified_values['wikimedia_commons'] = wikimedia_commons
-        latitude = overpass_POI.lat
+        latitude = coordinate['x']
         if latitude != openStreetMap_POI.latitude:
             modified_values['latitude'] = str(latitude)
-        longitude = overpass_POI.lon
+        longitude = coordinate['y']
         if longitude != openStreetMap_POI.longitude:
             modified_values['longitude'] = str(longitude)
         
@@ -76,8 +101,8 @@ def handle_POI(overpass_POI):
         pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=overpass_POI.id)
         
         new_values_dict = { 'name': overpass_POI.tags.get("name"),
-                            'latitude': str(overpass_POI.lat),
-                            'longitude': str(overpass_POI.lon),
+                            'latitude': str(coordinate['x']),
+                            'longitude': str(coordinate['y']),
                             'historic': overpass_POI.tags.get("historic"),
                             'wikipedia': overpass_POI.tags.get("wikipedia"),
                             'wikidata': overpass_POI.tags.get("wikidata"),
@@ -92,6 +117,33 @@ def handle_POI(overpass_POI):
         except Exception as exception:
             print exception
 
+def handle_way(overpass_way):
+    polygon = []
+    for node in overpass_way.nodes:
+        polygon.append({'x': float(node.lat), 'y': float(node.lon)})
+    centroid = centroid_for_polygon(polygon)
+    coordinate = {'x': Decimal(centroid['x']).quantize(Decimal('.0000001')), 'y': Decimal(centroid['y']).quantize(Decimal('.0000001'))}
+    handle_POI(overpass_way, coordinate)
+
+def handle_relation(overpass_relation):
+    ok = False
+    for member in overpass_relation.members:
+        if member.role == 'outer' and member.__class__.__name__ == 'RelationWay':
+            if not ok:
+                ok = True
+                polygon = []
+                for node in member.resolve().nodes:
+                    polygon.append({'x': float(node.lat), 'y': float(node.lon)})
+                centroid = centroid_for_polygon(polygon)
+                coordinate = {'x': Decimal(centroid['x']).quantize(Decimal('.0000001')), 'y': Decimal(centroid['y']).quantize(Decimal('.0000001'))}
+                handle_POI(overpass_relation, coordinate)
+            else:
+                raise Exception('more than one outer way for relation found')
+    if ok:
+        None
+    else:
+        raise Exception('no outer way for relation found')
+
 def fetch_data_OSM(use_file):
     if not use_file:
         bounding_box = Setting.objects.get(key=u'OpenStreetMap_bounding_box').value
@@ -105,7 +157,15 @@ def fetch_data_OSM(use_file):
     for POI in result.nodes:
         if POI.tags.get("historic") in ['tomb', 'memorial']:
             fetched_ids.append(POI.id)
-            handle_POI(POI)
+            handle_POI(POI, {'x': POI.lat, 'y': POI.lon})
+    for POI in result.ways:
+        if POI.tags.get("historic") in ['tomb', 'memorial']:
+            fetched_ids.append(POI.id)
+            handle_way(POI)
+    for POI in result.relations:
+        if POI.tags.get("historic") in ['tomb', 'memorial']:
+            fetched_ids.append(POI.id)
+            handle_relation(POI)
     
     for pendingModification in PendingModification.objects.filter(target_object_class="OpenStreetMapPOI", action="create"):
         if not pendingModification.target_object_id in fetched_ids:
@@ -117,7 +177,7 @@ def fetch_data_OSM(use_file):
             
             pendingModification.action = "delete"
             pendingModification.new_values = ''
-            pendingModification.save() 
+            pendingModification.save()
 
 class Command(BaseCommand):
     def add_arguments(self, parser):

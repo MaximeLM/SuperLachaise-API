@@ -1,0 +1,1951 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="osmfilter 1.2S">
+	<bounds minlat="48.856527" minlon="2.3842049" maxlat="48.8654488" maxlon="2.4027872"/>
+	<node id="470258150" lat="48.8600225" lon="2.3936303" version="5" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Casimir Perier"/>
+		<tag k="wikidata" v="Q284683"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Casimir Pierre Perier"/>
+		<tag k="wikipedia" v="fr:Casimir Perier"/>
+	</node>
+	<node id="1152422864" lat="48.8597013" lon="2.4000175" version="5" timestamp="2015-05-19T19:15:15Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Mur des Fédérés"/>
+		<tag k="name:uk" v="Стіна комунарів"/>
+		<tag k="wikidata" v="Q910923"/>
+		<tag k="wikimedia_commons" v="Category:Mur des Fédérés"/>
+		<tag k="wikipedia" v="fr:Mur des Fédérés"/>
+	</node>
+	<node id="1688839837" lat="48.8611863" lon="2.3930287" version="1" timestamp="2012-03-24T16:35:52Z" changeset="11086122" uid="631649" user="nervenkitt"/>
+	<node id="1688839838" lat="48.8611157" lon="2.3930906" version="1" timestamp="2012-03-24T16:35:52Z" changeset="11086122" uid="631649" user="nervenkitt"/>
+	<node id="1688839839" lat="48.861053" lon="2.3929135" version="1" timestamp="2012-03-24T16:35:52Z" changeset="11086122" uid="631649" user="nervenkitt"/>
+	<node id="1688839840" lat="48.8611241" lon="2.3928525" version="1" timestamp="2012-03-24T16:35:53Z" changeset="11086122" uid="631649" user="nervenkitt"/>
+	<node id="1915599876" lat="48.8631279" lon="2.3912635" version="5" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="René Mouchotte"/>
+		<tag k="wikidata" v="Q3426652"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Mouchotte&#39;s family"/>
+		<tag k="wikipedia" v="fr:René Mouchotte"/>
+	</node>
+	<node id="1915793625" lat="48.8597319" lon="2.3936651" version="4" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Augustin Fresnel"/>
+		<tag k="wikidata" v="Q187241"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Augustin Fresnel (Père-Lachaise, division 14)"/>
+		<tag k="wikipedia" v="fr:Augustin Fresnel"/>
+	</node>
+	<node id="1915793626" lat="48.8598029" lon="2.3985154" version="5" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Amedeo Modigliani"/>
+		<tag k="wikidata" v="Q120993"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Amedeo Modigliani and Jeanne Hébuterne"/>
+		<tag k="wikipedia" v="fr:Amedeo Modigliani"/>
+	</node>
+	<node id="1915793627" lat="48.8597855" lon="2.3942322" version="4" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Auguste Comte"/>
+		<tag k="wikidata" v="Q12718"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Auguste Comte"/>
+		<tag k="wikipedia" v="fr:Auguste Comte"/>
+	</node>
+	<node id="1915793628" lat="48.8591071" lon="2.3914902" version="4" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Camille Pissarro"/>
+		<tag k="wikidata" v="Q134741"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Camille Pissaro"/>
+		<tag k="wikipedia" v="fr:Camille Pissarro"/>
+	</node>
+	<node id="1915793634" lat="48.8596833" lon="2.3988939" version="5" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Édith Piaf"/>
+		<tag k="wikidata" v="Q1631"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Édith Piaf"/>
+		<tag k="wikipedia" v="fr:Édith Piaf"/>
+	</node>
+	<node id="1915793636" lat="48.862787" lon="2.3936382" version="6" timestamp="2015-05-19T19:15:00Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Eugène Delacroix"/>
+		<tag k="wikidata" v="Q33477"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Eugène Delacroix"/>
+		<tag k="wikipedia" v="fr:Eugène Delacroix"/>
+	</node>
+	<node id="1915793639" lat="48.8601213" lon="2.392808" version="4" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Frédéric Chopin"/>
+		<tag k="wikidata" v="Q1268"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Frederic Chopin (Père-Lachaise, division 11)"/>
+		<tag k="wikipedia" v="fr:Frédéric Chopin"/>
+	</node>
+	<node id="1915793642" lat="48.8588033" lon="2.3945025" version="4" timestamp="2015-05-19T19:15:00Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Ferdinand de Lesseps"/>
+		<tag k="wikidata" v="Q209169"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ferdinand de Lesseps"/>
+		<tag k="wikipedia" v="fr:Ferdinand de Lesseps"/>
+	</node>
+	<node id="1915793654" lat="48.8623244" lon="2.391787" version="4" timestamp="2015-05-19T19:15:04Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Bizet"/>
+		<tag k="wikidata" v="Q56158"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Georges Bizet"/>
+		<tag k="wikipedia" v="fr:Georges Bizet"/>
+	</node>
+	<node id="1915793655" lat="48.8599553" lon="2.3920732" version="4" timestamp="2015-05-19T19:15:04Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Cuvier"/>
+		<tag k="wikidata" v="Q171969"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Georges Cuvier"/>
+		<tag k="wikipedia" v="fr:Georges Cuvier"/>
+	</node>
+	<node id="1915793656" lat="48.8623521" lon="2.390531" version="4" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Seurat"/>
+		<tag k="wikidata" v="Q34013"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Seurat (Père-Lachaise, division 66)"/>
+		<tag k="wikipedia" v="fr:Georges Seurat"/>
+	</node>
+	<node id="1915793657" lat="48.861141" lon="2.394935" version="4" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Gilbert Bécaud"/>
+		<tag k="wikidata" v="Q160433"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Gilbert Bécaud"/>
+		<tag k="wikipedia" v="fr:Gilbert Bécaud"/>
+	</node>
+	<node id="1915793658" lat="48.8626557" lon="2.3947199" version="5" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Guillaume Apollinaire"/>
+		<tag k="name:he" v="גיום אפולינר"/>
+		<tag k="wikidata" v="Q133855"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Guillaume Apollinaire"/>
+		<tag k="wikipedia" v="fr:Guillaume Apollinaire"/>
+	</node>
+	<node id="1915793659" lat="48.8627718" lon="2.3931199" version="5" timestamp="2015-05-19T19:15:06Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Honoré de Balzac"/>
+		<tag k="wikidata" v="Q9711"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Balzac"/>
+		<tag k="wikipedia" v="fr:Honoré de Balzac"/>
+	</node>
+	<node id="1915793660" lat="48.8624253" lon="2.3954178" version="4" timestamp="2015-05-19T19:15:07Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Isadora Duncan"/>
+		<tag k="wikidata" v="Q483512"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Isadora Duncan"/>
+		<tag k="wikipedia" v="fr:Isadora Duncan"/>
+	</node>
+	<node id="1915793661" lat="48.8600462" lon="2.3938832" version="5" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Joseph Fourier"/>
+		<tag k="wikidata" v="Q8772"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Joseph Fourier"/>
+		<tag k="wikipedia" v="fr:Joseph Fourier"/>
+	</node>
+	<node id="1915793662" lat="48.8599858" lon="2.3940879" version="6" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="man_made" v="obelisk"/>
+		<tag k="name" v="Jean-François Champollion"/>
+		<tag k="obelisk:size" v="6"/>
+		<tag k="wikidata" v="Q260"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-François Champollion"/>
+		<tag k="wikipedia" v="fr:Jean-François Champollion"/>
+	</node>
+	<node id="1915793663" lat="48.8592676" lon="2.393752" version="5" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="alt_name" v="James Douglas Morrison"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="image" v="https://commons.wikimedia.org/wiki/File:Tombe_de_Jim_Morrison_-_P%C3%A8re_Lachaise.jpg"/>
+		<tag k="name" v="Jim Morrison"/>
+		<tag k="tomb" v="tombstone"/>
+		<tag k="wikidata" v="Q44301"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jim Morrison"/>
+		<tag k="wikipedia" v="fr:Jim Morrison"/>
+	</node>
+	<node id="1915793682" lat="48.8630712" lon="2.394975" version="4" timestamp="2015-05-19T19:15:13Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Marcel Proust"/>
+		<tag k="wikidata" v="Q7199"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Proust&#39;s family"/>
+		<tag k="wikipedia" v="fr:Marcel Proust"/>
+	</node>
+	<node id="1915793684" lat="48.8622181" lon="2.3963152" version="4" timestamp="2015-05-19T19:15:14Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Max Ernst"/>
+		<tag k="wikidata" v="Q154842"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Max Ernst"/>
+		<tag k="wikipedia" v="fr:Max Ernst"/>
+	</node>
+	<node id="1915793687" lat="48.8597856" lon="2.3928042" version="5" timestamp="2015-05-19T19:15:15Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Miguel Ángel Asturias"/>
+		<tag k="wikidata" v="Q75603"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Miguel Ángel Asturias"/>
+		<tag k="wikipedia" v="fr:Miguel Ángel Asturias"/>
+	</node>
+	<node id="1915793689" lat="48.8618038" lon="2.3979473" version="8" timestamp="2015-05-19T19:15:16Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="iinternee:wikidata" v="Q30875;Q1391982"/>
+		<tag k="name" v="Oscar Wilde"/>
+		<tag k="wikidata" v="Q30875"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Oscar Wilde and Robert Baldwin Ross"/>
+		<tag k="wikipedia" v="en:Oscar Wilde&#39;s tomb"/>
+	</node>
+	<node id="1915793690" lat="48.8601567" lon="2.3927356" version="5" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Dominique Vivant Denon"/>
+		<tag k="wikidata" v="Q468618"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Dominique Vivant Denon"/>
+		<tag k="wikipedia" v="fr:Vivant Denon"/>
+	</node>
+	<node id="2610721232" lat="48.86367" lon="2.396157" version="4" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis Verneuil"/>
+		<tag k="wikidata" v="Q3098317"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Louis Verneuil"/>
+		<tag k="wikipedia" v="fr:Louis Verneuil"/>
+	</node>
+	<node id="2610732003" lat="48.86319" lon="2.395985" version="4" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Elvire Popesco"/>
+		<tag k="wikidata" v="Q455878"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Popesco (Père-Lachaise, division 85)"/>
+		<tag k="wikipedia" v="fr:Elvire Popesco"/>
+	</node>
+	<node id="2610749877" lat="48.864009" lon="2.394676" version="4" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Fulgence Bienvenüe"/>
+		<tag k="wikidata" v="Q964297"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Bienvenüe (Père-Lachaise, division 82)"/>
+		<tag k="wikipedia" v="fr:Fulgence Bienvenüe"/>
+	</node>
+	<node id="2610756342" lat="48.863134" lon="2.395191" version="5" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Sadegh Hedayat"/>
+		<tag k="wikidata" v="Q315017"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Sadegh Hedayat"/>
+		<tag k="wikipedia" v="fr:Sadegh Hedayat"/>
+	</node>
+	<node id="2610764311" lat="48.863049" lon="2.397015" version="4" timestamp="2015-05-19T19:15:12Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Léon Jouhaux"/>
+		<tag k="wikidata" v="Q155415"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jouhaux (Père-Lachaise, division 88)"/>
+		<tag k="wikipedia" v="fr:Léon Jouhaux"/>
+	</node>
+	<node id="2610813547" lat="48.862922" lon="2.397444" version="4" timestamp="2015-05-19T19:15:13Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Marie Laurencin"/>
+		<tag k="wikidata" v="Q233088"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Marie Laurencin (Père-Lachaise, division 88)"/>
+		<tag k="wikipedia" v="fr:Marie Laurencin"/>
+	</node>
+	<node id="2610815702" lat="48.862329" lon="2.397316" version="4" timestamp="2015-05-19T19:15:04Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Courteline"/>
+		<tag k="wikidata" v="Q51107"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Georges Courteline (Père-Lachaise, division 89)"/>
+		<tag k="wikipedia" v="fr:Georges Courteline"/>
+	</node>
+	<node id="2610818875" lat="48.862089" lon="2.39738" version="4" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean Nohain"/>
+		<tag k="wikidata" v="Q963719"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean Nohain"/>
+		<tag k="wikipedia" v="fr:Jean Nohain"/>
+	</node>
+	<node id="2610835772" lat="48.86192" lon="2.39826" version="5" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Antoine Chaptal"/>
+		<tag k="wikidata" v="Q708011"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Chaptal (Père-Lachaise, division 89)"/>
+		<tag k="wikipedia" v="fr:Jean-Antoine Chaptal"/>
+	</node>
+	<node id="2610995399" lat="48.860819" lon="2.396543" version="4" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Victor Noir"/>
+		<tag k="wikidata" v="Q714788"/>
+		<tag k="wikimedia_commons" v="Category:Gisant de Victor Noir"/>
+		<tag k="wikipedia" v="fr:Victor Noir"/>
+	</node>
+	<node id="2611008485" lat="48.862146" lon="2.396071" version="4" timestamp="2015-05-19T19:14:54Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Achille Zavatta"/>
+		<tag k="wikidata" v="Q340260"/>
+		<tag k="wikimedia_commons" v="Category:Achille Zavatta"/>
+		<tag k="wikipedia" v="fr:Achille Zavatta"/>
+	</node>
+	<node id="2611013418" lat="48.862767" lon="2.396243" version="4" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre Dac"/>
+		<tag k="wikidata" v="Q165910"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Pierre Dac"/>
+		<tag k="wikipedia" v="fr:Pierre Dac"/>
+	</node>
+	<node id="2611015834" lat="48.862569" lon="2.395363" version="4" timestamp="2015-05-19T19:15:14Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Max Ophüls"/>
+		<tag k="wikidata" v="Q55410"/>
+		<tag k="wikimedia_commons" v="Category:Max Ophüls"/>
+		<tag k="wikipedia" v="fr:Max Ophüls"/>
+	</node>
+	<node id="2611016394" lat="48.862541" lon="2.395384" version="4" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jules Guesde"/>
+		<tag k="wikidata" v="Q379699"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jules Guesde"/>
+		<tag k="wikipedia" v="fr:Jules Guesde"/>
+	</node>
+	<node id="2611019171" lat="48.862174" lon="2.395663" version="5" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Stéphane Grappelli"/>
+		<tag k="wikidata" v="Q206244"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Stéphane Grappelli"/>
+		<tag k="wikipedia" v="fr:Stéphane Grappelli"/>
+	</node>
+	<node id="2611062155" lat="48.861242" lon="2.39841" version="5" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Silvia Monfort"/>
+		<tag k="wikidata" v="Q3484051"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Silvia Monfort (Père-Lachaise, division 93)"/>
+		<tag k="wikipedia" v="fr:Silvia Monfort"/>
+	</node>
+	<node id="2618160979" lat="48.8627153" lon="2.3927321" version="2" timestamp="2015-05-19T19:15:15Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Monument aux travailleurs municipaux"/>
+		<tag k="wikidata" v="Q15156042"/>
+		<tag k="wikimedia_commons" v="Category:Monument aux travailleurs municipaux du cimetière du Père-Lachaise"/>
+	</node>
+	<node id="2628659819" lat="48.860833" lon="2.397895" version="5" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Zénobe Gramme"/>
+		<tag k="wikidata" v="Q247603"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Zénobe Gramme"/>
+		<tag k="wikipedia" v="fr:Zénobe Gramme"/>
+	</node>
+	<node id="2628667096" lat="48.860621" lon="2.398088" version="3" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Bonne Maman"/>
+		<tag k="wikidata" v="Q15181212"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Bonne Maman"/>
+	</node>
+	<node id="2628673749" lat="48.860536" lon="2.398624" version="4" timestamp="2015-05-19T19:15:16Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Piero Gobetti"/>
+		<tag k="wikidata" v="Q532852"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Piero Gobetti"/>
+		<tag k="wikipedia" v="fr:Piero Gobetti"/>
+	</node>
+	<node id="2628678445" lat="48.86079" lon="2.399375" version="4" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Gertrude Stein"/>
+		<tag k="wikidata" v="Q188385"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Gertrude Stein (Père-Lachaise, division 94)"/>
+		<tag k="wikipedia" v="fr:Gertrude Stein"/>
+	</node>
+	<node id="2628681072" lat="48.86048" lon="2.399418" version="5" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Andranik Ozanian"/>
+		<tag k="wikidata" v="Q278864"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Andranik Toros Ozanian"/>
+		<tag k="wikipedia" v="fr:Andranik Ozanian"/>
+	</node>
+	<node id="2628689416" lat="48.861016" lon="2.399096" version="4" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alain"/>
+		<tag k="wikidata" v="Q275003"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Alain"/>
+		<tag k="wikipedia" v="fr:Alain (philosophe)"/>
+	</node>
+	<node id="2628694965" lat="48.860141" lon="2.399869" version="4" timestamp="2015-05-19T19:15:16Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Paul Vaillant-Couturier"/>
+		<tag k="wikidata" v="Q3372335"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Paul Vaillant-Couturier"/>
+		<tag k="wikipedia" v="fr:Paul Vaillant-Couturier"/>
+	</node>
+	<node id="2628698194" lat="48.859986" lon="2.399912" version="5" timestamp="2015-05-19T19:15:16Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Paul Éluard"/>
+		<tag k="wikidata" v="Q152176"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Paul Éluard"/>
+		<tag k="wikipedia" v="fr:Paul Éluard"/>
+	</node>
+	<node id="2628699258" lat="48.859943" lon="2.39989" version="4" timestamp="2015-05-19T19:15:14Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Maurice Thorez"/>
+		<tag k="wikidata" v="Q345408"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Maurice Thorez"/>
+		<tag k="wikipedia" v="fr:Maurice Thorez"/>
+	</node>
+	<node id="2628700824" lat="48.8599157" lon="2.3998601" version="4" timestamp="2015-05-19T19:15:13Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Marcel Cachin"/>
+		<tag k="wikidata" v="Q658479"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Marcel Cachin"/>
+		<tag k="wikipedia" v="fr:Marcel Cachin"/>
+	</node>
+	<node id="2628701846" lat="48.859887" lon="2.399826" version="4" timestamp="2015-05-19T19:15:07Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jacques Duclos"/>
+		<tag k="wikidata" v="Q377790"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jacques Duclos"/>
+		<tag k="wikipedia" v="en:Jacques Duclos"/>
+	</node>
+	<node id="2628703851" lat="48.859746" lon="2.399676" version="4" timestamp="2015-05-19T19:15:04Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Marchais"/>
+		<tag k="wikidata" v="Q182192"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Georges Marchais"/>
+		<tag k="wikipedia" v="fr:Georges Marchais"/>
+	</node>
+	<node id="2628703942" lat="48.859703" lon="2.399611" version="5" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre Georges"/>
+		<tag k="wikidata" v="Q319927"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Pierre Georges"/>
+		<tag k="wikipedia" v="fr:Pierre Georges"/>
+	</node>
+	<node id="2628712746" lat="48.859576" lon="2.398882" version="4" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Christian Pineau"/>
+		<tag k="wikidata" v="Q661825"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Christian Pineau"/>
+		<tag k="wikipedia" v="fr:Christian Pineau"/>
+	</node>
+	<node id="2628713048" lat="48.859633" lon="2.398839" version="4" timestamp="2015-05-19T19:15:06Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Henri Salvador"/>
+		<tag k="wikidata" v="Q318060"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Henri Salvador"/>
+		<tag k="wikipedia" v="fr:Henri Salvador"/>
+	</node>
+	<node id="2628742111" lat="48.859393" lon="2.398152" version="5" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Bruno Coquatrix"/>
+		<tag k="wikidata" v="Q2661519"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Bruno Coquatrix"/>
+		<tag k="wikipedia" v="fr:Bruno Coquatrix"/>
+	</node>
+	<node id="2628752275" lat="48.860169" lon="2.399848" version="4" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Henri Barbusse"/>
+		<tag k="wikidata" v="Q18404"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Henri Barbusse"/>
+		<tag k="wikipedia" v="fr:Henri Barbusse"/>
+	</node>
+	<node id="2636786218" lat="48.860395" lon="2.396886" version="4" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Frédéric Cournet"/>
+		<tag k="wikidata" v="Q3089740"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Cournet (Père-Lachaise, division 95)"/>
+		<tag k="wikipedia" v="fr:Frédéric Cournet"/>
+	</node>
+	<node id="2636786649" lat="48.860282" lon="2.396994" version="4" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="André Gill"/>
+		<tag k="wikidata" v="Q518827"/>
+		<tag k="wikimedia_commons" v="Category:Grave of André Gill"/>
+		<tag k="wikipedia" v="fr:André Gill"/>
+	</node>
+	<node id="2636788643" lat="48.860226" lon="2.39826" version="4" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jules Joffrin"/>
+		<tag k="wikidata" v="Q3188690"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jules Joffrin"/>
+		<tag k="wikipedia" v="fr:Jules Joffrin"/>
+	</node>
+	<node id="2636792813" lat="48.861214" lon="2.396071" version="4" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Auguste Blanqui"/>
+		<tag k="wikidata" v="Q309722"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Louis Auguste Blanqui"/>
+		<tag k="wikipedia" v="fr:Auguste Blanqui"/>
+	</node>
+	<node id="2636798252" lat="48.861327" lon="2.395384" version="4" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Sarah Bernhardt"/>
+		<tag k="wikidata" v="Q4605"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Sarah Bernhardt"/>
+		<tag k="wikipedia" v="fr:Sarah Bernhardt"/>
+	</node>
+	<node id="2636802288" lat="48.861482" lon="2.394698" version="4" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Louis Baudelocque"/>
+		<tag k="wikidata" v="Q545477"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-Louis Baudelocque"/>
+		<tag k="wikipedia" v="fr:Jean-Louis Baudelocque"/>
+	</node>
+	<node id="2636806656" lat="48.861666" lon="2.394526" version="4" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Ticky Holgado"/>
+		<tag k="wikidata" v="Q2121322"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ticky Holgado"/>
+		<tag k="wikipedia" v="fr:Ticky Holgado"/>
+	</node>
+	<node id="2636809035" lat="48.8611655" lon="2.3949235" version="5" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Sophie Daumier"/>
+		<tag k="wikidata" v="Q3490902"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Sophie Daumier"/>
+		<tag k="wikipedia" v="fr:Sophie Daumier"/>
+	</node>
+	<node id="2636809297" lat="48.861214" lon="2.394891" version="4" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Daniel Toscan du Plantier"/>
+		<tag k="wikidata" v="Q325453"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Daniel Toscan du Plantier"/>
+		<tag k="wikipedia" v="fr:Daniel Toscan du Plantier"/>
+	</node>
+	<node id="2636809415" lat="48.861186" lon="2.394912" version="4" timestamp="2015-05-19T19:15:14Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Marie Trintignant"/>
+		<tag k="wikidata" v="Q235641"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Marie Trintignant"/>
+		<tag k="wikipedia" v="fr:Marie Trintignant"/>
+	</node>
+	<node id="2636824054" lat="48.861807" lon="2.395191" version="4" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jacques Plante"/>
+		<tag k="wikidata" v="Q3159783"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jacques Plante"/>
+		<tag k="wikipedia" v="fr:Jacques Plante (parolier)"/>
+	</node>
+	<node id="2636826745" lat="48.861892" lon="2.395535" version="4" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Yves Montand et Simone Signoret"/>
+		<tag k="wikidata" v="Q106057;Q106126"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Yves Montand and Simone Signoret"/>
+		<tag k="wikipedia" v="fr:Yves Montand;Simone Signoret"/>
+	</node>
+	<node id="2636855002" lat="48.861129" lon="2.39532" version="4" timestamp="2015-05-19T19:15:06Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Henry de Triqueti"/>
+		<tag k="wikidata" v="Q302580"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Henry-Joseph-François Triqueti"/>
+		<tag k="wikipedia" v="fr:Henry de Triqueti"/>
+	</node>
+	<node id="2636903827" lat="48.861157" lon="2.395277" version="5" timestamp="2015-05-19T19:15:13Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Marcel Mouloudji"/>
+		<tag k="wikidata" v="Q993521"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Mouloudji (Père-Lachaise, division 42)"/>
+		<tag k="wikipedia" v="fr:Marcel Mouloudji"/>
+	</node>
+	<node id="2636910105" lat="48.861059" lon="2.395363" version="3" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Téo Hernandez"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Hernandez (Père-Lachaise, division 42)"/>
+	</node>
+	<node id="2636914748" lat="48.860649" lon="2.39532" version="4" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alphonse Lavallée"/>
+		<tag k="wikidata" v="Q1327266"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Alphonse Lavallée"/>
+		<tag k="wikipedia" v="fr:Alphonse Lavallée"/>
+	</node>
+	<node id="2636915286" lat="48.860536" lon="2.395406" version="5" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Henry-Louis Greffulhe"/>
+		<tag k="wikidata" v="Q3166123"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-Louis Greffulhe"/>
+		<tag k="wikipedia" v="fr:Jean-Henry-Louis Greffulhe"/>
+	</node>
+	<node id="2636925573" lat="48.859365" lon="2.397187" version="4" timestamp="2015-05-19T19:15:00Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Eugène Scribe"/>
+		<tag k="wikidata" v="Q319261"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Eugène Scribe"/>
+		<tag k="wikipedia" v="fr:Eugène Scribe"/>
+	</node>
+	<node id="2636930182" lat="48.858983" lon="2.397037" version="5" timestamp="2015-05-19T19:15:15Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Nadar"/>
+		<tag k="wikidata" v="Q40116"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Nadar family"/>
+		<tag k="wikipedia" v="fr:Nadar"/>
+	</node>
+	<node id="2636933479" lat="48.8584032" lon="2.3956762" version="6" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="René Panhard"/>
+		<tag k="wikidata" v="Q266561"/>
+		<tag k="wikimedia_commons" v="Category:Grave of René Panhard"/>
+		<tag k="wikipedia" v="fr:René Panhard"/>
+	</node>
+	<node id="2647508388" lat="48.8631449" lon="2.3934026" version="4" timestamp="2014-11-10T13:02:31Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="2647533741" lat="48.862894" lon="2.39341" version="5" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Adolphe Beaucé"/>
+		<tag k="wikidata" v="Q3163651"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-Adolphe Beaucé"/>
+		<tag k="wikipedia" v="fr:Jean-Adolphe Beaucé"/>
+	</node>
+	<node id="2647545902" lat="48.862739" lon="2.393174" version="5" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Gérard de Nerval"/>
+		<tag k="wikidata" v="Q191305"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Gérard de Nerval"/>
+		<tag k="wikipedia" v="fr:Gérard de Nerval"/>
+	</node>
+	<node id="2647558151" lat="48.862357" lon="2.39341" version="4" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Charles Crozatier"/>
+		<tag k="wikidata" v="Q785956"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Charles Crozatier"/>
+		<tag k="wikipedia" v="fr:Charles Crozatier"/>
+	</node>
+	<node id="2647591862" lat="48.862089" lon="2.39356" version="4" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Annie Girardot"/>
+		<tag k="wikidata" v="Q106443"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Annie Girardot"/>
+		<tag k="wikipedia" v="fr:Annie Girardot"/>
+	</node>
+	<node id="2647601121" lat="48.862569" lon="2.393045" version="4" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jules Michelet"/>
+		<tag k="wikidata" v="Q310791"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jules Michelet"/>
+		<tag k="wikipedia" v="fr:Jules Michelet"/>
+	</node>
+	<node id="2647605835" lat="48.862287" lon="2.393196" version="5" timestamp="2015-05-19T19:15:14Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Maurice Merleau-Ponty"/>
+		<tag k="wikidata" v="Q212639"/>
+		<tag k="wikimedia_commons" v="Category:Maurice Merleau-Ponty"/>
+		<tag k="wikipedia" v="fr:Maurice Merleau-Ponty"/>
+	</node>
+	<node id="2647610304" lat="48.861525" lon="2.392509" version="4" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Cino Del Duca"/>
+		<tag k="wikidata" v="Q1069399"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Del Duca (Père-Lachaise, division 53)"/>
+		<tag k="wikipedia" v="fr:Cino Del Duca"/>
+	</node>
+	<node id="2647611429" lat="48.861553" lon="2.392573" version="4" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre Cartellier"/>
+		<tag k="wikidata" v="Q924019"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Pierre Cartellier"/>
+		<tag k="wikipedia" v="fr:Pierre Cartellier"/>
+	</node>
+	<node id="2647618163" lat="48.862414" lon="2.392123" version="5" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Gustave Caillebotte"/>
+		<tag k="wikidata" v="Q295144"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Gustave Caillebotte"/>
+		<tag k="wikipedia" v="fr:Gustave Caillebotte"/>
+	</node>
+	<node id="2647629281" lat="48.863501" lon="2.391264" version="5" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Édouard Daladier"/>
+		<tag k="wikidata" v="Q213526"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Édouard Daladier"/>
+		<tag k="wikipedia" v="fr:Édouard Daladier"/>
+	</node>
+	<node id="2647640675" lat="48.863331" lon="2.390664" version="5" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Méliès"/>
+		<tag k="wikidata" v="Q152272"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Georges Méliès"/>
+		<tag k="wikipedia" v="fr:Georges Méliès"/>
+	</node>
+	<node id="2647644925" lat="48.862202" lon="2.391822" version="4" timestamp="2015-05-19T19:15:04Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Enesco"/>
+		<tag k="wikidata" v="Q77177"/>
+		<tag k="wikimedia_commons" v="Category:Grave of George Enescu"/>
+		<tag k="wikipedia" v="fr:Georges Enesco"/>
+	</node>
+	<node id="2647652534" lat="48.861355" lon="2.392359" version="5" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jacques-Louis David"/>
+		<tag k="wikidata" v="Q83155"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jacques-Louis David"/>
+		<tag k="wikipedia" v="fr:Jacques-Louis David"/>
+	</node>
+	<node id="2647658051" lat="48.861694" lon="2.390127" version="5" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Charles Alphand"/>
+		<tag k="wikidata" v="Q390367"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-Charles Alphand"/>
+		<tag k="wikipedia" v="fr:Jean-Charles Alphand"/>
+	</node>
+	<node id="2647664510" lat="48.862287" lon="2.390342" version="4" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jules Vallès"/>
+		<tag k="wikidata" v="Q551597"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jules Vallès"/>
+		<tag k="wikipedia" v="fr:Jules Vallès"/>
+	</node>
+	<node id="2647668766" lat="48.861779" lon="2.391286" version="4" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis Blanc"/>
+		<tag k="wikidata" v="Q355112"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Blanc (Père-Lachaise, division 67)"/>
+		<tag k="wikipedia" v="fr:Louis Blanc"/>
+	</node>
+	<node id="2649513478" lat="48.86072" lon="2.389226" version="4" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre Brasseur"/>
+		<tag k="wikidata" v="Q945890"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Pierre Brasseur"/>
+		<tag k="wikipedia" v="fr:Pierre Brasseur"/>
+	</node>
+	<node id="2649516984" lat="48.860113" lon="2.390428" version="4" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jules Romains"/>
+		<tag k="wikidata" v="Q334983"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jules Romains"/>
+		<tag k="wikipedia" v="fr:Jules Romains"/>
+	</node>
+	<node id="2649520651" lat="48.860536" lon="2.391114" version="4" timestamp="2015-05-19T19:15:01Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="François Arago"/>
+		<tag k="wikidata" v="Q154353"/>
+		<tag k="wikimedia_commons" v="Category:Grave of François Arago"/>
+		<tag k="wikipedia" v="fr:François Arago"/>
+	</node>
+	<node id="2649521135" lat="48.860706" lon="2.391565" version="4" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alexandre Ledru-Rollin"/>
+		<tag k="wikidata" v="Q1382222"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Alexandre Ledru-Rollin"/>
+		<tag k="wikipedia" v="fr:Alexandre Ledru-Rollin"/>
+	</node>
+	<node id="2649521612" lat="48.8607223" lon="2.3916025" version="4" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Thomas Couture"/>
+		<tag k="wikidata" v="Q326434"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Thomas Couture"/>
+		<tag k="wikipedia" v="fr:Thomas Couture"/>
+	</node>
+	<node id="2649522565" lat="48.860734" lon="2.391651" version="4" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Félix Faure"/>
+		<tag k="wikidata" v="Q296076"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Félix Faure"/>
+		<tag k="wikipedia" v="fr:Félix Faure"/>
+	</node>
+	<node id="2649537764" lat="48.860875" lon="2.392187" version="4" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alexandre Falguière"/>
+		<tag k="wikidata" v="Q2140000"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Alexandre Falguière"/>
+		<tag k="wikipedia" v="fr:Alexandre Falguière"/>
+	</node>
+	<node id="2649538218" lat="48.860748" lon="2.391179" version="6" timestamp="2015-05-19T19:15:04Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Eugène Haussmann"/>
+		<tag k="wikidata" v="Q191798"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Georges-Eugène Haussmann"/>
+		<tag k="wikipedia" v="fr:Georges Eugène Haussmann"/>
+	</node>
+	<node id="2649540770" lat="48.86072" lon="2.391114" version="4" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alfred de Musset"/>
+		<tag k="wikidata" v="Q179680"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Alfred de Musset"/>
+		<tag k="wikipedia" v="fr:Alfred de Musset"/>
+	</node>
+	<node id="2649542252" lat="48.860706" lon="2.39105" version="5" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Gioachino Rossini"/>
+		<tag k="wikidata" v="Q9726"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Gioachino Rossini"/>
+		<tag k="wikipedia" v="fr:Gioachino Rossini"/>
+	</node>
+	<node id="2649543430" lat="48.860649" lon="2.390878" version="5" timestamp="2015-05-19T19:15:12Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis Visconti"/>
+		<tag k="wikidata" v="Q794916"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Louis Visconti"/>
+		<tag k="wikipedia" v="fr:Louis Visconti"/>
+	</node>
+	<node id="2649545062" lat="48.860579" lon="2.390578" version="4" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Colette"/>
+		<tag k="wikidata" v="Q218679"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Colette"/>
+		<tag k="wikipedia" v="fr:Colette"/>
+	</node>
+	<node id="2649548127" lat="48.860889" lon="2.39223" version="4" timestamp="2015-05-19T19:15:06Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Ignace Hoff"/>
+		<tag k="wikidata" v="Q3148168"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ignace Hoff"/>
+		<tag k="wikipedia" v="fr:Ignace Hoff"/>
+	</node>
+	<node id="2649568041" lat="48.861412" lon="2.393947" version="5" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Victor Schœlcher"/>
+		<tag k="wikidata" v="Q120417"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Victor Schoelcher"/>
+		<tag k="wikipedia" v="fr:Victor Schœlcher"/>
+	</node>
+	<node id="2649571368" lat="48.86096" lon="2.392831" version="5" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Théodore Géricault"/>
+		<tag k="wikidata" v="Q184212"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Théodore Géricault"/>
+		<tag k="wikipedia" v="fr:Théodore Géricault"/>
+	</node>
+	<node id="2649576067" lat="48.861412" lon="2.394333" version="6" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Auguste-Dominique Ingres"/>
+		<tag k="wikidata" v="Q23380"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean Auguste Dominique Ingres"/>
+		<tag k="wikipedia" v="fr:Jean-Auguste-Dominique Ingres"/>
+	</node>
+	<node id="2649578701" lat="48.8613527" lon="2.3946884" version="4" timestamp="2015-05-19T19:15:16Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Philippe Khorsand"/>
+		<tag k="wikidata" v="Q2087624"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Philippe Khorsand (Père-Lachaise, division 23)"/>
+		<tag k="wikipedia" v="fr:Philippe Khorsand"/>
+	</node>
+	<node id="2649582567" lat="48.860903" lon="2.394612" version="4" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Baptiste Camille Corot"/>
+		<tag k="wikidata" v="Q148475"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-Baptiste-Camille Corot"/>
+		<tag k="wikipedia" v="fr:Jean-Baptiste Camille Corot"/>
+	</node>
+	<node id="2649584809" lat="48.860875" lon="2.394698" version="4" timestamp="2015-05-19T19:15:06Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Honoré Daumier"/>
+		<tag k="wikidata" v="Q187506"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Honoré Daumier"/>
+		<tag k="wikipedia" v="fr:Honoré Daumier"/>
+	</node>
+	<node id="2649587194" lat="48.86079" lon="2.394204" version="5" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="James Pradier"/>
+		<tag k="wikidata" v="Q1362889"/>
+		<tag k="wikimedia_commons" v="Category:Grave of James Pradier"/>
+		<tag k="wikipedia" v="fr:James Pradier"/>
+	</node>
+	<node id="2649590704" lat="48.861115" lon="2.394354" version="4" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis Pierre Quentin de Champcenetz"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Louis Pierre Quentin de Champcenetz"/>
+	</node>
+	<node id="2649596674" lat="48.86072" lon="2.394934" version="5" timestamp="2015-05-19T19:15:00Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Famille d&#39;Aboville"/>
+		<tag k="wikidata" v="Q3065598"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Aboville (Père-Lachaise, division 25)"/>
+		<tag k="wikipedia" v="fr:Famille d&#39;Aboville"/>
+	</node>
+	<node id="2661217171" lat="48.860565" lon="2.395062" version="5" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean de La Fontaine"/>
+		<tag k="wikidata" v="Q49496"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean de La Fontaine"/>
+		<tag k="wikipedia" v="fr:Jean de La Fontaine"/>
+	</node>
+	<node id="2661217314" lat="48.860536" lon="2.395105" version="4" timestamp="2015-05-19T19:15:15Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Molière"/>
+		<tag k="wikidata" v="Q687"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Molière"/>
+		<tag k="wikipedia" v="fr:Molière"/>
+	</node>
+	<node id="2661221799" lat="48.860141" lon="2.395492" version="4" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Antoine Parmentier"/>
+		<tag k="wikidata" v="Q360312"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Antoine Parmentier"/>
+		<tag k="wikipedia" v="fr:Antoine Parmentier"/>
+	</node>
+	<node id="2661227175" lat="48.859252" lon="2.396457" version="4" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Jacques-Régis de Cambacérès"/>
+		<tag k="wikidata" v="Q290045"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-Jacques-Régis de Cambacérès"/>
+		<tag k="wikipedia" v="fr:Jean-Jacques-Régis de Cambacérès"/>
+	</node>
+	<node id="2661230415" lat="48.859068" lon="2.396672" version="4" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Joachim Murat"/>
+		<tag k="wikidata" v="Q151173"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Joachim Murat"/>
+		<tag k="wikipedia" v="fr:Joachim Murat"/>
+	</node>
+	<node id="2661232516" lat="48.859351" lon="2.396929" version="5" timestamp="2015-05-19T19:15:12Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis-Gabriel Suchet"/>
+		<tag k="wikidata" v="Q316518"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Louis Gabriel Suchet"/>
+		<tag k="wikipedia" v="fr:Louis-Gabriel Suchet"/>
+	</node>
+	<node id="2661255940" lat="48.859689" lon="2.396071" version="4" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Christophe-Philippe Oberkampf"/>
+		<tag k="wikidata" v="Q74518"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Christophe-Philippe Oberkampf"/>
+		<tag k="wikipedia" v="fr:Christophe-Philippe Oberkampf"/>
+	</node>
+	<node id="2661273250" lat="48.8588" lon="2.39635" version="5" timestamp="2015-05-19T19:15:07Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jacques Nicolas Gobert"/>
+		<tag k="wikidata" v="Q3159659"/>
+		<tag k="wikimedia_commons" v="Category:Cardiotaph of Jacques Nicolas Gobert"/>
+		<tag k="wikipedia" v="fr:Jacques Nicolas Gobert"/>
+	</node>
+	<node id="2661275349" lat="48.858758" lon="2.3962" version="5" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-Pierre-Louis de Fontanes"/>
+		<tag k="wikidata" v="Q1296217"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Fontanes (Père-Lachaise, division 37)"/>
+		<tag k="wikipedia" v="fr:Jean-Pierre-Louis de Fontanes"/>
+	</node>
+	<node id="2661277628" lat="48.858983" lon="2.396672" version="5" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Charles-Étienne-François Ruty"/>
+		<tag k="wikidata" v="Q2958353"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Charles-Étienne-François Ruty"/>
+		<tag k="wikipedia" v="fr:Charles-Étienne-François Ruty"/>
+	</node>
+	<node id="2661279723" lat="48.858885" lon="2.396801" version="4" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Guillaume Dupuytren"/>
+		<tag k="wikidata" v="Q679098"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Guillaume Dupuytren"/>
+		<tag k="wikipedia" v="fr:Guillaume Dupuytren"/>
+	</node>
+	<node id="2661284154" lat="48.858038" lon="2.395556" version="4" timestamp="2015-05-19T19:15:12Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Malik Oussekine"/>
+		<tag k="wikidata" v="Q15860323"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Malik Oussekine (Père-Lachaise, division 75)"/>
+		<tag k="wikipedia" v="fr:Affaire Malik Oussekine"/>
+	</node>
+	<node id="2661295342" lat="48.858729" lon="2.393517" version="4" timestamp="2015-05-19T19:15:09Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean-François Lyotard"/>
+		<tag k="wikidata" v="Q193257"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-François Lyotard"/>
+		<tag k="wikipedia" v="fr:Jean-François Lyotard"/>
+	</node>
+	<node id="2661299096" lat="48.858758" lon="2.393088" version="4" timestamp="2015-05-19T19:15:01Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Francis Poulenc"/>
+		<tag k="wikidata" v="Q191408"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Francis Poulenc"/>
+		<tag k="wikipedia" v="fr:Francis Poulenc"/>
+	</node>
+	<node id="2661300067" lat="48.859181" lon="2.39356" version="5" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Charles-François Lebrun"/>
+		<tag k="wikidata" v="Q707712"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Charles-François Lebrun"/>
+		<tag k="wikipedia" v="fr:Charles-François Lebrun"/>
+	</node>
+	<node id="2661305216" lat="48.859435" lon="2.392359" version="6" timestamp="2015-05-19T19:15:21Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Étienne-Gaspard Robert"/>
+		<tag k="wikidata" v="Q289163"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Étienne-Gaspard Robert"/>
+		<tag k="wikipedia" v="fr:Étienne-Gaspard Robert"/>
+	</node>
+	<node id="2661325764" lat="48.859351" lon="2.391286" version="5" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="James de Rothschild"/>
+		<tag k="wikidata" v="Q922667"/>
+		<tag k="wikimedia_commons" v="Category:Grave of James de Rothschild"/>
+		<tag k="wikipedia" v="fr:James de Rothschild"/>
+	</node>
+	<node id="2663014267" lat="48.859562" lon="2.391114" version="5" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Rachel Félix"/>
+		<tag k="wikidata" v="Q267985"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Élisabeth Rachel Félix"/>
+		<tag k="wikipedia" v="en:Rachel Félix"/>
+	</node>
+	<node id="2663032295" lat="48.85904" lon="2.391737" version="4" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="David Sintzheim"/>
+		<tag k="wikidata" v="Q358291"/>
+		<tag k="wikimedia_commons" v="Category:Grave of David Sintzheim"/>
+		<tag k="wikipedia" v="fr:David Sintzheim"/>
+	</node>
+	<node id="2663040532" lat="48.859322" lon="2.391479" version="6" timestamp="2015-05-19T19:46:14Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<tag k="artist_name" v="Auguste Préault"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jacob Roblès"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jacob Roblès"/>
+	</node>
+	<node id="2663047981" lat="48.859365" lon="2.391479" version="5" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre et Hélène Lazareff"/>
+		<tag k="wikidata" v="Q1235630;Q3144796"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Lazareff"/>
+		<tag k="wikipedia" v="fr:Pierre Lazareff;Hélène Lazareff"/>
+	</node>
+	<node id="2663061680" lat="48.860762" lon="2.392166" version="6" timestamp="2015-05-19T19:15:01Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="François d&#39;Astier de La Vigerie"/>
+		<tag k="wikidata" v="Q130519"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Astier de la Vigerie (Père-Lachaise, division 10)"/>
+		<tag k="wikipedia" v="fr:François d&#39;Astier de La Vigerie"/>
+	</node>
+	<node id="2663064041" lat="48.860536" lon="2.392423" version="6" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Édouard Branly"/>
+		<tag k="wikidata" v="Q274251"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Édouard Branly"/>
+		<tag k="wikipedia" v="fr:Édouard Branly"/>
+	</node>
+	<node id="2663065605" lat="48.860452" lon="2.392552" version="4" timestamp="2015-05-19T19:15:13Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Mano Solo"/>
+		<tag k="wikidata" v="Q1335349"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Mano Solo"/>
+		<tag k="wikipedia" v="fr:Mano Solo"/>
+	</node>
+	<node id="2663070197" lat="48.860056" lon="2.392809" version="4" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre Desproges"/>
+		<tag k="wikidata" v="Q2196"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Pierre Desproges"/>
+		<tag k="wikipedia" v="fr:Pierre Desproges"/>
+	</node>
+	<node id="2663076376" lat="48.860508" lon="2.393131" version="5" timestamp="2015-05-19T19:15:07Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Ignace Joseph Pleyel"/>
+		<tag k="wikidata" v="Q314019"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ignace Joseph Pleyel"/>
+		<tag k="wikipedia" v="fr:Ignace Joseph Pleyel"/>
+	</node>
+	<node id="2663238386" lat="48.860438" lon="2.393024" version="4" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Vincenzo Bellini"/>
+		<tag k="wikidata" v="Q170209"/>
+		<tag k="wikimedia_commons" v="Category:Cenotaph of Vincenzo Bellini"/>
+		<tag k="wikipedia" v="fr:Vincenzo Bellini"/>
+	</node>
+	<node id="2663248136" lat="48.860635" lon="2.392809" version="4" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alexandre Brongniart"/>
+		<tag k="wikidata" v="Q442937"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Alexandre Brongniart"/>
+		<tag k="wikipedia" v="fr:Alexandre Brongniart"/>
+	</node>
+	<node id="2663253477" lat="48.860423" lon="2.392917" version="6" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jacques-Henri Bernardin de Saint-Pierre"/>
+		<tag k="wikidata" v="Q361976"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jacques Henri Bernardin de Saint-Pierre"/>
+		<tag k="wikipedia" v="fr:Jacques-Henri Bernardin de Saint-Pierre"/>
+	</node>
+	<node id="2663261502" lat="48.860056" lon="2.392874" version="4" timestamp="2015-05-19T19:15:15Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Michel Petrucciani"/>
+		<tag k="wikidata" v="Q317155"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Michel Petrucciani"/>
+		<tag k="wikipedia" v="fr:Michel Petrucciani"/>
+	</node>
+	<node id="2663264334" lat="48.8601705" lon="2.3927894" version="4" timestamp="2015-05-19T19:15:12Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Luigi Cherubini"/>
+		<tag k="wikidata" v="Q20721"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Luigi Cherubini"/>
+		<tag k="wikipedia" v="fr:Luigi Cherubini"/>
+	</node>
+	<node id="2663272254" lat="48.860254" lon="2.39341" version="5" timestamp="2015-05-19T19:14:54Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alain Bashung"/>
+		<tag k="wikidata" v="Q380045"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Alain Bashung"/>
+		<tag k="wikipedia" v="fr:Alain Bashung"/>
+	</node>
+	<node id="2663278344" lat="48.860635" lon="2.393582" version="4" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Claude Bernard"/>
+		<tag k="wikidata" v="Q208230"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Claude Bernard"/>
+		<tag k="wikipedia" v="fr:Claude Bernard"/>
+	</node>
+	<node id="2663284611" lat="48.860212" lon="2.393603" version="4" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Gaspard Monge"/>
+		<tag k="wikidata" v="Q206832"/>
+		<tag k="wikimedia_commons" v="Category:Cenotaph of Gaspard Monge"/>
+		<tag k="wikipedia" v="fr:Gaspard Monge"/>
+	</node>
+	<node id="2663285709" lat="48.860141" lon="2.393904" version="5" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="François-Vincent Raspail"/>
+		<tag k="wikidata" v="Q682230"/>
+		<tag k="wikimedia_commons" v="Category:Grave of François-Vincent Raspail"/>
+		<tag k="wikipedia" v="fr:François-Vincent Raspail"/>
+	</node>
+	<node id="2663293469" lat="48.859774" lon="2.394569" version="6" timestamp="2015-05-19T19:15:01Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="François Étienne Kellermann"/>
+		<tag k="wikidata" v="Q138105"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Kellermann&#39;s family"/>
+		<tag k="wikipedia" v="fr:François Étienne Kellermann"/>
+	</node>
+	<node id="2663312801" lat="48.858532" lon="2.395599" version="4" timestamp="2015-05-19T19:15:00Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Emmanuel-Joseph Sieyès"/>
+		<tag k="wikidata" v="Q294344"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Emmanuel-Joseph Sieyès"/>
+		<tag k="wikipedia" v="fr:Emmanuel-Joseph Sieyès"/>
+	</node>
+	<node id="2663325709" lat="48.860198" lon="2.395277" version="4" timestamp="2015-05-19T19:14:55Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alphonse Daudet"/>
+		<tag k="wikidata" v="Q228546"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Alphonse Daudet"/>
+		<tag k="wikipedia" v="fr:Alphonse Daudet"/>
+	</node>
+	<node id="2663328243" lat="48.860649" lon="2.394655" version="4" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis Joseph Gay-Lussac"/>
+		<tag k="wikidata" v="Q153185"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Joseph Louis Gay-Lussac"/>
+		<tag k="wikipedia" v="fr:Louis Joseph Gay-Lussac"/>
+	</node>
+	<node id="2663334649" lat="48.86048" lon="2.394376" version="4" timestamp="2015-05-19T19:15:14Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Martin Michel Charles Gaudin"/>
+		<tag k="wikidata" v="Q708596"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Martin Michel Charles Gaudin"/>
+		<tag k="wikipedia" v="fr:Martin Michel Charles Gaudin"/>
+	</node>
+	<node id="2663346214" lat="48.85983" lon="2.395406" version="5" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Joseph Léopold Sigisbert Hugo"/>
+		<tag k="wikidata" v="Q2299673"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Joseph Léopold Sigisbert Hugo"/>
+		<tag k="wikipedia" v="fr:Joseph Léopold Sigisbert Hugo"/>
+	</node>
+	<node id="2663348467" lat="48.859703" lon="2.395298" version="5" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Gaston Tissandier"/>
+		<tag k="wikidata" v="Q905267"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Tissandier&#39;s family"/>
+		<tag k="wikipedia" v="fr:Gaston Tissandier"/>
+	</node>
+	<node id="2672673026" lat="48.860536" lon="2.39429" version="5" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Samuel Hahnemann"/>
+		<tag k="wikidata" v="Q157056"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Samuel Hahnemann"/>
+		<tag k="wikipedia" v="fr:Samuel Hahnemann"/>
+	</node>
+	<node id="2672677620" lat="48.859463" lon="2.395062" version="4" timestamp="2015-05-19T19:15:12Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis-Antoine Garnier-Pagès"/>
+		<tag k="wikidata" v="Q601266"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Louis-Antoine Garnier-Pagès"/>
+		<tag k="wikipedia" v="fr:Louis-Antoine Garnier-Pagès"/>
+	</node>
+	<node id="2672703663" lat="48.859463" lon="2.394955" version="6" timestamp="2015-05-19T19:15:04Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Guët"/>
+		<tag k="wikidata" v="Q3323379"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Georges Guët"/>
+		<tag k="wikipedia" v="fr:Monument funéraire de Georges Guët"/>
+	</node>
+	<node id="2672718054" lat="48.85952" lon="2.394998" version="5" timestamp="2015-05-19T19:15:21Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Étienne Geoffroy Saint-Hilaire"/>
+		<tag k="wikidata" v="Q192428"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Geoffroy Saint-Hilaire"/>
+		<tag k="wikipedia" v="fr:Étienne Geoffroy Saint-Hilaire"/>
+	</node>
+	<node id="2672732737" lat="48.859718" lon="2.394783" version="5" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Yves du Manoir"/>
+		<tag k="wikidata" v="Q2602308"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Yves du Manoir"/>
+		<tag k="wikipedia" v="fr:Yves du Manoir"/>
+	</node>
+	<node id="2672737600" lat="48.859068" lon="2.395148" version="4" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Claude Chappe"/>
+		<tag k="wikidata" v="Q361305"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Claude Chappe"/>
+		<tag k="wikipedia" v="fr:Claude Chappe"/>
+	</node>
+	<node id="2672739322" lat="48.859096" lon="2.39547" version="4" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Benjamin Constant"/>
+		<tag k="wikidata" v="Q123089"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Benjamin Constant"/>
+		<tag k="wikipedia" v="fr:Benjamin Constant"/>
+	</node>
+	<node id="2672740946" lat="48.858772" lon="2.396071" version="4" timestamp="2015-05-19T19:15:14Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Michel Ney"/>
+		<tag k="wikidata" v="Q40756"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ney (Père-Lachaise, division 29)"/>
+		<tag k="wikipedia" v="fr:Michel Ney"/>
+	</node>
+	<node id="2672744457" lat="48.859026" lon="2.395492" version="6" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Tombe du Dragon"/>
+		<tag k="wikidata" v="Q3531119"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Antoine de Guillaume-Lagrange"/>
+		<tag k="wikipedia" v="fr:Tombe du Dragon"/>
+	</node>
+	<node id="2672746767" lat="48.859096" lon="2.395577" version="4" timestamp="2015-05-19T19:15:14Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Maximilien Sébastien Foy"/>
+		<tag k="wikidata" v="Q633498"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Maximilien Sébastien Foy"/>
+		<tag k="wikipedia" v="fr:Maximilien Sébastien Foy"/>
+	</node>
+	<node id="2674645790" lat="48.859774" lon="2.395513" version="5" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean Anthelme Brillat-Savarin"/>
+		<tag k="wikidata" v="Q313027"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean Anthelme Brillat-Savarin"/>
+		<tag k="wikipedia" v="fr:Jean Anthelme Brillat-Savarin"/>
+	</node>
+	<node id="2674649194" lat="48.859689" lon="2.395642" version="7" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Claude-Henri de Rouvroy, comte de Saint-Simon"/>
+		<tag k="wikidata" v="Q82934"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Claude Henri de Rouvroy de Saint-Simon"/>
+		<tag k="wikipedia" v="fr:Claude Henri de Rouvroy, comte de Saint Simon"/>
+	</node>
+	<node id="2674654592" lat="48.859012" lon="2.396586" version="4" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="André Masséna"/>
+		<tag k="wikidata" v="Q242609"/>
+		<tag k="wikimedia_commons" v="Category:Grave of André Masséna"/>
+		<tag k="wikipedia" v="fr:André Masséna"/>
+	</node>
+	<node id="2674657654" lat="48.8589314" lon="2.3964384" version="6" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis Nicolas Davout"/>
+		<tag k="wikidata" v="Q158778"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Louis Nicolas Davout"/>
+		<tag k="wikipedia" v="fr:Louis Nicolas Davout"/>
+	</node>
+	<node id="2674662092" lat="48.85904" lon="2.396586" version="4" timestamp="2015-05-19T19:15:12Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Madame Sans-Gêne"/>
+		<tag k="wikidata" v="Q459331"/>
+		<tag k="wikimedia_commons" v="Category:Grave of François Joseph Lefebvre"/>
+		<tag k="wikipedia" v="fr:Madame Sans-Gêne"/>
+	</node>
+	<node id="2674665708" lat="48.858842" lon="2.396264" version="5" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre-Augustin Caron de Beaumarchais"/>
+		<tag k="wikidata" v="Q70326"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Pierre-Augustin Caron de Beaumarchais"/>
+		<tag k="wikipedia" v="fr:Pierre-Augustin Caron de Beaumarchais"/>
+	</node>
+	<node id="2674700627" lat="48.85904" lon="2.395706" version="5" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Anna de Noailles"/>
+		<tag k="wikidata" v="Q6050"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Anna de Noailles"/>
+		<tag k="wikipedia" v="fr:Anna de Noailles"/>
+	</node>
+	<node id="2674707235" lat="48.859139" lon="2.395985" version="5" timestamp="2015-05-19T19:15:16Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Paul Barras"/>
+		<tag k="wikidata" v="Q333843"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Paul Barras"/>
+		<tag k="wikipedia" v="fr:Paul Barras"/>
+	</node>
+	<node id="2674711259" lat="48.85904" lon="2.396092" version="5" timestamp="2015-05-19T19:15:02Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="François-Antoine de Boissy d&#39;Anglas"/>
+		<tag k="wikidata" v="Q1450807"/>
+		<tag k="wikimedia_commons" v="Category:Grave of François-Antoine de Boissy d&#39;Anglas"/>
+		<tag k="wikipedia" v="fr:François-Antoine de Boissy d&#39;Anglas"/>
+	</node>
+	<node id="2674732708" lat="48.859167" lon="2.3962" version="5" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Richard Wallace"/>
+		<tag k="wikidata" v="Q2033868"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Richard Wallace"/>
+		<tag k="wikipedia" v="fr:Richard Wallace"/>
+	</node>
+	<node id="2674739418" lat="48.858899" lon="2.396307" version="5" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Juliette Dodu"/>
+		<tag k="wikidata" v="Q3189752"/>
+		<tag k="wikimedia_commons" v="Category:Juliette Dodu"/>
+		<tag k="wikipedia" v="fr:Juliette Dodu"/>
+	</node>
+	<node id="2696996999" lat="48.85994" lon="2.39293" version="3" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Vania Vilers"/>
+		<tag k="wikidata" v="Q3554585"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Vania Vilers"/>
+		<tag k="wikipedia" v="fr:Vania Vilers"/>
+	</node>
+	<node id="2697001967" lat="48.861145" lon="2.393892" version="3" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Aubert Lemeland"/>
+		<tag k="wikidata" v="Q2870577"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Aubert Lemeland (Père-Lachaise, division 22)"/>
+		<tag k="wikipedia" v="fr:Aubert Lemeland"/>
+	</node>
+	<node id="2697001968" lat="48.858196" lon="2.395227" version="3" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Claude Brosset"/>
+		<tag k="wikidata" v="Q2977082"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Claude Brosset (Père-Lachaise, division 32)"/>
+		<tag k="wikipedia" v="fr:Claude Brosset"/>
+	</node>
+	<node id="2697001969" lat="48.860558" lon="2.392547" version="3" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Claude Chabrol"/>
+		<tag k="wikidata" v="Q55375"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Claude Chabrol"/>
+		<tag k="wikipedia" v="fr:Claude Chabrol"/>
+	</node>
+	<node id="2697001971" lat="48.862102" lon="2.394267" version="4" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Édith Lefel"/>
+		<tag k="wikidata" v="Q273797"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Lefel (Père-Lachaise, division 45)"/>
+		<tag k="wikipedia" v="fr:Édith Lefel"/>
+	</node>
+	<node id="2697001972" lat="48.859673" lon="2.392798" version="3" timestamp="2015-05-19T19:15:01Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="France Clidat"/>
+		<tag k="wikidata" v="Q3080698"/>
+		<tag k="wikimedia_commons" v="Category:Grave of France Clidat (Père-Lachaise, division 13)"/>
+		<tag k="wikipedia" v="fr:France Clidat"/>
+	</node>
+	<node id="2697001973" lat="48.861065" lon="2.39491" version="3" timestamp="2015-05-19T19:15:01Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Frank Alamo"/>
+		<tag k="wikidata" v="Q2339515"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Frank Alamo (Père-Lachaise, division 25)"/>
+		<tag k="wikipedia" v="fr:Frank Alamo"/>
+	</node>
+	<node id="2697001975" lat="48.860107" lon="2.393003" version="3" timestamp="2015-05-19T19:15:07Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jack Vanarsky"/>
+		<tag k="wikidata" v="Q3157334"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jack Vanarsky (Père-Lachaise, division 11)"/>
+		<tag k="wikipedia" v="fr:Jack Vanarsky"/>
+	</node>
+	<node id="2697001976" lat="48.861172" lon="2.393977" version="3" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Karel Appel"/>
+		<tag k="wikidata" v="Q152793"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Karel Appel (Père-Lachaise, division 22)"/>
+		<tag k="wikipedia" v="fr:Karel Appel"/>
+	</node>
+	<node id="2697001977" lat="48.861404" lon="2.395243" version="3" timestamp="2015-05-19T19:15:12Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Lucas Dolega"/>
+		<tag k="wikidata" v="Q91706"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Lucas Dolega (Père-Lachaise, division 44)"/>
+		<tag k="wikipedia" v="fr:Lucas Dolega"/>
+	</node>
+	<node id="2697001979" lat="48.860879" lon="2.393314" version="3" timestamp="2015-05-19T19:15:13Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Marcel Marceau"/>
+		<tag k="wikidata" v="Q157191"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Marcel Marceau"/>
+		<tag k="wikipedia" v="fr:Marcel Marceau"/>
+	</node>
+	<node id="2697001981" lat="48.863605" lon="2.396443" version="3" timestamp="2015-05-19T19:15:16Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Olivier Raoux"/>
+		<tag k="wikidata" v="Q3351318"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Raoux (Père-Lachaise, division 84)"/>
+		<tag k="wikipedia" v="fr:Olivier Raoux"/>
+	</node>
+	<node id="2697001982" lat="48.859112" lon="2.394645" version="3" timestamp="2015-05-19T19:15:16Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Patrice Chéreau"/>
+		<tag k="wikidata" v="Q366057"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Patrice Chéreau (Père-Lachaise, division 16)"/>
+		<tag k="wikipedia" v="fr:Patrice Chéreau"/>
+	</node>
+	<node id="2697001984" lat="48.859703" lon="2.395651" version="3" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre Bourdieu"/>
+		<tag k="wikidata" v="Q156268"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Pierre Bourdieu"/>
+		<tag k="wikipedia" v="fr:Pierre Bourdieu"/>
+	</node>
+	<node id="2697001985" lat="48.86076" lon="2.3938" version="3" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Roger Planchon"/>
+		<tag k="wikidata" v="Q374912"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Roger Planchon (Père-Lachaise, division 22)"/>
+		<tag k="wikipedia" v="fr:Roger Planchon"/>
+	</node>
+	<node id="2697001987" lat="48.859352" lon="2.393908" version="3" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Ugür Hüküm"/>
+		<tag k="wikidata" v="Q15839337"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ugür Hüküm (Père-Lachaise, division 16)"/>
+	</node>
+	<node id="2697001988" lat="48.861065" lon="2.393418" version="3" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Willy Rizzo"/>
+		<tag k="wikidata" v="Q3569177"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Willy Rizzo (Père-Lachaise, division 22)"/>
+		<tag k="wikipedia" v="fr:Willy Rizzo"/>
+	</node>
+	<node id="2707952421" lat="48.8585032" lon="2.3954149" version="4" timestamp="2015-05-19T19:14:54Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Adolphe Itasse"/>
+		<tag k="wikidata" v="Q14660072"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Adolphe Itasse"/>
+		<tag k="wikipedia" v="fr:Adolphe Itasse"/>
+	</node>
+	<node id="2707952423" lat="48.8584651" lon="2.3953018" version="4" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Anne-François-Charles Trelliard"/>
+		<tag k="wikidata" v="Q2850778"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Trelliard (Père-Lachaise, division 31)"/>
+		<tag k="wikipedia" v="fr:Anne-François-Charles Trelliard"/>
+	</node>
+	<node id="2707952426" lat="48.858398" lon="2.395365" version="3" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Antoine Balthazar Joseph d&#39;André"/>
+		<tag k="wikidata" v="Q2853642"/>
+		<tag k="wikimedia_commons" v="Category:Grave of André (Père-Lachaise, division 31)"/>
+		<tag k="wikipedia" v="fr:Antoine Balthazar Joseph d&#39;André"/>
+	</node>
+	<node id="2707952430" lat="48.859283" lon="2.394742" version="3" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Antoine-Marie Peyre"/>
+		<tag k="wikidata" v="Q2853528"/>
+		<tag k="wikipedia" v="fr:Antoine-Marie Peyre"/>
+	</node>
+	<node id="2707952434" lat="48.8593664" lon="2.3947165" version="3" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Charles-Joseph Panckoucke"/>
+		<tag k="wikidata" v="Q1063413"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Charles-Joseph Panckoucke"/>
+		<tag k="wikipedia" v="fr:Charles-Joseph Panckoucke"/>
+	</node>
+	<node id="2707952436" lat="48.859627" lon="2.394392" version="3" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Claude-Victor Perrin"/>
+		<tag k="wikidata" v="Q372750"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Claude-Victor Perrin"/>
+		<tag k="wikipedia" v="fr:Claude-Victor Perrin"/>
+	</node>
+	<node id="2707952437" lat="48.8597115" lon="2.3945144" version="3" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Désiré Dalloz"/>
+		<tag k="wikidata" v="Q3045172"/>
+		<tag k="wikipedia" v="fr:Désiré Dalloz"/>
+	</node>
+	<node id="2707952439" lat="48.858484" lon="2.3952396" version="5" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="addr:street" v="Chemin de la Guérite"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Julien Vallou de Villeneuve"/>
+		<tag k="wikidata" v="Q3189687"/>
+		<tag k="wikipedia" v="fr:Julien Vallou de Villeneuve"/>
+	</node>
+	<node id="2707952440" lat="48.858555" lon="2.39619" version="3" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Laurent de Gouvion-Saint-Cyr"/>
+		<tag k="wikidata" v="Q347652"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Laurent de Gouvion-Saint-Cyr"/>
+		<tag k="wikipedia" v="fr:Laurent de Gouvion-Saint-Cyr"/>
+	</node>
+	<node id="2707952441" lat="48.858574" lon="2.39484" version="3" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Louis Hersent"/>
+		<tag k="wikidata" v="Q761853"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Louise Mauduit"/>
+		<tag k="wikipedia" v="fr:Louis Hersent"/>
+	</node>
+	<node id="2707952444" lat="48.858757" lon="2.396522" version="3" timestamp="2015-05-19T19:15:21Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Étienne-Hippolyte Godde"/>
+		<tag k="wikidata" v="Q289151"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Catherine-Dominique de Pérignon"/>
+		<tag k="wikipedia" v="fr:Étienne-Hippolyte Godde"/>
+	</node>
+	<node id="2707952445" lat="48.8586237" lon="2.396391" version="3" timestamp="2015-05-19T19:15:21Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Étienne-Jacques-Joseph Macdonald"/>
+		<tag k="wikidata" v="Q298784"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Étienne Jacques Joseph Alexandre Macdonald"/>
+		<tag k="wikipedia" v="fr:Étienne-Jacques-Joseph Macdonald"/>
+	</node>
+	<node id="2707975860" lat="48.8587457" lon="2.3966952" version="4" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Antoine Marie Chamans de Lavalette"/>
+		<tag k="wikidata" v="Q1961152"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Antoine Marie Chamans de Lavalette"/>
+		<tag k="wikipedia" v="fr:Antoine Marie Chamans de Lavalette"/>
+	</node>
+	<node id="2707975861" lat="48.858578" lon="2.396377" version="3" timestamp="2015-05-19T19:15:06Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Horace Say"/>
+		<tag k="wikidata" v="Q3140480"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Say (Père-Lachaise, division 36)"/>
+		<tag k="wikipedia" v="fr:Horace Say"/>
+	</node>
+	<node id="2707975862" lat="48.859051" lon="2.397138" version="3" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean Melchior Dabadie de Bernet"/>
+		<tag k="wikidata" v="Q1429885"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean-Melchior Dabadie de Bernet"/>
+		<tag k="wikipedia" v="fr:Jean Melchior Dabadie de Bernet"/>
+	</node>
+	<node id="2707975863" lat="48.859528" lon="2.397298" version="3" timestamp="2015-05-19T19:15:11Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Julien Bessières"/>
+		<tag k="wikidata" v="Q3189365"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Bessières (Père-Lachaise, division 41)"/>
+		<tag k="wikipedia" v="fr:Julien Bessières"/>
+	</node>
+	<node id="2707975864" lat="48.859257" lon="2.3974" version="3" timestamp="2015-05-19T19:15:15Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Nicolas Ponce"/>
+		<tag k="wikidata" v="Q3340690"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ponce (Père-Lachaise, division 35)"/>
+		<tag k="wikipedia" v="fr:Nicolas Ponce"/>
+	</node>
+	<node id="2707975865" lat="48.859592" lon="2.397383" version="3" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Tony Noël"/>
+		<tag k="wikidata" v="Q3531847"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Tony Noël"/>
+		<tag k="wikipedia" v="fr:Tony Noël"/>
+	</node>
+	<node id="2707989157" lat="48.860138" lon="2.400045" version="2" timestamp="2014-11-01T01:32:37Z" changeset="26474326" uid="699868" user="Cybereric">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Bergen-Belsen"/>
+	</node>
+	<node id="2707989158" lat="48.860058" lon="2.400113" version="2" timestamp="2014-11-01T01:32:37Z" changeset="26474326" uid="699868" user="Cybereric">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Convoi 73"/>
+		<tag k="wikipedia" v="fr:Convoi n° 73 du 15 mai 1944"/>
+	</node>
+	<node id="2707989159" lat="48.860226" lon="2.399957" version="2" timestamp="2014-11-01T01:32:37Z" changeset="26474326" uid="699868" user="Cybereric">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Dachau"/>
+	</node>
+	<node id="2707989160" lat="48.8594012" lon="2.3990533" version="2" timestamp="2014-11-01T01:32:37Z" changeset="26474326" uid="699868" user="Cybereric">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Flossenbürg"/>
+	</node>
+	<node id="2707989161" lat="48.859417" lon="2.399038" version="3" timestamp="2015-05-19T19:15:05Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Henri Krasucki"/>
+		<tag k="wikidata" v="Q477747"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Henri Krasucki"/>
+		<tag k="wikipedia" v="fr:Henri Krasucki"/>
+	</node>
+	<node id="2707989162" lat="48.860298" lon="2.399835" version="2" timestamp="2014-11-01T01:32:39Z" changeset="26474326" uid="699868" user="Cybereric">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Natzweiler-Struthof"/>
+		<tag k="wikipedia" v="fr:Camp de concentration de Natzwiller-Struthof"/>
+	</node>
+	<node id="2725724611" lat="48.8595307" lon="2.3949246" version="1" timestamp="2014-03-18T19:46:52Z" changeset="21180609" uid="150478" user="Coyau"/>
+	<node id="2725724612" lat="48.8595539" lon="2.3950005" version="1" timestamp="2014-03-18T19:46:52Z" changeset="21180609" uid="150478" user="Coyau"/>
+	<node id="2725724613" lat="48.8596178" lon="2.3949555" version="1" timestamp="2014-03-18T19:46:52Z" changeset="21180609" uid="150478" user="Coyau"/>
+	<node id="2725724614" lat="48.8595946" lon="2.3948796" version="1" timestamp="2014-03-18T19:46:52Z" changeset="21180609" uid="150478" user="Coyau"/>
+	<node id="2728217032" lat="48.8615073" lon="2.3918887" version="4" timestamp="2015-05-19T19:14:59Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Célestine Galli-Marié"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q2413117"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Galli-Marié (Père-Lachaise, division 57)"/>
+		<tag k="wikipedia" v="fr:Célestine Galli-Marié"/>
+	</node>
+	<node id="2728217035" lat="48.8611069" lon="2.3916616" version="3" timestamp="2015-05-19T19:15:00Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Emmanuel de Grouchy"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q333821"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Grouchy (Père-Lachaise, division 57)"/>
+		<tag k="wikipedia" v="fr:Emmanuel de Grouchy"/>
+	</node>
+	<node id="2728217037" lat="48.8615364" lon="2.3918726" version="4" timestamp="2015-05-19T19:15:08Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jean Topart"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q2110802"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Topart (Père-Lachaise, division 57)"/>
+		<tag k="wikipedia" v="fr:Jean Topart"/>
+	</node>
+	<node id="2728217039" lat="48.8609848" lon="2.3913417" version="3" timestamp="2015-05-19T19:15:20Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Vincent Ansquer"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q3559456"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ansquer (Père-Lachaise, division 57)"/>
+		<tag k="wikipedia" v="fr:Vincent Ansquer"/>
+	</node>
+	<node id="2728251813" lat="48.8629618" lon="2.3902204" version="4" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Caroline Miolan-Carvalho"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q1630239"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Carvalho (Père-Lachaise, division 65)"/>
+		<tag k="wikipedia" v="fr:Caroline Miolan-Carvalho"/>
+	</node>
+	<node id="2728251814" lat="48.861664" lon="2.391277" version="3" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Charles André Pozzo di Borgo"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q510334"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Carlo Andrea Pozzo di Borgo"/>
+		<tag k="wikipedia" v="fr:Charles André Pozzo di Borgo"/>
+	</node>
+	<node id="2728251815" lat="48.8617058" lon="2.3884516" version="3" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Christian Fechner"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q2086266"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Fechner (Père-Lachaise, division 61)"/>
+		<tag k="wikipedia" v="fr:Christian Fechner"/>
+	</node>
+	<node id="2728336401" lat="48.859673" lon="2.394465" version="3" timestamp="2015-05-19T19:14:56Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Ange-Marie d&#39;Eymar"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q2849294"/>
+		<tag k="wikimedia_commons" v="Category:Grave of d&#39;Eymar (Père-Lachaise, division 17)"/>
+		<tag k="wikipedia" v="fr:Ange-Marie d&#39;Eymar"/>
+	</node>
+	<node id="2728336402" lat="48.861553" lon="2.398105" version="3" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Félix Galipaux"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q3092443"/>
+		<tag k="wikipedia" v="fr:Félix Galipaux"/>
+	</node>
+	<node id="2728421146" lat="48.8597415" lon="2.3943819" version="3" timestamp="2015-05-19T19:15:04Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Georges Deherme"/>
+		<tag k="source" v="survey;photograph"/>
+		<tag k="wikidata" v="Q15912691"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Deherme (Père-Lachaise, division 17)"/>
+		<tag k="wikipedia" v="fr:Georges Deherme"/>
+	</node>
+	<node id="2752949085" lat="48.862656" lon="2.397705" version="1" timestamp="2014-03-30T00:25:39Z" changeset="21392948" uid="150474" user="Pyb">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Morts pour la France en Afrique du Nord de 1952 à 1962"/>
+	</node>
+	<node id="2765555522" lat="48.860962" lon="2.396863" version="4" timestamp="2015-05-19T19:14:57Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Bazar de la Charité"/>
+		<tag k="wikidata" v="Q661950"/>
+		<tag k="wikimedia_commons" v="Category:Monument aux victimes non reconnues de l&#39;incendie du Bazar de la Charité"/>
+		<tag k="wikipedia" v="fr:Bazar de la Charité"/>
+	</node>
+	<node id="2765555528" lat="48.861126" lon="2.39632" version="4" timestamp="2015-05-19T19:14:58Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Charles Degeorge"/>
+		<tag k="wikidata" v="Q346913"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Charles Degeorge"/>
+		<tag k="wikipedia" v="fr:Charles Degeorge"/>
+	</node>
+	<node id="2765555534" lat="48.8628596" lon="2.392869" version="5" timestamp="2015-05-19T19:15:03Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Frédéric Soulié"/>
+		<tag k="wikidata" v="Q2031275"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Frédéric Soulié"/>
+		<tag k="wikipedia" v="fr:Frédéric Soulié"/>
+	</node>
+	<node id="2765555539" lat="48.861305" lon="2.396898" version="4" timestamp="2015-05-19T19:15:10Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Jules Cornély"/>
+		<tag k="wikidata" v="Q3188496"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Jean Joseph Cornély"/>
+		<tag k="wikipedia" v="fr:Jules Cornély"/>
+	</node>
+	<node id="2765555544" lat="48.862812" lon="2.392937" version="4" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre Lachambeaudie"/>
+		<tag k="wikidata" v="Q1346280"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Lachambeaudie (Père-Lachaise, division 48)"/>
+		<tag k="wikipedia" v="fr:Pierre Lachambeaudie"/>
+	</node>
+	<node id="2765555547" lat="48.861469" lon="2.39702" version="4" timestamp="2015-05-19T19:15:17Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Pierre Marinovitch"/>
+		<tag k="wikidata" v="Q3107581"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Marinovitch (Père-Lachaise, division 92)"/>
+		<tag k="wikipedia" v="fr:Pierre Marinovitch"/>
+	</node>
+	<node id="2765555550" lat="48.861099" lon="2.397395" version="4" timestamp="2015-05-19T19:15:19Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Tony Aubin"/>
+		<tag k="wikidata" v="Q1347677"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Aubin (Père-Lachaise, division 92)"/>
+		<tag k="wikipedia" v="fr:Tony Aubin"/>
+	</node>
+	<node id="2765555552" lat="48.861294" lon="2.399065" version="3" timestamp="2014-11-01T01:32:39Z" changeset="26474326" uid="699868" user="Cybereric">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Vol 604 Flash Airlines"/>
+		<tag k="wikipedia" v="fr:Vol 604 Flash Airlines"/>
+	</node>
+	<node id="2765555555" lat="48.861252" lon="2.399162" version="3" timestamp="2014-11-01T01:32:39Z" changeset="26474326" uid="699868" user="Cybereric">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Vol 708 West Caribbean"/>
+		<tag k="wikipedia" v="fr:Vol 708 West Caribbean"/>
+	</node>
+	<node id="2765555559" lat="48.862836" lon="2.393178" version="4" timestamp="2015-05-19T19:15:21Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Émile Souvestre"/>
+		<tag k="wikidata" v="Q286475"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Émile Souvestre"/>
+		<tag k="wikipedia" v="fr:Émile Souvestre"/>
+	</node>
+	<node id="2765555563" lat="48.8618534" lon="2.3934719" version="5" timestamp="2015-05-19T19:15:21Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Étienne Lamy"/>
+		<tag k="wikidata" v="Q1218474"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Lamy (Père-Lachaise, division 49)"/>
+		<tag k="wikipedia" v="fr:Étienne Lamy"/>
+	</node>
+	<node id="2766193914" lat="48.860371" lon="2.396332" version="5" timestamp="2015-05-19T19:55:01Z" changeset="31295120" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Vol 604 Flash Airlines"/>
+		<tag k="wikidata" v="Q1427211"/>
+		<tag k="wikimedia_commons" v="Category:Flash Airlines Flight 604"/>
+		<tag k="wikipedia" v="fr:Vol 604 Flash Airlines"/>
+	</node>
+	<node id="2766437732" lat="48.8614688" lon="2.3925529" version="4" timestamp="2015-05-19T19:15:18Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Raymond de Sèze"/>
+		<tag k="wikidata" v="Q1357659"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Raymond de Sèze"/>
+		<tag k="wikipedia" v="fr:Raymond Desèze"/>
+	</node>
+	<node id="2767821688" lat="48.85891" lon="2.396893" version="3" timestamp="2015-05-19T19:15:15Z" changeset="31293695" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Octave de Béhague"/>
+		<tag k="wikidata" v="Q3348869"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Béhague (Père-Lachaise, division 37)"/>
+		<tag k="wikipedia" v="fr:Octave de Béhague"/>
+	</node>
+	<node id="3046242449" lat="48.862314" lon="2.3943565" version="2" timestamp="2014-08-27T19:09:11Z" changeset="25059259" uid="716675" user="Wololo"/>
+	<node id="3046242450" lat="48.8623221" lon="2.3943501" version="2" timestamp="2014-08-27T19:09:11Z" changeset="25059259" uid="716675" user="Wololo"/>
+	<node id="3046242451" lat="48.862323" lon="2.3943825" version="2" timestamp="2014-08-27T19:09:11Z" changeset="25059259" uid="716675" user="Wololo"/>
+	<node id="3046242452" lat="48.8623311" lon="2.3943761" version="2" timestamp="2014-08-27T19:09:11Z" changeset="25059259" uid="716675" user="Wololo"/>
+	<node id="3161340330" lat="48.8630003" lon="2.3973941" version="1" timestamp="2014-11-01T17:03:18Z" changeset="26486202" uid="150474" user="Pyb">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="victimes du génocide des Tutsi"/>
+	</node>
+	<node id="3164473407" lat="48.863028" lon="2.394917" version="2" timestamp="2015-05-19T19:46:13Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Albert Rapilly"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Rapilly (Père-Lachaise, division 85)"/>
+	</node>
+	<node id="3167890810" lat="48.859084" lon="2.393726" version="1" timestamp="2014-11-05T01:54:29Z" changeset="26561993" uid="150474" user="Pyb">
+		<tag k="historic" v="memorial"/>
+		<tag k="name" v="Victimes de juin"/>
+	</node>
+	<node id="3170494596" lat="48.8608512" lon="2.3919426" version="1" timestamp="2014-11-06T15:39:56Z" changeset="26595177" uid="2381194" user="althio"/>
+	<node id="3170494597" lat="48.8608586" lon="2.3919638" version="1" timestamp="2014-11-06T15:39:56Z" changeset="26595177" uid="2381194" user="althio"/>
+	<node id="3170494598" lat="48.8608697" lon="2.3918913" version="1" timestamp="2014-11-06T15:39:56Z" changeset="26595177" uid="2381194" user="althio"/>
+	<node id="3170494599" lat="48.8608762" lon="2.3919226" version="1" timestamp="2014-11-06T15:39:56Z" changeset="26595177" uid="2381194" user="althio"/>
+	<node id="3170494600" lat="48.8609215" lon="2.3918489" version="1" timestamp="2014-11-06T15:39:56Z" changeset="26595177" uid="2381194" user="althio"/>
+	<node id="3170494601" lat="48.8609346" lon="2.3918759" version="1" timestamp="2014-11-06T15:39:56Z" changeset="26595177" uid="2381194" user="althio"/>
+	<node id="3170494602" lat="48.8609542" lon="2.3918602" version="1" timestamp="2014-11-06T15:39:56Z" changeset="26595177" uid="2381194" user="althio"/>
+	<node id="3170494603" lat="48.8609615" lon="2.3918813" version="1" timestamp="2014-11-06T15:39:56Z" changeset="26595177" uid="2381194" user="althio"/>
+	<node id="3178723549" lat="48.8631075" lon="2.3933691" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723550" lat="48.863109" lon="2.3933538" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723551" lat="48.8631101" lon="2.3933841" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723552" lat="48.8631141" lon="2.3933405" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723553" lat="48.8631162" lon="2.3933964" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723554" lat="48.8631222" lon="2.3933312" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723555" lat="48.863125" lon="2.3934043" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723556" lat="48.8631321" lon="2.3933273" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723557" lat="48.863135" lon="2.3934064" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723558" lat="48.8631422" lon="2.3933295" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723559" lat="48.8631509" lon="2.3933373" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178723560" lat="48.863153" lon="2.3933933" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178724061" lat="48.863157" lon="2.3933497" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178724062" lat="48.8631582" lon="2.3933799" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3178724063" lat="48.8631596" lon="2.3933646" version="1" timestamp="2014-11-10T13:02:30Z" changeset="26687501" uid="2381194" user="althio"/>
+	<node id="3198447856" lat="48.8592083" lon="2.3919456" version="2" timestamp="2014-11-23T16:46:27Z" changeset="26977261" uid="150478" user="Coyau"/>
+	<node id="3198447857" lat="48.8591582" lon="2.3919178" version="2" timestamp="2014-11-23T16:46:26Z" changeset="26977261" uid="150478" user="Coyau"/>
+	<node id="3198447858" lat="48.8591748" lon="2.3918487" version="2" timestamp="2014-11-23T16:46:26Z" changeset="26977261" uid="150478" user="Coyau"/>
+	<node id="3198447859" lat="48.8592249" lon="2.3918766" version="2" timestamp="2014-11-23T16:46:26Z" changeset="26977261" uid="150478" user="Coyau"/>
+	<node id="3198462544" lat="48.8586723" lon="2.3951535" version="1" timestamp="2014-11-21T12:24:14Z" changeset="26927503" uid="150478" user="Coyau">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Favard du Bourg de Bozas"/>
+	</node>
+	<node id="3198702233" lat="48.8587444" lon="2.3947978" version="4" timestamp="2015-05-19T19:55:01Z" changeset="31295120" uid="1836407" user="Maxime LM">
+		<tag k="addr:postcode" v="75020"/>
+		<tag k="addr:street" v="Chemin de la Bédoyère"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Alexandre Moline de Saint-Yon"/>
+		<tag k="wikidata" v="Q2833889"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Moline (Père-Lachaise, division 32)"/>
+		<tag k="wikipedia" v="fr:Alexandre Moline de Saint-Yon"/>
+		<tag k="wikipedia:en" v="Alexandre Pierre Chevalier Moline de Saint-Yon"/>
+	</node>
+	<node id="3201523917" lat="48.8585366" lon="2.3952915" version="3" timestamp="2015-05-19T19:55:01Z" changeset="31295120" uid="1836407" user="Maxime LM">
+		<tag k="addr:postcode" v="75020"/>
+		<tag k="addr:street" v="Chemin de la Bédoyère"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Antoine Louis Boissière"/>
+		<tag k="wikidata" v="Q15968895"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Boissière (Père-Lachaise, division 31)"/>
+		<tag k="wikipedia" v="fr:Antoine Louis Boissière"/>
+	</node>
+	<node id="3201523918" lat="48.8584981" lon="2.3952292" version="2" timestamp="2015-05-19T19:46:14Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<tag k="addr:postcode" v="75020"/>
+		<tag k="addr:street" v="Chemin de la Bédoyère"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Ponsat"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Ponsat"/>
+	</node>
+	<node id="3201698525" lat="48.8584645" lon="2.3952683" version="3" timestamp="2015-05-19T19:46:14Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<tag k="addr:street" v="Chemin de la Guérite"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Dubel et Guillard"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Dubel et Guillard (Père-Lachaise, division 31)"/>
+	</node>
+	<node id="3201822423" lat="48.8584136" lon="2.3957166" version="1" timestamp="2014-11-23T16:46:26Z" changeset="26977261" uid="150478" user="Coyau"/>
+	<node id="3201822424" lat="48.8584221" lon="2.3956433" version="1" timestamp="2014-11-23T16:46:26Z" changeset="26977261" uid="150478" user="Coyau"/>
+	<node id="3201822425" lat="48.8583628" lon="2.3956272" version="1" timestamp="2014-11-23T16:46:26Z" changeset="26977261" uid="150478" user="Coyau"/>
+	<node id="3201822426" lat="48.8583542" lon="2.3957005" version="1" timestamp="2014-11-23T16:46:26Z" changeset="26977261" uid="150478" user="Coyau"/>
+	<node id="3220343697" lat="48.8588825" lon="2.3967505" version="2" timestamp="2015-05-19T19:46:13Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<tag k="addr:city" v="Paris"/>
+		<tag k="addr:postcode" v="75020"/>
+		<tag k="addr:street" v="Avenue des Acacias"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Barry"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Barry (Père-Lachaise, division 37)"/>
+	</node>
+	<node id="3294792195" lat="48.860528" lon="2.396917" version="2" timestamp="2015-05-19T19:55:01Z" changeset="31295120" uid="1836407" user="Maxime LM">
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Tignous"/>
+		<tag k="wikidata" v="Q3528336"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Tignous (Père-Lachaise, division 95)"/>
+		<tag k="wikipedia" v="fr:Tignous"/>
+	</node>
+	<way id="156649519" version="3" timestamp="2015-05-19T19:46:12Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<nd ref="1688839840"/>
+		<nd ref="1688839839"/>
+		<nd ref="1688839838"/>
+		<nd ref="1688839837"/>
+		<nd ref="1688839840"/>
+		<tag k="building" v="yes"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Adolphe Thiers"/>
+		<tag k="wikidata" v="Q5738"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Adolphe Thiers"/>
+		<tag k="wikipedia" v="fr:Adolphe Thiers"/>
+	</way>
+	<way id="267099784" version="4" timestamp="2015-05-19T19:46:13Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<nd ref="2725724611"/>
+		<nd ref="2725724612"/>
+		<nd ref="2725724613"/>
+		<nd ref="2725724614"/>
+		<nd ref="2725724611"/>
+		<tag k="addr:street" v="Chemin du Dragon"/>
+		<tag k="building" v="yes"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Élisabeth Alexandrovna Stroganoff"/>
+		<tag k="wikidata" v="Q274886"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Demidoff"/>
+		<tag k="wikipedia" v="fr:Élisabeth Alexandrovna Stroganoff"/>
+	</way>
+	<way id="300549334" version="5" timestamp="2015-05-19T19:46:12Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<nd ref="3046242451"/>
+		<nd ref="3046242452"/>
+		<nd ref="3046242450"/>
+		<nd ref="3046242449"/>
+		<nd ref="3046242451"/>
+		<tag k="area" v="yes"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="inscription" v="Naître, mourir, renaître encore et progresser sans cesse, telle est la Loi;Fondateur de la philosophie spirite // Tout effet a une cause // Tout effet intelligent a une cause intelligente // La puissance de la cause est en raison de grandeur de l&#39;effet"/>
+		<tag k="name" v="Allan Kardec et Amélie Gabrielle Boudet"/>
+		<tag k="name:en" v="Allan Kardec and Amélie Gabrielle Boudet"/>
+		<tag k="wikidata" v="Q240643;Q2844751"/>
+		<tag k="wikimedia_commons" v="Category:Tomb of Allan Kardec"/>
+		<tag k="wikipedia" v="fr:Allan Kardec;Amélie Boudet"/>
+	</way>
+	<way id="311412497" version="2" timestamp="2015-05-19T19:46:13Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<nd ref="3170494597"/>
+		<nd ref="3170494596"/>
+		<nd ref="3170494599"/>
+		<nd ref="3170494598"/>
+		<nd ref="3170494600"/>
+		<nd ref="3170494601"/>
+		<nd ref="3170494602"/>
+		<nd ref="3170494603"/>
+		<nd ref="3170494597"/>
+		<tag k="artist_name" v="Albert Bartholomé"/>
+		<tag k="height" v="8"/>
+		<tag k="heritage" v="2"/>
+		<tag k="heritage:operator" v="mhs"/>
+		<tag k="historic" v="memorial"/>
+		<tag k="mhs:inscription_date" v="1983"/>
+		<tag k="name" v="Monument aux morts"/>
+		<tag k="width" v="14.1"/>
+		<tag k="wikidata" v="Q3323309"/>
+		<tag k="wikimedia_commons" v="Category:Monument aux morts du cimetière du Père-Lachaise"/>
+		<tag k="wikipedia" v="fr:Monument aux morts du Père-Lachaise"/>
+	</way>
+	<way id="312059802" version="2" timestamp="2015-05-19T19:46:12Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<nd ref="3178723554"/>
+		<nd ref="3178723552"/>
+		<nd ref="3178723550"/>
+		<nd ref="3178723549"/>
+		<nd ref="3178723551"/>
+		<nd ref="3178723553"/>
+		<nd ref="3178723555"/>
+		<nd ref="3178723557"/>
+		<nd ref="2647508388"/>
+		<nd ref="3178723560"/>
+		<nd ref="3178724062"/>
+		<nd ref="3178724063"/>
+		<nd ref="3178724061"/>
+		<nd ref="3178723559"/>
+		<nd ref="3178723558"/>
+		<nd ref="3178723556"/>
+		<nd ref="3178723554"/>
+		<tag k="building" v="yes"/>
+		<tag k="building:height" v="22"/>
+		<tag k="building:shape" v="pyramidal"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Félix de Beaujour"/>
+		<tag k="wikidata" v="Q590823"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Félix de Beaujour"/>
+		<tag k="wikipedia" v="fr:Félix de Beaujour"/>
+	</way>
+	<way id="313811735" version="1" timestamp="2014-11-21T12:11:18Z" changeset="26927269" uid="150478" user="Coyau">
+		<nd ref="3198447857"/>
+		<nd ref="3198447858"/>
+		<nd ref="3198447859"/>
+		<nd ref="3198447856"/>
+		<nd ref="3198447857"/>
+	</way>
+	<way id="314136876" version="4" timestamp="2015-05-19T19:46:13Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<nd ref="3201822423"/>
+		<nd ref="3201822424"/>
+		<nd ref="3201822425"/>
+		<nd ref="3201822426"/>
+		<nd ref="3201822423"/>
+		<tag k="building" v="yes"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="René Panhard"/>
+		<tag k="wikidata" v="Q266561"/>
+		<tag k="wikimedia_commons" v="Category:Grave of Panhard (Père-Lachaise, division 36)"/>
+		<tag k="wikipedia" v="fr:René Panhard"/>
+	</way>
+	<relation id="4214999" version="3" timestamp="2015-05-19T19:46:12Z" changeset="31294649" uid="1836407" user="Maxime LM">
+		<member type="way" ref="313811735" role="outer"/>
+		<tag k="addr:postcode" v="75020"/>
+		<tag k="addr:street" v="Chemin d&#39;Héloïse et Abélard"/>
+		<tag k="building" v="tomb"/>
+		<tag k="historic" v="tomb"/>
+		<tag k="name" v="Héloïse et Abélard"/>
+		<tag k="type" v="multipolygon"/>
+		<tag k="wikidata" v="Q3323370"/>
+		<tag k="wikimedia_commons" v="Category:Tomb of Abelard and Heloise"/>
+		<tag k="wikipedia" v="fr:Monument funéraire d&#39;Héloïse et Abélard"/>
+	</relation>
+</osm>
