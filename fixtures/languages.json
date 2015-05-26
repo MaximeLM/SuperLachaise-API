@@ -1,0 +1,1 @@
+[{"fields": {"description": "Fran\u00e7ais", "modified": "2015-05-26T15:06:54.314Z", "name": "fr", "created": "2015-05-26T15:06:54.314Z"}, "model": "superlachaise_api.language", "pk": 1}, {"fields": {"description": "English", "modified": "2015-05-26T15:06:59.115Z", "name": "en", "created": "2015-05-26T15:06:59.115Z"}, "model": "superlachaise_api.language", "pk": 2}]

@@ -20,7 +20,7 @@ class SuperLachaiseModel(models.Model):
 
 class Language(SuperLachaiseModel):
     name = models.CharField(max_length=255, unique=True)
-    description = models.CharField(max_length=255,blank=True)
+    description = models.TextField(blank=True)
     
     def __unicode__(self):
         return self.name
@@ -56,7 +56,7 @@ class ArchivedModification(SuperLachaiseModel):
     target_object_class = models.CharField(max_length=255)
     target_object_id = models.BigIntegerField()
     action = models.CharField(max_length=255, choices=action_choices)
-    new_values = models.CharField(max_length=2000,blank=True)
+    new_values = models.TextField(blank=True)
     
     def target_model(self):
         try:
@@ -87,7 +87,7 @@ class PendingModification(SuperLachaiseModel):
     target_object_class = models.CharField(max_length=255)
     target_object_id = models.BigIntegerField()
     action = models.CharField(max_length=255, choices=action_choices)
-    new_values = models.CharField(max_length=2000,blank=True)
+    new_values = models.TextField(blank=True)
     
     def target_model(self):
         try:
@@ -156,9 +156,13 @@ class PendingModification(SuperLachaiseModel):
         unique_together = ('target_object_class', 'target_object_id',)
 
 class Setting(SuperLachaiseModel):
+    category = models.CharField(max_length=255)
     key = models.CharField(max_length=255)
     value = models.CharField(max_length=255, blank=True)
-    description = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True)
     
     def __unicode__(self):
         return self.key
+    
+    class Meta:
+        unique_together = ('category', 'key',)

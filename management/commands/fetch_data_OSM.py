@@ -39,23 +39,26 @@ def xstr(s):
 
 def download_data(bounding_box):
     api = overpy.Overpass()
+    synced_tags = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'synced_tags').value)
     
-    query_string = """
-        (node["historic"="memorial"]({{bbox}});
-        way["historic"="memorial"]({{bbox}});
-        relation["historic"="memorial"]({{bbox}});
-        node["historic"="tomb"]({{bbox}});
-        way["historic"="tomb"]({{bbox}});
-        relation["historic"="tomb"]({{bbox}});
-        );(._;>;);
-        out body;
-        """.replace('{{bbox}}', str(bounding_box))
+    query_string_list = ['(\n']
+    for synced_tag in synced_tags:
+        query_string_list.append(""\
+            "\tnode[{tag}]({bounding_box});\n" \
+            "\tway[{tag}]({bounding_box});\n" \
+            "\trelation[{tag}]({bounding_box});\n".format(tag=synced_tag, bounding_box=bounding_box)
+            )
+    query_string_list.append(');\n(._;>;);out body;')
+    
+    query_string = "".join(query_string_list)
     
     result = api.query(query_string)
     
     return result
 
 def handle_POI(overpass_POI, coordinate):
+    auto_apply = (Setting.objects.get(category='Modifications', key=u'auto_apply').value == 'true')
+    
     openStreetMap_POI = OpenStreetMapPOI.objects.filter(id=overpass_POI.id).first()
     
     if openStreetMap_POI:
@@ -92,6 +95,9 @@ def handle_POI(overpass_POI, coordinate):
                 pendingModification.save()
             except Exception as exception:
                 print exception
+            
+            if auto_apply:
+                pendingModification.apply_modification()
         else:
             pendingModification = PendingModification.objects.filter(target_object_class="OpenStreetMapPOI", target_object_id=overpass_POI.id).first()
             if pendingModification:
@@ -116,6 +122,9 @@ def handle_POI(overpass_POI, coordinate):
             pendingModification.save()
         except Exception as exception:
             print exception
+        
+        if auto_apply:
+            pendingModification.apply_modification()
 
 def handle_way(overpass_way):
     polygon = []
@@ -145,25 +154,28 @@ def handle_relation(overpass_relation):
         raise Exception('no outer way for relation found')
 
 def fetch_data_OSM(use_file):
+    auto_apply = (Setting.objects.get(category='Modifications', key=u'auto_apply').value == 'true')
+    
     if not use_file:
-        bounding_box = Setting.objects.get(key=u'OpenStreetMap_bounding_box').value
+        bounding_box = Setting.objects.get(category='OpenStreetMap', key=u'bounding_box').value
         result = download_data(bounding_box)
     else:
         tree = ET.parse(os.path.dirname(os.path.realpath(__file__)) + '/fetch_data_OSM.osm')
         result = overpy.Result.from_xml(tree.getroot())
     
     fetched_ids = []
+    exclude_ids = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'exclude_ids').value)
     
     for POI in result.nodes:
-        if POI.tags.get("historic") in ['tomb', 'memorial']:
+        if POI.tags.get("historic") in ['tomb', 'memorial'] and not POI.id in exclude_ids:
             fetched_ids.append(POI.id)
             handle_POI(POI, {'x': POI.lat, 'y': POI.lon})
     for POI in result.ways:
-        if POI.tags.get("historic") in ['tomb', 'memorial']:
+        if POI.tags.get("historic") in ['tomb', 'memorial'] and not POI.id in exclude_ids:
             fetched_ids.append(POI.id)
             handle_way(POI)
     for POI in result.relations:
-        if POI.tags.get("historic") in ['tomb', 'memorial']:
+        if POI.tags.get("historic") in ['tomb', 'memorial'] and not POI.id in exclude_ids:
             fetched_ids.append(POI.id)
             handle_relation(POI)
     
@@ -178,6 +190,9 @@ def fetch_data_OSM(use_file):
             pendingModification.action = "delete"
             pendingModification.new_values = ''
             pendingModification.save()
+            
+            if auto_apply:
+                pendingModification.apply_modification()
 
 class Command(BaseCommand):
     def add_arguments(self, parser):

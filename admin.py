@@ -10,7 +10,6 @@ from superlachaise_api.models import Language, OpenStreetMapPOI, PendingModifica
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'created', 'modified')
     search_fields = ('name', 'description',)
-    actions=None
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
         (None, {'fields': ['name', 'description']}),
@@ -21,7 +20,6 @@ class OpenStreetMapPOIAdmin(admin.ModelAdmin):
     list_display = ('name', 'id', 'historic', 'wikipedia', 'wikidata', 'wikimedia_commons', 'latitude', 'longitude', 'created', 'modified')
     ordering = ('name', 'id',)
     search_fields = ('name', 'id', 'wikidata', 'wikimedia_commons',)
-    actions=None
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
         (None, {'fields': ['name', 'id', 'latitude', 'longitude']}),
@@ -83,13 +81,13 @@ class ArchivedModificationAdmin(admin.ModelAdmin):
     target_object_link.allow_tags = True
 
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('key', 'value', 'description', 'created', 'modified')
-    ordering = ('key', )
-    search_fields = ('key', 'value', 'description', )
+    list_display = ('category', 'key', 'value', 'description', 'created', 'modified')
+    ordering = ('category', 'key', )
+    search_fields = ('category', 'key', 'value', 'description', )
     readonly_fields = ('created', 'modified')
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['key', 'value', 'description']}),
+        (None, {'fields': ['category', 'key', 'value', 'description']}),
     ]
 
 admin.site.register(Language, LanguageAdmin)
