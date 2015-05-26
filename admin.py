@@ -32,7 +32,7 @@ class OpenStreetMapPOIAdmin(admin.ModelAdmin):
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'new_values', 'created', 'modified')
     ordering = ('target_object_class', 'target_object_id', )
-    search_fields = ('target_object_class', 'target_object_id', 'action', )
+    search_fields = ('target_object_class', 'target_object_id', 'action', 'new_values', )
     readonly_fields = ('target_object_link', 'created', 'modified')
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
@@ -59,11 +59,15 @@ class PendingModificationAdmin(admin.ModelAdmin):
                 None
     
     actions=[apply_modification]
+    
+    def get_queryset(self, request):
+        qs = super(PendingModificationAdmin, self).get_queryset(request)
+        return qs.filter(apply=False)
 
 class ArchivedModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'new_values', 'created', 'modified')
     ordering = ('target_object_class', 'target_object_id', )
-    search_fields = ('target_object_class', 'target_object_id', 'action', )
+    search_fields = ('target_object_class', 'target_object_id', 'action', 'new_values', )
     readonly_fields = ('target_object_link', 'created', 'modified')
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),

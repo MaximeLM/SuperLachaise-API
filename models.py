@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import sys
+import sys, json
+from decimal import Decimal
 from django.db import models
 from django.apps import apps
 from django.core.exceptions import ValidationError
+
+def xstr(s):
+    if s is None:
+        return u''
+    return unicode(s)
 
 class SuperLachaiseModel(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -36,53 +42,6 @@ class OpenStreetMapPOI(SuperLachaiseModel):
         verbose_name = u'OpenStreetMap POI'
         verbose_name_plural = u'OpenStreetMap POIs'
 
-class PendingModification(SuperLachaiseModel):
-    CREATE = u'create'
-    MODIFY = u'modify'
-    DELETE = u'delete'
-    
-    action_choices = (
-            (CREATE, CREATE),
-            (MODIFY, MODIFY),
-            (DELETE, DELETE),
-        )
-    
-    target_object_class = models.CharField(max_length=255)
-    target_object_id = models.BigIntegerField()
-    action = models.CharField(max_length=255, choices=action_choices)
-    new_values = models.CharField(max_length=2000,blank=True)
-    apply = models.BooleanField(default=False)
-    
-    def target_model(self):
-        try:
-            return apps.get_model(self._meta.app_label, self.target_object_class)
-        except Exception as exception:
-            return None
-    
-    def target_object(self):
-        try:
-            return self.target_model().objects.get(id=self.target_object_id)
-        except Exception as exception: # TODO 404
-            return None
-    
-    def clean(self):
-        if self.action == u'delete' and not self.target_object():
-            raise ValidationError('Target object does not exist')
-        if self.action == u'delete' and self.new_values:
-            raise ValidationError('Delete actions cannot have new values')
-        if self.apply:
-            raise ValidationError('Not yet implemented')
-    
-    def apply_modification(self):
-        self.apply = True
-        self.full_clean()
-    
-    def __unicode__(self):
-        return self.action + u': ' + str(self.target_object())
-    
-    class Meta:
-        unique_together = ('target_object_class', 'target_object_id',)
-
 class ArchivedModification(SuperLachaiseModel):
     CREATE = u'create'
     MODIFY = u'modify'
@@ -113,6 +72,99 @@ class ArchivedModification(SuperLachaiseModel):
     
     def __unicode__(self):
         return self.action + u': ' + str(self.target_object())
+
+class PendingModification(SuperLachaiseModel):
+    CREATE = u'create'
+    MODIFY = u'modify'
+    DELETE = u'delete'
+    
+    action_choices = (
+            (CREATE, CREATE),
+            (MODIFY, MODIFY),
+            (DELETE, DELETE),
+        )
+    
+    target_object_class = models.CharField(max_length=255)
+    target_object_id = models.BigIntegerField()
+    action = models.CharField(max_length=255, choices=action_choices)
+    new_values = models.CharField(max_length=2000,blank=True)
+    apply = models.BooleanField(default=False)
+    
+    def target_model(self):
+        try:
+            return apps.get_model(self._meta.app_label, self.target_object_class)
+        except Exception as exception:
+            return None
+    
+    def target_object(self):
+        try:
+            return self.target_model().objects.get(id=self.target_object_id)
+        except Exception as exception: # TODO 404
+            return None
+    
+    def _update_errors(self, e):
+        None
+    
+    def clean(self):
+        if self.action == u'delete' and not self.target_object():
+            raise ValidationError('Target object does not exist')
+        if self.action == u'delete' and self.new_values:
+            raise ValidationError('Delete actions cannot have new values')
+        if self.apply:
+            if self.action in ['create', 'modify']:
+                if self.target_object_class == 'OpenStreetMapPOI':
+                    openStreetMapPOI = OpenStreetMapPOI.objects.filter(id=self.target_object_id).first()
+                    if not openStreetMapPOI:
+                        openStreetMapPOI = OpenStreetMapPOI(id=self.target_object_id)
+                    for key, value in json.loads(self.new_values).iteritems():
+                        if key == 'name':
+                            openStreetMapPOI.name = xstr(value)
+                        elif key =='latitude':
+                            openStreetMapPOI.latitude = Decimal(value)
+                        elif key =='longitude':
+                            openStreetMapPOI.longitude = Decimal(value)
+                        elif key =='historic':
+                            openStreetMapPOI.historic = xstr(value)
+                        elif key =='wikipedia':
+                            openStreetMapPOI.wikipedia = xstr(value)
+                        elif key =='wikidata':
+                            openStreetMapPOI.wikidata = xstr(value)
+                        elif key =='wikimedia_commons':
+                            openStreetMapPOI.wikimedia_commons = xstr(value)
+                        else:
+                            raise ValidationError('Invalid key {key}'.format(key=key))
+                    try:
+                        openStreetMapPOI.full_clean()
+                        openStreetMapPOI.save()
+                    except Exception as exception:
+                        raise ValidationError(exception)
+                    
+                    archivedModification = ArchivedModification(target_object_class=self.target_object_class, target_object_id=self.target_object_id, action=self.action, new_values=self.new_values)
+                    try:
+                        archivedModification.full_clean()
+                        archivedModification.save()
+                    except Exception as exception:
+                        raise ValidationError(exception)
+                    
+                    self.delete()
+                else:
+                    raise ValidationError('Invalid target object class')
+            elif self.action == 'delete':
+                target_object = self.target_object()
+                if target_object:
+                    target_object.delete()
+            else:
+                raise ValidationError('Invalid action')
+    
+    def apply_modification(self):
+        self.apply = True
+        self.full_clean()
+    
+    def __unicode__(self):
+        return self.action + u': ' + str(self.target_object())
+    
+    class Meta:
+        unique_together = ('target_object_class', 'target_object_id',)
 
 class Setting(SuperLachaiseModel):
     key = models.CharField(max_length=255)

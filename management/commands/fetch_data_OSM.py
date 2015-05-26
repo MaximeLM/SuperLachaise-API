@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import overpy
-import json
+import os, json
+import xml.etree.ElementTree as ET
 from django.core.management.base import BaseCommand, CommandError
 
 from superlachaise_api.models import Setting, OpenStreetMapPOI, PendingModification, Language
+
+def xstr(s):
+    if s is None:
+        return u''
+    return unicode(s)
 
 def download_data(bounding_box):
     api = overpy.Overpass()
@@ -30,32 +36,37 @@ def handle_POI(overpass_POI):
     if openStreetMap_POI:
         modified_values = {}
         name = overpass_POI.tags.get("name")
-        if name != openStreetMap_POI.name:
+        if xstr(name) != openStreetMap_POI.name:
             modified_values['name'] = name
         historic = overpass_POI.tags.get("historic")
-        if historic != openStreetMap_POI.historic:
+        if xstr(historic) != openStreetMap_POI.historic:
             modified_values['historic'] = historic
         wikipedia = overpass_POI.tags.get("wikipedia")
-        if wikipedia != openStreetMap_POI.wikipedia:
+        if xstr(wikipedia) != openStreetMap_POI.wikipedia:
             modified_values['wikipedia'] = wikipedia
         wikidata = overpass_POI.tags.get("wikidata")
-        if wikidata != openStreetMap_POI.wikidata:
+        if xstr(wikidata) != openStreetMap_POI.wikidata:
             modified_values['wikidata'] = wikidata
         wikimedia_commons = overpass_POI.tags.get("wikimedia_commons")
-        if wikimedia_commons != openStreetMap_POI.wikimedia_commons:
+        if xstr(wikimedia_commons) != openStreetMap_POI.wikimedia_commons:
             modified_values['wikimedia_commons'] = wikimedia_commons
         latitude = overpass_POI.lat
-        if str(latitude) != str(openStreetMap_POI.latitude):
+        if latitude != openStreetMap_POI.latitude:
             modified_values['latitude'] = str(latitude)
         longitude = overpass_POI.lon
-        if str(longitude) != str(openStreetMap_POI.longitude):
+        if longitude != openStreetMap_POI.longitude:
             modified_values['longitude'] = str(longitude)
         
         if modified_values:
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=overpass_POI.id)
             pendingModification.new_values = json.dumps(modified_values)
             pendingModification.action = "modify"
-            pendingModification.save()
+            
+            try:
+                pendingModification.full_clean()
+                pendingModification.save()
+            except Exception as exception:
+                print exception
         else:
             pendingModification = PendingModification.objects.filter(target_object_class="OpenStreetMapPOI", target_object_id=overpass_POI.id).first()
             if pendingModification:
@@ -75,23 +86,26 @@ def handle_POI(overpass_POI):
         
         pendingModification.action = "create"
         pendingModification.new_values = json.dumps(new_values_dict)
-        pendingModification.save()
+        try:
+            pendingModification.full_clean()
+            pendingModification.save()
+        except Exception as exception:
+            print exception
 
-def fetch_data_OSM():
-    bounding_box = Setting.objects.get(key=u'OpenStreetMap_bounding_box').value
-    result = download_data(bounding_box)
+def fetch_data_OSM(use_file):
+    if not use_file:
+        bounding_box = Setting.objects.get(key=u'OpenStreetMap_bounding_box').value
+        result = download_data(bounding_box)
+    else:
+        tree = ET.parse(os.path.dirname(os.path.realpath(__file__)) + '/fetch_data_OSM.osm')
+        result = overpy.Result.from_xml(tree.getroot())
     
     fetched_ids = []
     
     for POI in result.nodes:
-        fetched_ids.append(POI.id)
-        handle_POI(POI)
-    for POI in result.relations:
-        fetched_ids.append(POI.id)
-        handle_POI(POI)
-    for POI in result.ways:
-        fetched_ids.append(POI.id)
-        handle_POI(POI)
+        if POI.tags.get("historic") in ['tomb', 'memorial']:
+            fetched_ids.append(POI.id)
+            handle_POI(POI)
     
     for pendingModification in PendingModification.objects.filter(target_object_class="OpenStreetMapPOI", action="create"):
         if not pendingModification.target_object_id in fetched_ids:
@@ -106,5 +120,11 @@ def fetch_data_OSM():
             pendingModification.save() 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('--use_file',
+            action='store_true',
+            dest='use_file',
+            default=False)
+    
     def handle(self, *args, **options):
-        fetch_data_OSM()
+        fetch_data_OSM(options['use_file'])
