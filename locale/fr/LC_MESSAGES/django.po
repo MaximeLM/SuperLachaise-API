@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-27 20:15+0200\n"
+"POT-Creation-Date: 2015-05-27 20:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr "Exécuter les commandes sélectionnées"
 msgid "OpenStreetMap"
 msgstr "OpenStreetMap"
 
-#: admin.py:90 models.py:87 models.py:253
+#: admin.py:90 models.py:87 models.py:252
 msgid "wikipedia"
 msgstr "wikipédia"
 
@@ -34,7 +34,7 @@ msgstr "wikipédia"
 msgid "wikidata"
 msgstr "wikidata"
 
-#: admin.py:111 models.py:89 models.py:234
+#: admin.py:111 models.py:89 models.py:233
 msgid "wikimedia commons"
 msgstr "wikimedia commons"
 
@@ -49,6 +49,10 @@ msgstr "objet cible"
 #: admin.py:144
 msgid "Apply selected modifications"
 msgstr "Appliquer les modifications sélectionnées"
+
+#: admin.py:187
+msgid "localizations"
+msgstr "localisations"
 
 #: management/commands/load_initial_data.py:39
 msgid "Sync data from OpenStreetMap"
@@ -121,11 +125,11 @@ msgstr "créé le"
 msgid "modified"
 msgstr "modifié le"
 
-#: models.py:44 models.py:83 models.py:252
+#: models.py:44 models.py:83 models.py:251
 msgid "name"
 msgstr "nom"
 
-#: models.py:45 models.py:63 models.py:196 models.py:254
+#: models.py:45 models.py:63 models.py:196 models.py:253
 msgid "description"
 msgstr "description"
 
@@ -165,7 +169,7 @@ msgstr "relation"
 msgid "id"
 msgstr "id"
 
-#: models.py:82 models.py:233
+#: models.py:82 models.py:232
 msgid "type"
 msgstr "type"
 
@@ -186,11 +190,11 @@ msgid "historic"
 msgstr "historic"
 
 #: models.py:96 models.py:113
-msgid "OpenStreetMap element"
+msgid "openstreetmap element"
 msgstr "élément OpenStreetMap"
 
 #: models.py:97
-msgid "OpenStreetMap elements"
+msgid "openstreetmap elements"
 msgstr "éléments OpenStreetMap"
 
 #: models.py:107
@@ -205,7 +209,7 @@ msgstr "modifier"
 msgid "delete"
 msgstr "supprimer"
 
-#: models.py:114 models.py:244
+#: models.py:114 models.py:243
 msgid "wikidata entry"
 msgstr "entrée wikidata"
 
@@ -285,11 +289,11 @@ msgstr "Mois"
 msgid "Day"
 msgstr "Jour"
 
-#: models.py:245
+#: models.py:244
 msgid "wikidata entries"
 msgstr "entrées wikidata"
 
-#: models.py:255
+#: models.py:254
 msgid "wikipedia intro"
 msgstr "intro wikipédia"
 

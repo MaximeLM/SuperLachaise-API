@@ -167,20 +167,30 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     readonly_fields = ('created', 'modified')
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('openStreetMap_element', 'type', 'wikidata', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'created', 'modified')
-    ordering = ('openStreetMap_element', 'type',)
-    search_fields = ('openStreetMap_element', 'type', 'wikidata',)
+    list_display = ('wikidata', 'type', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'localizations', 'created', 'modified')
+    ordering = ('wikidata', 'type',)
+    search_fields = ('wikidata', 'type',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['openStreetMap_element', 'type', 'wikidata', 'wikimedia_commons']}),
+        (None, {'fields': ['wikidata', 'type', 'wikimedia_commons']}),
         (u'Dates', {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('created', 'modified')
+    readonly_fields = ('localizations', 'created', 'modified')
     
     inlines = [
         WikidataLocalizedEntryInline,
     ]
+    
+    def localizations(self, obj):
+        return obj.wikidatalocalizedentry_set.count()
+    localizations.short_description = _('localizations')
+    localizations.admin_order_field = 'wikidatalocalizedentry__count'
+    
+    def get_queryset(self, request):
+        qs = super(WikidataEntryAdmin, self).get_queryset(request)
+        qs = qs.annotate(models.Count('wikidatalocalizedentry'))
+        return qs
 
 admin.site.register(AdminCommand, AdminCommandAdmin)
 admin.site.register(Language, LanguageAdmin)

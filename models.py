@@ -93,8 +93,8 @@ class OpenStreetMapElement(SuperLachaiseModel):
         return self.name
     
     class Meta:
-        verbose_name = _('OpenStreetMap element')
-        verbose_name_plural = _('OpenStreetMap elements')
+        verbose_name = _('openstreetmap element')
+        verbose_name_plural = _('openstreetmap elements')
 
 class PendingModification(SuperLachaiseModel):
     """ A modification to an object that is not yet applied """
@@ -110,7 +110,7 @@ class PendingModification(SuperLachaiseModel):
     )
     
     target_object_class_choices = (
-        ('OpenStreetMapElement', _('OpenStreetMap element')),
+        ('OpenStreetMapElement', _('openstreetmap element')),
         ('WikidataEntry', _('wikidata entry')),
         ('WikidataLocalizedEntry', _('wikidata localized entry')),
     )
@@ -229,16 +229,15 @@ class WikidataEntry(SuperLachaiseModel):
     )
     
     wikidata = models.CharField(max_length=255, unique=True, verbose_name=_('wikidata'))
-    openStreetMap_element = models.ForeignKey('OpenStreetMapElement')
     type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     date_of_birth = models.DateField(blank=True, null=True)
     date_of_death = models.DateField(blank=True, null=True)
-    date_of_birth_accuracy = models.CharField(max_length=1, choices=accuracy_choices)
-    date_of_death_accuracy = models.CharField(max_length=1, choices=accuracy_choices)
+    date_of_birth_accuracy = models.CharField(max_length=1, default=DAY, choices=accuracy_choices)
+    date_of_death_accuracy = models.CharField(max_length=1, default=DAY, choices=accuracy_choices)
     
     def __unicode__(self):
-        return self.type + u'-' + self.wikidata + u': ' + unicode(self.openStreetMap_element)
+        return self.wikidata + u': ' + self.type
     
     class Meta:
         verbose_name = _('wikidata entry')
@@ -255,9 +254,10 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
     wikipedia_intro = models.TextField(blank=True, verbose_name=_('wikipedia intro'))
     
     def __unicode__(self):
-        return self.language + u':' + unicode(self.wikidata_entry)
+        return unicode(self.language) + u':' + unicode(self.wikidata_entry)
     
     class Meta:
+        unique_together = ('wikidata_entry', 'language',)
         verbose_name = _('wikidata localized entry')
         verbose_name_plural = _('wikidata localized entries')
     
