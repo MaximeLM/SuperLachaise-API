@@ -43,8 +43,8 @@ class AdminCommand(SuperLachaiseModel):
     
     name = models.CharField(max_length=255, unique=True, verbose_name=_('name'))
     description = models.TextField(blank=True, verbose_name=_('description'))
-    last_executed = models.DateTimeField(null=True, verbose_name=_('last_executed'))
-    last_result = models.TextField(blank=True, null=True, verbose_name=_('last_result'))
+    last_executed = models.DateTimeField(null=True, verbose_name=_('last executed'))
+    last_result = models.TextField(blank=True, null=True, verbose_name=_('last result'))
     
     def __unicode__(self):
         return self.name
@@ -72,11 +72,12 @@ class OpenStreetMapElement(SuperLachaiseModel):
     id = models.BigIntegerField(primary_key=True, verbose_name=_('id'))   # redeclared to increase integer precision
     type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
+    sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
     latitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('latitude'))
     longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
-    wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia_commons'))
+    wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     historic = models.CharField(max_length=255, blank=True, verbose_name=_('historic'))
     
     def __unicode__(self):

@@ -45,18 +45,18 @@ class AdminCommandAdmin(admin.ModelAdmin):
                 admin_command.perform_command()
             except Exception as exception:
                 print exception
-    perform_commands.short_description = _('Perform commands')
+    perform_commands.short_description = _('Execute selected commands')
     
     actions=[perform_commands]
 
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified')
-    ordering = ('name', 'id',)
+    list_display = ('name', 'sorting_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified')
+    ordering = ('sorting_name', 'name',)
     search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['name', 'type', 'id', 'latitude', 'longitude']}),
+        (None, {'fields': ['name', 'sorting_name', 'type', 'id', 'latitude', 'longitude']}),
         (u'Tags', {'fields': ['historic', 'wikipedia', 'wikidata', 'wikimedia_commons']}),
     ]
     readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link')
@@ -66,6 +66,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
         return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
     openstreetmap_link.allow_tags = True
     openstreetmap_link.short_description = _('OpenStreetMap')
+    openstreetmap_link.admin_order_field = 'id'
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
@@ -76,6 +77,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
             return None
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
+    wikipedia_link.admin_order_field = 'wikipedia'
     
     def wikidata_link(self, obj):
         if obj.wikidata:
@@ -86,6 +88,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
             return None
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
+    wikidata_link.admin_order_field = 'wikidata'
     
     def wikimedia_commons_link(self, obj):
         if obj.wikimedia_commons:
@@ -95,6 +98,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
             return None
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
+    wikimedia_commons_link.admin_order_field = 'wikimedia_commons'
 
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'created', 'modified')
@@ -126,7 +130,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
                 pending_modification.apply_modification()
             except Exception as exception:
                 print exception
-    apply_modifications.short_description = _('Apply modifications')
+    apply_modifications.short_description = _('Apply selected modifications')
     
     actions=[apply_modifications]
 

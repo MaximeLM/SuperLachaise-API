@@ -93,6 +93,11 @@ class Command(BaseCommand):
             name = overpass_element.tags.get("name")
             if none_to_blank(name) != openStreetMap_element.name:
                 modified_values['name'] = name
+            sorting_name = overpass_element.tags.get("sorting_name")
+            if not sorting_name:
+                sorting_name = name
+            if none_to_blank(sorting_name) != openStreetMap_element.sorting_name:
+                modified_values['sorting_name'] = sorting_name
             historic = overpass_element.tags.get("historic")
             if none_to_blank(historic) != openStreetMap_element.historic:
                 modified_values['historic'] = historic
@@ -137,6 +142,7 @@ class Command(BaseCommand):
             modified_fields_dict = { 
                                 'type': overpass_element.__class__.__name__.lower(),
                                 'name': overpass_element.tags.get("name"),
+                                'sorting_name': overpass_element.tags.get("sorting_name"),
                                 'latitude': str(coordinate['x']),
                                 'longitude': str(coordinate['y']),
                                 'historic': overpass_element.tags.get("historic"),

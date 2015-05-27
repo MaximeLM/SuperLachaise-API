@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-27 16:39+0200\n"
+"POT-Creation-Date: 2015-05-27 19:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,36 +19,36 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: admin.py:48
-msgid "Perform commands"
-msgstr "Exécuter les commandes"
+msgid "Execute selected commands"
+msgstr "Exécuter les commandes sélectionnées"
 
 #: admin.py:68
 msgid "OpenStreetMap"
 msgstr "OpenStreetMap"
 
-#: admin.py:78 models.py:77
+#: admin.py:79 models.py:78
 msgid "wikipedia"
 msgstr "wikipédia"
 
-#: admin.py:88 models.py:78
+#: admin.py:90 models.py:79
 msgid "wikidata"
 msgstr "wikidata"
 
-#: admin.py:97
+#: admin.py:100 models.py:80
 msgid "wikimedia commons"
 msgstr "wikimedia commons"
 
-#: admin.py:119
+#: admin.py:123
 msgid "None"
 msgstr "Aucun(e)"
 
-#: admin.py:121
+#: admin.py:125
 msgid "target object link"
 msgstr "objet cible"
 
-#: admin.py:129
-msgid "Apply modifications"
-msgstr "Appliquer les modifications"
+#: admin.py:133
+msgid "Apply selected modifications"
+msgstr "Appliquer les modifications sélectionnées"
 
 #: management/commands/load_initial_data.py:37
 msgid "Sync data from OpenStreetMap"
@@ -87,14 +87,17 @@ msgid "no outer way for relation found"
 msgstr "Aucun chemin extérieur trouvé pour la relation"
 
 #: management/commands/sync_OpenStreetMap.py:266
+#, python-brace-format
 msgid "{nb} OpenStreetMap element(s) created"
 msgstr "{nb} élément(s) OpenStreetMap créé(s)"
 
 #: management/commands/sync_OpenStreetMap.py:268
+#, python-brace-format
 msgid "{nb} OpenStreetMap element(s) modified"
 msgstr "{nb} élément(s) OpenStreetMap modifié(s)"
 
 #: management/commands/sync_OpenStreetMap.py:270
+#, python-brace-format
 msgid "{nb} OpenStreetMap element(s) deleted"
 msgstr "{nb} élément(s) OpenStreetMap supprimé(s)"
 
@@ -114,16 +117,16 @@ msgstr "modifié le"
 msgid "name"
 msgstr "nom"
 
-#: models.py:45 models.py:184
+#: models.py:45 models.py:185
 msgid "description"
 msgstr "description"
 
 #: models.py:46
-msgid "last_executed"
+msgid "last executed"
 msgstr "dernière exécution"
 
 #: models.py:47
-msgid "last_result"
+msgid "last result"
 msgstr "dernier résultat"
 
 #: models.py:56
@@ -155,81 +158,81 @@ msgid "type"
 msgstr "type"
 
 #: models.py:75
+msgid "sorting name"
+msgstr "nom pour tri"
+
+#: models.py:76
 msgid "latitude"
 msgstr "latitude"
 
-#: models.py:76
+#: models.py:77
 msgid "longitude"
 msgstr "longitude"
 
-#: models.py:79
-msgid "wikimedia_commons"
-msgstr "wikimedia commons"
-
-#: models.py:80
+#: models.py:81
 msgid "historic"
 msgstr "historic"
 
-#: models.py:86 models.py:103
+#: models.py:87 models.py:104
 msgid "OpenStreetMap element"
 msgstr "élément OpenStreetMap"
 
-#: models.py:87
+#: models.py:88
 msgid "OpenStreetMap elements"
 msgstr "éléments OpenStreetMap"
 
-#: models.py:97
+#: models.py:98
 msgid "create"
 msgstr "créer"
 
-#: models.py:98
+#: models.py:99
 msgid "modify"
 msgstr "modifier"
 
-#: models.py:99
+#: models.py:100
 msgid "delete"
 msgstr "supprimer"
 
-#: models.py:106
+#: models.py:107
 msgid "target object class"
 msgstr "classe de l'objet cible"
 
-#: models.py:107
+#: models.py:108
 msgid "target object id"
 msgstr "id de l'objet cible"
 
-#: models.py:108
+#: models.py:109
 msgid "action"
 msgstr "action"
 
-#: models.py:109
+#: models.py:110
 msgid "modified fields"
 msgstr "champs modifiés"
 
-#: models.py:136
+#: models.py:137
 msgid "pending modification"
 msgstr "modification en attente"
 
-#: models.py:137
+#: models.py:138
 msgid "pending modifications"
 msgstr "modifications en attente"
 
-#: models.py:181
+#: models.py:182
 msgid "category"
 msgstr "catégorie"
 
-#: models.py:182
+#: models.py:183
 msgid "key"
 msgstr "clé"
 
-#: models.py:183
+#: models.py:184
 msgid "value"
 msgstr "valeur"
 
-#: models.py:191
+#: models.py:192
 msgid "setting"
 msgstr "préférence"
 
-#: models.py:192
+#: models.py:193
 msgid "settings"
 msgstr "préférences"
