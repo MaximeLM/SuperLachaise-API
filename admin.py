@@ -167,13 +167,13 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     readonly_fields = ('created', 'modified')
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('wikidata', 'type', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'localizations', 'created', 'modified')
-    ordering = ('wikidata', 'type',)
-    search_fields = ('wikidata', 'type',)
+    list_display = ('id', 'type', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'localizations', 'created', 'modified')
+    ordering = ('id', 'type',)
+    search_fields = ('id', 'type', 'wikimedia_commons',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['wikidata', 'type', 'wikimedia_commons']}),
+        (None, {'fields': ['id', 'type', 'wikimedia_commons']}),
         (u'Dates', {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
     readonly_fields = ('localizations', 'created', 'modified')

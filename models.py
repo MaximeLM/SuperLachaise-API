@@ -29,6 +29,9 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.utils import *
 
+def date_handler(obj):
+    return obj.isoformat() if hasattr(obj, 'isoformat') else obj
+
 class SuperLachaiseModel(models.Model):
     """ An abstract model with common fields """
     
@@ -50,7 +53,7 @@ class AdminCommand(SuperLachaiseModel):
         return self.name
     
     def perform_command(self):
-        call_command(self.name)
+        call_command(str(self.name))
     
     class Meta:
         verbose_name = _('admin command')
@@ -78,7 +81,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
         (RELATION, _('relation')),
     )
     
-    id = models.BigIntegerField(primary_key=True, verbose_name=_('id'))   # redeclared to increase integer precision
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
     sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
@@ -116,7 +119,7 @@ class PendingModification(SuperLachaiseModel):
     )
     
     target_object_class = models.CharField(max_length=255, choices=target_object_class_choices, verbose_name=_('target object class'))
-    target_object_id = models.BigIntegerField(verbose_name=_('target object id'))
+    target_object_id = models.CharField(max_length=255, verbose_name=_('target object id'))
     action = models.CharField(max_length=255, choices=action_choices, verbose_name=_('action'))
     modified_fields = models.TextField(blank=True, verbose_name=_('modified fields'))
     
@@ -170,6 +173,8 @@ class PendingModification(SuperLachaiseModel):
                         value = string_value
                 elif field_type == 'DecimalField':
                     value = Decimal(string_value)
+                elif field_type == 'DateField':
+                    value = string_value
                 else:
                     raise
                 setattr(target_object, field, value)
@@ -228,16 +233,16 @@ class WikidataEntry(SuperLachaiseModel):
         (DAY, _('Day')),
     )
     
-    wikidata = models.CharField(max_length=255, unique=True, verbose_name=_('wikidata'))
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
-    date_of_birth = models.DateField(blank=True, null=True)
-    date_of_death = models.DateField(blank=True, null=True)
-    date_of_birth_accuracy = models.CharField(max_length=1, default=DAY, choices=accuracy_choices)
-    date_of_death_accuracy = models.CharField(max_length=1, default=DAY, choices=accuracy_choices)
+    date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
+    date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
+    date_of_birth_accuracy = models.CharField(max_length=1, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
+    date_of_death_accuracy = models.CharField(max_length=1, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     
     def __unicode__(self):
-        return self.wikidata + u': ' + self.type
+        return self.id + u': ' + self.type
     
     class Meta:
         verbose_name = _('wikidata entry')

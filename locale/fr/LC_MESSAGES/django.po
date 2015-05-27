@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-27 21:39+0200\n"
+"POT-Creation-Date: 2015-05-28 01:15+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,15 +26,15 @@ msgstr "Exécuter les commandes sélectionnées"
 msgid "OpenStreetMap"
 msgstr "OpenStreetMap"
 
-#: admin.py:90 models.py:87 models.py:252
+#: admin.py:90 models.py:90 models.py:257
 msgid "wikipedia"
 msgstr "wikipédia"
 
-#: admin.py:101 models.py:88 models.py:231
+#: admin.py:101 models.py:91
 msgid "wikidata"
 msgstr "wikidata"
 
-#: admin.py:111 models.py:89 models.py:233
+#: admin.py:111 models.py:92 models.py:238
 msgid "wikimedia commons"
 msgstr "wikimedia commons"
 
@@ -62,15 +62,23 @@ msgstr ""
 "Synchronise les éléments OpenStreetMap en requêtant l'API Overpass pour la "
 "zone géographique et les tags définis dans les paramètres"
 
-#: management/commands/load_initial_data.py:45
+#: management/commands/load_initial_data.py:43
+msgid ""
+"Synchronize Wikidata entries by querying the codes listed in OpenStreetMap "
+"elements"
+msgstr ""
+"Synchronise les entrées Wikidata en requêtant les codes lisétes dans les "
+"éléments OpenStreetMap"
+
+#: management/commands/load_initial_data.py:49
 msgid "French"
 msgstr "Français"
 
-#: management/commands/load_initial_data.py:49
+#: management/commands/load_initial_data.py:53
 msgid "English"
 msgstr "Anglais"
 
-#: management/commands/load_initial_data.py:56
+#: management/commands/load_initial_data.py:60
 msgid ""
 "If set to 'true', new modifications are applied immediately after being "
 "created.\n"
@@ -82,7 +90,7 @@ msgstr ""
 "Sinon, une modification en attente sera créée et devra être acceptée "
 "manuellement."
 
-#: management/commands/load_initial_data.py:62
+#: management/commands/load_initial_data.py:66
 msgid ""
 "The geographical area where to sync OpenStreetMap data : <min lat>,<min lon>,"
 "<max lat>,<max lon>"
@@ -90,213 +98,233 @@ msgstr ""
 "La zone géographique où synchroniser les données OpenStreetMap : <min lat>,"
 "<min lon>,<max lat>,<max lon>"
 
-#: management/commands/load_initial_data.py:67
+#: management/commands/load_initial_data.py:71
 msgid "The OpenStreetMap IDs to exclude from syncing"
 msgstr "Les IDs OpenStreetMap à exclure de la synchronisation"
 
-#: management/commands/load_initial_data.py:72
+#: management/commands/load_initial_data.py:76
 msgid "The OpenStreetMap tags to sync (nodes, ways or relations)"
 msgstr "Les tags OpenStreetMap à synchroniser (noeuds, chemins ou relations)"
 
-#: management/commands/sync_OpenStreetMap.py:194
+#: management/commands/sync_openstreetmap.py:189
 msgid "no outer way for relation found"
 msgstr "Aucun chemin extérieur trouvé pour la relation"
 
-#: management/commands/sync_OpenStreetMap.py:272
+#: management/commands/sync_openstreetmap.py:267
+#: management/commands/sync_wikidata.py:255
 #, python-brace-format
-msgid "{nb} OpenStreetMap element(s) created"
-msgstr "{nb} élément(s) OpenStreetMap créé(s)"
+msgid "{nb} object(s) created"
+msgstr "{nb} objet(s) créé(s)"
 
-#: management/commands/sync_OpenStreetMap.py:274
+#: management/commands/sync_openstreetmap.py:269
+#: management/commands/sync_wikidata.py:257
 #, python-brace-format
-msgid "{nb} OpenStreetMap element(s) modified"
-msgstr "{nb} élément(s) OpenStreetMap modifié(s)"
+msgid "{nb} object(s) modified"
+msgstr "{nb} objet(s) modifié(s)"
 
-#: management/commands/sync_OpenStreetMap.py:276
+#: management/commands/sync_openstreetmap.py:271
+#: management/commands/sync_wikidata.py:259
 #, python-brace-format
-msgid "{nb} OpenStreetMap element(s) deleted"
-msgstr "{nb} élément(s) OpenStreetMap supprimé(s)"
+msgid "{nb} object(s) deleted"
+msgstr "{nb} objet(s) supprimé(s)"
 
-#: management/commands/sync_OpenStreetMap.py:281
+#: management/commands/sync_openstreetmap.py:276
+#: management/commands/sync_wikidata.py:264
 msgid "No modifications"
 msgstr "Aucune modification"
 
-#: models.py:35
+#: models.py:38
 msgid "created"
 msgstr "créé le"
 
-#: models.py:36
+#: models.py:39
 msgid "modified"
 msgstr "modifié le"
 
-#: models.py:44 models.py:83 models.py:251
+#: models.py:47 models.py:86 models.py:256
 msgid "name"
 msgstr "nom"
 
-#: models.py:45 models.py:63 models.py:196 models.py:253
+#: models.py:48 models.py:66 models.py:201 models.py:258
 msgid "description"
 msgstr "description"
 
-#: models.py:46
+#: models.py:49
 msgid "last executed"
 msgstr "dernière exécution"
 
-#: models.py:47
+#: models.py:50
 msgid "last result"
 msgstr "dernier résultat"
 
-#: models.py:56
+#: models.py:59
 msgid "admin command"
 msgstr "commande admin"
 
-#: models.py:57
+#: models.py:60
 msgid "admin commands"
 msgstr "commandes admin"
 
-#: models.py:62
+#: models.py:65
 msgid "code"
 msgstr "code"
 
-#: models.py:76
+#: models.py:79
 msgid "node"
 msgstr "noeud"
 
-#: models.py:77
+#: models.py:80
 msgid "way"
 msgstr "chemin"
 
-#: models.py:78
+#: models.py:81
 msgid "relation"
 msgstr "relation"
 
-#: models.py:81
+#: models.py:84 models.py:236
 msgid "id"
 msgstr "id"
 
-#: models.py:82 models.py:232
+#: models.py:85 models.py:237
 msgid "type"
 msgstr "type"
 
-#: models.py:84
+#: models.py:87
 msgid "sorting name"
 msgstr "nom pour tri"
 
-#: models.py:85
+#: models.py:88
 msgid "latitude"
 msgstr "latitude"
 
-#: models.py:86
+#: models.py:89
 msgid "longitude"
 msgstr "longitude"
 
-#: models.py:90
+#: models.py:93
 msgid "historic"
 msgstr "historic"
 
-#: models.py:96 models.py:113
+#: models.py:99 models.py:116
 msgid "openstreetmap element"
 msgstr "élément OpenStreetMap"
 
-#: models.py:97
+#: models.py:100
 msgid "openstreetmap elements"
 msgstr "éléments OpenStreetMap"
 
-#: models.py:107
+#: models.py:110
 msgid "create"
 msgstr "créer"
 
-#: models.py:108
+#: models.py:111
 msgid "modify"
 msgstr "modifier"
 
-#: models.py:109
+#: models.py:112
 msgid "delete"
 msgstr "supprimer"
 
-#: models.py:114 models.py:243
+#: models.py:117 models.py:248
 msgid "wikidata entry"
 msgstr "entrée wikidata"
 
-#: models.py:115 models.py:260
+#: models.py:118 models.py:265
 msgid "wikidata localized entry"
 msgstr "entrée wikidata localisée"
 
-#: models.py:118
+#: models.py:121
 msgid "target object class"
 msgstr "classe de l'objet cible"
 
-#: models.py:119
+#: models.py:122
 msgid "target object id"
 msgstr "id de l'objet cible"
 
-#: models.py:120
+#: models.py:123
 msgid "action"
 msgstr "action"
 
-#: models.py:121
+#: models.py:124
 msgid "modified fields"
 msgstr "champs modifiés"
 
-#: models.py:148
+#: models.py:151
 msgid "pending modification"
 msgstr "modification en attente"
 
-#: models.py:149
+#: models.py:152
 msgid "pending modifications"
 msgstr "modifications en attente"
 
-#: models.py:193
+#: models.py:198
 msgid "category"
 msgstr "catégorie"
 
-#: models.py:194
+#: models.py:199
 msgid "key"
 msgstr "clé"
 
-#: models.py:195
+#: models.py:200
 msgid "value"
 msgstr "valeur"
 
-#: models.py:203
+#: models.py:208
 msgid "setting"
 msgstr "paramètre"
 
-#: models.py:204
+#: models.py:209
 msgid "settings"
 msgstr "paramètres"
 
-#: models.py:215
+#: models.py:220
 msgid "place"
 msgstr "lieu"
 
-#: models.py:216
+#: models.py:221
 msgid "person"
 msgstr "personne"
 
-#: models.py:217
+#: models.py:222
 msgid "artist"
 msgstr "artiste"
 
-#: models.py:218
+#: models.py:223
 msgid "subject"
 msgstr "sujet"
 
-#: models.py:226
+#: models.py:231
 msgid "Year"
 msgstr "Année"
 
-#: models.py:227
+#: models.py:232
 msgid "Month"
 msgstr "Mois"
 
-#: models.py:228
+#: models.py:233
 msgid "Day"
 msgstr "Jour"
 
-#: models.py:244
+#: models.py:239
+msgid "date of birth"
+msgstr "date de naissance"
+
+#: models.py:240
+msgid "date of death"
+msgstr "date de décès"
+
+#: models.py:241
+msgid "date of birth accuracy"
+msgstr "précision date de naissance"
+
+#: models.py:242
+msgid "date of death accuracy"
+msgstr "précision date de décès"
+
+#: models.py:249
 msgid "wikidata entries"
 msgstr "entrées wikidata"
 
-#: models.py:261
+#: models.py:266
 msgid "wikidata localized entries"
 msgstr "entrées wikidata localisées"
