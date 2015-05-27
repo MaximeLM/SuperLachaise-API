@@ -162,7 +162,7 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['language', 'name', 'wikipedia', 'description', 'wikipedia_intro']}),
+        (None, {'fields': ['language', 'name', 'wikipedia', 'description']}),
     ]
     readonly_fields = ('created', 'modified')
 

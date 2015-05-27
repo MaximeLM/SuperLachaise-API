@@ -36,7 +36,7 @@ class Command(BaseCommand):
         # Admin commands
         
         admin_command, created = AdminCommand.objects.get_or_create(name="sync_OpenStreetMap")
-        admin_command.description = _("Sync data from OpenStreetMap")
+        admin_command.description = _("Synchronize OpenStreetMap elements by querying Overpass API for the bouding box and the tags defined in the settings")
         admin_command.save()
         
         # Languages

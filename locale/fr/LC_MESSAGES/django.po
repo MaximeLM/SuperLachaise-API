@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-27 20:52+0200\n"
+"POT-Creation-Date: 2015-05-27 21:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,8 +55,12 @@ msgid "localizations"
 msgstr "localisations"
 
 #: management/commands/load_initial_data.py:39
-msgid "Sync data from OpenStreetMap"
-msgstr "Synchronise les données depuis OpenStreetMap"
+msgid ""
+"Synchronize OpenStreetMap elements by querying Overpass API for the bouding "
+"box and the tags defined in the settings"
+msgstr ""
+"Synchronise les éléments OpenStreetMap en requêtant l'API Overpass pour la "
+"zone géographique et les tags définis dans les paramètres"
 
 #: management/commands/load_initial_data.py:45
 msgid "French"
@@ -213,7 +217,7 @@ msgstr "supprimer"
 msgid "wikidata entry"
 msgstr "entrée wikidata"
 
-#: models.py:115 models.py:261
+#: models.py:115 models.py:260
 msgid "wikidata localized entry"
 msgstr "entrée wikidata localisée"
 
@@ -255,11 +259,11 @@ msgstr "valeur"
 
 #: models.py:203
 msgid "setting"
-msgstr "préférence"
+msgstr "paramètre"
 
 #: models.py:204
 msgid "settings"
-msgstr "préférences"
+msgstr "paramètres"
 
 #: models.py:215
 msgid "place"
@@ -293,10 +297,6 @@ msgstr "Jour"
 msgid "wikidata entries"
 msgstr "entrées wikidata"
 
-#: models.py:254
-msgid "wikipedia intro"
-msgstr "intro wikipédia"
-
-#: models.py:262
+#: models.py:261
 msgid "wikidata localized entries"
 msgstr "entrées wikidata localisées"
