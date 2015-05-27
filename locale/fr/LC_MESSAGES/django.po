@@ -84,7 +84,7 @@ msgstr "Les tags OpenStreetMap à synchroniser (noeuds, chemins ou relations)"
 
 #: management/commands/sync_OpenStreetMap.py:188
 msgid "no outer way for relation found"
-msgstr "Aucun chemin extéieur trouvé pour la relation"
+msgstr "Aucun chemin extérieur trouvé pour la relation"
 
 #: management/commands/sync_OpenStreetMap.py:266
 msgid "{nb} OpenStreetMap element(s) created"
