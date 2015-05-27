@@ -49,6 +49,17 @@ class AdminCommandAdmin(admin.ModelAdmin):
     
     actions=[perform_commands]
 
+class LanguageAdmin(admin.ModelAdmin):
+    list_display = ('code', 'description', 'created', 'modified')
+    ordering = ('code',)
+    search_fields = ('code', 'description',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['code', 'description']}),
+    ]
+    readonly_fields = ('created', 'modified')
+
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
     list_display = ('name', 'sorting_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified')
     ordering = ('sorting_name', 'name',)
@@ -145,7 +156,35 @@ class SettingAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('created', 'modified')
 
+class WikidataLocalizedEntryInline(admin.StackedInline):
+    model = WikidataLocalizedEntry
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['language', 'name', 'wikipedia', 'description', 'wikipedia_intro']}),
+    ]
+    readonly_fields = ('created', 'modified')
+
+class WikidataEntryAdmin(admin.ModelAdmin):
+    list_display = ('openStreetMap_element', 'type', 'wikidata', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'created', 'modified')
+    ordering = ('openStreetMap_element', 'type',)
+    search_fields = ('openStreetMap_element', 'type', 'wikidata',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['openStreetMap_element', 'type', 'wikidata', 'wikimedia_commons']}),
+        (u'Dates', {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+    ]
+    readonly_fields = ('created', 'modified')
+    
+    inlines = [
+        WikidataLocalizedEntryInline,
+    ]
+
 admin.site.register(AdminCommand, AdminCommandAdmin)
+admin.site.register(Language, LanguageAdmin)
 admin.site.register(OpenStreetMapElement, OpenStreetMapElementAdmin)
 admin.site.register(PendingModification, PendingModificationAdmin)
 admin.site.register(Setting, SettingAdmin)
+admin.site.register(WikidataEntry, WikidataEntryAdmin)

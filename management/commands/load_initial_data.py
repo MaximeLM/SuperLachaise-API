@@ -25,7 +25,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import translation
 from django.utils.translation import ugettext as _
 
-from superlachaise_api.models import Setting, AdminCommand
+from superlachaise_api.models import *
 
 class Command(BaseCommand):
     
@@ -33,9 +33,23 @@ class Command(BaseCommand):
         
         translation.activate(settings.LANGUAGE_CODE)
         
+        # Admin commands
+        
         admin_command, created = AdminCommand.objects.get_or_create(name="sync_OpenStreetMap")
         admin_command.description = _("Sync data from OpenStreetMap")
         admin_command.save()
+        
+        # Languages
+        
+        language, created = Language.objects.get_or_create(code="fr")
+        language.description = _("French")
+        language.save()
+        
+        language, created = Language.objects.get_or_create(code="en")
+        language.description = _("English")
+        language.save()
+        
+        # Settings
         
         setting, created = Setting.objects.get_or_create(category="Modifications", key="auto_apply")
         setting.value = "false"

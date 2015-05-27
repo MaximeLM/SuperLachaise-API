@@ -56,6 +56,15 @@ class AdminCommand(SuperLachaiseModel):
         verbose_name = _('admin command')
         verbose_name_plural = _('admin commands')
 
+class Language(SuperLachaiseModel):
+    """ A language used in the sync operations """
+    
+    code = models.CharField(max_length=10, unique=True, verbose_name=_('code'))
+    description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
+    
+    def __unicode__(self):
+        return self.code
+
 class OpenStreetMapElement(SuperLachaiseModel):
     """ An OpenStreetMap element """
     
@@ -102,6 +111,8 @@ class PendingModification(SuperLachaiseModel):
     
     target_object_class_choices = (
         ('OpenStreetMapElement', _('OpenStreetMap element')),
+        ('WikidataEntry', _('wikidata entry')),
+        ('WikidataLocalizedEntry', _('wikidata localized entry')),
     )
     
     target_object_class = models.CharField(max_length=255, choices=target_object_class_choices, verbose_name=_('target object class'))
@@ -191,3 +202,66 @@ class Setting(SuperLachaiseModel):
         unique_together = ('category', 'key',)
         verbose_name = _('setting')
         verbose_name_plural = _('settings')
+
+class WikidataEntry(SuperLachaiseModel):
+    """ A wikidata entry """
+    
+    PLACE = 'place'
+    PERSON = 'person'
+    ARTIST = 'artist'
+    SUBJECT = 'subject'
+    
+    type_choices = (
+        (PLACE, _('place')),
+        (PERSON, _('person')),
+        (ARTIST, _('artist')),
+        (SUBJECT, _('subject')),
+    )
+    
+    YEAR = 'Y'
+    MONTH = 'M'
+    DAY = 'D'
+    
+    accuracy_choices = (
+        (YEAR, _('Year')),
+        (MONTH, _('Month')),
+        (DAY, _('Day')),
+    )
+    
+    wikidata = models.CharField(max_length=255, unique=True, verbose_name=_('wikidata'))
+    openStreetMap_element = models.ForeignKey('OpenStreetMapElement')
+    type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
+    wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
+    date_of_birth = models.DateField(blank=True, null=True)
+    date_of_death = models.DateField(blank=True, null=True)
+    date_of_birth_accuracy = models.CharField(max_length=1, choices=accuracy_choices)
+    date_of_death_accuracy = models.CharField(max_length=1, choices=accuracy_choices)
+    
+    def __unicode__(self):
+        return self.type + u'-' + self.wikidata + u': ' + unicode(self.openStreetMap_element)
+    
+    class Meta:
+        verbose_name = _('wikidata entry')
+        verbose_name_plural = _('wikidata entries')
+
+class WikidataLocalizedEntry(SuperLachaiseModel):
+    """ The part of a wikidata entry specific to a language """
+    
+    wikidata_entry = models.ForeignKey('WikidataEntry')
+    language = models.ForeignKey('Language')
+    name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
+    wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
+    description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
+    wikipedia_intro = models.TextField(blank=True, verbose_name=_('wikipedia intro'))
+    
+    def __unicode__(self):
+        return self.language + u':' + unicode(self.wikidata_entry)
+    
+    class Meta:
+        verbose_name = _('wikidata localized entry')
+        verbose_name_plural = _('wikidata localized entries')
+    
+    def save(self, *args, **kwargs):
+        # Delete \r from text field
+        self.wikipedia_intro = self.wikipedia_intro.replace('\r','')
+        super(WikidataLocalizedEntry, self).save(*args, **kwargs)
