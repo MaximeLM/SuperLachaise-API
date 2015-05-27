@@ -24,6 +24,7 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
@@ -38,16 +39,17 @@ class AdminCommandAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('last_executed', 'last_result', 'created', 'modified')
     
-    def perform_command(self, request, queryset):
+    def perform_commands(self, request, queryset):
         for admin_command in queryset:
             try:
                 admin_command.perform_command()
             except Exception as exception:
                 print exception
+    perform_commands.short_description = _('Perform commands')
     
-    actions=[perform_command]
+    actions=[perform_commands]
 
-class OpenStreetMapPOIAdmin(admin.ModelAdmin):
+class OpenStreetMapElementAdmin(admin.ModelAdmin):
     list_display = ('name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified')
     ordering = ('name', 'id',)
     search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
@@ -63,7 +65,7 @@ class OpenStreetMapPOIAdmin(admin.ModelAdmin):
         url = u'https://www.openstreetmap.org/{type}/{id}'.format(type=obj.type, id=unicode(obj.id))
         return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
     openstreetmap_link.allow_tags = True
-    openstreetmap_link.short_description = 'OpenStreetMap'
+    openstreetmap_link.short_description = _('OpenStreetMap')
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
@@ -73,7 +75,7 @@ class OpenStreetMapPOIAdmin(admin.ModelAdmin):
         else:
             return None
     wikipedia_link.allow_tags = True
-    wikipedia_link.short_description = 'wikipedia'
+    wikipedia_link.short_description = _('wikipedia')
     
     def wikidata_link(self, obj):
         if obj.wikidata:
@@ -83,7 +85,7 @@ class OpenStreetMapPOIAdmin(admin.ModelAdmin):
         else:
             return None
     wikidata_link.allow_tags = True
-    wikidata_link.short_description = 'wikidata'
+    wikidata_link.short_description = _('wikidata')
     
     def wikimedia_commons_link(self, obj):
         if obj.wikimedia_commons:
@@ -92,7 +94,7 @@ class OpenStreetMapPOIAdmin(admin.ModelAdmin):
         else:
             return None
     wikimedia_commons_link.allow_tags = True
-    wikimedia_commons_link.short_description = 'wikimedia commons'
+    wikimedia_commons_link.short_description = _('wikimedia commons')
 
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'created', 'modified')
@@ -114,17 +116,19 @@ class PendingModificationAdmin(admin.ModelAdmin):
             url = reverse(reverse_path, args=(obj.target_object().id,))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
         else:
-            return None
+            return _('None')
     target_object_link.allow_tags = True
+    target_object_link.short_description = _('target object link')
     
-    def apply_modification(self, request, queryset):
+    def apply_modifications(self, request, queryset):
         for pending_modification in queryset:
             try:
                 pending_modification.apply_modification()
             except Exception as exception:
                 print exception
+    apply_modifications.short_description = _('Apply modifications')
     
-    actions=[apply_modification]
+    actions=[apply_modifications]
 
 class SettingAdmin(admin.ModelAdmin):
     list_display = ('category', 'key', 'value', 'description', 'created', 'modified')
@@ -138,6 +142,6 @@ class SettingAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
 
 admin.site.register(AdminCommand, AdminCommandAdmin)
-admin.site.register(OpenStreetMapPOI, OpenStreetMapPOIAdmin)
+admin.site.register(OpenStreetMapElement, OpenStreetMapElementAdmin)
 admin.site.register(PendingModification, PendingModificationAdmin)
 admin.site.register(Setting, SettingAdmin)

@@ -1,1 +1,0 @@
-[{"fields": {"description": "Sync data from OpenStreetMap", "created": "2015-05-26T16:16:45.257Z", "last_executed": "2015-05-26T18:10:37.304Z", "modified": "2015-05-26T18:10:37.304Z", "last_result": "No modifications", "name": "sync_OpenStreetMap"}, "model": "superlachaise_api.admincommand", "pk": 1}]

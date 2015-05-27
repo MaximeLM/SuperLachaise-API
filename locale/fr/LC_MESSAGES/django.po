@@ -1,0 +1,235 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-05-27 16:39+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: admin.py:48
+msgid "Perform commands"
+msgstr "Exécuter les commandes"
+
+#: admin.py:68
+msgid "OpenStreetMap"
+msgstr "OpenStreetMap"
+
+#: admin.py:78 models.py:77
+msgid "wikipedia"
+msgstr "wikipédia"
+
+#: admin.py:88 models.py:78
+msgid "wikidata"
+msgstr "wikidata"
+
+#: admin.py:97
+msgid "wikimedia commons"
+msgstr "wikimedia commons"
+
+#: admin.py:119
+msgid "None"
+msgstr "Aucun(e)"
+
+#: admin.py:121
+msgid "target object link"
+msgstr "objet cible"
+
+#: admin.py:129
+msgid "Apply modifications"
+msgstr "Appliquer les modifications"
+
+#: management/commands/load_initial_data.py:37
+msgid "Sync data from OpenStreetMap"
+msgstr "Synchronise les données depuis OpenStreetMap"
+
+#: management/commands/load_initial_data.py:42
+msgid ""
+"If set to 'true', new modifications are applied immediately after being "
+"created.\n"
+"If set to 'false', a pending modification is created and must be manually "
+"accepted."
+msgstr ""
+"Si la valeur est à 'true', les nouvelles modifications sont appliquées dès "
+"leur création.\n"
+"Sinon, une modification en attente sera créée et devra être acceptée "
+"manuellement."
+
+#: management/commands/load_initial_data.py:48
+msgid ""
+"The geographical area where to sync OpenStreetMap data : <min lat>,<min lon>,"
+"<max lat>,<max lon>"
+msgstr ""
+"La zone géographique où synchroniser les données OpenStreetMap : <min lat>,"
+"<min lon>,<max lat>,<max lon>"
+
+#: management/commands/load_initial_data.py:53
+msgid "The OpenStreetMap IDs to exclude from syncing"
+msgstr "Les IDs OpenStreetMap à exclure de la synchronisation"
+
+#: management/commands/load_initial_data.py:58
+msgid "The OpenStreetMap tags to sync (nodes, ways or relations)"
+msgstr "Les tags OpenStreetMap à synchroniser (noeuds, chemins ou relations)"
+
+#: management/commands/sync_OpenStreetMap.py:188
+msgid "no outer way for relation found"
+msgstr "Aucun chemin extéieur trouvé pour la relation"
+
+#: management/commands/sync_OpenStreetMap.py:266
+msgid "{nb} OpenStreetMap element(s) created"
+msgstr "{nb} élément(s) OpenStreetMap créé(s)"
+
+#: management/commands/sync_OpenStreetMap.py:268
+msgid "{nb} OpenStreetMap element(s) modified"
+msgstr "{nb} élément(s) OpenStreetMap modifié(s)"
+
+#: management/commands/sync_OpenStreetMap.py:270
+msgid "{nb} OpenStreetMap element(s) deleted"
+msgstr "{nb} élément(s) OpenStreetMap supprimé(s)"
+
+#: management/commands/sync_OpenStreetMap.py:275
+msgid "No modifications"
+msgstr "Aucune modification"
+
+#: models.py:35
+msgid "created"
+msgstr "créé le"
+
+#: models.py:36
+msgid "modified"
+msgstr "modifié le"
+
+#: models.py:44 models.py:74
+msgid "name"
+msgstr "nom"
+
+#: models.py:45 models.py:184
+msgid "description"
+msgstr "description"
+
+#: models.py:46
+msgid "last_executed"
+msgstr "dernière exécution"
+
+#: models.py:47
+msgid "last_result"
+msgstr "dernier résultat"
+
+#: models.py:56
+msgid "admin command"
+msgstr "commande admin"
+
+#: models.py:57
+msgid "admin commands"
+msgstr "commandes admin"
+
+#: models.py:67
+msgid "node"
+msgstr "noeud"
+
+#: models.py:68
+msgid "way"
+msgstr "chemin"
+
+#: models.py:69
+msgid "relation"
+msgstr "relation"
+
+#: models.py:72
+msgid "id"
+msgstr "id"
+
+#: models.py:73
+msgid "type"
+msgstr "type"
+
+#: models.py:75
+msgid "latitude"
+msgstr "latitude"
+
+#: models.py:76
+msgid "longitude"
+msgstr "longitude"
+
+#: models.py:79
+msgid "wikimedia_commons"
+msgstr "wikimedia commons"
+
+#: models.py:80
+msgid "historic"
+msgstr "historic"
+
+#: models.py:86 models.py:103
+msgid "OpenStreetMap element"
+msgstr "élément OpenStreetMap"
+
+#: models.py:87
+msgid "OpenStreetMap elements"
+msgstr "éléments OpenStreetMap"
+
+#: models.py:97
+msgid "create"
+msgstr "créer"
+
+#: models.py:98
+msgid "modify"
+msgstr "modifier"
+
+#: models.py:99
+msgid "delete"
+msgstr "supprimer"
+
+#: models.py:106
+msgid "target object class"
+msgstr "classe de l'objet cible"
+
+#: models.py:107
+msgid "target object id"
+msgstr "id de l'objet cible"
+
+#: models.py:108
+msgid "action"
+msgstr "action"
+
+#: models.py:109
+msgid "modified fields"
+msgstr "champs modifiés"
+
+#: models.py:136
+msgid "pending modification"
+msgstr "modification en attente"
+
+#: models.py:137
+msgid "pending modifications"
+msgstr "modifications en attente"
+
+#: models.py:181
+msgid "category"
+msgstr "catégorie"
+
+#: models.py:182
+msgid "key"
+msgstr "clé"
+
+#: models.py:183
+msgid "value"
+msgstr "valeur"
+
+#: models.py:191
+msgid "setting"
+msgstr "préférence"
+
+#: models.py:192
+msgid "settings"
+msgstr "préférences"

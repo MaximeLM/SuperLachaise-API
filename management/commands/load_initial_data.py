@@ -22,15 +22,40 @@ limitations under the License.
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.core import serializers
+from django.utils import translation
+from django.utils.translation import ugettext as _
+
+from superlachaise_api.models import Setting, AdminCommand
 
 class Command(BaseCommand):
     
     def handle(self, *args, **options):
-        with open(settings.BASE_DIR + '/superlachaise_api/initial_data/settings.json') as data_file:    
-            for obj in serializers.deserialize("json", data_file):
-                obj.save()
         
-        with open(settings.BASE_DIR + '/superlachaise_api/initial_data/admin_commands.json') as data_file:    
-            for obj in serializers.deserialize("json", data_file):
-                obj.save()
+        translation.activate(settings.LANGUAGE_CODE)
+        
+        admin_command, created = AdminCommand.objects.get_or_create(name="sync_OpenStreetMap")
+        admin_command.description = _("Sync data from OpenStreetMap")
+        admin_command.save()
+        
+        setting, created = Setting.objects.get_or_create(category="Modifications", key="auto_apply")
+        setting.value = "false"
+        setting.description = _("""If set to 'true', new modifications are applied immediately after being created.
+If set to 'false', a pending modification is created and must be manually accepted.""")
+        setting.save()
+        
+        setting, created = Setting.objects.get_or_create(category="OpenStreetMap", key="bounding_box")
+        setting.value = "48.8575,2.3877,48.8649,2.4006"
+        setting.description = _("""The geographical area where to sync OpenStreetMap data : <min lat>,<min lon>,<max lat>,<max lon>""")
+        setting.save()
+        
+        setting, created = Setting.objects.get_or_create(category="OpenStreetMap", key="exclude_ids")
+        setting.value = """[{"type": "node", "id": 1688357881}]"""
+        setting.description = _("""The OpenStreetMap IDs to exclude from syncing""")
+        setting.save()
+
+        setting, created = Setting.objects.get_or_create(category="OpenStreetMap", key="synced_tags")
+        setting.value = """["historic=tomb", "historic=memorial"]"""
+        setting.description = _("""The OpenStreetMap tags to sync (nodes, ways or relations)""")
+        setting.save()
+        
+        translation.deactivate()

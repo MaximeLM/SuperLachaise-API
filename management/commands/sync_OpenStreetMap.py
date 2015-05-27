@@ -22,10 +22,12 @@ limitations under the License.
 
 import json, math, overpy, sys, traceback
 from decimal import Decimal
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
+from django.utils import timezone, translation
+from django.utils.translation import ugettext as _
 
-from superlachaise_api.models import Setting, OpenStreetMapPOI, PendingModification, AdminCommand
+from superlachaise_api.models import Setting, OpenStreetMapElement, PendingModification, AdminCommand
 
 def area_for_polygon(polygon):
     result = 0
@@ -58,9 +60,9 @@ def none_to_blank(s):
 
 class Command(BaseCommand):
     
-    created_POIs = 0
-    modified_POIs = 0
-    deleted_POIs = 0
+    created_elements = 0
+    modified_elements = 0
+    deleted_elements = 0
     
     def download_data(self, bounding_box):
         query_string_list = ['(\n']
@@ -79,58 +81,58 @@ class Command(BaseCommand):
         return result
     
     def handle_element(self, overpass_element, coordinate):
-        # Get POI in database if it exists
-        openStreetMap_POI = OpenStreetMapPOI.objects.filter(id=overpass_element.id).first()
+        # Get element in database if it exists
+        openStreetMap_element = OpenStreetMapElement.objects.filter(id=overpass_element.id).first()
         
-        if openStreetMap_POI:
+        if openStreetMap_element:
             # Search for modifications
             modified_values = {}
             type = overpass_element.__class__.__name__.lower()
-            if none_to_blank(type) != openStreetMap_POI.type:
+            if none_to_blank(type) != openStreetMap_element.type:
                 modified_values['type'] = type
             name = overpass_element.tags.get("name")
-            if none_to_blank(name) != openStreetMap_POI.name:
+            if none_to_blank(name) != openStreetMap_element.name:
                 modified_values['name'] = name
             historic = overpass_element.tags.get("historic")
-            if none_to_blank(historic) != openStreetMap_POI.historic:
+            if none_to_blank(historic) != openStreetMap_element.historic:
                 modified_values['historic'] = historic
             wikipedia = overpass_element.tags.get("wikipedia")
-            if none_to_blank(wikipedia) != openStreetMap_POI.wikipedia:
+            if none_to_blank(wikipedia) != openStreetMap_element.wikipedia:
                 modified_values['wikipedia'] = wikipedia
             wikidata = overpass_element.tags.get("wikidata")
-            if none_to_blank(wikidata) != openStreetMap_POI.wikidata:
+            if none_to_blank(wikidata) != openStreetMap_element.wikidata:
                 modified_values['wikidata'] = wikidata
             wikimedia_commons = overpass_element.tags.get("wikimedia_commons")
-            if none_to_blank(wikimedia_commons) != openStreetMap_POI.wikimedia_commons:
+            if none_to_blank(wikimedia_commons) != openStreetMap_element.wikimedia_commons:
                 modified_values['wikimedia_commons'] = wikimedia_commons
             latitude = coordinate['x']
-            if latitude != openStreetMap_POI.latitude:
+            if latitude != openStreetMap_element.latitude:
                 modified_values['latitude'] = str(latitude)
             longitude = coordinate['y']
-            if longitude != openStreetMap_POI.longitude:
+            if longitude != openStreetMap_element.longitude:
                 modified_values['longitude'] = str(longitude)
             
             if modified_values:
                 # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=overpass_element.id)
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=overpass_element.id)
                 pendingModification.modified_fields = json.dumps(modified_values)
                 pendingModification.action = "modify"
                 
                 pendingModification.full_clean()
                 pendingModification.save()
-                self.modified_POIs = self.modified_POIs + 1
+                self.modified_elements = self.modified_elements + 1
                 
                 if self.auto_apply:
                     pendingModification.apply_modification()
             else:
                 # Delete the previous modification if any
-                pendingModification = PendingModification.objects.filter(target_object_class="OpenStreetMapPOI", target_object_id=overpass_element.id).first()
+                pendingModification = PendingModification.objects.filter(target_object_class="OpenStreetMapElement", target_object_id=overpass_element.id).first()
                 if pendingModification:
                     pendingModification.delete()
         
         else:
             # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=overpass_element.id)
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=overpass_element.id)
             
             modified_fields_dict = { 
                                 'type': overpass_element.__class__.__name__.lower(),
@@ -148,7 +150,7 @@ class Command(BaseCommand):
             
             pendingModification.full_clean()
             pendingModification.save()
-            self.created_POIs = self.created_POIs + 1
+            self.created_elements = self.created_elements + 1
             
             if self.auto_apply:
                 pendingModification.apply_modification()
@@ -183,15 +185,23 @@ class Command(BaseCommand):
             # Handle element
             self.handle_element(overpass_relation, coordinate)
         else:
-            raise Exception('no outer way for relation found')
+            raise Exception(_('no outer way for relation found'))
     
     def element_accepted(self, element):
         result = False
+        
+        # Check if tag is explicitky excluded
+        for excluded_id in self.exclude_ids:
+            if excluded_id['type'] == element.__class__.__name__.lower() and excluded_id['id'] == element.id:
+                return False
+        
+        # Check if tag is to be synced
         for synced_tag in self.synced_tags:
             tag_splitted = synced_tag.split("=")
             if element.tags.get(tag_splitted[0]) == tag_splitted[1]:
                 result = True
                 break
+        
         return result
     
     def sync_OpenStreetMap(self):
@@ -201,39 +211,42 @@ class Command(BaseCommand):
         # Handle downloaded elements
         fetched_ids = []
         for element in result.nodes:
-            if self.element_accepted(element) and not element.id in self.exclude_ids:
+            if self.element_accepted(element):
                 fetched_ids.append(element.id)
                 self.handle_element(element, {'x': element.lat, 'y': element.lon})
         for element in result.ways:
-            if self.element_accepted(element) and not element.id in self.exclude_ids:
+            if self.element_accepted(element):
                 fetched_ids.append(element.id)
                 self.handle_way(element)
         for element in result.relations:
-            if self.element_accepted(element) and not element.id in self.exclude_ids:
+            if self.element_accepted(element):
                 fetched_ids.append(element.id)
                 self.handle_relation(element)
         
         # Delete pending creations if element was deleted in OSM
-        for pendingModification in PendingModification.objects.filter(target_object_class="OpenStreetMapPOI", action="create"):
+        for pendingModification in PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action="create"):
             if not pendingModification.target_object_id in fetched_ids:
                 pendingModification.delete()
         
         # Look for deleted elements
-        for openStreetMap_POI in OpenStreetMapPOI.objects.all():
-            if not openStreetMap_POI.id in fetched_ids:
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapPOI", target_object_id=openStreetMap_POI.id)
+        for openStreetMap_element in OpenStreetMapElement.objects.all():
+            if not openStreetMap_element.id in fetched_ids:
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=openStreetMap_element.id)
                 
                 pendingModification.action = "delete"
                 pendingModification.modified_fields = u''
                 
                 pendingModification.full_clean()
                 pendingModification.save()
-                self.deleted_POIs = self.deleted_POIs + 1
+                self.deleted_elements = self.deleted_elements + 1
                 
                 if self.auto_apply:
                     pendingModification.apply_modification()
     
     def handle(self, *args, **options):
+        
+        translation.activate(settings.LANGUAGE_CODE)
+        
         admin_command = AdminCommand.objects.get(name='sync_OpenStreetMap')
         
         self.auto_apply = (Setting.objects.get(category='Modifications', key=u'auto_apply').value == 'true')
@@ -241,28 +254,30 @@ class Command(BaseCommand):
         self.exclude_ids = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'exclude_ids').value)
         self.synced_tags = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'synced_tags').value)
         
-        self.created_POIs = 0
-        self.modified_POIs = 0
-        self.deleted_POIs = 0
+        self.created_elements = 0
+        self.modified_elements = 0
+        self.deleted_elements = 0
         
         try:
             self.sync_OpenStreetMap()
             
             result_list = []
-            if self.created_POIs > 0:
-                result_list.append(u'{nb} OpenStreetMap POI(s) created'.format(nb=self.created_POIs))
-            if self.modified_POIs > 0:
-                result_list.append(u'{nb} OpenStreetMap POI(s) modified'.format(nb=self.modified_POIs))
-            if self.deleted_POIs > 0:
-                result_list.append(u'{nb} OpenStreetMap POI(s) deleted'.format(nb=self.deleted_POIs))
+            if self.created_elements > 0:
+                result_list.append(_('{nb} OpenStreetMap element(s) created').format(nb=self.created_elements))
+            if self.modified_elements > 0:
+                result_list.append(_('{nb} OpenStreetMap element(s) modified').format(nb=self.modified_elements))
+            if self.deleted_elements > 0:
+                result_list.append(_('{nb} OpenStreetMap element(s) deleted').format(nb=self.deleted_elements))
             
             if result_list:
-                admin_command.last_result = ''.join(result_list)
+                admin_command.last_result = ', '.join(result_list)
             else:
-                admin_command.last_result = u"No modifications"
+                admin_command.last_result = _("No modifications")
         except:
             exception = sys.exc_info()[0]
             admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
         
         admin_command.last_executed = timezone.now()
         admin_command.save()
+        
+        translation.deactivate()
