@@ -179,7 +179,7 @@ class PendingModification(SuperLachaiseModel):
                 if ':' in field:
                     object_model = apps.get_model(self._meta.app_label, 'Localized' + self.target_object_class)
                     if not object_model or object_model == target_model:
-                        raise
+                        raise BaseException
                     language = Language.objects.get(code=original_field.split(':')[0])
                     
                     object = None
@@ -202,7 +202,7 @@ class PendingModification(SuperLachaiseModel):
                     field = original_field.split(':')[1]
                 
                 if not field in object_model._meta.get_all_field_names():
-                    raise
+                    raise BaseException
                 field_type = object_model._meta.get_field(field).get_internal_type()
                 if field_type == 'CharField':
                     if original_value is None:
@@ -214,7 +214,7 @@ class PendingModification(SuperLachaiseModel):
                 elif field_type == 'DateField':
                     value = original_value
                 else:
-                    raise
+                    raise BaseException
                 setattr(object, field, value)
             
             # Save
@@ -230,7 +230,7 @@ class PendingModification(SuperLachaiseModel):
             if target_object:
                 target_object.delete()
         else:
-            raise
+            raise BaseException
         
         self.delete()
 

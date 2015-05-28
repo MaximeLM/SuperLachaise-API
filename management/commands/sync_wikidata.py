@@ -126,7 +126,7 @@ class Command(BaseCommand):
             elif precision_string == 11:
                 accuracy = WikidataEntry.DAY
             else:
-                raise
+                raise BaseException
             
             return (date, accuracy)
         except:
