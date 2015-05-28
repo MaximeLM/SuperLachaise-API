@@ -89,13 +89,13 @@ class Command(BaseCommand):
             # Delete random trailing character
             return wikimedia_commons.replace(u'\u200e',u'')
         except:
-            return u''
+            return none_to_blank(None)
     
     def get_place_wikimedia_commons(self, entity):
         try:
             return self.get_wikimedia_commons(entity['claims'])
         except:
-            return u''
+            return none_to_blank(None)
     
     def get_person_wikimedia_commons(self, entity):
         try:
@@ -103,7 +103,7 @@ class Command(BaseCommand):
             
             return self.get_wikimedia_commons(p119[0]['qualifiers'])
         except:
-            return u''
+            return none_to_blank(None)
     
     def get_date(self, entity, date_code):
         try:
@@ -128,7 +128,23 @@ class Command(BaseCommand):
             
             return (date, accuracy)
         except:
-            return (None, u'')
+            return (None, none_to_blank(None))
+    
+    def get_values_from_entity(self, entity):
+        result = {}
+        
+        if self.get_is_human(entity):
+            result['type'] = WikidataEntry.PERSON
+            result['wikimedia_commons'] = self.get_person_wikimedia_commons(entity)
+            result['date_of_birth'], result['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
+            result['date_of_death'], result['date_of_death_accuracy'] = self.get_date(entity, 'P570')
+        else:
+            result['type'] = WikidataEntry.PLACE
+            result['wikimedia_commons'] = self.get_place_wikimedia_commons(entity)
+            result['date_of_birth'], result['date_of_birth_accuracy'] = (None, none_to_blank(None))
+            result['date_of_death'], result['date_of_death_accuracy'] = (None, none_to_blank(None))
+        
+        return result
     
     def sync_wikidata(self):
         # List wikidata codes in openstreetmap objects
@@ -147,20 +163,10 @@ class Command(BaseCommand):
                 # Creation
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=code)
                 
-                modified_fields_dict = {}
-                
-                if self.get_is_human(entity):
-                    modified_fields_dict['type'] = WikidataEntry.PERSON
-                    modified_fields_dict['wikimedia_commons'] = self.get_person_wikimedia_commons(entity)
-                    
-                    modified_fields_dict['date_of_birth'], modified_fields_dict['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
-                    modified_fields_dict['date_of_death'], modified_fields_dict['date_of_death_accuracy'] = self.get_date(entity, 'P570')
-                else:
-                    modified_fields_dict['type'] = WikidataEntry.PLACE
-                    modified_fields_dict['wikimedia_commons'] = self.get_place_wikimedia_commons(entity)
+                values_dict = self.get_values_from_entity(entity)
                 
                 pendingModification.action = PendingModification.CREATE
-                pendingModification.modified_fields = json.dumps(modified_fields_dict, default=date_handler)
+                pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)
                 
                 pendingModification.full_clean()
                 pendingModification.save()
@@ -170,32 +176,12 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Search for modifications
+                values_dict = self.get_values_from_entity(entity)
                 modified_values = {}
-                if self.get_is_human(entity):
-                    type = WikidataEntry.PERSON
-                    wikimedia_commons = self.get_person_wikimedia_commons(entity)
-                    date_of_birth, date_of_birth_accuracy = self.get_date(entity, 'P569')
-                    date_of_death, date_of_death_accuracy = self.get_date(entity, 'P570')
-                else:
-                    type = WikidataEntry.PLACE
-                    wikimedia_commons = self.get_place_wikimedia_commons(entity)
-                    date_of_birth = None
-                    date_of_birth_accuracy = u''
-                    date_of_death = None
-                    date_of_death_accuracy = u''
                 
-                if none_to_blank(type) != wikidata_entry.type:
-                    modified_values['type'] = type
-                if none_to_blank(wikimedia_commons) != wikidata_entry.wikimedia_commons:
-                    modified_values['wikimedia_commons'] = wikimedia_commons
-                if date_of_birth != wikidata_entry.date_of_birth:
-                    modified_values['date_of_birth'] = date_of_birth
-                if none_to_blank(date_of_birth_accuracy) != wikidata_entry.date_of_birth_accuracy:
-                    modified_values['date_of_birth_accuracy'] = date_of_birth_accuracy
-                if date_of_death != wikidata_entry.date_of_death:
-                    modified_values['date_of_death'] = date_of_death
-                if none_to_blank(date_of_death_accuracy) != wikidata_entry.date_of_death_accuracy:
-                    modified_values['date_of_death_accuracy'] = date_of_death_accuracy
+                for field, value in values_dict.iteritems():
+                    if value != getattr(wikidata_entry, field):
+                        modified_values[field] = value
                 
                 if modified_values:
                     # Get or create a modification

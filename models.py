@@ -161,28 +161,49 @@ class PendingModification(SuperLachaiseModel):
             if not target_object:
                 target_object = target_model(id=self.target_object_id)
             
+            localized_objects = []
+            
             # Set field values
-            for field, string_value in json.loads(self.modified_fields).iteritems():
-                if not field in target_model._meta.get_all_field_names():
+            for original_field, original_value in json.loads(self.modified_fields).iteritems():
+                object_model = target_model
+                object = target_object
+                field = original_field
+                if ':' in field:
+                    for attribute in target_model._meta.get_all_field_names():
+                        if 'Localized' in attribute.__class__.__name__:
+                            object_model = attribute.__class__
+                            break
+                    if object_model == target_model:
+                        raise
+                    language = Language.objects.get(original_field.split(':')[0])
+                    object, created = object_model.objects.get_or_create(parent=target_object, language=language)
+                    if not object in localized_objects:
+                        localized_objects.append(object)
+                    field = original_field.split(':')[1]
+                
+                if not field in object_model._meta.get_all_field_names():
                     raise
-                field_type = target_model._meta.get_field(field).get_internal_type()
+                field_type = object_model._meta.get_field(field).get_internal_type()
                 if field_type == 'CharField':
-                    if string_value is None:
+                    if original_value is None:
                         value = u''
                     else:
-                        value = string_value
+                        value = original_value
                 elif field_type == 'DecimalField':
-                    value = Decimal(string_value)
+                    value = Decimal(original_value)
                 elif field_type == 'DateField':
-                    value = string_value
+                    value = original_value
                 else:
                     raise
-                setattr(target_object, field, value)
+                setattr(object, field, value)
             
             # Save
             target_object.full_clean()
             target_object.save()
-        
+            for localized_object in localized_objects:
+                localized_object.full_clean()
+                localized_object.save()
+            
         elif self.action == self.DELETE:
             target_object = self.target_object()
             if target_object:
@@ -251,16 +272,16 @@ class WikidataEntry(SuperLachaiseModel):
 class WikidataLocalizedEntry(SuperLachaiseModel):
     """ The part of a wikidata entry specific to a language """
     
-    wikidata_entry = models.ForeignKey('WikidataEntry')
+    parent = models.ForeignKey('WikidataEntry')
     language = models.ForeignKey('Language')
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
-        return unicode(self.language) + u':' + unicode(self.wikidata_entry)
+        return unicode(self.language) + u':' + unicode(self.parent)
     
     class Meta:
-        unique_together = ('wikidata_entry', 'language',)
+        unique_together = ('parent', 'language',)
         verbose_name = _('wikidata localized entry')
         verbose_name_plural = _('wikidata localized entries')

@@ -71,7 +71,7 @@ msgid ""
 "Synchronize Wikidata entries by querying the codes listed in OpenStreetMap "
 "elements"
 msgstr ""
-"Synchronise les entrées Wikidata en requêtant les codes lisétes dans les "
+"Synchronise les entrées Wikidata en requêtant les codes listées dans les "
 "éléments OpenStreetMap"
 
 #: management/commands/load_initial_data.py:49

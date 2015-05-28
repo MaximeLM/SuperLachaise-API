@@ -29,6 +29,9 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
+def decimal_handler(obj):
+    return str(obj) if isinstance(obj, Decimal) else obj
+
 def area_for_polygon(polygon):
     result = 0
     imax = len(polygon) - 1
@@ -76,6 +79,24 @@ class Command(BaseCommand):
         
         return result
     
+    def get_values_from_element(self, overpass_element, coordinate):
+        result = {
+            'type': overpass_element.__class__.__name__.lower(),
+            'name': none_to_blank(overpass_element.tags.get("name")),
+            'sorting_name': overpass_element.tags.get("sorting_name"),
+            'latitude': coordinate['x'],
+            'longitude': coordinate['y'],
+            'historic': none_to_blank(overpass_element.tags.get("historic")),
+            'wikipedia': none_to_blank(overpass_element.tags.get("wikipedia")),
+            'wikidata': none_to_blank(overpass_element.tags.get("wikidata")),
+            'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
+        }
+        
+        if not result['sorting_name']:
+            result['sorting_name'] = result['name']
+        
+        return result
+    
     def handle_element(self, overpass_element, coordinate):
         # Get element in database if it exists
         openStreetMap_element = OpenStreetMapElement.objects.filter(id=overpass_element.id).first()
@@ -84,20 +105,10 @@ class Command(BaseCommand):
             # Creation
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id))
             
-            modified_fields_dict = {
-                'type': overpass_element.__class__.__name__.lower(),
-                'name': overpass_element.tags.get("name"),
-                'sorting_name': overpass_element.tags.get("sorting_name"),
-                'latitude': str(coordinate['x']),
-                'longitude': str(coordinate['y']),
-                'historic': overpass_element.tags.get("historic"),
-                'wikipedia': overpass_element.tags.get("wikipedia"),
-                'wikidata': overpass_element.tags.get("wikidata"),
-                'wikimedia_commons': overpass_element.tags.get("wikimedia_commons"),
-            }
+            values_dict = self.get_values_from_element(overpass_element, coordinate)
             
             pendingModification.action = "create"
-            pendingModification.modified_fields = json.dumps(modified_fields_dict)
+            pendingModification.modified_fields = json.dumps(values_dict, default=decimal_handler)
             
             pendingModification.full_clean()
             pendingModification.save()
@@ -107,41 +118,17 @@ class Command(BaseCommand):
                 pendingModification.apply_modification()
         else:
             # Search for modifications
+            values_dict = self.get_values_from_element(overpass_element, coordinate)
             modified_values = {}
-            type = overpass_element.__class__.__name__.lower()
-            if none_to_blank(type) != openStreetMap_element.type:
-                modified_values['type'] = type
-            name = overpass_element.tags.get("name")
-            if none_to_blank(name) != openStreetMap_element.name:
-                modified_values['name'] = name
-            sorting_name = overpass_element.tags.get("sorting_name")
-            if not sorting_name:
-                sorting_name = name
-            if none_to_blank(sorting_name) != openStreetMap_element.sorting_name:
-                modified_values['sorting_name'] = sorting_name
-            historic = overpass_element.tags.get("historic")
-            if none_to_blank(historic) != openStreetMap_element.historic:
-                modified_values['historic'] = historic
-            wikipedia = overpass_element.tags.get("wikipedia")
-            if none_to_blank(wikipedia) != openStreetMap_element.wikipedia:
-                modified_values['wikipedia'] = wikipedia
-            wikidata = overpass_element.tags.get("wikidata")
-            if none_to_blank(wikidata) != openStreetMap_element.wikidata:
-                modified_values['wikidata'] = wikidata
-            wikimedia_commons = overpass_element.tags.get("wikimedia_commons")
-            if none_to_blank(wikimedia_commons) != openStreetMap_element.wikimedia_commons:
-                modified_values['wikimedia_commons'] = wikimedia_commons
-            latitude = coordinate['x']
-            if latitude != openStreetMap_element.latitude:
-                modified_values['latitude'] = str(latitude)
-            longitude = coordinate['y']
-            if longitude != openStreetMap_element.longitude:
-                modified_values['longitude'] = str(longitude)
+            
+            for field, value in values_dict.iteritems():
+                if value != getattr(openStreetMap_element, field):
+                    modified_values[field] = value
             
             if modified_values:
                 # Get or create a modification
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id))
-                pendingModification.modified_fields = json.dumps(modified_values)
+                pendingModification.modified_fields = json.dumps(modified_values, default=decimal_handler)
                 pendingModification.action = "modify"
                 
                 pendingModification.full_clean()
