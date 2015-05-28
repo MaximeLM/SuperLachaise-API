@@ -153,15 +153,15 @@ class SettingAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('type', 'wikidata_link', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'created', 'modified')
-    search_fields = ('id', 'type', 'wikimedia_commons',)
+    list_display = ('type', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'created', 'modified')
+    search_fields = ('id', 'type', 'wikimedia_commons_category', 'wikimedia_commons_grave_category',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['id', 'type', 'wikimedia_commons']}),
+        (None, {'fields': ['id', 'type', 'wikimedia_commons_category', 'wikimedia_commons_grave_category']}),
         (_('Dates'), {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('wikidata_link', 'created', 'modified')
+    readonly_fields = ('wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'created', 'modified')
     
     def wikidata_link(self, obj):
         if obj.id:
@@ -173,6 +173,26 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('id')
     wikidata_link.admin_order_field = 'id'
+    
+    def wikimedia_commons_category_link(self, obj):
+        if obj.wikimedia_commons_category:
+            url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_category))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
+        else:
+            return None
+    wikimedia_commons_category_link.allow_tags = True
+    wikimedia_commons_category_link.short_description = _('wikimedia commons category')
+    wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
+    
+    def wikimedia_commons_grave_category_link(self, obj):
+        if obj.wikimedia_commons_grave_category:
+            url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_grave_category))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_grave_category)))
+        else:
+            return None
+    wikimedia_commons_grave_category_link.allow_tags = True
+    wikimedia_commons_grave_category_link.short_description = _('wikimedia commons grave category')
+    wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'
 
 class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'created', 'modified')

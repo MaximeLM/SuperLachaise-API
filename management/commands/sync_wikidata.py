@@ -82,28 +82,34 @@ class Command(BaseCommand):
             #traceback.print_exc()
             return False
     
-    def get_wikimedia_commons(self, qualifiers):
+    def get_wikimedia_commons_category(self, entity):
         try:
-            p373 = qualifiers['P373']
+            # Use P373
+            p373 = entity['claims']['P373']
+            
+            wikimedia_commons = p373[0]['mainsnak']['datavalue']['value']
+            
+            # Delete random trailing character
+            return wikimedia_commons.replace(u'\u200e',u'')
+        except:
+            try:
+                # Fall back on sitelinks
+                wikimedia_commons = entity['sitelinks']['commonswiki']['title']
+            
+                # Delete random trailing character
+                return wikimedia_commons.replace(u'\u200e',u'')
+            except:
+                return none_to_blank(None)
+    
+    def get_wikimedia_commons_grave_category(self, entity):
+        try:
+            p119 = entity['claims']['P119']
+            p373 = p119[0]['qualifiers']['P373']
             
             wikimedia_commons = p373[0]['datavalue']['value']
             
             # Delete random trailing character
             return wikimedia_commons.replace(u'\u200e',u'')
-        except:
-            return none_to_blank(None)
-    
-    def get_place_wikimedia_commons(self, entity):
-        try:
-            return self.get_wikimedia_commons(entity['claims'])
-        except:
-            return none_to_blank(None)
-    
-    def get_person_wikimedia_commons(self, entity):
-        try:
-            p119 = entity['claims']['P119']
-            
-            return self.get_wikimedia_commons(p119[0]['qualifiers'])
         except:
             return none_to_blank(None)
     
@@ -161,12 +167,14 @@ class Command(BaseCommand):
         
         if self.get_is_human(entity):
             result['type'] = WikidataEntry.PERSON
-            result['wikimedia_commons'] = self.get_person_wikimedia_commons(entity)
+            result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
+            result['wikimedia_commons_grave_category'] = self.get_wikimedia_commons_grave_category(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
             result['date_of_death'], result['date_of_death_accuracy'] = self.get_date(entity, 'P570')
         else:
             result['type'] = WikidataEntry.PLACE
-            result['wikimedia_commons'] = self.get_place_wikimedia_commons(entity)
+            result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
+            result['wikimedia_commons_grave_category'] = none_to_blank(None)
             result['date_of_birth'], result['date_of_birth_accuracy'] = (None, none_to_blank(None))
             result['date_of_death'], result['date_of_death_accuracy'] = (None, none_to_blank(None))
         

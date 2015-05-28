@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-28 12:33+0200\n"
+"POT-Creation-Date: 2015-05-28 14:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr "Tags"
 msgid "OpenStreetMap"
 msgstr "OpenStreetMap"
 
-#: admin.py:87 admin.py:205 models.py:96 models.py:301
+#: admin.py:87 admin.py:225 models.py:96 models.py:302
 msgid "wikipedia"
 msgstr "wikipédia"
 
@@ -38,7 +38,7 @@ msgstr "wikipédia"
 msgid "wikidata"
 msgstr "wikidata"
 
-#: admin.py:108 models.py:98 models.py:281
+#: admin.py:108 models.py:98
 msgid "wikimedia commons"
 msgstr "wikimedia commons"
 
@@ -70,7 +70,15 @@ msgstr "Dates"
 msgid "id"
 msgstr "id"
 
-#: admin.py:195 models.py:124 models.py:292
+#: admin.py:184 models.py:281
+msgid "wikimedia commons category"
+msgstr "catégorie wikimedia commons"
+
+#: admin.py:194 models.py:282
+msgid "wikimedia commons grave category"
+msgstr "catégorie tombe wikimedia commons"
+
+#: admin.py:215 models.py:124 models.py:293
 msgid "wikidata entry"
 msgstr "entrée wikidata"
 
@@ -131,25 +139,25 @@ msgid "no outer way for relation found"
 msgstr "Aucun chemin extérieur trouvé pour la relation"
 
 #: management/commands/sync_openstreetmap.py:254
-#: management/commands/sync_wikidata.py:298
+#: management/commands/sync_wikidata.py:306
 #, python-brace-format
 msgid "{nb} object(s) created"
 msgstr "{nb} objet(s) créé(s)"
 
 #: management/commands/sync_openstreetmap.py:256
-#: management/commands/sync_wikidata.py:300
+#: management/commands/sync_wikidata.py:308
 #, python-brace-format
 msgid "{nb} object(s) modified"
 msgstr "{nb} objet(s) modifié(s)"
 
 #: management/commands/sync_openstreetmap.py:258
-#: management/commands/sync_wikidata.py:302
+#: management/commands/sync_wikidata.py:310
 #, python-brace-format
 msgid "{nb} object(s) deleted"
 msgstr "{nb} objet(s) supprimé(s)"
 
 #: management/commands/sync_openstreetmap.py:263
-#: management/commands/sync_wikidata.py:307
+#: management/commands/sync_wikidata.py:315
 msgid "No modifications"
 msgstr "Aucune modification"
 
@@ -161,11 +169,11 @@ msgstr "créé le"
 msgid "modified"
 msgstr "modifié le"
 
-#: models.py:47 models.py:92 models.py:300
+#: models.py:47 models.py:92 models.py:301
 msgid "name"
 msgstr "nom"
 
-#: models.py:48 models.py:67 models.py:243 models.py:302
+#: models.py:48 models.py:67 models.py:243 models.py:303
 msgid "description"
 msgstr "description"
 
@@ -273,30 +281,30 @@ msgstr "paramètre"
 msgid "settings"
 msgstr "paramètres"
 
-#: models.py:282
+#: models.py:283
 msgid "date of birth"
 msgstr "date de naissance"
 
-#: models.py:283
+#: models.py:284
 msgid "date of death"
 msgstr "date de décès"
 
-#: models.py:284
+#: models.py:285
 msgid "date of birth accuracy"
 msgstr "précision date de naissance"
 
-#: models.py:285
+#: models.py:286
 msgid "date of death accuracy"
 msgstr "précision date de décès"
 
-#: models.py:293
+#: models.py:294
 msgid "wikidata entries"
 msgstr "entrées wikidata"
 
-#: models.py:309
+#: models.py:310
 msgid "localized wikidata entry"
 msgstr "entrée wikidata localisée"
 
-#: models.py:310
+#: models.py:311
 msgid "localized wikidata entries"
 msgstr "entrées wikidata localisées"

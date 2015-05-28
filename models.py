@@ -278,7 +278,8 @@ class WikidataEntry(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
-    wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
+    wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
+    wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
     date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
     date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
     date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
