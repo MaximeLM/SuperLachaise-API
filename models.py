@@ -161,7 +161,7 @@ class PendingModification(SuperLachaiseModel):
             if not target_object:
                 target_object = target_model(id=self.target_object_id)
             
-            localized_objects = []
+            localized_objects = {}
             
             # Set field values
             for original_field, original_value in json.loads(self.modified_fields).iteritems():
@@ -169,16 +169,21 @@ class PendingModification(SuperLachaiseModel):
                 object = target_object
                 field = original_field
                 if ':' in field:
-                    for attribute in target_model._meta.get_all_field_names():
-                        if 'Localized' in attribute.__class__.__name__:
-                            object_model = attribute.__class__
-                            break
-                    if object_model == target_model:
+                    object_model = apps.get_model(self._meta.app_label, 'Localized' + self.target_object_class)
+                    if not object_model or object_model == target_model:
                         raise
-                    language = Language.objects.get(original_field.split(':')[0])
-                    object, created = object_model.objects.get_or_create(parent=target_object, language=language)
-                    if not object in localized_objects:
-                        localized_objects.append(object)
+                    language = Language.objects.get(code=original_field.split(':')[0])
+                    
+                    object = None
+                    if language.code in localized_objects:
+                        object = localized_objects[language.code]
+                    if not object:
+                        object = object_model.objects.filter(parent=target_object, language=language).first()
+                    if not object:
+                        object = object_model(parent=target_object, language=language)
+                    if not language.code in localized_objects:
+                        localized_objects[language.code] = object
+                    
                     field = original_field.split(':')[1]
                 
                 if not field in object_model._meta.get_all_field_names():
@@ -200,7 +205,8 @@ class PendingModification(SuperLachaiseModel):
             # Save
             target_object.full_clean()
             target_object.save()
-            for localized_object in localized_objects:
+            
+            for language_code, localized_object in localized_objects.iteritems():
                 localized_object.full_clean()
                 localized_object.save()
             
@@ -269,7 +275,7 @@ class WikidataEntry(SuperLachaiseModel):
         verbose_name = _('wikidata entry')
         verbose_name_plural = _('wikidata entries')
 
-class WikidataLocalizedEntry(SuperLachaiseModel):
+class LocalizedWikidataEntry(SuperLachaiseModel):
     """ The part of a wikidata entry specific to a language """
     
     parent = models.ForeignKey('WikidataEntry')
@@ -283,5 +289,5 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
     
     class Meta:
         unique_together = ('parent', 'language',)
-        verbose_name = _('wikidata localized entry')
-        verbose_name_plural = _('wikidata localized entries')
+        verbose_name = _('localized wikidata entry')
+        verbose_name_plural = _('localized wikidata entries')

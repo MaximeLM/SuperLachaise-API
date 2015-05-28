@@ -130,6 +130,30 @@ class Command(BaseCommand):
         except:
             return (None, none_to_blank(None))
     
+    def get_name(self, entity, language_code):
+        try:
+            name = entity['labels'][language_code]
+            
+            return name['value']
+        except:
+            return none_to_blank(None)
+    
+    def get_wikipedia(self, entity, language_code):
+        try:
+            wikipedia = entity['sitelinks'][language_code + 'wiki']
+            
+            return wikipedia['title']
+        except:
+            return none_to_blank(None)
+    
+    def get_description(self, entity, language_code):
+        try:
+            description = entity['descriptions'][language_code]
+            
+            return description['value']
+        except:
+            return none_to_blank(None)
+    
     def get_values_from_entity(self, entity):
         result = {}
         
@@ -146,13 +170,22 @@ class Command(BaseCommand):
         
         return result
     
+    def get_localized_values_from_entity(self, entity, language_code):
+        result = {
+            language_code + ':name': self.get_name(entity, language_code),
+            language_code + ':wikipedia': self.get_wikipedia(entity, language_code),
+            language_code + ':description': self.get_description(entity, language_code),
+        }
+        
+        return result
+    
     def sync_wikidata(self):
         # List wikidata codes in openstreetmap objects
-        wikidata_codes = []
-        for openstreetmap_element in OpenStreetMapElement.objects.all():
+        wikidata_codes = ['Q2339515']
+        """for openstreetmap_element in OpenStreetMapElement.objects.all():
             if openstreetmap_element.wikidata and not openstreetmap_element.wikidata in wikidata_codes:
                 wikidata_codes.append(openstreetmap_element.wikidata.replace(';','|'))
-        
+        """
         # Request wikidata entities
         entities = self.request_wikidata(wikidata_codes)
         for code, entity in entities.iteritems():
@@ -164,6 +197,8 @@ class Command(BaseCommand):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=code)
                 
                 values_dict = self.get_values_from_entity(entity)
+                for language in Language.objects.all():
+                    values_dict.update(self.get_localized_values_from_entity(entity, language.code))
                 
                 pendingModification.action = PendingModification.CREATE
                 pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)

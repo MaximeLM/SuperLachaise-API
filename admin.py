@@ -113,7 +113,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
 
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'created', 'modified')
-    ordering = ('target_object_class', 'target_object_id',)
+    ordering = ('action', 'target_object_class', 'target_object_id',)
     search_fields = ('target_object_class', 'target_object_id', 'action', 'modified_fields',)
     
     fieldsets = [
@@ -156,8 +156,8 @@ class SettingAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('created', 'modified')
 
-class WikidataLocalizedEntryInline(admin.StackedInline):
-    model = WikidataLocalizedEntry
+class LocalizedWikidataEntryInline(admin.StackedInline):
+    model = LocalizedWikidataEntry
     extra = 0
     
     fieldsets = [
@@ -179,13 +179,13 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     readonly_fields = ('wikidata_link', 'localizations', 'created', 'modified')
     
     inlines = [
-        WikidataLocalizedEntryInline,
+        LocalizedWikidataEntryInline,
     ]
     
     def localizations(self, obj):
-        return obj.wikidatalocalizedentry_set.count()
+        return obj.localizedwikidataentry_set.count()
     localizations.short_description = _('localizations')
-    localizations.admin_order_field = 'wikidatalocalizedentry__count'
+    localizations.admin_order_field = 'localizedwikidataentry__count'
     
     def wikidata_link(self, obj):
         if obj.id:
@@ -200,7 +200,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         qs = super(WikidataEntryAdmin, self).get_queryset(request)
-        qs = qs.annotate(models.Count('wikidatalocalizedentry'))
+        qs = qs.annotate(models.Count('localizedwikidataentry'))
         return qs
 
 admin.site.register(AdminCommand, AdminCommandAdmin)
