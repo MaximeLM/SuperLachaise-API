@@ -35,6 +35,7 @@ def date_handler(obj):
 class SuperLachaiseModel(models.Model):
     """ An abstract model with common fields """
     
+    notes = models.TextField(blank=True, verbose_name=_('notes'))
     created = models.DateTimeField(auto_now_add=True, verbose_name=_('created'))
     modified = models.DateTimeField(auto_now=True, verbose_name=_('modified'))
     

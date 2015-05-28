@@ -29,11 +29,11 @@ from django.utils.translation import ugettext as _
 from superlachaise_api.models import *
 
 class AdminCommandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'last_executed', 'last_result', 'description', 'created', 'modified')
+    list_display = ('name', 'last_executed', 'last_result', 'description', 'created', 'modified', 'notes')
     search_fields = ('name', 'description',)
     
     fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'last_executed', 'last_result', 'description']}),
     ]
     readonly_fields = ('last_executed', 'last_result', 'created', 'modified')
@@ -49,21 +49,21 @@ class AdminCommandAdmin(admin.ModelAdmin):
     actions=[perform_commands]
 
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ('code', 'description', 'created', 'modified')
+    list_display = ('code', 'description', 'created', 'modified', 'notes')
     search_fields = ('code', 'description',)
     
     fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['code', 'description']}),
     ]
     readonly_fields = ('created', 'modified')
 
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('name', 'sorting_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified')
+    list_display = ('name', 'sorting_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified', 'notes')
     search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
     
     fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'sorting_name', 'type', 'id', 'latitude', 'longitude']}),
         (_('Tags'), {'fields': ['historic', 'wikipedia', 'wikidata', 'wikimedia_commons']}),
     ]
@@ -109,12 +109,12 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons'
 
 class PendingModificationAdmin(admin.ModelAdmin):
-    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'created', 'modified')
+    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'created', 'modified', 'notes')
     ordering = ('action', 'target_object_class', 'target_object_id',)
     search_fields = ('target_object_class', 'target_object_id', 'action', 'modified_fields',)
     
     fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['created', 'modified', 'notes']}),
         (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
         (_('Modification'), {'fields': ['action', 'modified_fields']}),
     ]
@@ -143,25 +143,25 @@ class PendingModificationAdmin(admin.ModelAdmin):
     actions=[apply_modifications]
 
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('category', 'key', 'value', 'description', 'created', 'modified')
+    list_display = ('category', 'key', 'value', 'description', 'created', 'modified', 'notes')
     search_fields = ('category', 'key', 'value', 'description',)
     
     fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['category', 'key', 'value', 'description']}),
     ]
     readonly_fields = ('created', 'modified')
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('type', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'created', 'modified')
+    list_display = ('type', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified', 'notes')
     search_fields = ('id', 'type', 'wikimedia_commons_category', 'wikimedia_commons_grave_category',)
     
     fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['id', 'type', 'wikimedia_commons_category', 'wikimedia_commons_grave_category']}),
         (_('Dates'), {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'created', 'modified')
+    readonly_fields = ('wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
     
     def wikidata_link(self, obj):
         if obj.id:
@@ -193,13 +193,27 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     wikimedia_commons_grave_category_link.allow_tags = True
     wikimedia_commons_grave_category_link.short_description = _('wikimedia commons grave category')
     wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'
+    
+    def date_of_birth_with_accuracy(self, obj):
+        date = obj.date_of_birth if obj.date_of_birth else u''
+        accuracy = u' (%s)' % obj.date_of_birth_accuracy if obj.date_of_birth_accuracy else u''
+        return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
+    date_of_birth_with_accuracy.short_description = _('date of birth')
+    date_of_birth_with_accuracy.admin_order_field = 'date_of_birth'
+    
+    def date_of_death_with_accuracy(self, obj):
+        date = obj.date_of_death if obj.date_of_death else u''
+        accuracy = u' (%s)' % obj.date_of_death_accuracy if obj.date_of_death_accuracy else u''
+        return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
+    date_of_death_with_accuracy.short_description = _('date of death')
+    date_of_death_with_accuracy.admin_order_field = 'date_of_death'
 
 class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'created', 'modified')
+    list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'created', 'modified', 'notes')
     search_fields = ('language', 'parent', 'name',)
     
     fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['language', 'parent']}),
         (None, {'fields': ['name', 'wikipedia', 'description']}),
     ]

@@ -92,14 +92,7 @@ class Command(BaseCommand):
             # Delete random trailing character
             return wikimedia_commons.replace(u'\u200e',u'')
         except:
-            try:
-                # Fall back on sitelinks
-                wikimedia_commons = entity['sitelinks']['commonswiki']['title']
-            
-                # Delete random trailing character
-                return wikimedia_commons.replace(u'\u200e',u'')
-            except:
-                return none_to_blank(None)
+            return none_to_blank(None)
     
     def get_wikimedia_commons_grave_category(self, entity):
         try:
