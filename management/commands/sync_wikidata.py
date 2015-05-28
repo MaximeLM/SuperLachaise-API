@@ -186,12 +186,15 @@ class Command(BaseCommand):
         
         return None
     
-    def sync_wikidata(self):
+    def sync_wikidata(self, wikidata_ids):
         # List wikidata codes in openstreetmap objects
-        wikidata_codes = []
-        for openstreetmap_element in OpenStreetMapElement.objects.all():
-            if openstreetmap_element.wikidata and not openstreetmap_element.wikidata in wikidata_codes:
-                wikidata_codes.append(openstreetmap_element.wikidata.replace(';','|'))
+        if wikidata_ids:
+            wikidata_codes = wikidata_ids.split('|')
+        else:
+            wikidata_codes = []
+            for openstreetmap_element in OpenStreetMapElement.objects.all():
+                if openstreetmap_element.wikidata and not openstreetmap_element.wikidata in wikidata_codes:
+                    wikidata_codes.append(openstreetmap_element.wikidata.replace(';','|'))
         
         # Request wikidata entities
         entities = self.request_wikidata(wikidata_codes)
@@ -259,25 +262,29 @@ class Command(BaseCommand):
                     if pendingModification:
                         pendingModification.delete()
         
-        # Delete pending creations if element was deleted in Wikidata
-        for pendingModification in PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.CREATE):
-            if not pendingModification.target_object_id in entities:
-                pendingModification.delete()
+        if not wikidata_ids:
+            # Delete pending creations if element was deleted in Wikidata
+            for pendingModification in PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.CREATE):
+                if not pendingModification.target_object_id in entities:
+                    pendingModification.delete()
         
-        # Look for deleted elements
-        for wikidata_entry in WikidataEntry.objects.all():
-            if not wikidata_entry.id in entities:
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=wikidata_entry.id)
+            # Look for deleted elements
+            for wikidata_entry in WikidataEntry.objects.all():
+                if not wikidata_entry.id in entities:
+                    pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=wikidata_entry.id)
                 
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
+                    pendingModification.action = PendingModification.DELETE
+                    pendingModification.modified_fields = u''
                 
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.deleted_objects = self.deleted_objects + 1
+                    pendingModification.full_clean()
+                    pendingModification.save()
+                    self.deleted_objects = self.deleted_objects + 1
                 
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                    if self.auto_apply:
+                        pendingModification.apply_modification()
+    
+    def add_arguments(self, parser):
+        parser.add_argument('wikidata_ids', nargs='+', type=str)
     
     def handle(self, *args, **options):
         
@@ -292,7 +299,7 @@ class Command(BaseCommand):
             self.modified_objects = 0
             self.deleted_objects = 0
             
-            self.sync_wikidata()
+            self.sync_wikidata(options['wikidata_ids'][0])
             
             result_list = []
             if self.created_objects > 0:

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-28 15:35+0200\n"
+"POT-Creation-Date: 2015-05-28 16:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,75 +18,79 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: admin.py:47
+#: admin.py:48
 msgid "Execute selected commands"
 msgstr "Exécuter les commandes sélectionnées"
 
-#: admin.py:68
+#: admin.py:69
 msgid "Tags"
 msgstr "Tags"
 
-#: admin.py:76
+#: admin.py:77
 msgid "OpenStreetMap"
 msgstr "OpenStreetMap"
 
-#: admin.py:87 admin.py:239 models.py:97 models.py:303
+#: admin.py:88 admin.py:250 models.py:97 models.py:303
 msgid "wikipedia"
 msgstr "wikipédia"
 
-#: admin.py:98 models.py:98
+#: admin.py:99 models.py:98
 msgid "wikidata"
 msgstr "wikidata"
 
-#: admin.py:108 models.py:99
+#: admin.py:109 models.py:99
 msgid "wikimedia commons"
 msgstr "wikimedia commons"
 
-#: admin.py:118
+#: admin.py:119
 msgid "Target object"
 msgstr "Objet cible"
 
-#: admin.py:119
+#: admin.py:120
 msgid "Modification"
 msgstr "Modification"
 
-#: admin.py:131
+#: admin.py:132
 msgid "None"
 msgstr "Aucun(e)"
 
-#: admin.py:133
+#: admin.py:134
 msgid "target object link"
 msgstr "objet cible"
 
-#: admin.py:141
+#: admin.py:142
 msgid "Apply selected modifications"
 msgstr "Appliquer les modifications sélectionnées"
 
-#: admin.py:162
+#: admin.py:163
 msgid "Dates"
 msgstr "Dates"
 
-#: admin.py:174 models.py:91 models.py:280
+#: admin.py:175 models.py:91 models.py:280
 msgid "id"
 msgstr "id"
 
-#: admin.py:184 models.py:282
+#: admin.py:185 models.py:282
 msgid "wikimedia commons category"
 msgstr "catégorie wikimedia commons"
 
-#: admin.py:194 models.py:283
+#: admin.py:195 models.py:283
 msgid "wikimedia commons grave category"
 msgstr "catégorie tombe wikimedia commons"
 
-#: admin.py:201 models.py:284
+#: admin.py:202 models.py:284
 msgid "date of birth"
 msgstr "date de naissance"
 
-#: admin.py:208 models.py:285
+#: admin.py:209 models.py:285
 msgid "date of death"
 msgstr "date de décès"
 
-#: admin.py:229 models.py:125 models.py:294
+#: admin.py:218
+msgid "Sync selected entries"
+msgstr "Synchroniser les entrées sélectionnées"
+
+#: admin.py:240 models.py:125 models.py:294
 msgid "wikidata entry"
 msgstr "entrée wikidata"
 
@@ -147,25 +151,25 @@ msgid "no outer way for relation found"
 msgstr "Aucun chemin extérieur trouvé pour la relation"
 
 #: management/commands/sync_openstreetmap.py:254
-#: management/commands/sync_wikidata.py:299
+#: management/commands/sync_wikidata.py:306
 #, python-brace-format
 msgid "{nb} object(s) created"
 msgstr "{nb} objet(s) créé(s)"
 
 #: management/commands/sync_openstreetmap.py:256
-#: management/commands/sync_wikidata.py:301
+#: management/commands/sync_wikidata.py:308
 #, python-brace-format
 msgid "{nb} object(s) modified"
 msgstr "{nb} objet(s) modifié(s)"
 
 #: management/commands/sync_openstreetmap.py:258
-#: management/commands/sync_wikidata.py:303
+#: management/commands/sync_wikidata.py:310
 #, python-brace-format
 msgid "{nb} object(s) deleted"
 msgstr "{nb} objet(s) supprimé(s)"
 
 #: management/commands/sync_openstreetmap.py:263
-#: management/commands/sync_wikidata.py:308
+#: management/commands/sync_wikidata.py:315
 msgid "No modifications"
 msgstr "Aucune modification"
 

@@ -21,6 +21,7 @@ limitations under the License.
 """
 
 from django.contrib import admin
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.utils.safestring import mark_safe
@@ -207,6 +208,16 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
     date_of_death_with_accuracy.short_description = _('date of death')
     date_of_death_with_accuracy.admin_order_field = 'date_of_death'
+    
+    def sync_entry(self, request, queryset):
+        wikidata_entries_ids = []
+        for wikidata_entry in queryset:
+            wikidata_entries_ids.append(str(wikidata_entry.id))
+        call_command('sync_wikidata', '|'.join(wikidata_entries_ids))
+        
+    sync_entry.short_description = _('Sync selected entries')
+    
+    actions=[sync_entry]
 
 class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'created', 'modified', 'notes')

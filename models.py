@@ -54,7 +54,7 @@ class AdminCommand(SuperLachaiseModel):
         return self.name
     
     def perform_command(self):
-        call_command(str(self.name))
+        call_command(str(self.name), '')
     
     class Meta:
         ordering = ['name']
