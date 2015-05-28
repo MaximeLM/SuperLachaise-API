@@ -30,7 +30,6 @@ from superlachaise_api.models import *
 
 class AdminCommandAdmin(admin.ModelAdmin):
     list_display = ('name', 'last_executed', 'last_result', 'description', 'created', 'modified')
-    ordering = ('name',)
     search_fields = ('name', 'description',)
     
     fieldsets = [
@@ -51,7 +50,6 @@ class AdminCommandAdmin(admin.ModelAdmin):
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('code', 'description', 'created', 'modified')
-    ordering = ('code',)
     search_fields = ('code', 'description',)
     
     fieldsets = [
@@ -62,13 +60,12 @@ class LanguageAdmin(admin.ModelAdmin):
 
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
     list_display = ('name', 'sorting_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified')
-    ordering = ('sorting_name', 'name',)
     search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
         (None, {'fields': ['name', 'sorting_name', 'type', 'id', 'latitude', 'longitude']}),
-        (u'Tags', {'fields': ['historic', 'wikipedia', 'wikidata', 'wikimedia_commons']}),
+        (_('Tags'), {'fields': ['historic', 'wikipedia', 'wikidata', 'wikimedia_commons']}),
     ]
     readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link')
     
@@ -118,8 +115,8 @@ class PendingModificationAdmin(admin.ModelAdmin):
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (u'Target object', {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
-        (u'Modification', {'fields': ['action', 'modified_fields']}),
+        (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
+        (_('Modification'), {'fields': ['action', 'modified_fields']}),
     ]
     readonly_fields = ('target_object_link', 'created', 'modified')
     
@@ -147,7 +144,6 @@ class PendingModificationAdmin(admin.ModelAdmin):
 
 class SettingAdmin(admin.ModelAdmin):
     list_display = ('category', 'key', 'value', 'description', 'created', 'modified')
-    ordering = ('category', 'key',)
     search_fields = ('category', 'key', 'value', 'description',)
     
     fieldsets = [
@@ -156,36 +152,16 @@ class SettingAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('created', 'modified')
 
-class LocalizedWikidataEntryInline(admin.StackedInline):
-    model = LocalizedWikidataEntry
-    extra = 0
-    
-    fieldsets = [
-        (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['language', 'name', 'wikipedia', 'description']}),
-    ]
-    readonly_fields = ('created', 'modified')
-
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('type', 'wikidata_link', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'localizations', 'created', 'modified')
-    ordering = ('id', 'type',)
+    list_display = ('type', 'wikidata_link', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'created', 'modified')
     search_fields = ('id', 'type', 'wikimedia_commons',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
         (None, {'fields': ['id', 'type', 'wikimedia_commons']}),
-        (u'Dates', {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+        (_('Dates'), {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('wikidata_link', 'localizations', 'created', 'modified')
-    
-    inlines = [
-        LocalizedWikidataEntryInline,
-    ]
-    
-    def localizations(self, obj):
-        return obj.localizedwikidataentry_set.count()
-    localizations.short_description = _('localizations')
-    localizations.admin_order_field = 'localizedwikidataentry__count'
+    readonly_fields = ('wikidata_link', 'created', 'modified')
     
     def wikidata_link(self, obj):
         if obj.id:
@@ -197,11 +173,37 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('id')
     wikidata_link.admin_order_field = 'id'
+
+class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
+    list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'created', 'modified')
+    search_fields = ('language', 'parent', 'name',)
     
-    def get_queryset(self, request):
-        qs = super(WikidataEntryAdmin, self).get_queryset(request)
-        qs = qs.annotate(models.Count('localizedwikidataentry'))
-        return qs
+    fieldsets = [
+        (None, {'fields': ['created', 'modified']}),
+        (None, {'fields': ['language', 'parent']}),
+        (None, {'fields': ['name', 'wikipedia', 'description']}),
+    ]
+    readonly_fields = ('wikidata_entry', 'wikipedia_link', 'created', 'modified')
+    
+    def wikidata_entry(self, obj):
+        app_name = obj._meta.app_label
+        reverse_name = obj.parent.__class__.__name__.lower()
+        reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+        url = reverse(reverse_path, args=(obj.parent.id,))
+        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.parent)))
+    wikidata_entry.allow_tags = True
+    wikidata_entry.short_description = _('wikidata entry')
+    wikidata_entry.admin_order_field = 'parent'
+    
+    def wikipedia_link(self, obj):
+        if obj.wikipedia:
+            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
+        else:
+            return None
+    wikipedia_link.allow_tags = True
+    wikipedia_link.short_description = _('wikipedia')
+    wikipedia_link.admin_order_field = 'wikipedia'
 
 admin.site.register(AdminCommand, AdminCommandAdmin)
 admin.site.register(Language, LanguageAdmin)
@@ -209,3 +211,4 @@ admin.site.register(OpenStreetMapElement, OpenStreetMapElementAdmin)
 admin.site.register(PendingModification, PendingModificationAdmin)
 admin.site.register(Setting, SettingAdmin)
 admin.site.register(WikidataEntry, WikidataEntryAdmin)
+admin.site.register(LocalizedWikidataEntry, LocalizedWikidataEntryAdmin)

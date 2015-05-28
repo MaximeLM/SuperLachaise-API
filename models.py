@@ -56,6 +56,7 @@ class AdminCommand(SuperLachaiseModel):
         call_command(str(self.name))
     
     class Meta:
+        ordering = ['name']
         verbose_name = _('admin command')
         verbose_name_plural = _('admin commands')
 
@@ -67,6 +68,11 @@ class Language(SuperLachaiseModel):
     
     def __unicode__(self):
         return self.code
+    
+    class Meta:
+        ordering = ['code']
+        verbose_name = _('language')
+        verbose_name_plural = _('languages')
 
 class OpenStreetMapElement(SuperLachaiseModel):
     """ An OpenStreetMap element """
@@ -76,9 +82,9 @@ class OpenStreetMapElement(SuperLachaiseModel):
     RELATION = 'relation'
     
     type_choices = (
-        (NODE, _('node')),
-        (WAY, _('way')),
-        (RELATION, _('relation')),
+        (NODE, NODE),
+        (WAY, WAY),
+        (RELATION, RELATION),
     )
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
@@ -96,6 +102,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
         return self.name
     
     class Meta:
+        ordering = ['sorting_name', 'name']
         verbose_name = _('openstreetmap element')
         verbose_name_plural = _('openstreetmap elements')
 
@@ -107,9 +114,9 @@ class PendingModification(SuperLachaiseModel):
     DELETE = 'delete'
     
     action_choices = (
-        (CREATE, _('create')),
-        (MODIFY, _('modify')),
-        (DELETE, _('delete')),
+        (CREATE, CREATE),
+        (MODIFY, MODIFY),
+        (DELETE, DELETE),
     )
     
     target_object_class_choices = (
@@ -147,9 +154,10 @@ class PendingModification(SuperLachaiseModel):
             return self.action
     
     class Meta:
-        unique_together = ('target_object_class', 'target_object_id',)
+        ordering = ['action', 'target_object_class', 'target_object_id']
         verbose_name = _('pending modification')
         verbose_name_plural = _('pending modifications')
+        unique_together = ('target_object_class', 'target_object_id',)
     
     def apply_modification(self):
         """ Apply the modification and delete self """
@@ -238,9 +246,10 @@ class Setting(SuperLachaiseModel):
         return self.category + u':' + self.key
     
     class Meta:
-        unique_together = ('category', 'key',)
+        ordering = ['category', 'key']
         verbose_name = _('setting')
         verbose_name_plural = _('settings')
+        unique_together = ('category', 'key',)
 
 class WikidataEntry(SuperLachaiseModel):
     """ A wikidata entry """
@@ -251,20 +260,20 @@ class WikidataEntry(SuperLachaiseModel):
     SUBJECT = 'subject'
     
     type_choices = (
-        (PLACE, _('place')),
-        (PERSON, _('person')),
-        (ARTIST, _('artist')),
-        (SUBJECT, _('subject')),
+        (PLACE, PLACE),
+        (PERSON, PERSON),
+        (ARTIST, ARTIST),
+        (SUBJECT, SUBJECT),
     )
     
-    YEAR = 'Y'
-    MONTH = 'M'
-    DAY = 'D'
+    YEAR = 'Year'
+    MONTH = 'Month'
+    DAY = 'Day'
     
     accuracy_choices = (
-        (YEAR, _('Year')),
-        (MONTH, _('Month')),
-        (DAY, _('Day')),
+        (YEAR, YEAR),
+        (MONTH, MONTH),
+        (DAY, DAY),
     )
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
@@ -272,13 +281,14 @@ class WikidataEntry(SuperLachaiseModel):
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
     date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
-    date_of_birth_accuracy = models.CharField(max_length=1, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
-    date_of_death_accuracy = models.CharField(max_length=1, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
+    date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
+    date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     
     def __unicode__(self):
         return self.id + u': ' + self.type
     
     class Meta:
+        ordering = ['type', 'id']
         verbose_name = _('wikidata entry')
         verbose_name_plural = _('wikidata entries')
 
@@ -295,6 +305,7 @@ class LocalizedWikidataEntry(SuperLachaiseModel):
         return unicode(self.language) + u':' + unicode(self.parent)
     
     class Meta:
-        unique_together = ('parent', 'language',)
+        ordering = ['parent', 'language']
         verbose_name = _('localized wikidata entry')
         verbose_name_plural = _('localized wikidata entries')
+        unique_together = ('parent', 'language',)
