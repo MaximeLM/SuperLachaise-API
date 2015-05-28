@@ -95,13 +95,13 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
-            language = translation.get_language().split("-", 1)[0]
+            language = obj.wikipedia.split(':')[0]
             
             result = []
-            for link in obj.wikipedia.split(';'):
+            for link in obj.wikipedia.split(':')[1].split(';'):
                 url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(link)).replace("'","%27")
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return ';'.join(result)
+            return language + ':' + ';'.join(result)
         else:
             return None
     wikipedia_link.allow_tags = True
