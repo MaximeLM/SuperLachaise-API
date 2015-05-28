@@ -64,18 +64,9 @@ class Language(SuperLachaiseModel):
     
     code = models.CharField(max_length=10, unique=True, verbose_name=_('code'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
-    default_for_display = models.BooleanField(default=False, verbose_name=_('default for display'))
     
     def __unicode__(self):
         return self.code
-    
-    def save(self, *args, **kwargs):
-        if self.default_for_display:
-            for language in Language.objects.all():
-                if language != self and language.default_for_display:
-                    language.default_for_display = False
-                    language.save()
-        super(Language, self).save(*args, **kwargs)
 
 class OpenStreetMapElement(SuperLachaiseModel):
     """ An OpenStreetMap element """

@@ -50,13 +50,13 @@ class AdminCommandAdmin(admin.ModelAdmin):
     actions=[perform_commands]
 
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ('code', 'default_for_display', 'description', 'created', 'modified')
-    ordering = ('-default_for_display', 'code',)
+    list_display = ('code', 'description', 'created', 'modified')
+    ordering = ('code',)
     search_fields = ('code', 'description',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified']}),
-        (None, {'fields': ['default_for_display', 'code', 'description']}),
+        (None, {'fields': ['code', 'description']}),
     ]
     readonly_fields = ('created', 'modified')
 
@@ -167,7 +167,7 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     readonly_fields = ('created', 'modified')
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'wikidata_link', 'type', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'localizations', 'created', 'modified')
+    list_display = ('type', 'wikidata_link', 'wikimedia_commons', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'localizations', 'created', 'modified')
     ordering = ('id', 'type',)
     search_fields = ('id', 'type', 'wikimedia_commons',)
     
@@ -176,7 +176,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         (None, {'fields': ['id', 'type', 'wikimedia_commons']}),
         (u'Dates', {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('name', 'wikidata_link', 'localizations', 'created', 'modified')
+    readonly_fields = ('wikidata_link', 'localizations', 'created', 'modified')
     
     inlines = [
         WikidataLocalizedEntryInline,
@@ -186,15 +186,6 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         return obj.wikidatalocalizedentry_set.count()
     localizations.short_description = _('localizations')
     localizations.admin_order_field = 'wikidatalocalizedentry__count'
-    
-    def name(self, obj):
-        default_language = Language.objects.filter(default_for_display=True).first()
-        if default_language:
-            wikidata_localized_entry = WikidataLocalizedEntry.objects.filter(language=default_language).first()
-            if wikidata_localized_entry:
-                return wikidata_localized_entry.name
-        return None
-    name.short_description = _('name')
     
     def wikidata_link(self, obj):
         if obj.id:

@@ -47,7 +47,6 @@ class Command(BaseCommand):
         
         language, created = Language.objects.get_or_create(code="fr")
         language.description = _("French")
-        language.default_for_display = True
         language.save()
         
         language, created = Language.objects.get_or_create(code="en")
