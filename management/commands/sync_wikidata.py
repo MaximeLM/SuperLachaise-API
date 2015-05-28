@@ -47,25 +47,27 @@ class Command(BaseCommand):
         # List props to request
         props = ['labels', 'descriptions', 'claims', 'sitelinks']
         
+        max_items_per_request = 25
+        
         result = {}
         i = 0
         while i < len(wikidata_codes):
-            wikidata_codes_page = wikidata_codes[i : max(len(wikidata_codes) - 1, i + 49)]
+            wikidata_codes_page = wikidata_codes[i : min(len(wikidata_codes), i + max_items_per_request)]
             
             # Request properties
             url = "http://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&ids={ids}&props={props}&format=json"\
                 .format(languages='|'.join(languages), ids='|'.join(wikidata_codes_page), props='|'.join(props))
-            request = urllib2.Request(url, headers={"User-Agent" : "fill_from_wiki.py extraction tool lm.maxime@gmail.com"})
+            request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
             u = urllib2.urlopen(request)
             
             # Parse result
             data = u.read()
             json_result = json.loads(data)
-        
+            
             # Add entities to result
             result.update(json_result['entities'])
             
-            i = i + 50
+            i = i + max_items_per_request
         
         return result
     
@@ -177,17 +179,22 @@ class Command(BaseCommand):
             language_code + ':description': self.get_description(entity, language_code),
         }
         
-        return result
+        for key, value in result.iteritems():
+            if value != u'' and not value is None:
+                return result
+        
+        return None
     
     def sync_wikidata(self):
         # List wikidata codes in openstreetmap objects
-        wikidata_codes = ['Q2339515']
-        """for openstreetmap_element in OpenStreetMapElement.objects.all():
+        wikidata_codes = []
+        for openstreetmap_element in OpenStreetMapElement.objects.all():
             if openstreetmap_element.wikidata and not openstreetmap_element.wikidata in wikidata_codes:
                 wikidata_codes.append(openstreetmap_element.wikidata.replace(';','|'))
-        """
+        
         # Request wikidata entities
         entities = self.request_wikidata(wikidata_codes)
+        
         for code, entity in entities.iteritems():
             # Get element in database if it exists
             wikidata_entry = WikidataEntry.objects.filter(id=code).first()
@@ -211,12 +218,27 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Search for modifications
-                values_dict = self.get_values_from_entity(entity)
                 modified_values = {}
                 
+                values_dict = self.get_values_from_entity(entity)
                 for field, value in values_dict.iteritems():
                     if value != getattr(wikidata_entry, field):
                         modified_values[field] = value
+                
+                for language in Language.objects.all():
+                    values_dict = self.get_localized_values_from_entity(entity, language.code)
+                    localized_wikidata_entry = LocalizedWikidataEntry.objects.filter(parent=wikidata_entry, language=language).first()
+                    
+                    if values_dict:
+                        if not localized_wikidata_entry:
+                            modified_values.update(values_dict)
+                        else:
+                            for field, value in values_dict.iteritems():
+                                if value != getattr(localized_wikidata_entry, field.split(':')[1]):
+                                    modified_values[field] = value
+                    else:
+                        if localized_wikidata_entry:
+                            modified_values[language.code + u':'] = None
                 
                 if modified_values:
                     # Get or create a modification

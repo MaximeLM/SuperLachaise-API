@@ -179,11 +179,18 @@ class PendingModification(SuperLachaiseModel):
                         object = localized_objects[language.code]
                     if not object:
                         object = object_model.objects.filter(parent=target_object, language=language).first()
+                    
+                    if original_field == (language.code + u':') and original_value is None:
+                        # Delete localization
+                        if object:
+                            object.delete()
+                        continue
+                    
                     if not object:
                         object = object_model(parent=target_object, language=language)
+                    
                     if not language.code in localized_objects:
                         localized_objects[language.code] = object
-                    
                     field = original_field.split(':')[1]
                 
                 if not field in object_model._meta.get_all_field_names():
@@ -209,7 +216,7 @@ class PendingModification(SuperLachaiseModel):
             for language_code, localized_object in localized_objects.iteritems():
                 localized_object.full_clean()
                 localized_object.save()
-            
+        
         elif self.action == self.DELETE:
             target_object = self.target_object()
             if target_object:

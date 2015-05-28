@@ -118,9 +118,9 @@ class Command(BaseCommand):
                 pendingModification.apply_modification()
         else:
             # Search for modifications
-            values_dict = self.get_values_from_element(overpass_element, coordinate)
             modified_values = {}
             
+            values_dict = self.get_values_from_element(overpass_element, coordinate)
             for field, value in values_dict.iteritems():
                 if value != getattr(openStreetMap_element, field):
                     modified_values[field] = value
