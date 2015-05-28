@@ -20,6 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import urllib
 from django.contrib import admin
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
@@ -47,7 +48,11 @@ class AdminCommandAdmin(admin.ModelAdmin):
                 print exception
     perform_commands.short_description = _('Execute selected commands')
     
-    actions=[perform_commands]
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions=[perform_commands, delete_notes]
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('code', 'description', 'created', 'modified', 'notes')
@@ -58,6 +63,12 @@ class LanguageAdmin(admin.ModelAdmin):
         (None, {'fields': ['code', 'description']}),
     ]
     readonly_fields = ('created', 'modified')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]
 
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
     list_display = ('name', 'sorting_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified', 'notes')
@@ -80,7 +91,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     def wikipedia_link(self, obj):
         if obj.wikipedia:
             language = translation.get_language().split("-", 1)[0]
-            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(obj.wikipedia))
+            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(obj.wikipedia)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
         else:
             return None
@@ -101,13 +112,19 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     def wikimedia_commons_link(self, obj):
         if obj.wikimedia_commons:
-            url = u'http://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons))
+            url = u'http://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons)))
         else:
             return None
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons'
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]
 
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'created', 'modified', 'notes')
@@ -141,7 +158,11 @@ class PendingModificationAdmin(admin.ModelAdmin):
                 print exception
     apply_modifications.short_description = _('Apply selected modifications')
     
-    actions=[apply_modifications]
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions=[apply_modifications, delete_notes]
 
 class SettingAdmin(admin.ModelAdmin):
     list_display = ('category', 'key', 'value', 'description', 'created', 'modified', 'notes')
@@ -152,6 +173,12 @@ class SettingAdmin(admin.ModelAdmin):
         (None, {'fields': ['category', 'key', 'value', 'description']}),
     ]
     readonly_fields = ('created', 'modified')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]
 
 class WikidataEntryAdmin(admin.ModelAdmin):
     list_display = ('type', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified', 'notes')
@@ -177,7 +204,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def wikimedia_commons_category_link(self, obj):
         if obj.wikimedia_commons_category:
-            url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_category))
+            url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_category)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
         else:
             return None
@@ -187,7 +214,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def wikimedia_commons_grave_category_link(self, obj):
         if obj.wikimedia_commons_grave_category:
-            url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_grave_category))
+            url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_grave_category)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_grave_category)))
         else:
             return None
@@ -214,10 +241,13 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         for wikidata_entry in queryset:
             wikidata_entries_ids.append(str(wikidata_entry.id))
         call_command('sync_wikidata', '|'.join(wikidata_entries_ids))
-        
     sync_entry.short_description = _('Sync selected entries')
     
-    actions=[sync_entry]
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions=[sync_entry, delete_notes]
 
 class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'created', 'modified', 'notes')
@@ -242,13 +272,19 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
-            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia))
+            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
         else:
             return None
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]
 
 admin.site.register(AdminCommand, AdminCommandAdmin)
 admin.site.register(Language, LanguageAdmin)
