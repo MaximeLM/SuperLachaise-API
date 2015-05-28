@@ -54,7 +54,7 @@ class AdminCommand(SuperLachaiseModel):
         return self.name
     
     def perform_command(self):
-        call_command(str(self.name), '')
+        call_command(str(self.name))
     
     class Meta:
         ordering = ['name']
@@ -96,8 +96,8 @@ class OpenStreetMapElement(SuperLachaiseModel):
     longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
+    subject_wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('subject:wikidata'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
-    historic = models.CharField(max_length=255, blank=True, verbose_name=_('historic'))
     
     def __unicode__(self):
         return self.name

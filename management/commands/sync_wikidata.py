@@ -195,6 +195,8 @@ class Command(BaseCommand):
             for openstreetmap_element in OpenStreetMapElement.objects.all():
                 if openstreetmap_element.wikidata and not openstreetmap_element.wikidata in wikidata_codes:
                     wikidata_codes.append(openstreetmap_element.wikidata.replace(';','|'))
+                if openstreetmap_element.subject_wikidata and not openstreetmap_element.subject_wikidata in wikidata_codes:
+                    wikidata_codes.append(openstreetmap_element.subject_wikidata.replace(';','|'))
         
         # Request wikidata entities
         entities = self.request_wikidata(wikidata_codes)
@@ -284,13 +286,15 @@ class Command(BaseCommand):
                         pendingModification.apply_modification()
     
     def add_arguments(self, parser):
-        parser.add_argument('wikidata_ids', nargs='+', type=str)
+        parser.add_argument('--wikidata_ids',
+            action='store',
+            dest='wikidata_ids')
     
     def handle(self, *args, **options):
         
         translation.activate(settings.LANGUAGE_CODE)
         
-        self.auto_apply = (Setting.objects.get(category='Modifications', key=u'auto_apply').value == 'true')
+        self.auto_apply = (Setting.objects.get(category='Wikidata', key=u'auto_apply').value == 'true')
         
         admin_command = AdminCommand.objects.get(name='sync_wikidata')
         
@@ -299,7 +303,7 @@ class Command(BaseCommand):
             self.modified_objects = 0
             self.deleted_objects = 0
             
-            self.sync_wikidata(options['wikidata_ids'][0])
+            self.sync_wikidata(options['wikidata_ids'])
             
             result_list = []
             if self.created_objects > 0:

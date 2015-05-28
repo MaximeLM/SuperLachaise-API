@@ -31,7 +31,7 @@ from django.utils.translation import ugettext as _
 from superlachaise_api.models import *
 
 class AdminCommandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'last_executed', 'last_result', 'description', 'created', 'modified', 'notes')
+    list_display = ('name', 'last_executed', 'last_result', 'description', 'notes')
     search_fields = ('name', 'description',)
     
     fieldsets = [
@@ -46,16 +46,16 @@ class AdminCommandAdmin(admin.ModelAdmin):
                 admin_command.perform_command()
             except Exception as exception:
                 print exception
-    perform_commands.short_description = _('Execute selected commands')
+    perform_commands.short_description = _('Execute selected admin commands')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
+    delete_notes.short_description = _('Delete selected objects notes')
     
-    actions=[perform_commands, delete_notes]
+    actions=[delete_notes, perform_commands]
 
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ('code', 'description', 'created', 'modified', 'notes')
+    list_display = ('code', 'description', 'notes')
     search_fields = ('code', 'description',)
     
     fieldsets = [
@@ -66,20 +66,25 @@ class LanguageAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
+    delete_notes.short_description = _('Delete selected objects notes')
     
     actions = [delete_notes]
 
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('name', 'sorting_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link', 'historic', 'latitude', 'longitude', 'created', 'modified', 'notes')
+    list_display = ('sorted_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'subject_wikidata_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
     search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'sorting_name', 'type', 'id', 'latitude', 'longitude']}),
-        (_('Tags'), {'fields': ['historic', 'wikipedia', 'wikidata', 'wikimedia_commons']}),
+        (_('Tags'), {'fields': ['wikipedia', 'wikidata', 'subject_wikidata', 'wikimedia_commons']}),
     ]
-    readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikimedia_commons_link')
+    readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'subject_wikidata_link', 'wikimedia_commons_link')
+    
+    def sorted_name(self, obj):
+        return obj.name
+    sorted_name.short_description = _('name')
+    sorted_name.admin_order_field = 'sorting_name'
     
     def openstreetmap_link(self, obj):
         url = u'https://www.openstreetmap.org/{type}/{id}'.format(type=obj.type, id=unicode(obj.id))
@@ -91,8 +96,12 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     def wikipedia_link(self, obj):
         if obj.wikipedia:
             language = translation.get_language().split("-", 1)[0]
-            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(obj.wikipedia)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
+            
+            result = []
+            for link in obj.wikipedia.split(';'):
+                url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(link)).replace("'","%27")
+                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+            return ';'.join(result)
         else:
             return None
     wikipedia_link.allow_tags = True
@@ -102,13 +111,32 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     def wikidata_link(self, obj):
         if obj.wikidata:
             language = translation.get_language().split("-", 1)[0]
-            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata)))
+            
+            result = []
+            for link in obj.wikidata.split(';'):
+                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+            return ';'.join(result)
         else:
             return None
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata'
+    
+    def subject_wikidata_link(self, obj):
+        if obj.subject_wikidata:
+            language = translation.get_language().split("-", 1)[0]
+            
+            result = []
+            for link in obj.subject_wikidata.split(';'):
+                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+            return ';'.join(result)
+        else:
+            return None
+    subject_wikidata_link.allow_tags = True
+    subject_wikidata_link.short_description = _('subject:wikidata')
+    subject_wikidata_link.admin_order_field = 'subject_wikidata'
     
     def wikimedia_commons_link(self, obj):
         if obj.wikimedia_commons:
@@ -122,12 +150,12 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
+    delete_notes.short_description = _('Delete selected objects notes')
     
     actions = [delete_notes]
 
 class PendingModificationAdmin(admin.ModelAdmin):
-    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'created', 'modified', 'notes')
+    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'notes')
     ordering = ('action', 'target_object_class', 'target_object_id',)
     search_fields = ('target_object_class', 'target_object_id', 'action', 'modified_fields',)
     
@@ -156,16 +184,16 @@ class PendingModificationAdmin(admin.ModelAdmin):
                 pending_modification.apply_modification()
             except Exception as exception:
                 print exception
-    apply_modifications.short_description = _('Apply selected modifications')
+    apply_modifications.short_description = _('Apply selected pending modifications')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
+    delete_notes.short_description = _('Delete selected objects notes')
     
-    actions=[apply_modifications, delete_notes]
+    actions=[delete_notes, apply_modifications]
 
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('category', 'key', 'value', 'description', 'created', 'modified', 'notes')
+    list_display = ('category', 'key', 'value', 'description', 'notes')
     search_fields = ('category', 'key', 'value', 'description',)
     
     fieldsets = [
@@ -176,12 +204,12 @@ class SettingAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
+    delete_notes.short_description = _('Delete selected objects notes')
     
     actions = [delete_notes]
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('type', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified', 'notes')
+    list_display = ('type', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
     search_fields = ('id', 'type', 'wikimedia_commons_category', 'wikimedia_commons_grave_category',)
     
     fieldsets = [
@@ -237,20 +265,20 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     date_of_death_with_accuracy.admin_order_field = 'date_of_death'
     
     def sync_entry(self, request, queryset):
-        wikidata_entries_ids = []
+        wikidata_ids = []
         for wikidata_entry in queryset:
-            wikidata_entries_ids.append(str(wikidata_entry.id))
-        call_command('sync_wikidata', '|'.join(wikidata_entries_ids))
-    sync_entry.short_description = _('Sync selected entries')
+            wikidata_ids.append(str(wikidata_entry.id))
+        call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
+    sync_entry.short_description = _('Sync selected wikidata entries')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
+    delete_notes.short_description = _('Delete selected objects notes')
     
-    actions=[sync_entry, delete_notes]
+    actions=[delete_notes, sync_entry]
 
 class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'created', 'modified', 'notes')
+    list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'notes')
     search_fields = ('language', 'parent', 'name',)
     
     fieldsets = [
@@ -282,7 +310,7 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
+    delete_notes.short_description = _('Delete selected objects notes')
     
     actions = [delete_notes]
 

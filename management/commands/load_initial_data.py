@@ -55,7 +55,7 @@ class Command(BaseCommand):
         
         # Settings
         
-        setting, created = Setting.objects.get_or_create(category="Modifications", key="auto_apply")
+        setting, created = Setting.objects.get_or_create(category="OpenStreetMap", key="auto_apply_modifications")
         setting.value = "false"
         setting.description = _("""If set to 'true', new modifications are applied immediately after being created.
 If set to 'false', a pending modification is created and must be manually accepted.""")
@@ -74,6 +74,12 @@ If set to 'false', a pending modification is created and must be manually accept
         setting, created = Setting.objects.get_or_create(category="OpenStreetMap", key="synced_tags")
         setting.value = """["historic=tomb", "historic=memorial"]"""
         setting.description = _("""The OpenStreetMap tags to sync (nodes, ways or relations)""")
+        setting.save()
+        
+        setting, created = Setting.objects.get_or_create(category="Wikidata", key="auto_apply_modifications")
+        setting.value = "false"
+        setting.description = _("""If set to 'true', new modifications are applied immediately after being created.
+If set to 'false', a pending modification is created and must be manually accepted.""")
         setting.save()
         
         translation.deactivate()

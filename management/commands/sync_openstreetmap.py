@@ -86,9 +86,9 @@ class Command(BaseCommand):
             'sorting_name': overpass_element.tags.get("sorting_name"),
             'latitude': coordinate['x'],
             'longitude': coordinate['y'],
-            'historic': none_to_blank(overpass_element.tags.get("historic")),
             'wikipedia': none_to_blank(overpass_element.tags.get("wikipedia")),
             'wikidata': none_to_blank(overpass_element.tags.get("wikidata")),
+            'subject_wikidata': none_to_blank(overpass_element.tags.get("subject:wikidata")),
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
         }
         
@@ -237,7 +237,7 @@ class Command(BaseCommand):
         
         admin_command = AdminCommand.objects.get(name='sync_openstreetmap')
         
-        self.auto_apply = (Setting.objects.get(category='Modifications', key=u'auto_apply').value == 'true')
+        self.auto_apply = (Setting.objects.get(category='OpenStreetMap', key=u'auto_apply').value == 'true')
         self.bounding_box = Setting.objects.get(category='OpenStreetMap', key=u'bounding_box').value
         self.exclude_ids = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'exclude_ids').value)
         self.synced_tags = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'synced_tags').value)
