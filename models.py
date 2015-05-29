@@ -268,6 +268,7 @@ class WikidataEntry(SuperLachaiseModel):
     )
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
     wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
     wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
@@ -277,10 +278,10 @@ class WikidataEntry(SuperLachaiseModel):
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     
     def __unicode__(self):
-        return self.id
+        return self.name
     
     class Meta:
-        ordering = ['id']
+        ordering = ['name', 'id']
         verbose_name = _('wikidata entry')
         verbose_name_plural = _('wikidata entries')
 
@@ -294,7 +295,7 @@ class LocalizedWikidataEntry(SuperLachaiseModel):
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
-        return unicode(self.language) + u':' + unicode(self.parent)
+        return unicode(self.language) + u':' + self.name
     
     class Meta:
         ordering = ['parent', 'language']

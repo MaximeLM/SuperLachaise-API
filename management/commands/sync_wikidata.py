@@ -204,6 +204,15 @@ class Command(BaseCommand):
             result['date_of_birth'], result['date_of_birth_accuracy'] = (None, none_to_blank(None))
             result['date_of_death'], result['date_of_death_accuracy'] = (None, none_to_blank(None))
         
+        current_language = translation.get_language().split("-", 1)[0]
+        result['name'] = u''
+        for language in Language.objects.all():
+            name = self.get_name(entity, language.code)
+            if name:
+                result['name'] = name
+            if language.code == current_language:
+                break
+        
         return result
     
     def get_localized_values_from_entity(self, entity, language_code):
@@ -278,7 +287,7 @@ class Command(BaseCommand):
                 for language in Language.objects.all():
                     localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
                     if localized_values_dict:
-                        values_dict.update(self.get_localized_values_from_entity(entity, language.code))
+                        values_dict.update(localized_values_dict)
                 
                 pendingModification.action = PendingModification.CREATE
                 pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)

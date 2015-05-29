@@ -209,7 +209,7 @@ class SettingAdmin(admin.ModelAdmin):
     actions = [delete_notes]
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('instance_of', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    list_display = ('name', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
     search_fields = ('id', 'wikimedia_commons_category', 'wikimedia_commons_grave_category',)
     
     fieldsets = [
@@ -217,7 +217,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         (None, {'fields': ['id', 'instance_of', 'wikimedia_commons_category', 'wikimedia_commons_grave_category']}),
         (_('Dates'), {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
+    readonly_fields = ('wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
     
     def wikidata_link(self, obj):
         if obj.id:
@@ -227,8 +227,19 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         else:
             return None
     wikidata_link.allow_tags = True
-    wikidata_link.short_description = _('id')
+    wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'id'
+    
+    def instance_of_link(self, obj):
+        if obj.instance_of:
+            language = translation.get_language().split("-", 1)[0]
+            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.instance_of), language=language)
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.instance_of)))
+        else:
+            return None
+    instance_of_link.allow_tags = True
+    instance_of_link.short_description = _('instance_of')
+    instance_of_link.admin_order_field = 'instance_of'
     
     def wikimedia_commons_category_link(self, obj):
         if obj.wikimedia_commons_category:
