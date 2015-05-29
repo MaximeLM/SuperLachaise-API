@@ -110,9 +110,13 @@ class Command(BaseCommand):
         try:
             p31 = entity['claims']['P31']
             
-            return 'Q' + str(p31[0]['mainsnak']['datavalue']['value']['numeric-id'])
+            result = []
+            for entry in p31:
+                result.append('Q' + str(entry['mainsnak']['datavalue']['value']['numeric-id']))
+            
+            return result
         except:
-            return u''
+            return []
     
     def get_wikimedia_commons_category(self, entity):
         try:
@@ -124,19 +128,23 @@ class Command(BaseCommand):
             # Delete random trailing character
             return wikimedia_commons.replace(u'\u200e',u'')
         except:
-            return none_to_blank(None)
+            return u''
     
     def get_wikimedia_commons_grave_category(self, entity):
         try:
             p119 = entity['claims']['P119']
-            p373 = p119[0]['qualifiers']['P373']
+            
+            for location_of_burial in p119:
+                if ('Q' + str(location_of_burial['mainsnak']['datavalue']['value']['numeric-id'])) in self.accepted_locations_of_burial:
+                    p373 = location_of_burial['qualifiers']['P373']
+                    break
             
             wikimedia_commons = p373[0]['datavalue']['value']
             
             # Delete random trailing character
             return wikimedia_commons.replace(u'\u200e',u'')
         except:
-            return none_to_blank(None)
+            return u''
     
     def get_date(self, entity, date_code):
         try:
@@ -161,7 +169,7 @@ class Command(BaseCommand):
             
             return (date, accuracy)
         except:
-            return (None, none_to_blank(None))
+            return (None, u'')
     
     def get_name(self, entity, language_code):
         try:
@@ -169,7 +177,7 @@ class Command(BaseCommand):
             
             return name['value']
         except:
-            return none_to_blank(None)
+            return u''
     
     def get_wikipedia(self, entity, language_code):
         try:
@@ -177,7 +185,7 @@ class Command(BaseCommand):
             
             return wikipedia['title']
         except:
-            return none_to_blank(None)
+            return u''
     
     def get_description(self, entity, language_code):
         try:
@@ -185,24 +193,46 @@ class Command(BaseCommand):
             
             return description['value']
         except:
-            return none_to_blank(None)
+            return u''
+    
+    def get_grave_of_wikidata(self, entity):
+        try:
+            p31 = entity['claims']['P31']
+            
+            result = []
+            for entry in p31:
+                if str(entry['mainsnak']['datavalue']['value']['numeric-id']) == '173387':
+                    for p642 in entry['qualifiers']['P642']:
+                        result.append('Q' + str(p642['datavalue']['value']['numeric-id']))
+                    break
+            
+            return ';'.join(result)
+        except:
+            return u''
     
     def get_values_from_entity(self, entity):
         result = {}
         
         instance_of = self.get_instance_of(entity)
-        if instance_of == 'Q5':
-            result['instance_of'] = instance_of
+        result['instance_of'] = ';'.join(instance_of)
+        
+        if 'Q5' in instance_of:
+            # human
             result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
             result['wikimedia_commons_grave_category'] = self.get_wikimedia_commons_grave_category(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
             result['date_of_death'], result['date_of_death_accuracy'] = self.get_date(entity, 'P570')
         else:
-            result['instance_of'] = instance_of
             result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
-            result['wikimedia_commons_grave_category'] = none_to_blank(None)
-            result['date_of_birth'], result['date_of_birth_accuracy'] = (None, none_to_blank(None))
-            result['date_of_death'], result['date_of_death_accuracy'] = (None, none_to_blank(None))
+            result['wikimedia_commons_grave_category'] = u''
+            result['date_of_birth'], result['date_of_birth_accuracy'] = (None, u'')
+            result['date_of_death'], result['date_of_death_accuracy'] = (None, u'')
+        
+        if 'Q173387' in instance_of:
+            # tomb
+            result['grave_of_wikidata'] = self.get_grave_of_wikidata(entity)
+        else:
+            result['grave_of_wikidata'] = u''
         
         current_language = translation.get_language().split("-", 1)[0]
         result['name'] = u''
@@ -248,13 +278,25 @@ class Command(BaseCommand):
                     for link in openstreetmap_element.wikipedia.split(':')[1].split(';'):
                         if not link in wikipedia_titles[language_code]:
                             wikipedia_titles[language_code].append(link)
-                if self.sync_from_wikipedia and openstreetmap_element.subject_wikipedia:
+                if openstreetmap_element.artist_wikipedia:
+                    language_code = openstreetmap_element.artist_wikipedia.split(':')[0]
+                    if not language_code in wikipedia_titles:
+                        wikipedia_titles[language_code] = []
+                    for link in openstreetmap_element.artist_wikipedia.split(':')[1].split(';'):
+                        if not link in wikipedia_titles[language_code]:
+                            wikipedia_titles[language_code].append(link)
+                if openstreetmap_element.subject_wikipedia:
                     language_code = openstreetmap_element.subject_wikipedia.split(':')[0]
                     if not language_code in wikipedia_titles:
                         wikipedia_titles[language_code] = []
                     for link in openstreetmap_element.subject_wikipedia.split(':')[1].split(';'):
                         if not link in wikipedia_titles[language_code]:
                             wikipedia_titles[language_code].append(link)
+            for wikidata_entry in WikidataEntry.objects.all():
+                if wikidata_entry.grave_of_wikidata:
+                    for link in wikidata_entry.grave_of_wikidata.split(';'):
+                        if not link in wikidata_codes:
+                            wikidata_codes.append(link)
         
         # Request wikidata entities
         entities = {}
@@ -370,6 +412,7 @@ class Command(BaseCommand):
         
         translation.activate(settings.LANGUAGE_CODE)
         
+        self.accepted_locations_of_burial = json.loads(Setting.objects.get(category='Wikidata', key=u'accepted_locations_of_burial').value)
         self.auto_apply = (Setting.objects.get(category='Wikidata', key=u'auto_apply_modifications').value == 'true')
         self.sync_from_wikidata = (Setting.objects.get(category='Wikidata', key=u'sync_from_wikidata').value == 'true')
         self.sync_from_wikipedia = (Setting.objects.get(category='Wikidata', key=u'sync_from_wikipedia').value == 'true')

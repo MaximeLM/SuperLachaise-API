@@ -88,6 +88,7 @@ class Command(BaseCommand):
             'longitude': coordinate['y'],
             'wikipedia': none_to_blank(overpass_element.tags.get("wikipedia")),
             'wikidata': none_to_blank(overpass_element.tags.get("wikidata")),
+            'artist_wikipedia': none_to_blank(overpass_element.tags.get("artist:wikipedia")),
             'subject_wikipedia': none_to_blank(overpass_element.tags.get("subject:wikipedia")),
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
         }

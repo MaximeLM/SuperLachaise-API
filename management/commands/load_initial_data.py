@@ -75,6 +75,11 @@ class Command(BaseCommand):
         setting.description = _("""The OpenStreetMap tags to sync (nodes, ways or relations)""")
         setting.save()
         
+        setting, created = Setting.objects.get_or_create(category="Wikidata", key="accepted_locations_of_burial")
+        setting.value = """["Q311", "Q3006253"]"""
+        setting.description = _("""The list of wikidata codes for cemeteries where to look for tomb data (property P119)""")
+        setting.save()
+        
         setting, created = Setting.objects.get_or_create(category="Wikidata", key="auto_apply_modifications")
         setting.value = "false"
         setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")

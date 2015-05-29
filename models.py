@@ -96,6 +96,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
     longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
+    artist_wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('artist:wikipedia'))
     subject_wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('subject:wikipedia'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     
@@ -272,6 +273,7 @@ class WikidataEntry(SuperLachaiseModel):
     instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
     wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
     wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
+    grave_of_wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('grave_of:wikidata'))
     date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
     date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
     date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))

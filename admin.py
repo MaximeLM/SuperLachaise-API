@@ -71,15 +71,15 @@ class LanguageAdmin(admin.ModelAdmin):
     actions = [delete_notes]
 
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('sorted_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'subject_wikipedia_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
+    list_display = ('sorted_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'artist_wikipedia_link', 'subject_wikipedia_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
     search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'sorting_name', 'type', 'id', 'latitude', 'longitude']}),
-        (_('Tags'), {'fields': ['wikipedia', 'wikidata', 'subject_wikipedia', 'wikimedia_commons']}),
+        (_('Tags'), {'fields': ['wikipedia', 'wikidata', 'artist_wikipedia', 'subject_wikipedia', 'wikimedia_commons']}),
     ]
-    readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'subject_wikipedia_link', 'wikimedia_commons_link')
+    readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'artist_wikipedia_link', 'subject_wikipedia_link', 'wikimedia_commons_link')
     
     def sorted_name(self, obj):
         return obj.name
@@ -122,6 +122,21 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata'
+    
+    def artist_wikipedia_link(self, obj):
+        if obj.artist_wikipedia:
+            language = obj.artist_wikipedia.split(':')[0]
+            
+            result = []
+            for link in obj.artist_wikipedia.split(':')[1].split(';'):
+                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+            return language + ':' + ';'.join(result)
+        else:
+            return None
+    artist_wikipedia_link.allow_tags = True
+    artist_wikipedia_link.short_description = _('artist:wikipedia')
+    artist_wikipedia_link.admin_order_field = 'artist_wikipedia'
     
     def subject_wikipedia_link(self, obj):
         if obj.subject_wikipedia:
@@ -209,15 +224,15 @@ class SettingAdmin(admin.ModelAdmin):
     actions = [delete_notes]
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    list_display = ('name', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
     search_fields = ('id', 'wikimedia_commons_category', 'wikimedia_commons_grave_category',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'instance_of', 'wikimedia_commons_category', 'wikimedia_commons_grave_category']}),
+        (None, {'fields': ['id', 'instance_of', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata']}),
         (_('Dates'), {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
+    readonly_fields = ('wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
     
     def wikidata_link(self, obj):
         if obj.id:
@@ -233,12 +248,16 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     def instance_of_link(self, obj):
         if obj.instance_of:
             language = translation.get_language().split("-", 1)[0]
-            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.instance_of), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.instance_of)))
+            
+            result = []
+            for link in obj.instance_of.split(';'):
+                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+            return ';'.join(result)
         else:
             return None
     instance_of_link.allow_tags = True
-    instance_of_link.short_description = _('instance_of')
+    instance_of_link.short_description = _('instance of')
     instance_of_link.admin_order_field = 'instance_of'
     
     def wikimedia_commons_category_link(self, obj):
@@ -260,6 +279,21 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     wikimedia_commons_grave_category_link.allow_tags = True
     wikimedia_commons_grave_category_link.short_description = _('wikimedia commons grave category')
     wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'
+    
+    def grave_of_wikidata_link(self, obj):
+        if obj.grave_of_wikidata:
+            language = translation.get_language().split("-", 1)[0]
+            
+            result = []
+            for link in obj.grave_of_wikidata.split(';'):
+                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+            return ';'.join(result)
+        else:
+            return None
+    grave_of_wikidata_link.allow_tags = True
+    grave_of_wikidata_link.short_description = _('grave_of:wikidata')
+    grave_of_wikidata_link.admin_order_field = 'grave_of_wikidata'
     
     def date_of_birth_with_accuracy(self, obj):
         date = obj.date_of_birth if obj.date_of_birth else u''
