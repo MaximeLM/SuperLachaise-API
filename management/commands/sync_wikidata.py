@@ -38,7 +38,7 @@ def none_to_blank(s):
 
 class Command(BaseCommand):
     
-    def request_wikidata(self, wikidata_codes):
+    def request_wikidata_with_ids(self, wikidata_codes):
         # List languages to request
         languages = []
         for language in Language.objects.all():
@@ -71,16 +71,48 @@ class Command(BaseCommand):
         
         return result
     
-    def get_is_human(self, entity):
+    def request_wikidata_with_titles(self, wikidata_titles):
+        # List languages to request
+        languages = []
+        for language in Language.objects.all():
+            languages.append(language.code)
+        
+        # List props to request
+        props = ['labels', 'descriptions', 'claims', 'sitelinks']
+        
+        max_items_per_request = 25
+        
+        result = {}
+        
+        for language_code, titles in wikidata_titles.iteritems():
+            i = 0
+            while i < len(titles):
+                titles_page = titles[i : min(len(titles), i + max_items_per_request)]
+            
+                # Request properties
+                url = u"http://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&sites={sites}&titles={titles}&props={props}&format=json"\
+                    .format(languages='|'.join(languages), titles=urllib2.quote('|'.join(titles_page).encode('utf8'), '|'), props='|'.join(props), sites=language_code + 'wiki')
+                request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+                u = urllib2.urlopen(request)
+                
+                # Parse result
+                data = u.read()
+                json_result = json.loads(data)
+            
+                # Add entities to result
+                result.update(json_result['entities'])
+            
+                i = i + max_items_per_request
+        
+        return result
+    
+    def get_instance_of(self, entity):
         try:
             p31 = entity['claims']['P31']
             
-            instance_of = p31[0]['mainsnak']['datavalue']['value']['numeric-id']
-            
-            return (instance_of == 5)
+            return 'Q' + str(p31[0]['mainsnak']['datavalue']['value']['numeric-id'])
         except:
-            #traceback.print_exc()
-            return False
+            return u''
     
     def get_wikimedia_commons_category(self, entity):
         try:
@@ -158,14 +190,15 @@ class Command(BaseCommand):
     def get_values_from_entity(self, entity):
         result = {}
         
-        if self.get_is_human(entity):
-            result['type'] = WikidataEntry.PERSON
+        instance_of = self.get_instance_of(entity)
+        if instance_of == 'Q5':
+            result['instance_of'] = instance_of
             result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
             result['wikimedia_commons_grave_category'] = self.get_wikimedia_commons_grave_category(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
             result['date_of_death'], result['date_of_death_accuracy'] = self.get_date(entity, 'P570')
         else:
-            result['type'] = WikidataEntry.PLACE
+            result['instance_of'] = instance_of
             result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
             result['wikimedia_commons_grave_category'] = none_to_blank(None)
             result['date_of_birth'], result['date_of_birth_accuracy'] = (None, none_to_blank(None))
@@ -187,21 +220,53 @@ class Command(BaseCommand):
         return None
     
     def sync_wikidata(self, wikidata_ids):
-        # List wikidata codes in openstreetmap objects
+        wikidata_codes = []
+        wikipedia_titles = {}
+        
+        # List wikidata codes and/or wikipedia titles in openstreetmap objects
         if wikidata_ids:
             wikidata_codes = wikidata_ids.split('|')
         else:
-            wikidata_codes = []
             for openstreetmap_element in OpenStreetMapElement.objects.all():
-                if openstreetmap_element.wikidata and not openstreetmap_element.wikidata in wikidata_codes:
-                    wikidata_codes.append(openstreetmap_element.wikidata.replace(';','|'))
-                if openstreetmap_element.subject_wikidata and not openstreetmap_element.subject_wikidata in wikidata_codes:
-                    wikidata_codes.append(openstreetmap_element.subject_wikidata.replace(';','|'))
+                if self.sync_from_wikidata and openstreetmap_element.wikidata:
+                    for link in openstreetmap_element.wikidata.split(';'):
+                        if not link in wikidata_codes:
+                            wikidata_codes.append(link)
+                if self.sync_from_wikipedia and openstreetmap_element.wikipedia:
+                    language_code = openstreetmap_element.wikipedia.split(':')[0]
+                    if not language_code in wikipedia_titles:
+                        wikipedia_titles[language_code] = []
+                    for link in openstreetmap_element.wikipedia.split(':')[1].split(';'):
+                        if not link in wikipedia_titles[language_code]:
+                            wikipedia_titles[language_code].append(link)
+                if self.sync_from_wikipedia and openstreetmap_element.subject_wikipedia:
+                    language_code = openstreetmap_element.subject_wikipedia.split(':')[0]
+                    if not language_code in wikipedia_titles:
+                        wikipedia_titles[language_code] = []
+                    for link in openstreetmap_element.subject_wikipedia.split(':')[1].split(';'):
+                        if not link in wikipedia_titles[language_code]:
+                            wikipedia_titles[language_code].append(link)
         
         # Request wikidata entities
-        entities = self.request_wikidata(wikidata_codes)
+        entities = {}
+        if wikidata_codes:
+            entities.update(self.request_wikidata_with_ids(wikidata_codes))
+        if wikipedia_titles:
+            entities.update(self.request_wikidata_with_titles(wikipedia_titles))
         
         for code, entity in entities.iteritems():
+            if '-' in code:
+                # Wikipedia entry not found
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=entity['site'] + ': ' + entity['title'])
+                pendingModification.action = PendingModification.ERROR
+                pendingModification.modified_fields = json.dumps(entity, default=date_handler)
+                
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.error_objects = self.error_objects + 1
+                
+                continue
+            
             # Get element in database if it exists
             wikidata_entry = WikidataEntry.objects.filter(id=code).first()
             
@@ -211,7 +276,9 @@ class Command(BaseCommand):
                 
                 values_dict = self.get_values_from_entity(entity)
                 for language in Language.objects.all():
-                    values_dict.update(self.get_localized_values_from_entity(entity, language.code))
+                    localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
+                    if localized_values_dict:
+                        values_dict.update(self.get_localized_values_from_entity(entity, language.code))
                 
                 pendingModification.action = PendingModification.CREATE
                 pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)
@@ -294,7 +361,9 @@ class Command(BaseCommand):
         
         translation.activate(settings.LANGUAGE_CODE)
         
-        self.auto_apply = (Setting.objects.get(category='Wikidata', key=u'auto_apply').value == 'true')
+        self.auto_apply = (Setting.objects.get(category='Wikidata', key=u'auto_apply_modifications').value == 'true')
+        self.sync_from_wikidata = (Setting.objects.get(category='Wikidata', key=u'sync_from_wikidata').value == 'true')
+        self.sync_from_wikipedia = (Setting.objects.get(category='Wikidata', key=u'sync_from_wikipedia').value == 'true')
         
         admin_command = AdminCommand.objects.get(name='sync_wikidata')
         
@@ -302,6 +371,9 @@ class Command(BaseCommand):
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
+            self.error_objects = 0
+            
+            PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.ERROR).delete()
             
             self.sync_wikidata(options['wikidata_ids'])
             
@@ -312,6 +384,8 @@ class Command(BaseCommand):
                 result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
             if self.deleted_objects > 0:
                 result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
+            if self.error_objects > 0:
+                result_list.append(_('{nb} error(s)').format(nb=self.error_objects))
             
             if result_list:
                 admin_command.last_result = ', '.join(result_list)

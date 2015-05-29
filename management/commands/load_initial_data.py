@@ -57,8 +57,7 @@ class Command(BaseCommand):
         
         setting, created = Setting.objects.get_or_create(category="OpenStreetMap", key="auto_apply_modifications")
         setting.value = "false"
-        setting.description = _("""If set to 'true', new modifications are applied immediately after being created.
-If set to 'false', a pending modification is created and must be manually accepted.""")
+        setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
         setting.save()
         
         setting, created = Setting.objects.get_or_create(category="OpenStreetMap", key="bounding_box")
@@ -78,8 +77,17 @@ If set to 'false', a pending modification is created and must be manually accept
         
         setting, created = Setting.objects.get_or_create(category="Wikidata", key="auto_apply_modifications")
         setting.value = "false"
-        setting.description = _("""If set to 'true', new modifications are applied immediately after being created.
-If set to 'false', a pending modification is created and must be manually accepted.""")
+        setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
+        setting.save()
+        
+        setting, created = Setting.objects.get_or_create(category="Wikidata", key="sync_from_wikipedia")
+        setting.value = "false"
+        setting.description = _("""If set to 'true', the wikipedia field from OpenStreetMap elements is used to query Wikidata entries.""")
+        setting.save()
+        
+        setting, created = Setting.objects.get_or_create(category="Wikidata", key="sync_from_wikidata")
+        setting.value = "true"
+        setting.description = _("""If set to 'true', the wikidata field from OpenStreetMap elements is used to query Wikidata entries.""")
         setting.save()
         
         translation.deactivate()

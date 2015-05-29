@@ -96,7 +96,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
     longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
-    subject_wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('subject:wikidata'))
+    subject_wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('subject:wikipedia'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     
     def __unicode__(self):
@@ -113,11 +113,13 @@ class PendingModification(SuperLachaiseModel):
     CREATE = 'create'
     MODIFY = 'modify'
     DELETE = 'delete'
+    ERROR = 'error'
     
     action_choices = (
         (CREATE, CREATE),
         (MODIFY, MODIFY),
         (DELETE, DELETE),
+        (ERROR, ERROR),
     )
     
     target_object_class_choices = (
@@ -212,10 +214,8 @@ class PendingModification(SuperLachaiseModel):
                         value = original_value
                 elif field_type == 'DecimalField':
                     value = Decimal(original_value)
-                elif field_type == 'DateField':
-                    value = original_value
                 else:
-                    raise BaseException
+                    value = original_value
                 setattr(object, field, value)
             
             # Save
@@ -230,6 +230,8 @@ class PendingModification(SuperLachaiseModel):
             target_object = self.target_object()
             if target_object:
                 target_object.delete()
+        elif self.action == self.ERROR:
+            pass
         else:
             raise BaseException
         
@@ -255,18 +257,6 @@ class Setting(SuperLachaiseModel):
 class WikidataEntry(SuperLachaiseModel):
     """ A wikidata entry """
     
-    PLACE = 'place'
-    PERSON = 'person'
-    ARTIST = 'artist'
-    SUBJECT = 'subject'
-    
-    type_choices = (
-        (PLACE, PLACE),
-        (PERSON, PERSON),
-        (ARTIST, ARTIST),
-        (SUBJECT, SUBJECT),
-    )
-    
     YEAR = 'Year'
     MONTH = 'Month'
     DAY = 'Day'
@@ -278,7 +268,7 @@ class WikidataEntry(SuperLachaiseModel):
     )
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
+    instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
     wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
     wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
     date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
@@ -287,10 +277,10 @@ class WikidataEntry(SuperLachaiseModel):
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     
     def __unicode__(self):
-        return self.id + u': ' + self.type
+        return self.id
     
     class Meta:
-        ordering = ['type', 'id']
+        ordering = ['id']
         verbose_name = _('wikidata entry')
         verbose_name_plural = _('wikidata entries')
 

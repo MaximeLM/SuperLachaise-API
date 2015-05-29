@@ -71,15 +71,15 @@ class LanguageAdmin(admin.ModelAdmin):
     actions = [delete_notes]
 
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('sorted_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'subject_wikidata_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
+    list_display = ('sorted_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'subject_wikipedia_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
     search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'sorting_name', 'type', 'id', 'latitude', 'longitude']}),
-        (_('Tags'), {'fields': ['wikipedia', 'wikidata', 'subject_wikidata', 'wikimedia_commons']}),
+        (_('Tags'), {'fields': ['wikipedia', 'wikidata', 'subject_wikipedia', 'wikimedia_commons']}),
     ]
-    readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'subject_wikidata_link', 'wikimedia_commons_link')
+    readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'subject_wikipedia_link', 'wikimedia_commons_link')
     
     def sorted_name(self, obj):
         return obj.name
@@ -123,20 +123,20 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata'
     
-    def subject_wikidata_link(self, obj):
-        if obj.subject_wikidata:
-            language = translation.get_language().split("-", 1)[0]
+    def subject_wikipedia_link(self, obj):
+        if obj.subject_wikipedia:
+            language = obj.subject_wikipedia.split(':')[0]
             
             result = []
-            for link in obj.subject_wikidata.split(';'):
+            for link in obj.subject_wikipedia.split(':')[1].split(';'):
                 url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return ';'.join(result)
+            return language + ':' + ';'.join(result)
         else:
             return None
-    subject_wikidata_link.allow_tags = True
-    subject_wikidata_link.short_description = _('subject:wikidata')
-    subject_wikidata_link.admin_order_field = 'subject_wikidata'
+    subject_wikipedia_link.allow_tags = True
+    subject_wikipedia_link.short_description = _('subject:wikipedia')
+    subject_wikipedia_link.admin_order_field = 'subject_wikipedia'
     
     def wikimedia_commons_link(self, obj):
         if obj.wikimedia_commons:
@@ -209,12 +209,12 @@ class SettingAdmin(admin.ModelAdmin):
     actions = [delete_notes]
 
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('type', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
-    search_fields = ('id', 'type', 'wikimedia_commons_category', 'wikimedia_commons_grave_category',)
+    list_display = ('instance_of', 'wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    search_fields = ('id', 'wikimedia_commons_category', 'wikimedia_commons_grave_category',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'type', 'wikimedia_commons_category', 'wikimedia_commons_grave_category']}),
+        (None, {'fields': ['id', 'instance_of', 'wikimedia_commons_category', 'wikimedia_commons_grave_category']}),
         (_('Dates'), {'fields': ['date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
     readonly_fields = ('wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
@@ -278,7 +278,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     actions=[delete_notes, sync_entry]
 
 class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('language', 'wikidata_entry', 'name', 'wikipedia_link', 'description', 'notes')
+    list_display = ('language', 'wikidata_link', 'name', 'wikipedia_link', 'description', 'notes')
     search_fields = ('language', 'parent', 'name',)
     
     fieldsets = [
@@ -286,17 +286,18 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
         (None, {'fields': ['language', 'parent']}),
         (None, {'fields': ['name', 'wikipedia', 'description']}),
     ]
-    readonly_fields = ('wikidata_entry', 'wikipedia_link', 'created', 'modified')
+    readonly_fields = ('wikidata_link', 'wikipedia_link', 'created', 'modified')
     
-    def wikidata_entry(self, obj):
-        app_name = obj._meta.app_label
-        reverse_name = obj.parent.__class__.__name__.lower()
-        reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-        url = reverse(reverse_path, args=(obj.parent.id,))
-        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.parent)))
-    wikidata_entry.allow_tags = True
-    wikidata_entry.short_description = _('wikidata entry')
-    wikidata_entry.admin_order_field = 'parent'
+    def wikidata_link(self, obj):
+        if obj.parent and obj.parent.id:
+            language = translation.get_language().split("-", 1)[0]
+            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.parent.id), language=language)
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.parent.id)))
+        else:
+            return None
+    wikidata_link.allow_tags = True
+    wikidata_link.short_description = _('wikidata')
+    wikidata_link.admin_order_field = 'parent'
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
