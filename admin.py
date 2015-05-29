@@ -324,7 +324,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
 
 class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     list_display = ('language', 'wikidata_link', 'name', 'wikipedia_link', 'description', 'notes')
-    search_fields = ('language', 'parent', 'name',)
+    search_fields = ('name',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),

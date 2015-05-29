@@ -65,6 +65,8 @@ class Command(BaseCommand):
             json_result = json.loads(data)
             
             # Add entities to result
+            if not 'entities' in json_result:
+                raise BaseException(json.dumps(json_result))
             result.update(json_result['entities'])
             
             i = i + max_items_per_request
