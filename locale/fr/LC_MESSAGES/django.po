@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-29 16:33+0200\n"
+"POT-Creation-Date: 2015-05-29 16:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr "Supprimer les notes des objets sélectionnés"
 msgid "Tags"
 msgstr "Tags"
 
-#: admin.py:86 models.py:48 models.py:93 models.py:272 models.py:295
+#: admin.py:86 models.py:48 models.py:93 models.py:272 models.py:296
 msgid "name"
 msgstr "nom"
 
@@ -39,7 +39,7 @@ msgstr "nom"
 msgid "OpenStreetMap"
 msgstr "OpenStreetMap"
 
-#: admin.py:108 admin.py:354 models.py:97 models.py:296
+#: admin.py:108 admin.py:354 models.py:97 models.py:297
 msgid "wikipedia"
 msgstr "wikipédia"
 
@@ -166,8 +166,9 @@ msgstr "Les tags OpenStreetMap à synchroniser (noeuds, chemins ou relations)"
 msgid ""
 "The list of wikidata codes for cemeteries where to look for tomb data "
 "(property P119)"
-msgstr "La liste des codes wikidata correspondant aux cimetières où chercher"
-"les propriétés des tombes (propriété P119)"
+msgstr ""
+"La liste des codes wikidata correspondant aux cimetières où chercherles "
+"propriétés des tombes (propriété P119)"
 
 #: management/commands/load_initial_data.py:90
 msgid ""
@@ -229,7 +230,7 @@ msgstr "créé le"
 msgid "modified"
 msgstr "modifié le"
 
-#: models.py:49 models.py:68 models.py:247 models.py:297
+#: models.py:49 models.py:68 models.py:247 models.py:298
 msgid "description"
 msgstr "description"
 
@@ -289,7 +290,7 @@ msgstr "élément OpenStreetMap"
 msgid "openstreetmap elements"
 msgstr "éléments OpenStreetMap"
 
-#: models.py:128 models.py:287
+#: models.py:128 models.py:288
 msgid "wikidata entry"
 msgstr "entrée wikidata"
 
@@ -349,14 +350,18 @@ msgstr "précision date de naissance"
 msgid "date of death accuracy"
 msgstr "précision date de décès"
 
-#: models.py:288
+#: models.py:281
+msgid "burial plot reference"
+msgstr "numéro de division"
+
+#: models.py:289
 msgid "wikidata entries"
 msgstr "entrées wikidata"
 
-#: models.py:304
+#: models.py:305
 msgid "localized wikidata entry"
 msgstr "entrée wikidata localisée"
 
-#: models.py:305
+#: models.py:306
 msgid "localized wikidata entries"
 msgstr "entrées wikidata localisées"

@@ -210,6 +210,27 @@ class Command(BaseCommand):
         except:
             return u''
     
+    def get_person_burial_plot_reference(self, entity):
+        try:
+            p119 = entity['claims']['P119']
+            
+            for location_of_burial in p119:
+                if ('Q' + str(location_of_burial['mainsnak']['datavalue']['value']['numeric-id'])) in self.accepted_locations_of_burial:
+                    p965 = location_of_burial['qualifiers']['P965']
+                    break
+            
+            return p965[0]['datavalue']['value']
+        except:
+            return u''
+    
+    def get_burial_plot_reference(self, entity):
+        try:
+            p965 = entity['claims']['P965']
+            
+            return p965[0]['mainsnak']['datavalue']['value']
+        except:
+            return u''
+    
     def get_values_from_entity(self, entity):
         result = {}
         
@@ -220,11 +241,13 @@ class Command(BaseCommand):
             # human
             result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
             result['wikimedia_commons_grave_category'] = self.get_wikimedia_commons_grave_category(entity)
+            result['burial_plot_reference'] = self.get_person_burial_plot_reference(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
             result['date_of_death'], result['date_of_death_accuracy'] = self.get_date(entity, 'P570')
         else:
             result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
             result['wikimedia_commons_grave_category'] = u''
+            result['burial_plot_reference'] = self.get_burial_plot_reference(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = (None, u'')
             result['date_of_death'], result['date_of_death_accuracy'] = (None, u'')
         

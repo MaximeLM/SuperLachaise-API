@@ -278,6 +278,7 @@ class WikidataEntry(SuperLachaiseModel):
     date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
     date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
+    burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
     
     def __unicode__(self):
         return self.name
