@@ -94,7 +94,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     openstreetmap_link.admin_order_field = 'id'
     
     def wikipedia_link(self, obj):
-        if obj.wikipedia:
+        if obj.wikipedia and ':' in obj.wikipedia:
             language = obj.wikipedia.split(':')[0]
             
             result = []
@@ -103,7 +103,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return language + ':' + ';'.join(result)
         else:
-            return None
+            return obj.wikipedia
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
@@ -124,7 +124,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     wikidata_link.admin_order_field = 'wikidata'
     
     def artist_wikipedia_link(self, obj):
-        if obj.artist_wikipedia:
+        if obj.artist_wikipedia and ':' in obj.artist_wikipedia:
             language = obj.artist_wikipedia.split(':')[0]
             
             result = []
@@ -133,13 +133,13 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return language + ':' + ';'.join(result)
         else:
-            return None
+            return obj.artist_wikipedia
     artist_wikipedia_link.allow_tags = True
     artist_wikipedia_link.short_description = _('artist:wikipedia')
     artist_wikipedia_link.admin_order_field = 'artist_wikipedia'
     
     def subject_wikipedia_link(self, obj):
-        if obj.subject_wikipedia:
+        if obj.subject_wikipedia and ':' in obj.subject_wikipedia:
             language = obj.subject_wikipedia.split(':')[0]
             
             result = []
@@ -148,7 +148,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return language + ':' + ';'.join(result)
         else:
-            return None
+            return obj.subject_wikipedia
     subject_wikipedia_link.allow_tags = True
     subject_wikipedia_link.short_description = _('subject:wikipedia')
     subject_wikipedia_link.admin_order_field = 'subject_wikipedia'

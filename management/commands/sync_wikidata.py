@@ -271,21 +271,21 @@ class Command(BaseCommand):
                     for link in openstreetmap_element.wikidata.split(';'):
                         if not link in wikidata_codes:
                             wikidata_codes.append(link)
-                if self.sync_from_wikipedia and openstreetmap_element.wikipedia:
+                if self.sync_from_wikipedia and openstreetmap_element.wikipedia and ':' in openstreetmap_element.wikipedia:
                     language_code = openstreetmap_element.wikipedia.split(':')[0]
                     if not language_code in wikipedia_titles:
                         wikipedia_titles[language_code] = []
                     for link in openstreetmap_element.wikipedia.split(':')[1].split(';'):
                         if not link in wikipedia_titles[language_code]:
                             wikipedia_titles[language_code].append(link)
-                if openstreetmap_element.artist_wikipedia:
+                if openstreetmap_element.artist_wikipedia and ':' in openstreetmap_element.artist_wikipedia:
                     language_code = openstreetmap_element.artist_wikipedia.split(':')[0]
                     if not language_code in wikipedia_titles:
                         wikipedia_titles[language_code] = []
                     for link in openstreetmap_element.artist_wikipedia.split(':')[1].split(';'):
                         if not link in wikipedia_titles[language_code]:
                             wikipedia_titles[language_code].append(link)
-                if openstreetmap_element.subject_wikipedia:
+                if openstreetmap_element.subject_wikipedia and ':' in openstreetmap_element.subject_wikipedia:
                     language_code = openstreetmap_element.subject_wikipedia.split(':')[0]
                     if not language_code in wikipedia_titles:
                         wikipedia_titles[language_code] = []
