@@ -71,8 +71,8 @@ class AdminCommandError(SuperLachaiseModel):
         ('WikidataLocalizedEntry', _('wikidata localized entry')),
     )
     
-    admin_command = models.ForeignKey('AdminCommand')
-    type = models.CharField(max_length=255, verbose_name=_('type'))
+    admin_command = models.ForeignKey('AdminCommand', verbose_name=_('admin command'))
+    type = models.CharField(max_length=255, blank=True, verbose_name=_('type'))
     description =  models.TextField(blank=True, verbose_name=_('description'))
     target_object_class = models.CharField(max_length=255, blank=True, choices=target_object_class_choices, verbose_name=_('target object class'))
     target_object_id = models.CharField(max_length=255, blank=True, verbose_name=_('target object id'))
@@ -147,7 +147,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
         return self.name
     
     class Meta:
-        ordering = ['sorting_name', 'name']
+        ordering = ['sorting_name', 'id']
         verbose_name = _('openstreetmap element')
         verbose_name_plural = _('openstreetmap elements')
 
@@ -157,13 +157,11 @@ class PendingModification(SuperLachaiseModel):
     CREATE = 'create'
     MODIFY = 'modify'
     DELETE = 'delete'
-    ERROR = 'error'
     
     action_choices = (
         (CREATE, CREATE),
         (MODIFY, MODIFY),
         (DELETE, DELETE),
-        (ERROR, ERROR),
     )
     
     target_object_class_choices = (
@@ -274,8 +272,6 @@ class PendingModification(SuperLachaiseModel):
             target_object = self.target_object()
             if target_object:
                 target_object.delete()
-        elif self.action == self.ERROR:
-            pass
         else:
             raise BaseException
         
@@ -334,8 +330,8 @@ class WikidataEntry(SuperLachaiseModel):
 class LocalizedWikidataEntry(SuperLachaiseModel):
     """ The part of a wikidata entry specific to a language """
     
-    parent = models.ForeignKey('WikidataEntry')
-    language = models.ForeignKey('Language')
+    parent = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
+    language = models.ForeignKey('Language', verbose_name=_('language'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
@@ -344,7 +340,7 @@ class LocalizedWikidataEntry(SuperLachaiseModel):
         return unicode(self.language) + u':' + self.name
     
     class Meta:
-        ordering = ['parent', 'language']
+        ordering = ['name', 'language']
         verbose_name = _('localized wikidata entry')
         verbose_name_plural = _('localized wikidata entries')
         unique_together = ('parent', 'language',)

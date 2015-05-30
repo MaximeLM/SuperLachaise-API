@@ -273,18 +273,6 @@ class Command(BaseCommand):
             entities.update(self.request_wikidata_with_ids(wikidata_codes))
         
         for code, entity in entities.iteritems():
-            if '-' in code:
-                # Wikipedia entry not found
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=entity['site'] + ': ' + entity['title'])
-                pendingModification.action = PendingModification.ERROR
-                pendingModification.modified_fields = json.dumps(entity, default=date_handler)
-                
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.error_objects = self.error_objects + 1
-                
-                continue
-            
             # Get element in database if it exists
             wikidata_entry = WikidataEntry.objects.filter(id=code).first()
             
@@ -388,7 +376,6 @@ class Command(BaseCommand):
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
-            self.error_objects = 0
             
             PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.ERROR).delete()
             
@@ -401,8 +388,6 @@ class Command(BaseCommand):
                 result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
             if self.deleted_objects > 0:
                 result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
-            if self.error_objects > 0:
-                result_list.append(_('{nb} error(s)').format(nb=self.error_objects))
             
             if result_list:
                 admin_command.last_result = ', '.join(result_list)

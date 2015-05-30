@@ -31,9 +31,10 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
+@admin.register(AdminCommand)
 class AdminCommandAdmin(admin.ModelAdmin):
     list_display = ('name', 'dependency_order', 'last_executed', 'last_result', 'description', 'notes')
-    search_fields = ('name', 'description',)
+    search_fields = ('name', 'last_result', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
@@ -55,9 +56,11 @@ class AdminCommandAdmin(admin.ModelAdmin):
     
     actions=[delete_notes, perform_commands]
 
+@admin.register(AdminCommandError)
 class AdminCommandErrorAdmin(admin.ModelAdmin):
     list_display = ('admin_command', 'type', 'target_object_link', 'description', 'notes')
-    search_fields = ('type', 'target_object_class', 'target_object_id', 'description',)
+    list_filter = ('admin_command', 'type',)
+    search_fields = ('target_object_class', 'target_object_id', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
@@ -84,9 +87,10 @@ class AdminCommandErrorAdmin(admin.ModelAdmin):
     
     actions=[delete_notes]
 
+@admin.register(Language)
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('code', 'description', 'notes')
-    search_fields = ('code', 'description',)
+    search_fields = ('code', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
@@ -100,14 +104,14 @@ class LanguageAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
+@admin.register(OpenStreetMapElement)
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('sorted_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
-    search_fields = ('name', 'type', 'id', 'wikidata', 'wikipedia', 'wikimedia_commons',)
+    list_display = ('sorted_name', 'openstreetmap_link', 'type', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
+    search_fields = ('name', 'id', 'type', 'wikidata', 'wikipedia', 'wikimedia_commons', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['name', 'sorting_name', 'type', 'id', 'latitude', 'longitude']}),
-        (_('Tags'), {'fields': ['wikipedia', 'wikidata', 'wikimedia_commons', 'wikidata_combined']}),
+        (None, {'fields': ['name', 'sorting_name', 'id', 'type', 'latitude', 'longitude', 'wikipedia', 'wikipedia_link', 'wikidata', 'wikidata_link', 'wikidata_combined', 'wikidata_combined_link', 'wikimedia_commons', 'wikimedia_commons_link']}),
     ]
     readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link')
     
@@ -178,14 +182,16 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
+@admin.register(PendingModification)
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'notes')
-    search_fields = ('target_object_class', 'target_object_id', 'action', 'modified_fields',)
+    list_filter = ('action','target_object_class',)
+    search_fields = ('target_object_id', 'modified_fields', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
-        (_('Modification'), {'fields': ['action', 'modified_fields']}),
+        (None, {'fields': ['action', 'modified_fields']}),
     ]
     readonly_fields = ('target_object_link', 'created', 'modified')
    
@@ -215,9 +221,11 @@ class PendingModificationAdmin(admin.ModelAdmin):
     
     actions=[delete_notes, apply_modifications]
 
+@admin.register(Setting)
 class SettingAdmin(admin.ModelAdmin):
     list_display = ('category', 'key', 'value', 'description', 'notes')
-    search_fields = ('category', 'key', 'value', 'description',)
+    list_filter = ('category',)
+    search_fields = ('key', 'value', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
@@ -231,14 +239,14 @@ class SettingAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
+@admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):
     list_display = ('name', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
-    search_fields = ('id', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'burial_plot_reference',)
+    search_fields = ('name', 'id', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'instance_of', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata']}),
-        (_('Dates'), {'fields': ['burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+        (None, {'fields': ['name', 'id', 'wikidata_link', 'instance_of', 'instance_of_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
     readonly_fields = ('wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
     
@@ -333,14 +341,15 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     actions=[delete_notes, sync_entry]
 
+@admin.register(LocalizedWikidataEntry)
 class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('language', 'wikidata_link', 'name', 'wikipedia_link', 'description', 'notes')
-    search_fields = ('name',)
+    list_display = ('name', 'language', 'wikidata_link', 'wikipedia_link', 'description', 'notes')
+    list_filter = ('language',)
+    search_fields = ('name', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'parent']}),
-        (None, {'fields': ['name', 'wikipedia', 'description']}),
+        (None, {'fields': ['language', 'parent', 'name', 'wikipedia', 'description']}),
     ]
     readonly_fields = ('wikidata_link', 'wikipedia_link', 'created', 'modified')
     
@@ -386,12 +395,3 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete selected objects notes')
     
     actions = [delete_notes, sync_entry]
-
-admin.site.register(AdminCommand, AdminCommandAdmin)
-admin.site.register(AdminCommandError, AdminCommandErrorAdmin)
-admin.site.register(Language, LanguageAdmin)
-admin.site.register(OpenStreetMapElement, OpenStreetMapElementAdmin)
-admin.site.register(PendingModification, PendingModificationAdmin)
-admin.site.register(Setting, SettingAdmin)
-admin.site.register(WikidataEntry, WikidataEntryAdmin)
-admin.site.register(LocalizedWikidataEntry, LocalizedWikidataEntryAdmin)
