@@ -73,41 +73,6 @@ class Command(BaseCommand):
         
         return result
     
-    def request_wikidata_with_titles(self, wikidata_titles):
-        # List languages to request
-        languages = []
-        for language in Language.objects.all():
-            languages.append(language.code)
-        
-        # List props to request
-        props = ['labels', 'descriptions', 'claims', 'sitelinks']
-        
-        max_items_per_request = 25
-        
-        result = {}
-        
-        for language_code, titles in wikidata_titles.iteritems():
-            i = 0
-            while i < len(titles):
-                titles_page = titles[i : min(len(titles), i + max_items_per_request)]
-            
-                # Request properties
-                url = u"http://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&sites={sites}&titles={titles}&props={props}&format=json"\
-                    .format(languages='|'.join(languages), titles=urllib2.quote('|'.join(titles_page).encode('utf8'), '|'), props='|'.join(props), sites=language_code + 'wiki')
-                request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
-                u = urllib2.urlopen(request)
-                
-                # Parse result
-                data = u.read()
-                json_result = json.loads(data)
-            
-                # Add entities to result
-                result.update(json_result['entities'])
-            
-                i = i + max_items_per_request
-        
-        return result
-    
     def get_instance_of(self, entity):
         try:
             p31 = entity['claims']['P31']
@@ -285,38 +250,17 @@ class Command(BaseCommand):
     
     def sync_wikidata(self, wikidata_ids):
         wikidata_codes = []
-        wikipedia_titles = {}
         
         # List wikidata codes and/or wikipedia titles in openstreetmap objects
         if wikidata_ids:
             wikidata_codes = wikidata_ids.split('|')
         else:
             for openstreetmap_element in OpenStreetMapElement.objects.all():
-                if self.sync_from_wikidata and openstreetmap_element.wikidata:
-                    for link in openstreetmap_element.wikidata.split(';'):
+                if openstreetmap_element.wikidata_combined:
+                    for wikidata in openstreetmap_element.wikidata_combined.split(';'):
+                        link = wikidata.split(':')[-1]
                         if not link in wikidata_codes:
                             wikidata_codes.append(link)
-                if self.sync_from_wikipedia and openstreetmap_element.wikipedia and ':' in openstreetmap_element.wikipedia:
-                    language_code = openstreetmap_element.wikipedia.split(':')[0]
-                    if not language_code in wikipedia_titles:
-                        wikipedia_titles[language_code] = []
-                    for link in openstreetmap_element.wikipedia.split(':')[1].split(';'):
-                        if not link in wikipedia_titles[language_code]:
-                            wikipedia_titles[language_code].append(link)
-                if openstreetmap_element.artist_wikipedia and ':' in openstreetmap_element.artist_wikipedia:
-                    language_code = openstreetmap_element.artist_wikipedia.split(':')[0]
-                    if not language_code in wikipedia_titles:
-                        wikipedia_titles[language_code] = []
-                    for link in openstreetmap_element.artist_wikipedia.split(':')[1].split(';'):
-                        if not link in wikipedia_titles[language_code]:
-                            wikipedia_titles[language_code].append(link)
-                if openstreetmap_element.subject_wikipedia and ':' in openstreetmap_element.subject_wikipedia:
-                    language_code = openstreetmap_element.subject_wikipedia.split(':')[0]
-                    if not language_code in wikipedia_titles:
-                        wikipedia_titles[language_code] = []
-                    for link in openstreetmap_element.subject_wikipedia.split(':')[1].split(';'):
-                        if not link in wikipedia_titles[language_code]:
-                            wikipedia_titles[language_code].append(link)
             for wikidata_entry in WikidataEntry.objects.all():
                 if wikidata_entry.grave_of_wikidata:
                     for link in wikidata_entry.grave_of_wikidata.split(';'):
@@ -327,8 +271,6 @@ class Command(BaseCommand):
         entities = {}
         if wikidata_codes:
             entities.update(self.request_wikidata_with_ids(wikidata_codes))
-        if wikipedia_titles:
-            entities.update(self.request_wikidata_with_titles(wikipedia_titles))
         
         for code, entity in entities.iteritems():
             if '-' in code:
@@ -439,8 +381,6 @@ class Command(BaseCommand):
         
         self.accepted_locations_of_burial = json.loads(Setting.objects.get(category='Wikidata', key=u'accepted_locations_of_burial').value)
         self.auto_apply = (Setting.objects.get(category='Wikidata', key=u'auto_apply_modifications').value == 'true')
-        self.sync_from_wikidata = (Setting.objects.get(category='Wikidata', key=u'sync_from_wikidata').value == 'true')
-        self.sync_from_wikipedia = (Setting.objects.get(category='Wikidata', key=u'sync_from_wikipedia').value == 'true')
         
         admin_command = AdminCommand.objects.get(name='sync_wikidata')
         

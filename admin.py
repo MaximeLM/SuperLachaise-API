@@ -55,6 +55,35 @@ class AdminCommandAdmin(admin.ModelAdmin):
     
     actions=[delete_notes, perform_commands]
 
+class AdminCommandErrorAdmin(admin.ModelAdmin):
+    list_display = ('admin_command', 'type', 'target_object_link', 'description', 'notes')
+    search_fields = ('type', 'target_object_class', 'target_object_id', 'description',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['admin_command', 'type', 'description']}),
+        (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
+    ]
+    readonly_fields = ('target_object_link', 'created', 'modified')
+    
+    def target_object_link(self, obj):
+        if obj.target_object():
+            app_name = obj._meta.app_label
+            reverse_name = obj.target_object_class.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(obj.target_object().id,))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
+        else:
+            return _('None')
+    target_object_link.allow_tags = True
+    target_object_link.short_description = _('target object link')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete selected objects notes')
+    
+    actions=[delete_notes]
+
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('code', 'description', 'notes')
     search_fields = ('code', 'description',)
@@ -72,15 +101,15 @@ class LanguageAdmin(admin.ModelAdmin):
     actions = [delete_notes]
 
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('sorted_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'artist_wikipedia_link', 'subject_wikipedia_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
-    search_fields = ('name', 'type', 'id', 'wikidata', 'wikimedia_commons',)
+    list_display = ('sorted_name', 'type', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
+    search_fields = ('name', 'type', 'id', 'wikidata', 'wikipedia', 'wikimedia_commons',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'sorting_name', 'type', 'id', 'latitude', 'longitude']}),
-        (_('Tags'), {'fields': ['wikipedia', 'wikidata', 'artist_wikipedia', 'subject_wikipedia', 'wikimedia_commons']}),
+        (_('Tags'), {'fields': ['wikipedia', 'wikidata', 'wikimedia_commons', 'wikidata_combined']}),
     ]
-    readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'artist_wikipedia_link', 'subject_wikipedia_link', 'wikimedia_commons_link')
+    readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link')
     
     def sorted_name(self, obj):
         return obj.name
@@ -95,16 +124,16 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     openstreetmap_link.admin_order_field = 'id'
     
     def wikipedia_link(self, obj):
-        if obj.wikipedia and ':' in obj.wikipedia:
-            language = obj.wikipedia.split(':')[0]
-            
+        if obj.wikipedia:
             result = []
-            for link in obj.wikipedia.split(':')[1].split(';'):
-                url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(link)).replace("'","%27")
-                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return language + ':' + ';'.join(result)
-        else:
-            return obj.wikipedia
+            for link in obj.wikipedia.split(';'):
+                if ':' in link:
+                    language = link.split(':')[-2]
+                    url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(link.split(':')[-1])).replace("'","%27")
+                    result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+                else:
+                    result.append(link)
+            return ';'.join(result)
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
@@ -115,51 +144,30 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
             
             result = []
             for link in obj.wikidata.split(';'):
-                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link.split(':')[-1]), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
-        else:
-            return None
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata'
     
-    def artist_wikipedia_link(self, obj):
-        if obj.artist_wikipedia and ':' in obj.artist_wikipedia:
-            language = obj.artist_wikipedia.split(':')[0]
+    def wikidata_combined_link(self, obj):
+        if obj.wikidata_combined:
+            language = translation.get_language().split("-", 1)[0]
             
             result = []
-            for link in obj.artist_wikipedia.split(':')[1].split(';'):
-                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+            for link in obj.wikidata_combined.split(';'):
+                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link.split(':')[-1]), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return language + ':' + ';'.join(result)
-        else:
-            return obj.artist_wikipedia
-    artist_wikipedia_link.allow_tags = True
-    artist_wikipedia_link.short_description = _('artist:wikipedia')
-    artist_wikipedia_link.admin_order_field = 'artist_wikipedia'
-    
-    def subject_wikipedia_link(self, obj):
-        if obj.subject_wikipedia and ':' in obj.subject_wikipedia:
-            language = obj.subject_wikipedia.split(':')[0]
-            
-            result = []
-            for link in obj.subject_wikipedia.split(':')[1].split(';'):
-                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
-                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return language + ':' + ';'.join(result)
-        else:
-            return obj.subject_wikipedia
-    subject_wikipedia_link.allow_tags = True
-    subject_wikipedia_link.short_description = _('subject:wikipedia')
-    subject_wikipedia_link.admin_order_field = 'subject_wikipedia'
+            return ';'.join(result)
+    wikidata_combined_link.allow_tags = True
+    wikidata_combined_link.short_description = _('wikidata combined')
+    wikidata_combined_link.admin_order_field = 'wikidata_combined'
     
     def wikimedia_commons_link(self, obj):
         if obj.wikimedia_commons:
             url = u'http://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons)))
-        else:
-            return None
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons'
@@ -172,7 +180,6 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
 
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'notes')
-    ordering = ('action', 'target_object_class', 'target_object_id',)
     search_fields = ('target_object_class', 'target_object_id', 'action', 'modified_fields',)
     
     fieldsets = [
@@ -240,8 +247,6 @@ class WikidataEntryAdmin(admin.ModelAdmin):
             language = translation.get_language().split("-", 1)[0]
             url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.id), language=language)
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
-        else:
-            return None
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'id'
@@ -255,8 +260,6 @@ class WikidataEntryAdmin(admin.ModelAdmin):
                 url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
-        else:
-            return None
     instance_of_link.allow_tags = True
     instance_of_link.short_description = _('instance of')
     instance_of_link.admin_order_field = 'instance_of'
@@ -265,8 +268,6 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         if obj.wikimedia_commons_category:
             url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_category)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
-        else:
-            return None
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
@@ -275,8 +276,6 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         if obj.wikimedia_commons_grave_category:
             url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_grave_category)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_grave_category)))
-        else:
-            return None
     wikimedia_commons_grave_category_link.allow_tags = True
     wikimedia_commons_grave_category_link.short_description = _('wikimedia commons grave category')
     wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'
@@ -290,8 +289,6 @@ class WikidataEntryAdmin(admin.ModelAdmin):
                 url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
-        else:
-            return None
     grave_of_wikidata_link.allow_tags = True
     grave_of_wikidata_link.short_description = _('grave_of:wikidata')
     grave_of_wikidata_link.admin_order_field = 'grave_of_wikidata'
@@ -352,8 +349,6 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
             language = translation.get_language().split("-", 1)[0]
             url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.parent.id), language=language)
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.parent.id)))
-        else:
-            return None
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'parent'
@@ -362,8 +357,6 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
         if obj.wikipedia:
             url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
-        else:
-            return None
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
@@ -395,6 +388,7 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     actions = [delete_notes, sync_entry]
 
 admin.site.register(AdminCommand, AdminCommandAdmin)
+admin.site.register(AdminCommandError, AdminCommandErrorAdmin)
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(OpenStreetMapElement, OpenStreetMapElementAdmin)
 admin.site.register(PendingModification, PendingModificationAdmin)

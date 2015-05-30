@@ -61,6 +61,49 @@ class AdminCommand(SuperLachaiseModel):
         verbose_name = _('admin command')
         verbose_name_plural = _('admin commands')
 
+class AdminCommandError(SuperLachaiseModel):
+    """ An error that occured during an admin command """
+    
+    target_object_class_choices = (
+        ('OpenStreetMapElement', _('openstreetmap element')),
+        ('WikidataEntry', _('wikidata entry')),
+        ('WikidataLocalizedEntry', _('wikidata localized entry')),
+    )
+    
+    admin_command = models.ForeignKey('AdminCommand')
+    type = models.CharField(max_length=255, verbose_name=_('type'))
+    description =  models.TextField(blank=True, verbose_name=_('description'))
+    target_object_class = models.CharField(max_length=255, blank=True, choices=target_object_class_choices, verbose_name=_('target object class'))
+    target_object_id = models.CharField(max_length=255, blank=True, verbose_name=_('target object id'))
+    
+    def target_model(self):
+        """ Returns the model class of the target object """
+        try:
+            result = apps.get_model(self._meta.app_label, self.target_object_class)
+        except:
+            result = None
+        return result
+    
+    def target_object(self):
+        """ Returns the target object """
+        try:
+            result = self.target_model().objects.get(id=self.target_object_id)
+        except:
+            result = None
+        return result
+    
+    def __unicode__(self):
+        target_object = self.target_object()
+        if target_object:
+            return unicode(self.admin_command) + u' - ' + self.type + ': ' + unicode(self.target_object())
+        else:
+            return unicode(self.admin_command) + u' - ' + self.type
+    
+    class Meta:
+        ordering = ['admin_command', 'type', 'target_object_class', 'target_object_id']
+        verbose_name = _('admin command error')
+        verbose_name_plural = _('admin command errors')
+
 class Language(SuperLachaiseModel):
     """ A language used in the sync operations """
     
@@ -96,8 +139,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
     longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
-    artist_wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('artist:wikipedia'))
-    subject_wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('subject:wikipedia'))
+    wikidata_combined = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata combined'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     
     def __unicode__(self):

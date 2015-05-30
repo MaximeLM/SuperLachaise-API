@@ -39,6 +39,10 @@ class Command(BaseCommand):
         admin_command.description = _("Synchronize OpenStreetMap elements by querying Overpass API for the bouding box and the tags defined in the settings")
         admin_command.save()
         
+        admin_command, created = AdminCommand.objects.get_or_create(name="make_combined_wikidata")
+        admin_command.description = _("Update the 'wikidata combined' field of OpenStreetMap elements by querying Wikidata with the 'wikipedia' field of the elements and combining the results with the 'wikidata' field.")
+        admin_command.save()
+        
         admin_command, created = AdminCommand.objects.get_or_create(name="sync_wikidata")
         admin_command.description = _("Synchronize Wikidata entries by querying the codes listed in OpenStreetMap elements")
         admin_command.save()
@@ -83,16 +87,6 @@ class Command(BaseCommand):
         setting, created = Setting.objects.get_or_create(category="Wikidata", key="auto_apply_modifications")
         setting.value = "false"
         setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
-        setting.save()
-        
-        setting, created = Setting.objects.get_or_create(category="Wikidata", key="sync_from_wikipedia")
-        setting.value = "false"
-        setting.description = _("""If set to 'true', the wikipedia field from OpenStreetMap elements is used to query Wikidata entries.""")
-        setting.save()
-        
-        setting, created = Setting.objects.get_or_create(category="Wikidata", key="sync_from_wikidata")
-        setting.value = "true"
-        setting.description = _("""If set to 'true', the wikidata field from OpenStreetMap elements is used to query Wikidata entries.""")
         setting.save()
         
         translation.deactivate()

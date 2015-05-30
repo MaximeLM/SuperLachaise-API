@@ -79,6 +79,27 @@ class Command(BaseCommand):
         
         return result
     
+    def get_wiki_values(self, overpass_element, field_name):
+        result = []
+        for key, value in {key:value for (key,value) in overpass_element.tags.iteritems() if field_name in key}.iteritems():
+            wiki_value = []
+            for key_part in key.split(':'):
+                if not key_part == field_name:
+                    wiki_value.append(key_part)
+            
+            value_field = value
+            if len(value_field.split(':')) == 2:
+                # fr:foo;bar
+                wiki_value.append(value.split(':')[0])
+                value_field = value.split(':')[1]
+            
+            for sub_value in value_field.split(';'):
+                sub_list = list(wiki_value)
+                sub_list.extend(sub_value.split(':'))
+                result.append(':'.join(sub_list))
+        
+        return ';'.join(result)
+    
     def get_values_from_element(self, overpass_element, coordinate):
         result = {
             'type': overpass_element.__class__.__name__.lower(),
@@ -86,10 +107,8 @@ class Command(BaseCommand):
             'sorting_name': overpass_element.tags.get("sorting_name"),
             'latitude': coordinate['x'],
             'longitude': coordinate['y'],
-            'wikipedia': none_to_blank(overpass_element.tags.get("wikipedia")),
-            'wikidata': none_to_blank(overpass_element.tags.get("wikidata")),
-            'artist_wikipedia': none_to_blank(overpass_element.tags.get("artist:wikipedia")),
-            'subject_wikipedia': none_to_blank(overpass_element.tags.get("subject:wikipedia")),
+            'wikipedia': none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia')),
+            'wikidata': none_to_blank(self.get_wiki_values(overpass_element, 'wikidata')),
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
         }
         
@@ -129,7 +148,12 @@ class Command(BaseCommand):
             if modified_values:
                 # Get or create a modification
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id))
-                pendingModification.modified_fields = json.dumps(modified_values, default=decimal_handler)
+                
+                modified_fields = json.loads(pendingModification.modified_fields) if pendingModification.modified_fields else {}
+                for key in values_dict:
+                    modified_fields.pop(key, None)
+                modified_fields.update(modified_values)
+                pendingModification.modified_fields = json.dumps(modified_fields, default=decimal_handler)
                 pendingModification.action = "modify"
                 
                 pendingModification.full_clean()
@@ -142,7 +166,12 @@ class Command(BaseCommand):
                 # Delete the previous modification if any
                 pendingModification = PendingModification.objects.filter(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id)).first()
                 if pendingModification:
-                    pendingModification.delete()
+                    modified_fields = json.loads(pendingModification.modified_fields) if pendingModification.modified_fields else {}
+                    for key in values_dict:
+                        modified_fields.pop(key, None)
+                    if not modified_fields:
+                        pendingModification.delete()
+                
     
     def handle_way(self, overpass_way):
         # Get way centroid
