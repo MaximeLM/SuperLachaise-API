@@ -20,11 +20,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import urllib
+import datetime
 from django.contrib import admin
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
-from django.utils import translation
+from django.http import HttpResponseRedirect
+from django.utils import timezone, translation
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -180,7 +181,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
         (_('Modification'), {'fields': ['action', 'modified_fields']}),
     ]
     readonly_fields = ('target_object_link', 'created', 'modified')
-    
+   
     def target_object_link(self, obj):
         if obj.target_object():
             app_name = obj._meta.app_label
@@ -313,7 +314,20 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         wikidata_ids = []
         for wikidata_entry in queryset:
             wikidata_ids.append(str(wikidata_entry.id))
+        sync_start = timezone.now()
         call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+        
+        if pending_modifications:
+            # Open modification page with filter
+            app_name = PendingModification._meta.app_label
+            reverse_name = PendingModification.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+            url = '/'.join(split_url[0:len(split_url) - 1])
+            return HttpResponseRedirect(url)
+    
     sync_entry.short_description = _('Sync selected wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -354,11 +368,31 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
     
+    def sync_entry(self, request, queryset):
+        wikidata_ids = []
+        for localized_wikidata_entry in queryset:
+            wikidata_ids.append(str(localized_wikidata_entry.parent.id))
+        sync_start = timezone.now()
+        call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+        
+        if pending_modifications:
+            # Open modification page with filter
+            app_name = PendingModification._meta.app_label
+            reverse_name = PendingModification.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+            url = '/'.join(split_url[0:len(split_url) - 1])
+            return HttpResponseRedirect(url)
+    
+    sync_entry.short_description = _('Sync selected localized wikidata entries')
+    
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete selected objects notes')
     
-    actions = [delete_notes]
+    actions = [delete_notes, sync_entry]
 
 admin.site.register(AdminCommand, AdminCommandAdmin)
 admin.site.register(Language, LanguageAdmin)
