@@ -72,7 +72,7 @@ class Command(BaseCommand):
         except:
             return None
     
-    def make_combined_wikidata(self):
+    def make_wikidata_combined(self):
         wikipedia_links = {}
         for openstreetmap_element in OpenStreetMapElement.objects.all():
             for wikipedia in openstreetmap_element.wikipedia.split(';'):
@@ -138,7 +138,7 @@ class Command(BaseCommand):
         
         translation.activate(settings.LANGUAGE_CODE)
         
-        self.admin_command = AdminCommand.objects.get(name='make_combined_wikidata')
+        self.admin_command = AdminCommand.objects.get(name='make_wikidata_combined')
         
         self.auto_apply = (Setting.objects.get(category='OpenStreetMap', key=u'auto_apply_modifications').value == 'true')
         
@@ -148,7 +148,7 @@ class Command(BaseCommand):
         AdminCommandError.objects.filter(admin_command=self.admin_command).delete()
         
         try:
-            self.make_combined_wikidata()
+            self.make_wikidata_combined()
             
             result_list = []
             if self.modified_objects > 0:

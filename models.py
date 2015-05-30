@@ -46,6 +46,7 @@ class AdminCommand(SuperLachaiseModel):
     """ An admin command that can be monitored """
     
     name = models.CharField(max_length=255, unique=True, verbose_name=_('name'))
+    dependency_order = models.IntegerField(null=True, verbose_name=_('dependency order'))
     description = models.TextField(blank=True, verbose_name=_('description'))
     last_executed = models.DateTimeField(null=True, verbose_name=_('last executed'))
     last_result = models.TextField(blank=True, null=True, verbose_name=_('last result'))
@@ -57,7 +58,7 @@ class AdminCommand(SuperLachaiseModel):
         call_command(str(self.name))
     
     class Meta:
-        ordering = ['name']
+        ordering = ['dependency_order', 'name']
         verbose_name = _('admin command')
         verbose_name_plural = _('admin commands')
 

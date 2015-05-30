@@ -32,17 +32,17 @@ from django.utils.translation import ugettext as _
 from superlachaise_api.models import *
 
 class AdminCommandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'last_executed', 'last_result', 'description', 'notes')
+    list_display = ('name', 'dependency_order', 'last_executed', 'last_result', 'description', 'notes')
     search_fields = ('name', 'description',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['name', 'last_executed', 'last_result', 'description']}),
+        (None, {'fields': ['name', 'dependency_order', 'last_executed', 'last_result', 'description']}),
     ]
     readonly_fields = ('last_executed', 'last_result', 'created', 'modified')
     
     def perform_commands(self, request, queryset):
-        for admin_command in queryset:
+        for admin_command in queryset.order_by('dependency_order'):
             try:
                 admin_command.perform_command()
             except Exception as exception:
