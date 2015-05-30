@@ -50,6 +50,11 @@ class Command(BaseCommand):
         admin_command.description = _("Synchronize Wikidata entries by querying the codes listed in OpenStreetMap elements")
         admin_command.save()
         
+        admin_command, created = AdminCommand.objects.get_or_create(name="sync_wikipedia")
+        admin_command.dependency_order = 4
+        admin_command.description = _("Synchronize Wikipedia pages by querying the pages listed in Wikidata entries")
+        admin_command.save()
+        
         # Languages
         
         language, created = Language.objects.get_or_create(code="fr")

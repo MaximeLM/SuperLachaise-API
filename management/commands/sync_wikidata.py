@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import datetime, json, sys, time, traceback, urllib2
+import datetime, json, os, sys, traceback, urllib2
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation

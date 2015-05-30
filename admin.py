@@ -395,3 +395,42 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete selected objects notes')
     
     actions = [delete_notes, sync_entry]
+
+@admin.register(WikipediaPage)
+class WikipediaPageAdmin(admin.ModelAdmin):
+    list_display = ('language', 'name_link', 'intro', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    list_filter = ('language',)
+    search_fields = ('name', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['language', 'name', 'name_link', 'intro', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+    ]
+    readonly_fields = ('name_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
+    
+    def name_link(self, obj):
+        url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.name)).replace("'","%27")
+        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.name)))
+    name_link.allow_tags = True
+    name_link.short_description = _('name')
+    name_link.admin_order_field = 'name'
+    
+    def date_of_birth_with_accuracy(self, obj):
+        date = obj.date_of_birth if obj.date_of_birth else u''
+        accuracy = u' (%s)' % obj.date_of_birth_accuracy if obj.date_of_birth_accuracy else u''
+        return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
+    date_of_birth_with_accuracy.short_description = _('date of birth')
+    date_of_birth_with_accuracy.admin_order_field = 'date_of_birth'
+    
+    def date_of_death_with_accuracy(self, obj):
+        date = obj.date_of_death if obj.date_of_death else u''
+        accuracy = u' (%s)' % obj.date_of_death_accuracy if obj.date_of_death_accuracy else u''
+        return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
+    date_of_death_with_accuracy.short_description = _('date of death')
+    date_of_death_with_accuracy.admin_order_field = 'date_of_death'
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete selected objects notes')
+    
+    actions = [delete_notes]

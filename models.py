@@ -344,3 +344,38 @@ class LocalizedWikidataEntry(SuperLachaiseModel):
         verbose_name = _('localized wikidata entry')
         verbose_name_plural = _('localized wikidata entries')
         unique_together = ('parent', 'language',)
+
+class WikipediaPage(SuperLachaiseModel):
+    """ A Wikipedia page """
+    
+    YEAR = 'Year'
+    MONTH = 'Month'
+    DAY = 'Day'
+    
+    accuracy_choices = (
+        (YEAR, _('Year')),
+        (MONTH, _('Month')),
+        (DAY, _('Day')),
+    )
+    
+    language = models.ForeignKey('Language', verbose_name=_('language'))
+    name = models.CharField(max_length=255, verbose_name=_('name'))
+    intro = models.TextField(blank=True, verbose_name=_('intro'))
+    date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
+    date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
+    date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
+    date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
+    
+    def __unicode__(self):
+        return unicode(self.language) + u':' + self.name
+    
+    class Meta:
+        ordering = ['name', 'language']
+        verbose_name = _('wikipedia page')
+        verbose_name_plural = _('wikipedia pages')
+        unique_together = ('language', 'name',)
+    
+    def save(self, *args, **kwargs):
+        # Delete \r added by textfield
+        self.intro = self.intro.replace('\r','')
+        super(WikipediaPage, self).save(*args, **kwargs)
