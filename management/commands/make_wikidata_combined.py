@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, sys, traceback, urllib2
+import json, os, sys, traceback, urllib2
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
@@ -135,19 +135,16 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
     
     def handle(self, *args, **options):
-        
         translation.activate(settings.LANGUAGE_CODE)
-        
-        self.admin_command = AdminCommand.objects.get(name='make_wikidata_combined')
-        
-        self.auto_apply = (Setting.objects.get(category='OpenStreetMap', key=u'auto_apply_modifications').value == 'true')
-        
-        self.modified_objects = 0
-        self.errors = 0
-        
-        AdminCommandError.objects.filter(admin_command=self.admin_command).delete()
-        
+        self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
+            self.auto_apply = (Setting.objects.get(category='OpenStreetMap', key=u'auto_apply_modifications').value == 'true')
+        
+            self.modified_objects = 0
+            self.errors = 0
+        
+            AdminCommandError.objects.filter(admin_command=self.admin_command).delete()
+            
             self.make_wikidata_combined()
             
             result_list = []

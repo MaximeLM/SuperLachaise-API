@@ -262,21 +262,18 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
     
     def handle(self, *args, **options):
-        
         translation.activate(settings.LANGUAGE_CODE)
-        
-        admin_command = AdminCommand.objects.get(name='sync_openstreetmap')
-        
-        self.auto_apply = (Setting.objects.get(category='OpenStreetMap', key=u'auto_apply_modifications').value == 'true')
-        self.bounding_box = Setting.objects.get(category='OpenStreetMap', key=u'bounding_box').value
-        self.exclude_ids = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'exclude_ids').value)
-        self.synced_tags = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'synced_tags').value)
-        
-        self.created_objects = 0
-        self.modified_objects = 0
-        self.deleted_objects = 0
-        
+        admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
+            self.auto_apply = (Setting.objects.get(category='OpenStreetMap', key=u'auto_apply_modifications').value == 'true')
+            self.bounding_box = Setting.objects.get(category='OpenStreetMap', key=u'bounding_box').value
+            self.exclude_ids = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'exclude_ids').value)
+            self.synced_tags = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'synced_tags').value)
+        
+            self.created_objects = 0
+            self.modified_objects = 0
+            self.deleted_objects = 0
+            
             self.sync_openstreetmap()
             
             result_list = []

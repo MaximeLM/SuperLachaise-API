@@ -364,15 +364,12 @@ class Command(BaseCommand):
             dest='wikidata_ids')
     
     def handle(self, *args, **options):
-        
         translation.activate(settings.LANGUAGE_CODE)
-        
-        self.accepted_locations_of_burial = json.loads(Setting.objects.get(category='Wikidata', key=u'accepted_locations_of_burial').value)
-        self.auto_apply = (Setting.objects.get(category='Wikidata', key=u'auto_apply_modifications').value == 'true')
-        
-        admin_command = AdminCommand.objects.get(name='sync_wikidata')
-        
+        admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
+            self.accepted_locations_of_burial = json.loads(Setting.objects.get(category='Wikidata', key=u'accepted_locations_of_burial').value)
+            self.auto_apply = (Setting.objects.get(category='Wikidata', key=u'auto_apply_modifications').value == 'true')
+            
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
