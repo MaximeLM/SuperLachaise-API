@@ -60,6 +60,13 @@ class WikipediaIntroHTMLParser(HTMLParser):
             if opened_tag['tag'] == 'sup':
                 if len(opened_tag['attrs']) > 0:
                     return False
+            if opened_tag['tag'] == 'span':
+                for attr in opened_tag['attrs']:
+                    if attr[0] == 'id':
+                        return False
+            if opened_tag['tag'] == 'li':
+                if len(opened_tag['attrs']) > 0:
+                    return False
         
         return True
     
@@ -152,10 +159,7 @@ class Command(BaseCommand):
         
         return json_result['parse']['text']['*']
     
-    def get_wikipedia_fields(self, language, title):
-        object_id = language.code + u':' + title
-        print object_id
-        
+    def get_wikipedia_intro(self, language, title):
         # Get wikipedia pre-section (intro)
         pre_section = self.request_wikipedia_pre_section(language, title)
         
@@ -163,17 +167,20 @@ class Command(BaseCommand):
         parser = WikipediaIntroHTMLParser(language.code)
         parser.feed(pre_section)
         
-        result = {
-            'intro': parser.get_data(),
-        }
-        
-        return result
+        return parser.get_data()
     
-    def handle_wikipedia_info(self, language, wikipedia_info):
+    def handle_wikipedia_info(self, language, wikipedia_info, count):
         title = wikipedia_info['title']
         last_revision_id = wikipedia_info['lastrevid']
         id = language.code + ':' + title
         self.fetched_ids.append(id)
+        
+        print str(count) + u'-' + id
+        
+        values_dict = {
+            'last_revision_id': wikipedia_info['lastrevid'],
+            'intro': self.get_wikipedia_intro(language, title),
+        }
         
         # Get element in database if it exists
         wikipedia_page = WikipediaPage.objects.filter(language=language, title=title).first()
@@ -184,46 +191,37 @@ class Command(BaseCommand):
             # Creation
             pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
             pending_modification.action = PendingModification.CREATE
-            modified_fields = json.loads(pending_modification.modified_fields) if pending_modification.modified_fields else {}
-            modified_fields = {'last_revision_id': last_revision_id}
-            request_page_download = True
-            self.created_objects = self.created_objects + 1
-        else:
-            if not wikipedia_page.last_revision_id == last_revision_id:
-                # Modification
-                pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
-                pending_modification.action = PendingModification.MODIFY
-                modified_fields = json.loads(pending_modification.modified_fields) if pending_modification.modified_fields else {}
-                modified_fields = {'last_revision_id': last_revision_id}
-                request_page_download = True
-                self.modified_objects = self.modified_objects + 1
-            else:
-                # Delete previous modification if any
-                pending_modification = PendingModification.objects.filter(target_object_class="WikipediaPage", target_object_id=id).first()
-                if pending_modification:
-                    modified_fields = json.loads(pending_modification.modified_fields) if pending_modification.modified_fields else {}
-                    modified_fields.pop('last_revision_id', None)
-                    if not modified_fields:
-                        pending_modification.delete()
-        
-        if request_page_download or self.wikipedia_ids:
-            fields_value = self.get_wikipedia_fields(language, title)
             
-            for field, value in fields_value.iteritems():
+            self.created_objects = self.created_objects + 1
+            pending_modification.modified_fields = json.dumps(values_dict)
+            pending_modification.full_clean()
+            pending_modification.save()
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
+        else:
+            modified_fields = {}
+            for field, value in values_dict.iteritems():
                 if value != getattr(wikipedia_page, field):
                     modified_fields[field] = value
             
-            if modified_fields and not pending_modification:
+            if modified_fields:
+                # Modification
                 pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
                 pending_modification.action = PendingModification.MODIFY
-            
-            if modified_fields:
+                
+                self.modified_objects = self.modified_objects + 1
                 pending_modification.modified_fields = json.dumps(modified_fields)
                 pending_modification.full_clean()
                 pending_modification.save()
                 
                 if self.auto_apply:
                     pendingModification.apply_modification()
+            else:
+                # Delete previous modification if any
+                pending_modification = PendingModification.objects.filter(target_object_class="WikipediaPage", target_object_id=id).first()
+                if pending_modification:
+                    pending_modification.delete()
     
     def sync_wikipedia(self):
         # Get wikipedia links on localized Wikidata entries
@@ -252,9 +250,14 @@ class Command(BaseCommand):
             wikipedia_infos = self.request_wikipedia_infos(wikipedia_links)
         
         # Handle results
+        count = 0
         for language in wikipedia_infos:
             for wikipedia_info in wikipedia_infos[language].values():
-                self.handle_wikipedia_info(language, wikipedia_info)
+                count = count + 1
+        for language in wikipedia_infos:
+            for wikipedia_info in wikipedia_infos[language].values():
+                self.handle_wikipedia_info(language, wikipedia_info, count)
+                count = count - 1
         
         if not self.wikipedia_ids:
             # Delete pending creations if element was not downloaded

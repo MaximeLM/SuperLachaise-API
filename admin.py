@@ -184,7 +184,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
 
 @admin.register(PendingModification)
 class PendingModificationAdmin(admin.ModelAdmin):
-    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'notes')
+    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
     list_filter = ('action','target_object_class',)
     search_fields = ('target_object_id', 'modified_fields', 'notes',)
     
