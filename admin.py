@@ -397,15 +397,15 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikipediaPage)
 class WikipediaPageAdmin(admin.ModelAdmin):
-    list_display = ('language', 'title_link', 'last_revision_id', 'intro_html', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    list_display = ('language', 'title_link', 'last_revision_id', 'intro_html', 'notes')
     list_filter = ('language',)
     search_fields = ('title', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'title_link', 'last_revision_id', 'intro', 'intro_html', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+        (None, {'fields': ['language', 'title_link', 'last_revision_id', 'intro', 'intro_html']}),
     ]
-    readonly_fields = ('language', 'title', 'title_link', 'last_revision_id', 'intro_html', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
+    readonly_fields = ('language', 'title', 'title_link', 'intro_html', 'created', 'modified')
     
     def title_link(self, obj):
         url = u'http://{language}.wikipedia.org/wiki/{title}'.format(language=obj.language.code, title=unicode(obj.title)).replace("'","%27")
@@ -419,20 +419,6 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     intro_html.allow_tags = True
     intro_html.short_description = _('intro')
     intro_html.admin_order_field = 'intro'
-    
-    def date_of_birth_with_accuracy(self, obj):
-        date = obj.date_of_birth if obj.date_of_birth else u''
-        accuracy = u' (%s)' % obj.date_of_birth_accuracy if obj.date_of_birth_accuracy else u''
-        return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
-    date_of_birth_with_accuracy.short_description = _('date of birth')
-    date_of_birth_with_accuracy.admin_order_field = 'date_of_birth'
-    
-    def date_of_death_with_accuracy(self, obj):
-        date = obj.date_of_death if obj.date_of_death else u''
-        accuracy = u' (%s)' % obj.date_of_death_accuracy if obj.date_of_death_accuracy else u''
-        return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
-    date_of_death_with_accuracy.short_description = _('date of death')
-    date_of_death_with_accuracy.admin_order_field = 'date_of_death'
     
     def sync_page(self, request, queryset):
         wikipedia_ids = []

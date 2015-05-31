@@ -311,9 +311,9 @@ class WikidataEntry(SuperLachaiseModel):
     DAY = 'Day'
     
     accuracy_choices = (
-        (YEAR, YEAR),
-        (MONTH, MONTH),
-        (DAY, DAY),
+        (YEAR, _('Year')),
+        (MONTH, _('Month')),
+        (DAY, _('Day')),
     )
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
@@ -357,24 +357,10 @@ class LocalizedWikidataEntry(SuperLachaiseModel):
 class WikipediaPage(SuperLachaiseModel):
     """ A Wikipedia page """
     
-    YEAR = 'Year'
-    MONTH = 'Month'
-    DAY = 'Day'
-    
-    accuracy_choices = (
-        (YEAR, _('Year')),
-        (MONTH, _('Month')),
-        (DAY, _('Day')),
-    )
-    
     language = models.ForeignKey('Language', verbose_name=_('language'))
     title = models.CharField(max_length=255, verbose_name=_('title'))
     last_revision_id = models.BigIntegerField(null=True, verbose_name=_('last revision id'))
     intro = models.TextField(blank=True, verbose_name=_('intro'))
-    date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
-    date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
-    date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
-    date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     
     def __unicode__(self):
         return unicode(self.language) + u':' + self.title

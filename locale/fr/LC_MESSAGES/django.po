@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-31 15:21+0200\n"
+"POT-Creation-Date: 2015-05-31 19:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgid "Execute selected admin commands"
 msgstr "Exécuter les commandes admin sélectionnées"
 
 #: admin.py:55 admin.py:86 admin.py:103 admin.py:181 admin.py:220 admin.py:238
-#: admin.py:340 admin.py:394 admin.py:452
+#: admin.py:340 admin.py:394 admin.py:444
 msgid "Delete selected objects notes"
 msgstr "Supprimer les notes des objets sélectionnés"
 
@@ -83,11 +83,11 @@ msgstr "catégorie tombe wikimedia commons"
 msgid "grave_of:wikidata"
 msgstr "grave_of:wikidata"
 
-#: admin.py:308 admin.py:421 models.py:325 models.py:374
+#: admin.py:308 models.py:325
 msgid "date of birth"
 msgstr "date de naissance"
 
-#: admin.py:315 admin.py:428 models.py:326 models.py:375
+#: admin.py:315 models.py:326
 msgid "date of death"
 msgstr "date de décès"
 
@@ -99,7 +99,11 @@ msgstr "Synchroniser les entrées wikidata sélectionnées"
 msgid "Sync selected localized wikidata entries"
 msgstr "Synchroniser les entrées wikidata localisées sélectionnées"
 
-#: admin.py:448
+#: admin.py:420 models.py:363
+msgid "intro"
+msgstr "intro"
+
+#: admin.py:440
 msgid "Sync selected wikipedia pages"
 msgstr "Synchroniser les pages Wikipédia sélectionnées"
 
@@ -195,12 +199,13 @@ msgstr "Une page Wikipédia d'un élément OpenStreetMap n'a pas été trouvée"
 #: management/commands/make_wikidata_combined.py:152
 #: management/commands/sync_openstreetmap.py:283
 #: management/commands/sync_wikidata.py:383
-#: management/commands/sync_wikipedia.py:179
+#: management/commands/sync_wikipedia.py:369
 #, python-brace-format
 msgid "{nb} object(s) modified"
 msgstr "{nb} objet(s) modifié(s)"
 
 #: management/commands/make_wikidata_combined.py:154
+#: management/commands/sync_wikipedia.py:373
 #, python-brace-format
 msgid "{nb} error(s)"
 msgstr "{nb} erreur(s)"
@@ -208,7 +213,7 @@ msgstr "{nb} erreur(s)"
 #: management/commands/make_wikidata_combined.py:159
 #: management/commands/sync_openstreetmap.py:290
 #: management/commands/sync_wikidata.py:390
-#: management/commands/sync_wikipedia.py:186
+#: management/commands/sync_wikipedia.py:378
 msgid "No modifications"
 msgstr "Aucune modification"
 
@@ -218,17 +223,25 @@ msgstr "Aucun chemin extérieur trouvé pour la relation"
 
 #: management/commands/sync_openstreetmap.py:281
 #: management/commands/sync_wikidata.py:381
-#: management/commands/sync_wikipedia.py:177
+#: management/commands/sync_wikipedia.py:367
 #, python-brace-format
 msgid "{nb} object(s) created"
 msgstr "{nb} objet(s) créé(s)"
 
 #: management/commands/sync_openstreetmap.py:285
 #: management/commands/sync_wikidata.py:385
-#: management/commands/sync_wikipedia.py:181
+#: management/commands/sync_wikipedia.py:371
 #, python-brace-format
 msgid "{nb} object(s) deleted"
 msgstr "{nb} objet(s) supprimé(s)"
+
+#: management/commands/sync_wikipedia.py:194
+msgid "multiple dates of the same kind on wikipedia page"
+msgstr ""
+
+#: management/commands/sync_wikipedia.py:195
+msgid "A wikipedia page contains more than one birth or death date."
+msgstr ""
 
 #: models.py:38
 msgid "notes"
@@ -302,7 +315,7 @@ msgstr "erreurs commandes admin"
 msgid "code"
 msgstr "code"
 
-#: models.py:119 models.py:343 models.py:370
+#: models.py:119 models.py:343 models.py:360
 msgid "language"
 msgstr "langage"
 
@@ -330,7 +343,7 @@ msgstr "longitude"
 msgid "openstreetmap elements"
 msgstr "éléments OpenStreetMap"
 
-#: models.py:171 models.py:384
+#: models.py:171 models.py:370
 msgid "wikipedia page"
 msgstr "page wikipédia"
 
@@ -370,11 +383,23 @@ msgstr "paramètre"
 msgid "settings"
 msgstr "paramètres"
 
-#: models.py:327 models.py:376
+#: models.py:314
+msgid "Year"
+msgstr "Année"
+
+#: models.py:315
+msgid "Month"
+msgstr "Mois"
+
+#: models.py:316
+msgid "Day"
+msgstr "Jour"
+
+#: models.py:327
 msgid "date of birth accuracy"
 msgstr "précision date de naissance"
 
-#: models.py:328 models.py:377
+#: models.py:328
 msgid "date of death accuracy"
 msgstr "précision date de décès"
 
@@ -394,30 +419,14 @@ msgstr "entrée wikidata localisée"
 msgid "localized wikidata entries"
 msgstr "entrées wikidata localisées"
 
-#: models.py:365
-msgid "Year"
-msgstr "Année"
-
-#: models.py:366
-msgid "Month"
-msgstr "Mois"
-
-#: models.py:367
-msgid "Day"
-msgstr "Jour"
-
-#: models.py:371
+#: models.py:361
 msgid "title"
 msgstr "titre"
 
-#: models.py:372
+#: models.py:362
 msgid "last revision id"
 msgstr "id dernière révision"
 
-#: models.py:373
-msgid "intro"
-msgstr "intro"
-
-#: models.py:385
+#: models.py:371
 msgid "wikipedia pages"
 msgstr "pages wikipédia"

@@ -153,7 +153,8 @@ class Command(BaseCommand):
         return json_result['parse']['text']['*']
     
     def get_wikipedia_fields(self, language, title):
-        print language.code + u':' + title
+        object_id = language.code + u':' + title
+        print object_id
         
         # Get wikipedia pre-section (intro)
         pre_section = self.request_wikipedia_pre_section(language, title)
@@ -164,10 +165,6 @@ class Command(BaseCommand):
         
         result = {
             'intro': parser.get_data(),
-            'date_of_birth': None,
-            'date_of_death': None,
-            'date_of_birth_accuracy': u'',
-            'date_of_death_accuracy': u'',
         }
         
         return result
@@ -220,12 +217,13 @@ class Command(BaseCommand):
                 pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
                 pending_modification.action = PendingModification.MODIFY
             
-            pending_modification.modified_fields = json.dumps(modified_fields)
-            pending_modification.full_clean()
-            pending_modification.save()
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
+            if modified_fields:
+                pending_modification.modified_fields = json.dumps(modified_fields)
+                pending_modification.full_clean()
+                pending_modification.save()
+                
+                if self.auto_apply:
+                    pendingModification.apply_modification()
     
     def sync_wikipedia(self):
         # Get wikipedia links on localized Wikidata entries
@@ -287,13 +285,14 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
-        admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
+        self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
             self.auto_apply = (Setting.objects.get(category='Wikipedia', key=u'auto_apply_modifications').value == 'true')
             
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
+            self.errors = 0
             self.fetched_ids = []
             self.wikipedia_ids = options['wikipedia_ids']
             
@@ -306,16 +305,18 @@ class Command(BaseCommand):
                 result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
             if self.deleted_objects > 0:
                 result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
+            if self.errors > 0:
+                result_list.append(_('{nb} error(s)').format(nb=self.errors))
             
             if result_list:
-                admin_command.last_result = ', '.join(result_list)
+                self.admin_command.last_result = ', '.join(result_list)
             else:
-                admin_command.last_result = _("No modifications")
+                self.admin_command.last_result = _("No modifications")
         except:
             exception = sys.exc_info()[0]
-            admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+            self.admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
         
-        admin_command.last_executed = timezone.now()
-        admin_command.save()
+        self.admin_command.last_executed = timezone.now()
+        self.admin_command.save()
         
         translation.deactivate()
