@@ -97,4 +97,9 @@ class Command(BaseCommand):
         setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
         setting.save()
         
+        setting, created = Setting.objects.get_or_create(category="Wikipedia", key="auto_apply_modifications")
+        setting.value = "false"
+        setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
+        setting.save()
+        
         translation.deactivate()

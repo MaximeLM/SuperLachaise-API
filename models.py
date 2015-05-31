@@ -168,6 +168,7 @@ class PendingModification(SuperLachaiseModel):
         ('OpenStreetMapElement', _('openstreetmap element')),
         ('WikidataEntry', _('wikidata entry')),
         ('WikidataLocalizedEntry', _('wikidata localized entry')),
+        ('WikipediaPage', _('wikipedia page')),
     )
     
     target_object_class = models.CharField(max_length=255, choices=target_object_class_choices, verbose_name=_('target object class'))
@@ -221,7 +222,9 @@ class PendingModification(SuperLachaiseModel):
                 object_model = target_model
                 object = target_object
                 field = original_field
+                
                 if ':' in field:
+                    
                     object_model = apps.get_model(self._meta.app_label, 'Localized' + self.target_object_class)
                     if not object_model or object_model == target_model:
                         raise BaseException
@@ -260,6 +263,10 @@ class PendingModification(SuperLachaiseModel):
                     value = original_value
                 setattr(object, field, value)
             
+            if self.target_object_class == 'WikipediaPage':
+                target_object.language = Language.objects.get(code=self.target_object_id.split(':')[0])
+                target_object.title = target_object.id.split(':')[1]
+            
             # Save
             target_object.full_clean()
             target_object.save()
@@ -267,7 +274,7 @@ class PendingModification(SuperLachaiseModel):
             for language_code, localized_object in localized_objects.iteritems():
                 localized_object.full_clean()
                 localized_object.save()
-        
+            
         elif self.action == self.DELETE:
             target_object = self.target_object()
             if target_object:
@@ -358,8 +365,10 @@ class WikipediaPage(SuperLachaiseModel):
         (DAY, _('Day')),
     )
     
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     language = models.ForeignKey('Language', verbose_name=_('language'))
-    name = models.CharField(max_length=255, verbose_name=_('name'))
+    title = models.CharField(max_length=255, verbose_name=_('title'))
+    last_revision_id = models.BigIntegerField(null=True, verbose_name=_('last revision id'))
     intro = models.TextField(blank=True, verbose_name=_('intro'))
     date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
     date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
@@ -367,15 +376,19 @@ class WikipediaPage(SuperLachaiseModel):
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     
     def __unicode__(self):
-        return unicode(self.language) + u':' + self.name
+        return unicode(self.language) + u':' + self.title
     
     class Meta:
-        ordering = ['name', 'language']
+        ordering = ['title', 'language']
         verbose_name = _('wikipedia page')
         verbose_name_plural = _('wikipedia pages')
-        unique_together = ('language', 'name',)
+        unique_together = ('language', 'title',)
     
     def save(self, *args, **kwargs):
         # Delete \r added by textfield
         self.intro = self.intro.replace('\r','')
+        orig = WikipediaPage.objects.filter(pk=self.pk).first()
+        if orig:
+            if orig.intro != self.intro or orig.date_of_birth != self.date_of_birth or orig.date_of_death != self.date_of_death or orig.date_of_birth_accuracy != self.date_of_birth_accuracy or orig.date_of_death_accuracy != self.date_of_death_accuracy:
+                self.last_revision_id = None
         super(WikipediaPage, self).save(*args, **kwargs)

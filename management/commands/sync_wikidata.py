@@ -38,7 +38,7 @@ def none_to_blank(s):
 
 class Command(BaseCommand):
     
-    def request_wikidata_with_ids(self, wikidata_codes):
+    def request_wikidata(self, wikidata_codes):
         # List languages to request
         languages = []
         for language in Language.objects.all():
@@ -65,8 +65,6 @@ class Command(BaseCommand):
             json_result = json.loads(data)
             
             # Add entities to result
-            if not 'entities' in json_result:
-                raise BaseException(json.dumps(json_result))
             result.update(json_result['entities'])
             
             i = i + max_items_per_request
@@ -270,7 +268,7 @@ class Command(BaseCommand):
         # Request wikidata entities
         entities = {}
         if wikidata_codes:
-            entities.update(self.request_wikidata_with_ids(wikidata_codes))
+            entities.update(self.request_wikidata(wikidata_codes))
         
         for code, entity in entities.iteritems():
             # Get element in database if it exists
