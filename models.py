@@ -187,7 +187,10 @@ class PendingModification(SuperLachaiseModel):
     def target_object(self):
         """ Returns the target object """
         try:
-            result = self.target_model().objects.get(id=self.target_object_id)
+            if self.target_object_class == 'WikipediaPage':
+                result = self.target_model().objects.get(language=Language.objects.get(code=self.target_object_id.split(':')[0]), title=self.target_object_id.split(':')[1])
+            else:
+                result = self.target_model().objects.get(id=self.target_object_id)
         except:
             result = None
         return result
@@ -211,9 +214,12 @@ class PendingModification(SuperLachaiseModel):
         if self.action in [self.CREATE, self.MODIFY]:
             # Get or create target object
             target_model = self.target_model()
-            target_object = target_model.objects.filter(id=self.target_object_id).first()
+            target_object = self.target_object()
             if not target_object:
-                target_object = target_model(id=self.target_object_id)
+                if self.target_object_class == 'WikipediaPage':
+                    target_object = target_model(language=Language.objects.get(code=self.target_object_id.split(':')[0]), title=self.target_object_id.split(':')[1])
+                else:
+                    target_object = target_model(id=self.target_object_id)
             
             localized_objects = {}
             
@@ -262,10 +268,6 @@ class PendingModification(SuperLachaiseModel):
                 else:
                     value = original_value
                 setattr(object, field, value)
-            
-            if self.target_object_class == 'WikipediaPage':
-                target_object.language = Language.objects.get(code=self.target_object_id.split(':')[0])
-                target_object.title = target_object.id.split(':')[1]
             
             # Save
             target_object.full_clean()
@@ -365,7 +367,6 @@ class WikipediaPage(SuperLachaiseModel):
         (DAY, _('Day')),
     )
     
-    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     language = models.ForeignKey('Language', verbose_name=_('language'))
     title = models.CharField(max_length=255, verbose_name=_('title'))
     last_revision_id = models.BigIntegerField(null=True, verbose_name=_('last revision id'))
@@ -389,6 +390,6 @@ class WikipediaPage(SuperLachaiseModel):
         self.intro = self.intro.replace('\r','')
         orig = WikipediaPage.objects.filter(pk=self.pk).first()
         if orig:
-            if orig.intro != self.intro or orig.date_of_birth != self.date_of_birth or orig.date_of_death != self.date_of_death or orig.date_of_birth_accuracy != self.date_of_birth_accuracy or orig.date_of_death_accuracy != self.date_of_death_accuracy:
+            if orig.last_revision_id == self.last_revision_id and orig.intro != self.intro or orig.date_of_birth != self.date_of_birth or orig.date_of_death != self.date_of_death or orig.date_of_birth_accuracy != self.date_of_birth_accuracy or orig.date_of_death_accuracy != self.date_of_death_accuracy:
                 self.last_revision_id = None
         super(WikipediaPage, self).save(*args, **kwargs)

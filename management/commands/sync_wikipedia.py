@@ -64,7 +64,7 @@ class Command(BaseCommand):
         self.fetched_ids.append(id)
         
         # Get element in database if it exists
-        wikipedia_page = WikipediaPage.objects.filter(id=id).first()
+        wikipedia_page = WikipediaPage.objects.filter(language=language, title=title).first()
         request_page_download = False
         
         if not wikipedia_page:
@@ -129,8 +129,9 @@ class Command(BaseCommand):
     
         # Look for deleted elements
         for wikipedia_page in WikipediaPage.objects.all():
-            if not wikipedia_page.id in self.fetched_ids:
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=wikipedia_page.id)
+            id = wikipedia_page.language.code + u':' + wikipedia_page.title
+            if not id in self.fetched_ids:
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
             
                 pendingModification.action = PendingModification.DELETE
                 pendingModification.modified_fields = u''
