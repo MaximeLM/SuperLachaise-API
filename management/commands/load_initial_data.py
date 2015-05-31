@@ -55,6 +55,11 @@ class Command(BaseCommand):
         admin_command.description = _("Synchronize Wikipedia pages by querying the pages listed in Wikidata entries")
         admin_command.save()
         
+        admin_command, created = AdminCommand.objects.get_or_create(name="sync_wikimedia_commons_categories")
+        admin_command.dependency_order = 5
+        admin_command.description = _("Synchronize Wikimedia Commons categories by querying the categories listed in OpenStreetMap elements and Wikidata entries")
+        admin_command.save()
+        
         # Languages
         
         language, created = Language.objects.get_or_create(code="fr")
@@ -98,6 +103,11 @@ class Command(BaseCommand):
         setting.save()
         
         setting, created = Setting.objects.get_or_create(category="Wikipedia", key="auto_apply_modifications")
+        setting.value = "false"
+        setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
+        setting.save()
+        
+        setting, created = Setting.objects.get_or_create(category="Wikimedia Commons", key="auto_apply_modifications")
         setting.value = "false"
         setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
         setting.save()

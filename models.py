@@ -120,7 +120,6 @@ class Language(SuperLachaiseModel):
         verbose_name_plural = _('languages')
 
 class OpenStreetMapElement(SuperLachaiseModel):
-    """ An OpenStreetMap element """
     
     NODE = 'node'
     WAY = 'way'
@@ -169,6 +168,7 @@ class PendingModification(SuperLachaiseModel):
         ('WikidataEntry', _('wikidata entry')),
         ('WikidataLocalizedEntry', _('wikidata localized entry')),
         ('WikipediaPage', _('wikipedia page')),
+        ('WikimediaCommonsCategory', _('wikimedia commons category')),
     )
     
     target_object_class = models.CharField(max_length=255, choices=target_object_class_choices, verbose_name=_('target object class'))
@@ -304,7 +304,6 @@ class Setting(SuperLachaiseModel):
         unique_together = ('category', 'key',)
 
 class WikidataEntry(SuperLachaiseModel):
-    """ A wikidata entry """
     
     YEAR = 'Year'
     MONTH = 'Month'
@@ -355,7 +354,6 @@ class LocalizedWikidataEntry(SuperLachaiseModel):
         unique_together = ('parent', 'language',)
 
 class WikipediaPage(SuperLachaiseModel):
-    """ A Wikipedia page """
     
     language = models.ForeignKey('Language', verbose_name=_('language'))
     title = models.CharField(max_length=255, verbose_name=_('title'))
@@ -375,3 +373,16 @@ class WikipediaPage(SuperLachaiseModel):
         # Delete \r added by textfield
         self.intro = self.intro.replace('\r','')
         super(WikipediaPage, self).save(*args, **kwargs)
+
+class WikimediaCommonsCategory(SuperLachaiseModel):
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    files = models.TextField(blank=True, verbose_name=_('files'))
+    
+    def __unicode__(self):
+        return self.id
+    
+    class Meta:
+        ordering = ['id']
+        verbose_name = _('wikimedia commons category')
+        verbose_name_plural = _('wikimedia commons categories')
