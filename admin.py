@@ -397,22 +397,28 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikipediaPage)
 class WikipediaPageAdmin(admin.ModelAdmin):
-    list_display = ('language', 'title_link', 'last_revision_id', 'intro', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    list_display = ('language', 'title_link', 'last_revision_id', 'intro_html', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
     list_filter = ('language',)
     search_fields = ('title', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'title_link', 'last_revision_id', 'intro', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+        (None, {'fields': ['language', 'title_link', 'last_revision_id', 'intro', 'intro_html', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('language', 'title', 'title_link', 'last_revision_id', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
+    readonly_fields = ('language', 'title', 'title_link', 'last_revision_id', 'intro_html', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
     
     def title_link(self, obj):
-        url = u'http://{language}.wikipedia.org/wiki/title'.format(language=obj.language.code, title=unicode(obj.title)).replace("'","%27")
+        url = u'http://{language}.wikipedia.org/wiki/{title}'.format(language=obj.language.code, title=unicode(obj.title)).replace("'","%27")
         return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.title)))
     title_link.allow_tags = True
     title_link.short_description = _('wikipedia')
     title_link.admin_order_field = 'wikipedia'
+    
+    def intro_html(self, obj):
+        return obj.intro
+    intro_html.allow_tags = True
+    title_link.short_description = _('intro')
+    title_link.admin_order_field = 'intro'
     
     def date_of_birth_with_accuracy(self, obj):
         date = obj.date_of_birth if obj.date_of_birth else u''

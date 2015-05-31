@@ -57,6 +57,35 @@ class Command(BaseCommand):
         
         return result
     
+    def request_wikipedia_pre_section(self, language, title):
+        # Request properties
+        url = "http://{language_code}.wikipedia.org/w/api.php?action=parse&page={title}&format=json&prop=text&section=0"\
+            .format(language_code=language.code, title=urllib2.quote(title.encode('utf8')))
+        request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+        u = urllib2.urlopen(request)
+        
+        # Parse result
+        data = u.read()
+        json_result = json.loads(data)
+        
+        return json_result['parse']['text']['*']
+    
+    def get_wikipedia_fields(self, language, title):
+        print language.code + u':' + title
+        
+        # Get wikipedia pre-section (intro)
+        pre_section = self.request_wikipedia_pre_section(language, title)
+        
+        result = {
+            'intro': pre_section,
+            'date_of_birth': None,
+            'date_of_death': None,
+            'date_of_birth_accuracy': u'',
+            'date_of_death_accuracy': u'',
+        }
+        
+        return result
+    
     def handle_wikipedia_info(self, language, wikipedia_info):
         title = wikipedia_info['title']
         last_revision_id = wikipedia_info['lastrevid']
@@ -94,6 +123,12 @@ class Command(BaseCommand):
                         pending_modification.delete()
         
         if request_page_download:
+            fields_value = self.get_wikipedia_fields(language, title)
+            
+            for field, value in fields_value.iteritems():
+                if value != getattr(wikipedia_page, field):
+                    modified_fields[field] = value
+            
             pending_modification.modified_fields = json.dumps(modified_fields)
             pending_modification.full_clean()
             pending_modification.save()
