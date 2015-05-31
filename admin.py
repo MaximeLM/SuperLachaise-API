@@ -387,7 +387,6 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
-    
     sync_entry.short_description = _('Sync selected localized wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -429,8 +428,27 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     date_of_death_with_accuracy.short_description = _('date of death')
     date_of_death_with_accuracy.admin_order_field = 'date_of_death'
     
+    def sync_page(self, request, queryset):
+        wikipedia_ids = []
+        for wikipedia_page in queryset:
+            wikipedia_ids.append(wikipedia_page.language.code + ':' + wikipedia_page.title)
+        sync_start = timezone.now()
+        call_command('sync_wikipedia', wikipedia_ids='|'.join(wikipedia_ids))
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+        
+        if pending_modifications:
+            # Open modification page with filter
+            app_name = PendingModification._meta.app_label
+            reverse_name = PendingModification.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+            url = '/'.join(split_url[0:len(split_url) - 1])
+            return HttpResponseRedirect(url)
+    sync_page.short_description = _('Sync selected wikipedia pages')
+    
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete selected objects notes')
     
-    actions = [delete_notes]
+    actions = [delete_notes, sync_page]

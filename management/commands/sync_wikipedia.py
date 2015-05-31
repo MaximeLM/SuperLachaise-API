@@ -101,17 +101,27 @@ class Command(BaseCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
     
-    def sync_wikipedia(self):
+    def sync_wikipedia(self, wikipedia_ids):
         # Get wikipedia links on localized Wikidata entries
         wikipedia_links = {}
-        for localized_wikidata_entry in LocalizedWikidataEntry.objects.all():
-            language = localized_wikidata_entry.language
-            link = localized_wikidata_entry.wikipedia
-            if link:
-                if not language in wikipedia_links:
-                    wikipedia_links[language] = []
-                if not link in wikipedia_links[language]:
-                    wikipedia_links[language].append(link)
+        if wikipedia_ids:
+            for wikipedia_id in wikipedia_ids.split('|'):
+                language = Language.objects.get(code=wikipedia_id.split(':')[0])
+                link = wikipedia_id.split(':')[1]
+                if link:
+                    if not language in wikipedia_links:
+                        wikipedia_links[language] = []
+                    if not link in wikipedia_links[language]:
+                        wikipedia_links[language].append(link)
+        else:
+            for localized_wikidata_entry in LocalizedWikidataEntry.objects.all():
+                language = localized_wikidata_entry.language
+                link = localized_wikidata_entry.wikipedia
+                if link:
+                    if not language in wikipedia_links:
+                        wikipedia_links[language] = []
+                    if not link in wikipedia_links[language]:
+                        wikipedia_links[language].append(link)
         
         # Download page properties
         if wikipedia_links:
@@ -122,26 +132,32 @@ class Command(BaseCommand):
             for wikipedia_info in wikipedia_infos[language].values():
                 self.handle_wikipedia_info(language, wikipedia_info)
         
-        # Delete pending creations if element was not downloaded
-        for pendingModification in PendingModification.objects.filter(target_object_class="WikipediaPage", action=PendingModification.CREATE):
-            if not pendingModification.target_object_id in self.fetched_ids:
-                pendingModification.delete()
+        if not wikipedia_ids:
+            # Delete pending creations if element was not downloaded
+            for pendingModification in PendingModification.objects.filter(target_object_class="WikipediaPage", action=PendingModification.CREATE):
+                if not pendingModification.target_object_id in self.fetched_ids:
+                    pendingModification.delete()
     
-        # Look for deleted elements
-        for wikipedia_page in WikipediaPage.objects.all():
-            id = wikipedia_page.language.code + u':' + wikipedia_page.title
-            if not id in self.fetched_ids:
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
+            # Look for deleted elements
+            for wikipedia_page in WikipediaPage.objects.all():
+                id = wikipedia_page.language.code + u':' + wikipedia_page.title
+                if not id in self.fetched_ids:
+                    pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
             
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
+                    pendingModification.action = PendingModification.DELETE
+                    pendingModification.modified_fields = u''
             
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.deleted_objects = self.deleted_objects + 1
+                    pendingModification.full_clean()
+                    pendingModification.save()
+                    self.deleted_objects = self.deleted_objects + 1
             
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                    if self.auto_apply:
+                        pendingModification.apply_modification()
+    
+    def add_arguments(self, parser):
+        parser.add_argument('--wikipedia_ids',
+            action='store',
+            dest='wikipedia_ids')
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
@@ -154,7 +170,7 @@ class Command(BaseCommand):
             self.deleted_objects = 0
             self.fetched_ids = []
             
-            self.sync_wikipedia()
+            self.sync_wikipedia(options['wikipedia_ids'])
             
             result_list = []
             if self.created_objects > 0:
