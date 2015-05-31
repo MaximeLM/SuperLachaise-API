@@ -50,23 +50,29 @@ class WikipediaIntroHTMLParser(HTMLParser):
             if opened_tag['tag'] == 'ref':
                 return False
             if opened_tag['tag'] == 'ol':
-                return False
+                for attr in opened_tag['attrs']:
+                    if attr[0] in ['id', 'class']:
+                        return False
             if opened_tag['tag'] == 'strong':
-                return False
+                for attr in opened_tag['attrs']:
+                    if attr[0] == 'class' and 'error' in attr[1]:
+                        return False
             if opened_tag['tag'] == 'a':
                 for attr in opened_tag['attrs']:
                     if attr[0] == 'href' and attr[1].startswith('//'):
                         return False
             if opened_tag['tag'] == 'sup':
-                if len(opened_tag['attrs']) > 0:
-                    return False
+                for attr in opened_tag['attrs']:
+                    if attr[0] in ['id', 'class']:
+                        return False
             if opened_tag['tag'] == 'span':
                 for attr in opened_tag['attrs']:
                     if attr[0] == 'id':
                         return False
             if opened_tag['tag'] == 'li':
-                if len(opened_tag['attrs']) > 0:
-                    return False
+                for attr in opened_tag['attrs']:
+                    if attr[0] == 'id':
+                        return False
         
         return True
     
@@ -162,7 +168,7 @@ class Command(BaseCommand):
     def get_wikipedia_intro(self, language, title):
         # Get wikipedia pre-section (intro)
         pre_section = self.request_wikipedia_pre_section(language, title)
-        
+        #print pre_section
         # Process HTML
         parser = WikipediaIntroHTMLParser(language.code)
         parser.feed(pre_section)
@@ -250,11 +256,8 @@ class Command(BaseCommand):
             wikipedia_infos = self.request_wikipedia_infos(wikipedia_links)
         
         # Handle results
-        count = 0
         for language in wikipedia_infos:
-            for wikipedia_info in wikipedia_infos[language].values():
-                count = count + 1
-        for language in wikipedia_infos:
+            count = len(wikipedia_infos[language])
             for wikipedia_info in wikipedia_infos[language].values():
                 self.handle_wikipedia_info(language, wikipedia_info, count)
                 count = count - 1
