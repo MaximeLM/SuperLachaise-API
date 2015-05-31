@@ -53,6 +53,10 @@ class WikipediaIntroHTMLParser(HTMLParser):
                 for attr in opened_tag['attrs']:
                     if attr[0] in ['id', 'class']:
                         return False
+            if opened_tag['tag'] == 'ul':
+                for attr in opened_tag['attrs']:
+                    if attr[0] in ['id', 'class']:
+                        return False
             if opened_tag['tag'] == 'strong':
                 for attr in opened_tag['attrs']:
                     if attr[0] == 'class' and 'error' in attr[1]:
@@ -168,7 +172,7 @@ class Command(BaseCommand):
     def get_wikipedia_intro(self, language, title):
         # Get wikipedia pre-section (intro)
         pre_section = self.request_wikipedia_pre_section(language, title)
-        #print pre_section
+        
         # Process HTML
         parser = WikipediaIntroHTMLParser(language.code)
         parser.feed(pre_section)
