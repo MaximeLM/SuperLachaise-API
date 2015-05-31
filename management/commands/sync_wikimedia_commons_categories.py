@@ -30,6 +30,122 @@ from superlachaise_api.models import *
 
 class Command(BaseCommand):
     
+    def request_image_list(self, wikimedia_commons_category):
+        result = []
+        should_continue = True
+        cmcontinue = ''
+        
+        while should_continue:
+            # Request properties
+            url = "http://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&rawcontinue&format=json&cmtitle=Category:{category}{cmcontinue}"\
+                .format(category=urllib2.quote(wikimedia_commons_category.encode('utf8')), cmcontinue=cmcontinue)
+            request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+            u = urllib2.urlopen(request)
+            
+            # Parse result
+            data = u.read()
+            json_result = json.loads(data)
+            
+            for image in json_result['query']['categorymembers']:
+                result.append(image['title'])
+            
+            if 'query-continue' in json_result:
+                cmcontinue = '&cmcontinue=%s' % (json_result['query-continue']['categorymembers']['cmcontinue'])
+            else:
+                should_continue = False
+        
+        return result
+    
+    def handle_wikimedia_commons_category(self, id):
+        # Get images
+        values_dict = {
+            'files': ';'.join(self.request_image_list(id))
+        }
+        
+        # Get element in database if it exists
+        wikimedia_commons_category = WikimediaCommonsCategory.objects.filter(id=id).first()
+        
+        if not wikimedia_commons_category:
+            # Creation
+            pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=id)
+            pending_modification.action = PendingModification.CREATE
+            
+            self.created_objects = self.created_objects + 1
+            pending_modification.modified_fields = json.dumps(values_dict)
+            pending_modification.full_clean()
+            pending_modification.save()
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
+        else:
+            modified_fields = {}
+            for field, value in values_dict.iteritems():
+                if value != getattr(wikimedia_commons_category, field):
+                    modified_fields[field] = value
+            
+            if modified_fields:
+                # Modification
+                pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=id)
+                pending_modification.action = PendingModification.MODIFY
+                
+                self.modified_objects = self.modified_objects + 1
+                pending_modification.modified_fields = json.dumps(modified_fields)
+                pending_modification.full_clean()
+                pending_modification.save()
+                
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+            else:
+                # Delete previous modification if any
+                pending_modification = PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", target_object_id=id).first()
+                if pending_modification:
+                    pending_modification.delete()
+        
+    
+    def sync_wikimedia_commons_categories(self):
+        # Get wikimedia commons categories
+        wikimedia_commons_categories = []
+        for openstreetmap_element in OpenStreetMapElement.objects.all():
+            if openstreetmap_element.wikimedia_commons and openstreetmap_element.wikimedia_commons.startswith('Category:'):
+                link = openstreetmap_element.wikimedia_commons.split('Category:')[1]
+                if not link in wikimedia_commons_categories:
+                    wikimedia_commons_categories.append(link)
+        for wikidata_entry in WikidataEntry.objects.all():
+            if wikidata_entry.wikimedia_commons_category:
+                link = wikidata_entry.wikimedia_commons_category
+                if not link in wikimedia_commons_categories:
+                    wikimedia_commons_categories.append(link)
+            if wikidata_entry.wikimedia_commons_grave_category:
+                link = wikidata_entry.wikimedia_commons_grave_category
+                if not link in wikimedia_commons_categories:
+                    wikimedia_commons_categories.append(link)
+        
+        count = len(wikimedia_commons_categories)
+        for wikimedia_commons_category in wikimedia_commons_categories:
+            print str(count) + u'-' + wikimedia_commons_category
+            count = count - 1
+            self.handle_wikimedia_commons_category(wikimedia_commons_category)
+        
+        # Delete pending creations if element was not downloaded
+        for pendingModification in PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", action=PendingModification.CREATE):
+            if not pendingModification.target_object_id in wikimedia_commons_categories:
+                pendingModification.delete()
+        
+        # Look for deleted elements
+        for wikimedia_commons_category in WikimediaCommonsCategory.objects.all():
+            if not wikimedia_commons_category.id in wikimedia_commons_categories:
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=wikimedia_commons_category.id)
+                
+                pendingModification.action = PendingModification.DELETE
+                pendingModification.modified_fields = u''
+                
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.deleted_objects = self.deleted_objects + 1
+                
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+    
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
@@ -40,7 +156,7 @@ class Command(BaseCommand):
             self.modified_objects = 0
             self.deleted_objects = 0
             
-            
+            self.sync_wikimedia_commons_categories()
             
             result_list = []
             if self.created_objects > 0:

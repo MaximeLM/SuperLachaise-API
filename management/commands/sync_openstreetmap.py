@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, math, overpy, sys, traceback
+import json, math, os, overpy, sys, traceback
 from decimal import Decimal
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
