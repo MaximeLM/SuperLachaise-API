@@ -397,13 +397,13 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikipediaPage)
 class WikipediaPageAdmin(admin.ModelAdmin):
-    list_display = ('language', 'title_link', 'last_revision_id', 'intro_html', 'notes')
+    list_display = ('language', 'title_link', 'intro_html', 'notes')
     list_filter = ('language',)
     search_fields = ('title', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'title_link', 'last_revision_id', 'intro', 'intro_html']}),
+        (None, {'fields': ['language', 'title_link', 'intro', 'intro_html']}),
     ]
     readonly_fields = ('language', 'title', 'title_link', 'intro_html', 'created', 'modified')
     

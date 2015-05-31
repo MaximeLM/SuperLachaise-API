@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-31 22:01+0200\n"
+"POT-Creation-Date: 2015-05-31 23:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgid "Execute selected admin commands"
 msgstr "Exécuter les commandes admin sélectionnées"
 
 #: admin.py:55 admin.py:86 admin.py:103 admin.py:181 admin.py:220 admin.py:238
-#: admin.py:340 admin.py:394 admin.py:444 admin.py:468
+#: admin.py:340 admin.py:394 admin.py:444 admin.py:479
 msgid "Delete selected objects notes"
 msgstr "Supprimer les notes des objets sélectionnés"
 
@@ -71,7 +71,7 @@ msgstr "Appliquer les modifications en attente sélectionnées"
 msgid "instance of"
 msgstr "nature"
 
-#: admin.py:280 admin.py:463 models.py:171 models.py:321 models.py:387
+#: admin.py:280 admin.py:463 models.py:171 models.py:321 models.py:386
 msgid "wikimedia commons category"
 msgstr "catégorie wikimedia commons"
 
@@ -99,13 +99,17 @@ msgstr "Synchroniser les entrées wikidata sélectionnées"
 msgid "Sync selected localized wikidata entries"
 msgstr "Synchroniser les entrées wikidata localisées sélectionnées"
 
-#: admin.py:420 models.py:361
+#: admin.py:420 models.py:360
 msgid "intro"
 msgstr "intro"
 
 #: admin.py:440
 msgid "Sync selected wikipedia pages"
 msgstr "Synchroniser les pages Wikipédia sélectionnées"
+
+#: admin.py:474 models.py:379
+msgid "files"
+msgstr "fichiers"
 
 #: apps.py:28
 msgid "SuperLachaise API"
@@ -149,8 +153,8 @@ msgid ""
 "Synchronize Wikimedia Commons categories by querying the categories listed "
 "in OpenStreetMap elements and Wikidata entries"
 msgstr ""
-"Synchronise les catégories Wikimedia Commons en requêtant les catégories listées dans les "
-"éléments OpenStreetMap et les entrées Wikidata"
+"Synchronise les catégories Wikimedia Commons en requêtant les catégories "
+"listées dans les éléments OpenStreetMap et les entrées Wikidata"
 
 #: management/commands/load_initial_data.py:66
 msgid "French"
@@ -207,22 +211,24 @@ msgstr "Une page Wikipédia d'un élément OpenStreetMap n'a pas été trouvée"
 
 #: management/commands/make_wikidata_combined.py:152
 #: management/commands/sync_openstreetmap.py:283
-#: management/commands/sync_wikidata.py:383
-#: management/commands/sync_wikipedia.py:315
+#: management/commands/sync_wikidata.py:381
+#: management/commands/sync_wikimedia_commons_categories.py:165
+#: management/commands/sync_wikipedia.py:313
 #, python-brace-format
 msgid "{nb} object(s) modified"
 msgstr "{nb} objet(s) modifié(s)"
 
 #: management/commands/make_wikidata_combined.py:154
-#: management/commands/sync_wikipedia.py:319
+#: management/commands/sync_wikipedia.py:317
 #, python-brace-format
 msgid "{nb} error(s)"
 msgstr "{nb} erreur(s)"
 
 #: management/commands/make_wikidata_combined.py:159
 #: management/commands/sync_openstreetmap.py:290
-#: management/commands/sync_wikidata.py:390
-#: management/commands/sync_wikipedia.py:324
+#: management/commands/sync_wikidata.py:388
+#: management/commands/sync_wikimedia_commons_categories.py:172
+#: management/commands/sync_wikipedia.py:322
 msgid "No modifications"
 msgstr "Aucune modification"
 
@@ -231,15 +237,17 @@ msgid "no outer way for relation found"
 msgstr "Aucun chemin extérieur trouvé pour la relation"
 
 #: management/commands/sync_openstreetmap.py:281
-#: management/commands/sync_wikidata.py:381
-#: management/commands/sync_wikipedia.py:313
+#: management/commands/sync_wikidata.py:379
+#: management/commands/sync_wikimedia_commons_categories.py:163
+#: management/commands/sync_wikipedia.py:311
 #, python-brace-format
 msgid "{nb} object(s) created"
 msgstr "{nb} objet(s) créé(s)"
 
 #: management/commands/sync_openstreetmap.py:285
-#: management/commands/sync_wikidata.py:385
-#: management/commands/sync_wikipedia.py:317
+#: management/commands/sync_wikidata.py:383
+#: management/commands/sync_wikimedia_commons_categories.py:167
+#: management/commands/sync_wikipedia.py:315
 #, python-brace-format
 msgid "{nb} object(s) deleted"
 msgstr "{nb} objet(s) supprimé(s)"
@@ -324,7 +332,7 @@ msgstr "langage"
 msgid "languages"
 msgstr "langages"
 
-#: models.py:134 models.py:318 models.py:379
+#: models.py:134 models.py:318 models.py:378
 msgid "id"
 msgstr "id"
 
@@ -344,7 +352,7 @@ msgstr "longitude"
 msgid "openstreetmap elements"
 msgstr "éléments OpenStreetMap"
 
-#: models.py:170 models.py:368
+#: models.py:170 models.py:367
 msgid "wikipedia page"
 msgstr "page wikipédia"
 
@@ -424,18 +432,10 @@ msgstr "entrées wikidata localisées"
 msgid "title"
 msgstr "titre"
 
-#: models.py:360
-msgid "last revision id"
-msgstr "id dernière révision"
-
-#: models.py:369
+#: models.py:368
 msgid "wikipedia pages"
 msgstr "pages wikipédia"
 
-#: models.py:380
-msgid "files"
-msgstr "fichiers"
-
-#: models.py:388
+#: models.py:387
 msgid "wikimedia commons categories"
 msgstr "catégories wikimedia commons"

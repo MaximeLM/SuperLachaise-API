@@ -181,14 +181,12 @@ class Command(BaseCommand):
     
     def handle_wikipedia_info(self, language, wikipedia_info, count):
         title = wikipedia_info['title']
-        last_revision_id = wikipedia_info['lastrevid']
         id = language.code + ':' + title
         self.fetched_ids.append(id)
         
         print str(count) + u'-' + id
         
         values_dict = {
-            'last_revision_id': wikipedia_info['lastrevid'],
             'intro': self.get_wikipedia_intro(language, title),
         }
         

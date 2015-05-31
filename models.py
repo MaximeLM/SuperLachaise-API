@@ -357,7 +357,6 @@ class WikipediaPage(SuperLachaiseModel):
     
     language = models.ForeignKey('Language', verbose_name=_('language'))
     title = models.CharField(max_length=255, verbose_name=_('title'))
-    last_revision_id = models.BigIntegerField(null=True, verbose_name=_('last revision id'))
     intro = models.TextField(blank=True, verbose_name=_('intro'))
     
     def __unicode__(self):
