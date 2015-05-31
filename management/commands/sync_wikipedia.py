@@ -25,8 +25,90 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
+from HTMLParser import HTMLParser
 
 from superlachaise_api.models import *
+
+class WikipediaIntroHTMLParser(HTMLParser):
+    
+    def __init__(self, language_code):
+        self.reset()
+        
+        self.language_code = language_code
+        self.result = []
+        self.opened_tags = [{'tag': 'root', 'attrs': [], 'data': False, 'content': self.result}]
+        self.current_content = self.result
+        self.data = False
+    
+    def can_read_data(self):
+        if len(self.opened_tags) > 1 and self.opened_tags[1]['tag'] == 'div':
+            return False
+        
+        for opened_tag in self.opened_tags:
+            if opened_tag['tag'] == 'table':
+                return False
+            if opened_tag['tag'] == 'ref':
+                return False
+            if opened_tag['tag'] == 'ol':
+                return False
+            if opened_tag['tag'] == 'strong':
+                return False
+            if opened_tag['tag'] == 'a':
+                for attr in opened_tag['attrs']:
+                    if attr[0] == 'href' and attr[1].startswith('//'):
+                        return False
+            if opened_tag['tag'] == 'sup':
+                if len(opened_tag['attrs']) > 0:
+                    return False
+        
+        return True
+    
+    def handle_data(self, data):
+        if self.can_read_data():
+            self.current_content.append(data)
+            self.opened_tags[-1]['data'] = True
+    
+    def handle_entityref(self, name):
+        if self.can_read_data():
+            self.current_content.append('&'+name+';')
+            self.opened_tags[-1]['data'] = True
+    
+    def handle_charref(self, name):
+        if self.can_read_data():
+            self.current_content.append('&#'+name+';')
+            self.opened_tags[-1]['data'] = True
+    
+    def handle_starttag(self, tag, attrs):
+        self.current_content = []
+        self.opened_tags.append({'tag': tag, 'attrs': attrs, 'data': False, 'content': self.current_content})
+        
+        if tag == 'a':
+            for attr in attrs:
+                if attr[0] == 'href' and attr[1].startswith('//'):
+                    self.opened_tags[-2]['content'] = self.opened_tags[-2]['content'][:-1]
+        
+        if self.can_read_data():
+            self.current_content.append('<%s' % tag)
+            
+            if tag == 'a':
+                for attr in attrs:
+                    if attr[0] == 'href' and attr[1].startswith('/wiki/'):
+                        self.current_content.append(' href="http://{language_code}.wikipedia.org{link}"'.format(language_code=self.language_code, link=attr[1]))
+            
+            self.current_content.append('>')
+    
+    def handle_endtag(self, tag):
+        if self.can_read_data():
+            self.current_content.append('</%s>' % tag)
+        
+        if self.opened_tags[-1]['data']:
+            self.opened_tags[-2]['content'].append(''.join(self.current_content))
+            self.opened_tags[-2]['data'] = True
+        self.opened_tags = self.opened_tags[:-1]
+        self.current_content = self.opened_tags[-1]['content']
+    
+    def get_data(self):
+        return ''.join(self.result).strip()
 
 class Command(BaseCommand):
     
@@ -76,8 +158,12 @@ class Command(BaseCommand):
         # Get wikipedia pre-section (intro)
         pre_section = self.request_wikipedia_pre_section(language, title)
         
+        # Process HTML
+        parser = WikipediaIntroHTMLParser(language.code)
+        parser.feed(pre_section)
+        
         result = {
-            'intro': pre_section,
+            'intro': parser.get_data(),
             'date_of_birth': None,
             'date_of_death': None,
             'date_of_birth_accuracy': u'',
@@ -95,13 +181,14 @@ class Command(BaseCommand):
         # Get element in database if it exists
         wikipedia_page = WikipediaPage.objects.filter(language=language, title=title).first()
         request_page_download = False
+        modified_fields = {}
         
         if not wikipedia_page:
             # Creation
             pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
             pending_modification.action = PendingModification.CREATE
             modified_fields = json.loads(pending_modification.modified_fields) if pending_modification.modified_fields else {}
-            modified_fields = {'last_revision_id': last_revision_id, 'intro': u''}
+            modified_fields = {'last_revision_id': last_revision_id}
             request_page_download = True
             self.created_objects = self.created_objects + 1
         else:
@@ -110,7 +197,7 @@ class Command(BaseCommand):
                 pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
                 pending_modification.action = PendingModification.MODIFY
                 modified_fields = json.loads(pending_modification.modified_fields) if pending_modification.modified_fields else {}
-                modified_fields = {'last_revision_id': last_revision_id, 'intro': u''}
+                modified_fields = {'last_revision_id': last_revision_id}
                 request_page_download = True
                 self.modified_objects = self.modified_objects + 1
             else:
@@ -122,12 +209,16 @@ class Command(BaseCommand):
                     if not modified_fields:
                         pending_modification.delete()
         
-        if request_page_download:
+        if request_page_download or self.wikipedia_ids:
             fields_value = self.get_wikipedia_fields(language, title)
             
             for field, value in fields_value.iteritems():
                 if value != getattr(wikipedia_page, field):
                     modified_fields[field] = value
+            
+            if modified_fields and not pending_modification:
+                pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
+                pending_modification.action = PendingModification.MODIFY
             
             pending_modification.modified_fields = json.dumps(modified_fields)
             pending_modification.full_clean()
@@ -136,11 +227,11 @@ class Command(BaseCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
     
-    def sync_wikipedia(self, wikipedia_ids):
+    def sync_wikipedia(self):
         # Get wikipedia links on localized Wikidata entries
         wikipedia_links = {}
-        if wikipedia_ids:
-            for wikipedia_id in wikipedia_ids.split('|'):
+        if self.wikipedia_ids:
+            for wikipedia_id in self.wikipedia_ids.split('|'):
                 language = Language.objects.get(code=wikipedia_id.split(':')[0])
                 link = wikipedia_id.split(':')[1]
                 if link:
@@ -167,25 +258,25 @@ class Command(BaseCommand):
             for wikipedia_info in wikipedia_infos[language].values():
                 self.handle_wikipedia_info(language, wikipedia_info)
         
-        if not wikipedia_ids:
+        if not self.wikipedia_ids:
             # Delete pending creations if element was not downloaded
             for pendingModification in PendingModification.objects.filter(target_object_class="WikipediaPage", action=PendingModification.CREATE):
                 if not pendingModification.target_object_id in self.fetched_ids:
                     pendingModification.delete()
-    
+            
             # Look for deleted elements
             for wikipedia_page in WikipediaPage.objects.all():
                 id = wikipedia_page.language.code + u':' + wikipedia_page.title
                 if not id in self.fetched_ids:
                     pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
-            
+                    
                     pendingModification.action = PendingModification.DELETE
                     pendingModification.modified_fields = u''
-            
+                    
                     pendingModification.full_clean()
                     pendingModification.save()
                     self.deleted_objects = self.deleted_objects + 1
-            
+                    
                     if self.auto_apply:
                         pendingModification.apply_modification()
     
@@ -204,8 +295,9 @@ class Command(BaseCommand):
             self.modified_objects = 0
             self.deleted_objects = 0
             self.fetched_ids = []
+            self.wikipedia_ids = options['wikipedia_ids']
             
-            self.sync_wikipedia(options['wikipedia_ids'])
+            self.sync_wikipedia()
             
             result_list = []
             if self.created_objects > 0:

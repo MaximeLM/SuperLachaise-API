@@ -388,8 +388,4 @@ class WikipediaPage(SuperLachaiseModel):
     def save(self, *args, **kwargs):
         # Delete \r added by textfield
         self.intro = self.intro.replace('\r','')
-        orig = WikipediaPage.objects.filter(pk=self.pk).first()
-        if orig:
-            if orig.last_revision_id == self.last_revision_id and orig.intro != self.intro or orig.date_of_birth != self.date_of_birth or orig.date_of_death != self.date_of_death or orig.date_of_birth_accuracy != self.date_of_birth_accuracy or orig.date_of_death_accuracy != self.date_of_death_accuracy:
-                self.last_revision_id = None
         super(WikipediaPage, self).save(*args, **kwargs)

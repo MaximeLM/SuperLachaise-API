@@ -412,13 +412,13 @@ class WikipediaPageAdmin(admin.ModelAdmin):
         return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.title)))
     title_link.allow_tags = True
     title_link.short_description = _('wikipedia')
-    title_link.admin_order_field = 'wikipedia'
+    title_link.admin_order_field = 'title'
     
     def intro_html(self, obj):
         return obj.intro
     intro_html.allow_tags = True
-    title_link.short_description = _('intro')
-    title_link.admin_order_field = 'intro'
+    intro_html.short_description = _('intro')
+    intro_html.admin_order_field = 'intro'
     
     def date_of_birth_with_accuracy(self, obj):
         date = obj.date_of_birth if obj.date_of_birth else u''
