@@ -43,7 +43,8 @@ class Command(BaseCommand):
             while rawcontinue:
                 # Request properties
                 url = "http://commons.wikimedia.org/w/api.php?action=query&titles={titles}&prop=imageinfo|revisions&iiprop=extmetadata|url|size&iiurlwidth={thumbnail_size}&rvprop=content{rawcontinue}&format=json"\
-                    .format(titles=urllib2.quote('|'.join(wikimedia_commons_files).encode('utf8'), '|'), rawcontinue=rawcontinue, thumbnail_size=self.placeholder_thumbnail_size)
+                    .format(titles=urllib2.quote('|'.join(wikimedia_commons_files_page).encode('utf8'), '|'), rawcontinue=rawcontinue, thumbnail_size=self.placeholder_thumbnail_size)
+                
                 request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
                 u = urllib2.urlopen(request)
                 

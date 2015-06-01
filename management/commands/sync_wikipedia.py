@@ -61,21 +61,21 @@ class WikipediaIntroHTMLParser(HTMLParser):
                 for attr in opened_tag['attrs']:
                     if attr[0] == 'class' and 'error' in attr[1]:
                         return False
-            if opened_tag['tag'] == 'a':
-                for attr in opened_tag['attrs']:
-                    if attr[0] == 'href' and attr[1].startswith('//'):
-                        return False
             if opened_tag['tag'] == 'sup':
                 for attr in opened_tag['attrs']:
                     if attr[0] in ['id', 'class']:
                         return False
             if opened_tag['tag'] == 'span':
                 for attr in opened_tag['attrs']:
-                    if attr[0] == 'id':
+                    if attr[0] == 'id' or (attr[0] == 'class' and attr[1] == 'noprint'):
+                        return False
+            if opened_tag['tag'] == 'small':
+                for attr in opened_tag['attrs']:
+                    if attr[0] == 'id' or (attr[0] == 'class' and 'metadata' in attr[1]):
                         return False
             if opened_tag['tag'] == 'li':
                 for attr in opened_tag['attrs']:
-                    if attr[0] == 'id':
+                    if attr[0] in ['id', 'class']:
                         return False
         
         return True
@@ -99,18 +99,16 @@ class WikipediaIntroHTMLParser(HTMLParser):
         self.current_content = []
         self.opened_tags.append({'tag': tag, 'attrs': attrs, 'data': False, 'content': self.current_content})
         
-        if tag == 'a':
-            for attr in attrs:
-                if attr[0] == 'href' and attr[1].startswith('//'):
-                    self.opened_tags[-2]['content'] = self.opened_tags[-2]['content'][:-1]
-        
         if self.can_read_data():
             self.current_content.append('<%s' % tag)
             
             if tag == 'a':
                 for attr in attrs:
-                    if attr[0] == 'href' and attr[1].startswith('/wiki/'):
-                        self.current_content.append(' href="http://{language_code}.wikipedia.org{link}"'.format(language_code=self.language_code, link=attr[1]))
+                    if attr[0] == 'href':
+                        if attr[1].startswith('/wiki/') or attr[1].startswith('/w/'):
+                            self.current_content.append(' href="http://{language_code}.wikipedia.org{link}"'.format(language_code=self.language_code, link=attr[1]))
+                        elif attr[1].startswith('//'):
+                            self.current_content.append(' href="http:{link}"'.format(link=attr[1]))
             
             self.current_content.append('>')
     
@@ -118,9 +116,22 @@ class WikipediaIntroHTMLParser(HTMLParser):
         if self.can_read_data():
             self.current_content.append('</%s>' % tag)
         
-        if self.opened_tags[-1]['data']:
+        if self.can_read_data() and (self.opened_tags[-1]['data'] or self.opened_tags[-1]['tag'] == 'a'):
             self.opened_tags[-2]['content'].append(''.join(self.current_content))
             self.opened_tags[-2]['data'] = True
+        else:
+            # Delete last whitespace if any
+            content = self.opened_tags[-2]['content']
+            while isinstance(content, list):
+                if len(content) > 0:
+                    if not isinstance(content[-1], list) and content[-1] in [u' ', u'&nbsp;']:
+                        del content[-1]
+                        if len(content) < 2:
+                            self.opened_tags[-2]['data'] = False
+                        break
+                    content = content[-1]
+                else:
+                    content = None
         self.opened_tags = self.opened_tags[:-1]
         self.current_content = self.opened_tags[-1]['content']
     
