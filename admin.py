@@ -479,3 +479,27 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete selected objects notes')
     
     actions = [delete_notes]
+
+@admin.register(WikimediaCommonsFile)
+class WikimediaCommonsFileAdmin(admin.ModelAdmin):
+    list_display = ('id', 'wikimedia_commons_link', 'url', 'attribution', 'notes')
+    search_fields = ('id', 'url', 'attribution',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['id', 'wikimedia_commons_link', 'url', 'attribution']}),
+    ]
+    readonly_fields = ('wikimedia_commons_link', 'created', 'modified')
+    
+    def wikimedia_commons_link(self, obj):
+        url = u'http://commons.wikimedia.org/wiki/File:{name}'.format(name=unicode(obj.id)).replace("'","%27")
+        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
+    wikimedia_commons_link.allow_tags = True
+    wikimedia_commons_link.short_description = _('wikimedia commons file')
+    wikimedia_commons_link.admin_order_field = 'id'
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete selected objects notes')
+    
+    actions = [delete_notes]

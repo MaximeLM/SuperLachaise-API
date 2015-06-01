@@ -60,6 +60,11 @@ class Command(BaseCommand):
         admin_command.description = _("Synchronize Wikimedia Commons categories by querying the categories listed in OpenStreetMap elements and Wikidata entries")
         admin_command.save()
         
+        admin_command, created = AdminCommand.objects.get_or_create(name="sync_wikimedia_commons_files")
+        admin_command.dependency_order = 6
+        admin_command.description = _("Synchronize Wikimedia Commons files by querying the files listed in Wikimedia Commons categories")
+        admin_command.save()
+        
         # Languages
         
         language, created = Language.objects.get_or_create(code="fr")

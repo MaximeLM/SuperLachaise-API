@@ -169,6 +169,7 @@ class PendingModification(SuperLachaiseModel):
         ('WikidataLocalizedEntry', _('wikidata localized entry')),
         ('WikipediaPage', _('wikipedia page')),
         ('WikimediaCommonsCategory', _('wikimedia commons category')),
+        ('WikimediaCommonsFile', _('wikimedia commons file')),
     )
     
     target_object_class = models.CharField(max_length=255, choices=target_object_class_choices, verbose_name=_('target object class'))
@@ -385,3 +386,17 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
         ordering = ['id']
         verbose_name = _('wikimedia commons category')
         verbose_name_plural = _('wikimedia commons categories')
+
+class WikimediaCommonsFile(SuperLachaiseModel):
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    url = models.CharField(max_length=255, verbose_name=_('url'))
+    attribution = models.CharField(max_length=255, verbose_name=_('attribution'))
+    
+    def __unicode__(self):
+        return self.id
+    
+    class Meta:
+        ordering = ['id']
+        verbose_name = _('wikimedia commons file')
+        verbose_name_plural = _('wikimedia commons files')

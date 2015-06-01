@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-sync_OpenStreetMap.py
+sync_wikipedia.py
 superlachaise_api
 
-Created by Maxime Le Moine on 26/05/2015.
+Created by Maxime Le Moine on 31/05/2015.
 Copyright (c) 2015 Maxime Le Moine.
 
 Licensed under the Apache License, Version 2.0 (the "License");

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-31 23:59+0200\n"
+"POT-Creation-Date: 2015-06-01 16:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgid "Execute selected admin commands"
 msgstr "Exécuter les commandes admin sélectionnées"
 
 #: admin.py:55 admin.py:86 admin.py:103 admin.py:181 admin.py:220 admin.py:238
-#: admin.py:340 admin.py:394 admin.py:444 admin.py:479
+#: admin.py:340 admin.py:394 admin.py:444 admin.py:479 admin.py:503
 msgid "Delete selected objects notes"
 msgstr "Supprimer les notes des objets sélectionnés"
 
@@ -111,6 +111,10 @@ msgstr "Synchroniser les pages Wikipédia sélectionnées"
 msgid "files"
 msgstr "fichiers"
 
+#: admin.py:498 models.py:400
+msgid "wikimedia commons file"
+msgstr "fichier wikimedia commons"
+
 #: apps.py:28
 msgid "SuperLachaise API"
 msgstr "API SuperLachaise"
@@ -156,18 +160,26 @@ msgstr ""
 "Synchronise les catégories Wikimedia Commons en requêtant les catégories "
 "listées dans les éléments OpenStreetMap et les entrées Wikidata"
 
-#: management/commands/load_initial_data.py:66
+#: management/commands/load_initial_data.py:65
+msgid ""
+"Synchronize Wikimedia Commons files by querying the files listed in "
+"Wikimedia Commons categories"
+msgstr ""
+"Synchronise les fichiers Wikimedia Commons en requêtant les fichiers listés dans les "
+"catégories Wikimedia Commons"
+
+#: management/commands/load_initial_data.py:71
 msgid "French"
 msgstr "Français"
 
-#: management/commands/load_initial_data.py:70
+#: management/commands/load_initial_data.py:75
 msgid "English"
 msgstr "Anglais"
 
-#: management/commands/load_initial_data.py:77
-#: management/commands/load_initial_data.py:102
+#: management/commands/load_initial_data.py:82
 #: management/commands/load_initial_data.py:107
 #: management/commands/load_initial_data.py:112
+#: management/commands/load_initial_data.py:117
 msgid ""
 "If set to 'true', new modifications are applied immediately after being "
 "created. If set to 'false', a pending modification is created and must be "
@@ -177,7 +189,7 @@ msgstr ""
 "leur création. Sinon, une modification en attente sera créée et devra être "
 "acceptée manuellement."
 
-#: management/commands/load_initial_data.py:82
+#: management/commands/load_initial_data.py:87
 msgid ""
 "The geographical area where to sync OpenStreetMap data : <min lat>,<min lon>,"
 "<max lat>,<max lon>"
@@ -185,15 +197,15 @@ msgstr ""
 "La zone géographique où synchroniser les données OpenStreetMap : <min lat>,"
 "<min lon>,<max lat>,<max lon>"
 
-#: management/commands/load_initial_data.py:87
+#: management/commands/load_initial_data.py:92
 msgid "The OpenStreetMap IDs to exclude from syncing"
 msgstr "Les IDs OpenStreetMap à exclure de la synchronisation"
 
-#: management/commands/load_initial_data.py:92
+#: management/commands/load_initial_data.py:97
 msgid "The OpenStreetMap tags to sync (nodes, ways or relations)"
 msgstr "Les tags OpenStreetMap à synchroniser (noeuds, chemins ou relations)"
 
-#: management/commands/load_initial_data.py:97
+#: management/commands/load_initial_data.py:102
 msgid ""
 "The list of wikidata codes for cemeteries where to look for tomb data "
 "(property P119)"
@@ -332,7 +344,7 @@ msgstr "langage"
 msgid "languages"
 msgstr "langages"
 
-#: models.py:134 models.py:318 models.py:378
+#: models.py:134 models.py:318 models.py:378 models.py:391
 msgid "id"
 msgstr "id"
 
@@ -439,3 +451,15 @@ msgstr "pages wikipédia"
 #: models.py:387
 msgid "wikimedia commons categories"
 msgstr "catégories wikimedia commons"
+
+#: models.py:392
+msgid "url"
+msgstr "url"
+
+#: models.py:393
+msgid "attribution"
+msgstr "attribution"
+
+#: models.py:401
+msgid "wikimedia commons files"
+msgstr "fichiers wikimedia commons"
