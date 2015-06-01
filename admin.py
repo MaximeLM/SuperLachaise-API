@@ -447,14 +447,14 @@ class WikipediaPageAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsCategory)
 class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'wikimedia_commons_link', 'files_link', 'notes')
+    list_display = ('id', 'wikimedia_commons_link', 'files_link', 'main_image_link', 'notes')
     search_fields = ('id', 'files',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikimedia_commons_link', 'files', 'files_link']}),
+        (None, {'fields': ['id', 'wikimedia_commons_link', 'files', 'main_image', 'main_image_link', 'files_link']}),
     ]
-    readonly_fields = ('wikimedia_commons_link', 'files_link', 'created', 'modified')
+    readonly_fields = ('wikimedia_commons_link', 'files_link', 'main_image_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
         url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.id)).replace("'","%27")
@@ -473,6 +473,14 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     files_link.allow_tags = True
     files_link.short_description = _('files')
     files_link.admin_order_field = 'files'
+    
+    def main_image_link(self, obj):
+        if obj.main_image:
+            url = u'http://commons.wikimedia.org/wiki/{file}'.format(file=unicode(obj.main_image).replace("'","%27"))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.main_image)))
+    main_image_link.allow_tags = True
+    main_image_link.short_description = _('main_image')
+    main_image_link.admin_order_field = 'main_image'
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')

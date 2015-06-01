@@ -378,6 +378,7 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     files = models.TextField(blank=True, verbose_name=_('files'))
+    main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
     
     def __unicode__(self):
         return self.id

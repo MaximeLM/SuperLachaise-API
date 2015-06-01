@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, os, sys, traceback, urllib2
+import json, os, re, sys, traceback, urllib2
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
@@ -31,13 +31,15 @@ from superlachaise_api.models import *
 class Command(BaseCommand):
     
     def request_image_list(self, wikimedia_commons_category):
-        result = []
+        category_members = []
+        pages = {}
+        
         should_continue = True
         cmcontinue = ''
         
         while should_continue:
             # Request properties
-            url = "http://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&rawcontinue&format=json&cmtitle=Category:{category}{cmcontinue}"\
+            url = "http://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&rawcontinue&format=json&cmtitle=Category:{category}{cmcontinue}&prop=revisions&titles=Category:{category}&rvprop=content"\
                 .format(category=urllib2.quote(wikimedia_commons_category.encode('utf8')), cmcontinue=cmcontinue)
             request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
             u = urllib2.urlopen(request)
@@ -46,20 +48,54 @@ class Command(BaseCommand):
             data = u.read()
             json_result = json.loads(data)
             
-            for image in json_result['query']['categorymembers']:
-                result.append(image['title'])
+            category_members.extend(json_result['query']['categorymembers'])
+            pages.update(json_result['query']['pages'])
             
             if 'query-continue' in json_result:
                 cmcontinue = '&cmcontinue=%s' % (json_result['query-continue']['categorymembers']['cmcontinue'])
             else:
                 should_continue = False
         
+        return (category_members, pages)
+    
+    def get_files(self, category_members):
+        result = []
+        for category_member in category_members:
+            result.append(category_member['title']) 
+        
         return result
     
+    def get_main_image(self, pages):
+        try:
+            if len(pages) != 1:
+                raise BaseException
+            
+            for id, page in pages.iteritems():
+                if len(page['revisions']) != 1:
+                    raise BaseException
+                wikitext = page['revisions'][0]['*']
+            
+            main_image = u''
+            for line in wikitext.split('\n'):
+                match_obj = re.search( r'^.*[iI]mage.*\=[\s]*(.*)[\s]*$', line)
+                if match_obj:
+                    main_image = match_obj.group(1).strip()
+                    break
+            
+            if main_image:
+                main_image = u'File:' + main_image
+            
+            return main_image
+        except:
+            traceback.print_exc()
+            return u''
+    
     def handle_wikimedia_commons_category(self, id):
-        # Get images
+        # Get values
+        category_members, pages = self.request_image_list(id)
         values_dict = {
-            'files': ';'.join(self.request_image_list(id))
+            'files': ';'.join(self.get_files(category_members)),
+            'main_image': self.get_main_image(pages),
         }
         
         # Get element in database if it exists
