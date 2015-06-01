@@ -111,9 +111,15 @@ class Command(BaseCommand):
                     wikimedia_commons_categories.append(link)
         for wikidata_entry in WikidataEntry.objects.all():
             if wikidata_entry.wikimedia_commons_category:
-                link = wikidata_entry.wikimedia_commons_category
-                if not link in wikimedia_commons_categories:
-                    wikimedia_commons_categories.append(link)
+                sync_category = False
+                for instance_of in wikidata_entry.instance_of.split(';'):
+                    if instance_of in self.synced_instance_of:
+                        sync_category = True
+                        break
+                if sync_category:
+                    link = wikidata_entry.wikimedia_commons_category
+                    if not link in wikimedia_commons_categories:
+                        wikimedia_commons_categories.append(link)
             if wikidata_entry.wikimedia_commons_grave_category:
                 link = wikidata_entry.wikimedia_commons_grave_category
                 if not link in wikimedia_commons_categories:
@@ -150,6 +156,7 @@ class Command(BaseCommand):
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
             self.auto_apply = (Setting.objects.get(category='Wikimedia Commons', key=u'auto_apply_modifications').value == 'true')
+            self.synced_instance_of = json.loads(Setting.objects.get(category='Wikimedia Commons', key=u'synced_instance_of').value)
             
             self.created_objects = 0
             self.modified_objects = 0

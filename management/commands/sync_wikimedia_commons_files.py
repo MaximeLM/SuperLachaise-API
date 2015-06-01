@@ -31,7 +31,7 @@ from superlachaise_api.models import *
 class Command(BaseCommand):
     
     def request_wikimedia_commons_files(self, wikimedia_commons_files):
-        max_items_per_request = 100
+        max_items_per_request = 10
         
         result = {}
         i = 0
