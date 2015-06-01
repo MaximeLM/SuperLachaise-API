@@ -390,8 +390,11 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
 class WikimediaCommonsFile(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    url = models.CharField(max_length=255, verbose_name=_('url'))
-    attribution = models.CharField(max_length=255, verbose_name=_('attribution'))
+    original_url = models.CharField(max_length=255, blank=True, verbose_name=_('original url'))
+    thumbnail_template_url = models.CharField(max_length=255, blank=True, verbose_name=_('thumbnail template url'))
+    width = models.IntegerField(null=True, verbose_name=_('width'))
+    height = models.IntegerField(null=True, verbose_name=_('height'))
+    attribution = models.CharField(max_length=255, blank=True, verbose_name=_('attribution'))
     
     def __unicode__(self):
         return self.id
