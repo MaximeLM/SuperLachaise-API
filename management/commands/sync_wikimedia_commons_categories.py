@@ -100,7 +100,6 @@ class Command(BaseCommand):
                 pending_modification = PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", target_object_id=id).first()
                 if pending_modification:
                     pending_modification.delete()
-        
     
     def sync_wikimedia_commons_categories(self):
         # Get wikimedia commons categories

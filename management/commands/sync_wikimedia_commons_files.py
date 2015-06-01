@@ -178,8 +178,6 @@ class Command(BaseCommand):
                     if not link in wikimedia_commons_files:
                         wikimedia_commons_files.append(link)
         
-        wikimedia_commons_files = [u'File:Père-Lachaise_-_Division_39_-_Parmentier_02.jpg']
-        
         result = self.request_wikimedia_commons_files(wikimedia_commons_files)
         
         count = len(result)

@@ -107,6 +107,11 @@ class Command(BaseCommand):
         setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
         setting.save()
         
+        setting, created = Setting.objects.get_or_create(category="Wikidata", key="accepted_instance_of_for_category_commons")
+        setting.value = """["Q173387", "Q16423655", "Q575759", "Q860861", "Q42948"]"""
+        setting.description = _("""The values of 'instance_of' values for which Wikimedia Commons categories should be synced (note: Wikimedia Commons grave categories will always be synced).""")
+        setting.save()
+        
         setting, created = Setting.objects.get_or_create(category="Wikipedia", key="auto_apply_modifications")
         setting.value = "false"
         setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")

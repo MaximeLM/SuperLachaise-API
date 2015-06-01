@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-01 19:24+0200\n"
+"POT-Creation-Date: 2015-06-01 19:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -186,8 +186,8 @@ msgstr "Anglais"
 
 #: management/commands/load_initial_data.py:82
 #: management/commands/load_initial_data.py:107
-#: management/commands/load_initial_data.py:112
 #: management/commands/load_initial_data.py:117
+#: management/commands/load_initial_data.py:122
 msgid ""
 "If set to 'true', new modifications are applied immediately after being "
 "created. If set to 'false', a pending modification is created and must be "
@@ -221,6 +221,16 @@ msgstr ""
 "La liste des codes wikidata correspondant aux cimetières où chercherles "
 "propriétés des tombes (propriété P119)"
 
+#: management/commands/load_initial_data.py:112
+msgid ""
+"The values of 'instance_of' values for which Wikimedia Commons categories "
+"should be synced (note: Wikimedia Commons grave categories will always be "
+"synced)."
+msgstr ""
+"Les valeurs des champs 'nature' pour lesquelles les "
+"catégories Wikimedia Commons doivent être synchronisées (note : les "
+"catégories tombes Wikimedia Commons seront toujours synchronisées)."
+
 #: management/commands/make_wikidata_combined.py:106
 msgid "wikipedia page not found"
 msgstr "page wikipédia non trouvée"
@@ -232,8 +242,8 @@ msgstr "Une page Wikipédia d'un élément OpenStreetMap n'a pas été trouvée"
 #: management/commands/make_wikidata_combined.py:152
 #: management/commands/sync_openstreetmap.py:283
 #: management/commands/sync_wikidata.py:381
-#: management/commands/sync_wikimedia_commons_categories.py:165
-#: management/commands/sync_wikimedia_commons_files.py:228
+#: management/commands/sync_wikimedia_commons_categories.py:171
+#: management/commands/sync_wikimedia_commons_files.py:226
 #: management/commands/sync_wikipedia.py:313
 #, python-brace-format
 msgid "{nb} object(s) modified"
@@ -248,8 +258,8 @@ msgstr "{nb} erreur(s)"
 #: management/commands/make_wikidata_combined.py:159
 #: management/commands/sync_openstreetmap.py:290
 #: management/commands/sync_wikidata.py:388
-#: management/commands/sync_wikimedia_commons_categories.py:172
-#: management/commands/sync_wikimedia_commons_files.py:235
+#: management/commands/sync_wikimedia_commons_categories.py:178
+#: management/commands/sync_wikimedia_commons_files.py:233
 #: management/commands/sync_wikipedia.py:322
 msgid "No modifications"
 msgstr "Aucune modification"
@@ -260,8 +270,8 @@ msgstr "Aucun chemin extérieur trouvé pour la relation"
 
 #: management/commands/sync_openstreetmap.py:281
 #: management/commands/sync_wikidata.py:379
-#: management/commands/sync_wikimedia_commons_categories.py:163
-#: management/commands/sync_wikimedia_commons_files.py:226
+#: management/commands/sync_wikimedia_commons_categories.py:169
+#: management/commands/sync_wikimedia_commons_files.py:224
 #: management/commands/sync_wikipedia.py:311
 #, python-brace-format
 msgid "{nb} object(s) created"
@@ -269,8 +279,8 @@ msgstr "{nb} objet(s) créé(s)"
 
 #: management/commands/sync_openstreetmap.py:285
 #: management/commands/sync_wikidata.py:383
-#: management/commands/sync_wikimedia_commons_categories.py:167
-#: management/commands/sync_wikimedia_commons_files.py:230
+#: management/commands/sync_wikimedia_commons_categories.py:173
+#: management/commands/sync_wikimedia_commons_files.py:228
 #: management/commands/sync_wikipedia.py:315
 #, python-brace-format
 msgid "{nb} object(s) deleted"

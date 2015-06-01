@@ -204,17 +204,25 @@ class Command(BaseCommand):
         
         if 'Q5' in instance_of:
             # human
-            result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
             result['wikimedia_commons_grave_category'] = self.get_wikimedia_commons_grave_category(entity)
             result['burial_plot_reference'] = self.get_person_burial_plot_reference(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
             result['date_of_death'], result['date_of_death_accuracy'] = self.get_date(entity, 'P570')
         else:
-            result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
             result['wikimedia_commons_grave_category'] = u''
             result['burial_plot_reference'] = self.get_burial_plot_reference(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = (None, u'')
             result['date_of_death'], result['date_of_death_accuracy'] = (None, u'')
+        
+        sync_wikimedia_commons_category = False
+        for object in instance_of:
+            if object in self.accepted_instance_of_for_category_commons:
+                sync_wikimedia_commons_category = True
+                break
+        if sync_wikimedia_commons_category:
+            result['wikimedia_commons_category'] = self.get_wikimedia_commons_category(entity)
+        else:
+            result['wikimedia_commons_category'] = u''
         
         if 'Q173387' in instance_of:
             # tomb
@@ -367,6 +375,7 @@ class Command(BaseCommand):
         try:
             self.accepted_locations_of_burial = json.loads(Setting.objects.get(category='Wikidata', key=u'accepted_locations_of_burial').value)
             self.auto_apply = (Setting.objects.get(category='Wikidata', key=u'auto_apply_modifications').value == 'true')
+            self.accepted_instance_of_for_category_commons = json.loads(Setting.objects.get(category='Wikidata', key=u'accepted_instance_of_for_category_commons').value)
             
             self.created_objects = 0
             self.modified_objects = 0
