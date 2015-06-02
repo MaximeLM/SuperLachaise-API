@@ -25,6 +25,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
+from HTMLParser import HTMLParser
 
 from superlachaise_api.models import *
 
@@ -36,7 +37,166 @@ def none_to_blank(s):
         return u''
     return unicode(s)
 
+class WikipediaIntroHTMLParser(HTMLParser):
+    
+    def __init__(self, language_code):
+        self.reset()
+        
+        self.language_code = language_code
+        self.result = []
+        self.opened_tags = [{'tag': 'root', 'attrs': [], 'data': False, 'content': self.result}]
+        self.current_content = self.result
+        self.data = False
+    
+    def can_read_data(self):
+        if len(self.opened_tags) > 1 and self.opened_tags[1]['tag'] == 'div':
+            return False
+        
+        for opened_tag in self.opened_tags:
+            if opened_tag['tag'] == 'table':
+                return False
+            if opened_tag['tag'] == 'ref':
+                return False
+            if opened_tag['tag'] == 'ol':
+                for attr in opened_tag['attrs']:
+                    if attr[0] in ['id', 'class']:
+                        return False
+            if opened_tag['tag'] == 'ul':
+                for attr in opened_tag['attrs']:
+                    if attr[0] in ['id', 'class']:
+                        return False
+            if opened_tag['tag'] == 'strong':
+                for attr in opened_tag['attrs']:
+                    if attr[0] == 'class' and 'error' in attr[1]:
+                        return False
+            if opened_tag['tag'] == 'sup':
+                for attr in opened_tag['attrs']:
+                    if attr[0] in ['id', 'class']:
+                        return False
+            if opened_tag['tag'] == 'span':
+                for attr in opened_tag['attrs']:
+                    if attr[0] == 'id' or (attr[0] == 'class' and attr[1] == 'noprint'):
+                        return False
+            if opened_tag['tag'] == 'small':
+                for attr in opened_tag['attrs']:
+                    if attr[0] == 'id' or (attr[0] == 'class' and 'metadata' in attr[1]):
+                        return False
+            if opened_tag['tag'] == 'li':
+                for attr in opened_tag['attrs']:
+                    if attr[0] in ['id', 'class']:
+                        return False
+        
+        return True
+    
+    def handle_data(self, data):
+        if self.can_read_data():
+            self.current_content.append(data)
+            self.opened_tags[-1]['data'] = True
+    
+    def handle_entityref(self, name):
+        if self.can_read_data():
+            self.current_content.append('&'+name+';')
+            self.opened_tags[-1]['data'] = True
+    
+    def handle_charref(self, name):
+        if self.can_read_data():
+            self.current_content.append('&#'+name+';')
+            self.opened_tags[-1]['data'] = True
+    
+    def handle_starttag(self, tag, attrs):
+        self.current_content = []
+        self.opened_tags.append({'tag': tag, 'attrs': attrs, 'data': False, 'content': self.current_content})
+        
+        if self.can_read_data():
+            self.current_content.append('<%s' % tag)
+            
+            if tag == 'a':
+                for attr in attrs:
+                    if attr[0] == 'href':
+                        if attr[1].startswith('/wiki/') or attr[1].startswith('/w/'):
+                            self.current_content.append(' href="http://{language_code}.wikipedia.org{link}"'.format(language_code=self.language_code, link=attr[1]))
+                        elif attr[1].startswith('//'):
+                            self.current_content.append(' href="http:{link}"'.format(link=attr[1]))
+            
+            self.current_content.append('>')
+    
+    def handle_endtag(self, tag):
+        if self.can_read_data():
+            self.current_content.append('</%s>' % tag)
+        
+        if self.can_read_data() and (self.opened_tags[-1]['data'] or self.opened_tags[-1]['tag'] == 'a'):
+            self.opened_tags[-2]['content'].append(''.join(self.current_content))
+            self.opened_tags[-2]['data'] = True
+        else:
+            # Delete last whitespace if any
+            content = self.opened_tags[-2]['content']
+            while isinstance(content, list):
+                if len(content) > 0:
+                    if not isinstance(content[-1], list) and content[-1] in [u' ', u'&nbsp;']:
+                        del content[-1]
+                        if len(content) < 2:
+                            self.opened_tags[-2]['data'] = False
+                        break
+                    content = content[-1]
+                else:
+                    content = None
+        self.opened_tags = self.opened_tags[:-1]
+        self.current_content = self.opened_tags[-1]['content']
+    
+    def get_data(self):
+        return ''.join(self.result).strip()
+
 class Command(BaseCommand):
+    
+    def request_wikipedia_infos(self, wikipedia_links):
+        max_items_per_request = 25
+        
+        result = {}
+        for language, links in wikipedia_links.iteritems():
+            i = 0
+            result_for_language = {}
+            while i < len(links):
+                links_page = links[i : min(len(links), i + max_items_per_request)]
+                
+                # Request properties
+                url = "http://{language_code}.wikipedia.org/w/api.php?action=query&prop=info&format=json&titles={titles}"\
+                    .format(language_code=language.code, titles=urllib2.quote('|'.join(links_page).encode('utf8'), '|'))
+                request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+                u = urllib2.urlopen(request)
+                
+                # Parse result
+                data = u.read()
+                json_result = json.loads(data)
+                
+                result_for_language.update(json_result['query']['pages'])
+                
+                i = i + max_items_per_request
+            result[language] = result_for_language
+        
+        return result
+    
+    def request_wikipedia_pre_section(self, language_code, title):
+        # Request properties
+        url = "http://{language_code}.wikipedia.org/w/api.php?action=parse&page={title}&format=json&prop=text&section=0"\
+            .format(language_code=language_code, title=urllib2.quote(title.encode('utf8')))
+        request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+        u = urllib2.urlopen(request)
+        
+        # Parse result
+        data = u.read()
+        json_result = json.loads(data)
+        
+        return json_result['parse']['text']['*']
+    
+    def get_wikipedia_intro(self, language_code, title):
+        # Get wikipedia pre-section (intro)
+        pre_section = self.request_wikipedia_pre_section(language_code, title)
+        
+        # Process HTML
+        parser = WikipediaIntroHTMLParser(language_code)
+        parser.feed(pre_section)
+        
+        return parser.get_data()
     
     def request_wikidata(self, wikidata_codes):
         # List languages to request
@@ -225,11 +385,14 @@ class Command(BaseCommand):
         return result
     
     def get_localized_values_from_entity(self, entity, language_code):
+        wikipedia = self.get_wikipedia(entity, language_code)
         result = {
             language_code + ':name': self.get_name(entity, language_code),
-            language_code + ':wikipedia': self.get_wikipedia(entity, language_code),
+            language_code + ':wikipedia': wikipedia,
             language_code + ':description': self.get_description(entity, language_code),
         }
+        if wikipedia:
+            result[language_code + ':intro'] = self.get_wikipedia_intro(language_code, wikipedia)
         
         for key, value in result.iteritems():
             if value != u'' and not value is None:
@@ -261,7 +424,11 @@ class Command(BaseCommand):
         if wikidata_codes:
             entities.update(self.request_wikidata(wikidata_codes))
         
+        count = len(entities)
         for code, entity in entities.iteritems():
+            print str(count) + u'-' + code
+            count -= 1
+            
             # Get element in database if it exists
             wikidata_entry = WikidataEntry.objects.filter(id=code).first()
             

@@ -136,7 +136,6 @@ class PendingModification(SuperLachaiseModel):
     target_object_class_choices = (
         ('OpenStreetMapElement', _('openstreetmap element')),
         ('WikidataEntry', _('wikidata entry')),
-        ('WikipediaPage', _('wikipedia page')),
         ('WikimediaCommonsCategory', _('wikimedia commons category')),
         ('WikimediaCommonsFile', _('wikimedia commons file')),
     )
@@ -157,10 +156,7 @@ class PendingModification(SuperLachaiseModel):
     def target_object(self):
         """ Returns the target object """
         try:
-            if self.target_object_class == 'WikipediaPage':
-                result = self.target_model().objects.get(language=Language.objects.get(code=self.target_object_id.split(':')[0]), title=self.target_object_id.split(':')[1])
-            else:
-                result = self.target_model().objects.get(id=self.target_object_id)
+            result = self.target_model().objects.get(id=self.target_object_id)
         except:
             result = None
         return result
@@ -186,10 +182,7 @@ class PendingModification(SuperLachaiseModel):
             target_model = self.target_model()
             target_object = self.target_object()
             if not target_object:
-                if self.target_object_class == 'WikipediaPage':
-                    target_object = target_model(language=Language.objects.get(code=self.target_object_id.split(':')[0]), title=self.target_object_id.split(':')[1])
-                else:
-                    target_object = target_model(id=self.target_object_id)
+                target_object = target_model(id=self.target_object_id)
             
             localized_objects = {}
             
@@ -210,7 +203,7 @@ class PendingModification(SuperLachaiseModel):
                     if language.code in localized_objects:
                         object = localized_objects[language.code]
                     if not object:
-                        object = target_object.localizations.all().first()
+                        object = target_object.localizations.filter(language=language).first()
                     
                     if original_field == (language.code + u':') and original_value is None:
                         # Delete localization
@@ -355,6 +348,7 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
+    intro = models.TextField(blank=True, verbose_name=_('intro'))
     
     def __unicode__(self):
         return unicode(self.language) + u':' + self.name
@@ -364,26 +358,6 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         verbose_name = _('wikidata localized entry')
         verbose_name_plural = _('wikidata localized entries')
         unique_together = ('wikidata_entry', 'language',)
-
-class WikipediaPage(SuperLachaiseModel):
-    
-    language = models.ForeignKey('Language', verbose_name=_('language'))
-    title = models.CharField(max_length=255, verbose_name=_('title'))
-    intro = models.TextField(blank=True, verbose_name=_('intro'))
-    
-    def __unicode__(self):
-        return unicode(self.language) + u':' + self.title
-    
-    class Meta:
-        ordering = ['title', 'language']
-        verbose_name = _('wikipedia page')
-        verbose_name_plural = _('wikipedia pages')
-        unique_together = ('language', 'title',)
-    
-    def save(self, *args, **kwargs):
-        # Delete \r added by textfield
-        self.intro = self.intro.replace('\r','')
-        super(WikipediaPage, self).save(*args, **kwargs)
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
     
