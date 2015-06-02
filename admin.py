@@ -58,7 +58,7 @@ class AdminCommandAdmin(admin.ModelAdmin):
 
 @admin.register(AdminCommandError)
 class AdminCommandErrorAdmin(admin.ModelAdmin):
-    list_display = ('admin_command', 'type', 'target_object_link', 'description', 'notes')
+    list_display = ('__unicode__', 'admin_command_link', 'type', 'target_object_link', 'description', 'notes')
     list_filter = ('admin_command', 'type',)
     search_fields = ('target_object_class', 'target_object_id', 'description', 'notes',)
     
@@ -67,7 +67,18 @@ class AdminCommandErrorAdmin(admin.ModelAdmin):
         (None, {'fields': ['admin_command', 'type', 'description']}),
         (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
     ]
-    readonly_fields = ('target_object_link', 'created', 'modified')
+    readonly_fields = ('admin_command_link', 'target_object_link', 'created', 'modified')
+    
+    def admin_command_link(self, obj):
+        if obj.admin_command:
+            app_name = obj._meta.app_label
+            reverse_name = obj.admin_command.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(obj.admin_command.id,))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.admin_command)))
+    admin_command_link.allow_tags = True
+    admin_command_link.short_description = _('admin command')
+    admin_command_link.admin_order_field = 'admin_command'
     
     def target_object_link(self, obj):
         if obj.target_object():
@@ -76,10 +87,8 @@ class AdminCommandErrorAdmin(admin.ModelAdmin):
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
             url = reverse(reverse_path, args=(obj.target_object().id,))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
-        else:
-            return _('None')
     target_object_link.allow_tags = True
-    target_object_link.short_description = _('target object link')
+    target_object_link.short_description = _('target object')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
@@ -95,6 +104,63 @@ class LanguageAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['code', 'description']}),
+    ]
+    readonly_fields = ('created', 'modified')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]
+
+@admin.register(PendingModification)
+class PendingModificationAdmin(admin.ModelAdmin):
+    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
+    list_filter = ('action','target_object_class',)
+    search_fields = ('target_object_id', 'modified_fields', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
+        (None, {'fields': ['action', 'modified_fields']}),
+    ]
+    readonly_fields = ('target_object_link', 'created', 'modified')
+   
+    def target_object_link(self, obj):
+        if obj.target_object():
+            app_name = obj._meta.app_label
+            reverse_name = obj.target_object_class.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(obj.target_object().id,))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
+        else:
+            return _('None')
+    target_object_link.allow_tags = True
+    target_object_link.short_description = _('target object link')
+    
+    def apply_modifications(self, request, queryset):
+        for pending_modification in queryset:
+            try:
+                pending_modification.apply_modification()
+            except Exception as exception:
+                print exception
+    apply_modifications.short_description = _('Apply selected pending modifications')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions=[delete_notes, apply_modifications]
+
+@admin.register(Setting)
+class SettingAdmin(admin.ModelAdmin):
+    list_display = ('category', 'key', 'value', 'description', 'notes')
+    list_filter = ('category',)
+    search_fields = ('key', 'value', 'description', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['category', 'key', 'value', 'description']}),
     ]
     readonly_fields = ('created', 'modified')
     
@@ -182,66 +248,9 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
-@admin.register(PendingModification)
-class PendingModificationAdmin(admin.ModelAdmin):
-    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
-    list_filter = ('action','target_object_class',)
-    search_fields = ('target_object_id', 'modified_fields', 'notes',)
-    
-    fieldsets = [
-        (None, {'fields': ['created', 'modified', 'notes']}),
-        (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
-        (None, {'fields': ['action', 'modified_fields']}),
-    ]
-    readonly_fields = ('target_object_link', 'created', 'modified')
-   
-    def target_object_link(self, obj):
-        if obj.target_object():
-            app_name = obj._meta.app_label
-            reverse_name = obj.target_object_class.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.target_object().id,))
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
-        else:
-            return _('None')
-    target_object_link.allow_tags = True
-    target_object_link.short_description = _('target object link')
-    
-    def apply_modifications(self, request, queryset):
-        for pending_modification in queryset:
-            try:
-                pending_modification.apply_modification()
-            except Exception as exception:
-                print exception
-    apply_modifications.short_description = _('Apply selected pending modifications')
-    
-    def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
-    
-    actions=[delete_notes, apply_modifications]
-
-@admin.register(Setting)
-class SettingAdmin(admin.ModelAdmin):
-    list_display = ('category', 'key', 'value', 'description', 'notes')
-    list_filter = ('category',)
-    search_fields = ('key', 'value', 'description', 'notes',)
-    
-    fieldsets = [
-        (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['category', 'key', 'value', 'description']}),
-    ]
-    readonly_fields = ('created', 'modified')
-    
-    def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
-    
-    actions = [delete_notes]
-
 @admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    list_display = ('__unicode__', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
     search_fields = ('wikidatalocalizedentry__name', 'id', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
     
     fieldsets = [
@@ -343,7 +352,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikidataLocalizedEntry)
 class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'language', 'wikidata_link', 'wikipedia_link', 'description', 'notes')
+    list_display = ('name', 'language', 'wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'description', 'notes')
     list_filter = ('language',)
     search_fields = ('name', 'description', 'notes',)
     
@@ -351,10 +360,21 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['language', 'wikidata_entry', 'name', 'wikipedia', 'description']}),
     ]
-    readonly_fields = ('wikidata_link', 'wikipedia_link', 'created', 'modified')
+    readonly_fields = ('wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'created', 'modified')
+    
+    def wikidata_entry_link(self, obj):
+        if obj.wikidata_entry:
+            app_name = obj._meta.app_label
+            reverse_name = obj.wikidata_entry.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(obj.wikidata_entry.id,))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry)))
+    wikidata_entry_link.allow_tags = True
+    wikidata_entry_link.short_description = _('wikidata entry')
+    wikidata_entry_link.admin_order_field = 'wikidata_entry'
     
     def wikidata_link(self, obj):
-        if obj.wikidata_entry and obj.wikidata_entry.id:
+        if obj.wikidata_entry:
             language = translation.get_language().split("-", 1)[0]
             url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_entry.id), language=language)
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry.id)))
