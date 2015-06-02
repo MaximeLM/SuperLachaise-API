@@ -156,10 +156,6 @@ class Command(BaseCommand):
         
         # Get combined wikidata field
         wikidata_combined = []
-        if result['wikidata']:
-            for wikidata_link in result['wikidata'].split(';'):
-                if not wikidata_link in wikidata_combined:
-                    wikidata_combined.append(wikidata_link)
         
         if result['wikipedia']:
             wikipedia_links = {}
@@ -183,6 +179,20 @@ class Command(BaseCommand):
                                     wikidata_link = wikipedia_link.split(language_code + u':' + wikipedia)[0] + wikidata_code
                                     if not wikidata_link in wikidata_combined:
                                         wikidata_combined.append(wikidata_link)
+                if len(wikidata_combined) != len(links):
+                    self.errors = self.errors + 1
+                    admin_command_error = AdminCommandError(admin_command=self.admin_command, type=_('wikipedia page not found'))
+                    admin_command_error.description = _("A wikipedia page of an OpenStreetMap element could not be found.")
+                    admin_command_error.target_object_class = "OpenStreetMapElement"
+                    admin_command_error.target_object_id = overpass_element.id
+
+                    admin_command_error.full_clean()
+                    admin_command_error.save()
+        
+        if result['wikidata']:
+            for wikidata_link in result['wikidata'].split(';'):
+                if not wikidata_link in wikidata_combined:
+                    wikidata_combined.append(wikidata_link)
         
         wikidata_combined.sort()
         result['wikidata_combined'] = ';'.join(wikidata_combined)
@@ -341,7 +351,7 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
-        admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
+        self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
             self.auto_apply = (Setting.objects.get(category='OpenStreetMap', key=u'auto_apply_modifications').value == 'true')
             self.bounding_box = Setting.objects.get(category='OpenStreetMap', key=u'bounding_box').value
@@ -351,6 +361,7 @@ class Command(BaseCommand):
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
+            self.errors = 0
             
             self.sync_openstreetmap()
             
@@ -361,16 +372,18 @@ class Command(BaseCommand):
                 result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
             if self.deleted_objects > 0:
                 result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
+            if self.errors > 0:
+                result_list.append(_('{nb} error(s)').format(nb=self.errors))
             
             if result_list:
-                admin_command.last_result = ', '.join(result_list)
+                self.admin_command.last_result = ', '.join(result_list)
             else:
-                admin_command.last_result = _("No modifications")
+                self.admin_command.last_result = _("No modifications")
         except:
             exception = sys.exc_info()[0]
-            admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+            self.admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
         
-        admin_command.last_executed = timezone.now()
-        admin_command.save()
+        self.admin_command.last_executed = timezone.now()
+        self.admin_command.save()
         
         translation.deactivate()
