@@ -52,7 +52,7 @@ class AdminCommandAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes, perform_commands]
 
@@ -83,7 +83,7 @@ class AdminCommandErrorAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes]
 
@@ -100,7 +100,7 @@ class LanguageAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
 
@@ -178,7 +178,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
 
@@ -217,7 +217,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes, apply_modifications]
 
@@ -235,7 +235,7 @@ class SettingAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
 
@@ -337,7 +337,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes, sync_entry]
 
@@ -391,7 +391,7 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_entry]
 
@@ -441,7 +441,7 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_page]
 
@@ -503,7 +503,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_page]
 
@@ -549,6 +549,6 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete selected objects notes')
+    delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]

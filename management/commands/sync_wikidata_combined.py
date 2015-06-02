@@ -111,7 +111,10 @@ class Command(BaseCommand):
                 admin_command_error.full_clean()
                 admin_command_error.save()
             else:
-                wikidata_combined = openstreetmap_element.wikidata.split(';') if openstreetmap_element.wikidata else []
+                wikidata_combined = []
+                for wikidata_code in openstreetmap_element.wikidata.split(';'):
+                    if not wikidata_code in wikidata_combined:
+                        wikidata_combined.append(wikidata_code)
                 for wikidata_code in wikidata_codes:
                     if not wikidata_code in wikidata_combined:
                         wikidata_combined.append(wikidata_code)
