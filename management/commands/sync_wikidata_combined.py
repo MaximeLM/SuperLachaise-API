@@ -97,7 +97,10 @@ class Command(BaseCommand):
                     for openstreetmap_element in OpenStreetMapElement.objects.filter(wikipedia__contains=(language_code + u':' + wikipedia)):
                         if not openstreetmap_element in wikidata_codes_for_openstreetmap_elements:
                             wikidata_codes_for_openstreetmap_elements[openstreetmap_element] = []
-                        wikidata_codes_for_openstreetmap_elements[openstreetmap_element].append(wikidata_code)
+                        for wikipedia_link in openstreetmap_element.wikipedia.split(';'):
+                            if wikipedia in wikipedia_link:
+                                wikidata_link = wikipedia_link.split(language_code + u':' + wikipedia)[0] + wikidata_code
+                                wikidata_codes_for_openstreetmap_elements[openstreetmap_element].append(wikidata_link)
         
         for openstreetmap_element in OpenStreetMapElement.objects.all():
             wikidata_codes = wikidata_codes_for_openstreetmap_elements[openstreetmap_element] if openstreetmap_element in wikidata_codes_for_openstreetmap_elements else []
