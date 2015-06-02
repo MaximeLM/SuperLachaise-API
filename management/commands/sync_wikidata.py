@@ -304,17 +304,17 @@ class Command(BaseCommand):
                 
                 for language in Language.objects.all():
                     values_dict = self.get_localized_values_from_entity(entity, language.code)
-                    localized_wikidata_entry = LocalizedWikidataEntry.objects.filter(parent=wikidata_entry, language=language).first()
+                    wikidata_localized_entry = WikidataLocalizedEntry.objects.filter(wikidata_entry=wikidata_entry, language=language).first()
                     
                     if values_dict:
-                        if not localized_wikidata_entry:
+                        if not wikidata_localized_entry:
                             modified_values.update(values_dict)
                         else:
                             for field, value in values_dict.iteritems():
-                                if value != getattr(localized_wikidata_entry, field.split(':')[1]):
+                                if value != getattr(wikidata_localized_entry, field.split(':')[1]):
                                     modified_values[field] = value
                     else:
-                        if localized_wikidata_entry:
+                        if wikidata_localized_entry:
                             modified_values[language.code + u':'] = None
                 
                 if modified_values:

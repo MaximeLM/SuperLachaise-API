@@ -255,9 +255,9 @@ class Command(BaseCommand):
                     if not link in wikipedia_links[language]:
                         wikipedia_links[language].append(link)
         else:
-            for localized_wikidata_entry in LocalizedWikidataEntry.objects.all():
-                language = localized_wikidata_entry.language
-                link = localized_wikidata_entry.wikipedia
+            for wikidata_localized_entry in WikidataLocalizedEntry.objects.all():
+                language = wikidata_localized_entry.language
+                link = wikidata_localized_entry.wikipedia
                 if link:
                     if not language in wikipedia_links:
                         wikipedia_links[language] = []

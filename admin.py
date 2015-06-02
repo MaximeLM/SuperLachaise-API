@@ -341,26 +341,26 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     actions=[delete_notes, sync_entry]
 
-@admin.register(LocalizedWikidataEntry)
-class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
+@admin.register(WikidataLocalizedEntry)
+class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     list_display = ('name', 'language', 'wikidata_link', 'wikipedia_link', 'description', 'notes')
     list_filter = ('language',)
     search_fields = ('name', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'parent', 'name', 'wikipedia', 'description']}),
+        (None, {'fields': ['language', 'wikidata_entry', 'name', 'wikipedia', 'description']}),
     ]
     readonly_fields = ('wikidata_link', 'wikipedia_link', 'created', 'modified')
     
     def wikidata_link(self, obj):
-        if obj.parent and obj.parent.id:
+        if obj.wikidata_entry and obj.wikidata_entry.id:
             language = translation.get_language().split("-", 1)[0]
-            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.parent.id), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.parent.id)))
+            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_entry.id), language=language)
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry.id)))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
-    wikidata_link.admin_order_field = 'parent'
+    wikidata_link.admin_order_field = 'wikidata_entry'
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
@@ -372,8 +372,8 @@ class LocalizedWikidataEntryAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_ids = []
-        for localized_wikidata_entry in queryset:
-            wikidata_ids.append(str(localized_wikidata_entry.parent.id))
+        for wikidata_localized_entry in queryset:
+            wikidata_ids.append(str(wikidata_localized_entry.wikidata_entry.id))
         sync_start = timezone.now()
         call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
         pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)

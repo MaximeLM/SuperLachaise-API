@@ -120,37 +120,6 @@ class Language(SuperLachaiseModel):
         verbose_name = _('language')
         verbose_name_plural = _('languages')
 
-class OpenStreetMapElement(SuperLachaiseModel):
-    
-    NODE = 'node'
-    WAY = 'way'
-    RELATION = 'relation'
-    
-    type_choices = (
-        (NODE, NODE),
-        (WAY, WAY),
-        (RELATION, RELATION),
-    )
-    
-    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
-    name = models.CharField(max_length=255, verbose_name=_('name'))
-    sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
-    latitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('latitude'))
-    longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
-    wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
-    wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
-    wikidata_combined = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata combined'))
-    wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
-    
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        ordering = ['sorting_name', 'id']
-        verbose_name = _('openstreetmap element')
-        verbose_name_plural = _('openstreetmap elements')
-
 class PendingModification(SuperLachaiseModel):
     """ A modification to an object that is not yet applied """
     
@@ -167,7 +136,6 @@ class PendingModification(SuperLachaiseModel):
     target_object_class_choices = (
         ('OpenStreetMapElement', _('openstreetmap element')),
         ('WikidataEntry', _('wikidata entry')),
-        ('WikidataLocalizedEntry', _('wikidata localized entry')),
         ('WikipediaPage', _('wikipedia page')),
         ('WikimediaCommonsCategory', _('wikimedia commons category')),
         ('WikimediaCommonsFile', _('wikimedia commons file')),
@@ -231,9 +199,9 @@ class PendingModification(SuperLachaiseModel):
                 object = target_object
                 field = original_field
                 
-                if ':' in field:
+                if ':' in field and self.target_object_class == 'WikidataEntry':
                     
-                    object_model = apps.get_model(self._meta.app_label, 'Localized' + self.target_object_class)
+                    object_model = apps.get_model(self._meta.app_label, 'WikidataLocalizedEntry')
                     if not object_model or object_model == target_model:
                         raise BaseException
                     language = Language.objects.get(code=original_field.split(':')[0])
@@ -242,7 +210,7 @@ class PendingModification(SuperLachaiseModel):
                     if language.code in localized_objects:
                         object = localized_objects[language.code]
                     if not object:
-                        object = object_model.objects.filter(parent=target_object, language=language).first()
+                        object = object_model.objects.filter(wikidata_entry=target_object, language=language).first()
                     
                     if original_field == (language.code + u':') and original_value is None:
                         # Delete localization
@@ -251,7 +219,7 @@ class PendingModification(SuperLachaiseModel):
                         continue
                     
                     if not object:
-                        object = object_model(parent=target_object, language=language)
+                        object = object_model(wikidata_entry=target_object, language=language)
                     
                     if not language.code in localized_objects:
                         localized_objects[language.code] = object
@@ -305,6 +273,37 @@ class Setting(SuperLachaiseModel):
         verbose_name_plural = _('settings')
         unique_together = ('category', 'key',)
 
+class OpenStreetMapElement(SuperLachaiseModel):
+    
+    NODE = 'node'
+    WAY = 'way'
+    RELATION = 'relation'
+    
+    type_choices = (
+        (NODE, NODE),
+        (WAY, WAY),
+        (RELATION, RELATION),
+    )
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
+    name = models.CharField(max_length=255, verbose_name=_('name'))
+    sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
+    latitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('latitude'))
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
+    wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
+    wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
+    wikidata_combined = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata combined'))
+    wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
+    
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['sorting_name', 'id']
+        verbose_name = _('openstreetmap element')
+        verbose_name_plural = _('openstreetmap elements')
+
 class WikidataEntry(SuperLachaiseModel):
     
     YEAR = 'Year'
@@ -337,10 +336,10 @@ class WikidataEntry(SuperLachaiseModel):
         verbose_name = _('wikidata entry')
         verbose_name_plural = _('wikidata entries')
 
-class LocalizedWikidataEntry(SuperLachaiseModel):
+class WikidataLocalizedEntry(SuperLachaiseModel):
     """ The part of a wikidata entry specific to a language """
     
-    parent = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
+    wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
     language = models.ForeignKey('Language', verbose_name=_('language'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
@@ -351,9 +350,9 @@ class LocalizedWikidataEntry(SuperLachaiseModel):
     
     class Meta:
         ordering = ['name', 'language']
-        verbose_name = _('localized wikidata entry')
-        verbose_name_plural = _('localized wikidata entries')
-        unique_together = ('parent', 'language',)
+        verbose_name = _('wikidata localized entry')
+        verbose_name_plural = _('wikidata localized entries')
+        unique_together = ('wikidata_entry', 'language',)
 
 class WikipediaPage(SuperLachaiseModel):
     
