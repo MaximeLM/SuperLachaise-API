@@ -509,14 +509,14 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsFile)
 class WikimediaCommonsFileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'wikimedia_commons_link', 'original_url_link', 'thumbnail', 'notes')
+    list_display = ('id', 'wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'notes')
     search_fields = ('id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikimedia_commons_link', 'original_url', 'original_url_link', 'thumbnail_template_url', 'thumbnail']}),
+        (None, {'fields': ['id', 'wikimedia_commons_link', 'original_url', 'original_url_link', 'thumbnail_url', 'thumbnail_url_link']}),
     ]
-    readonly_fields = ('wikimedia_commons_link', 'original_url_link', 'thumbnail', 'created', 'modified')
+    readonly_fields = ('wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
         url = u'http://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.id)).replace("'","%27")
@@ -527,19 +527,25 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     
     def original_url_link(self, obj):
         if obj.original_url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (obj.original_url, _('original')))
+            return mark_safe(u"<a href='%s'>%s</a>" % (obj.original_url, _('original image')))
     original_url_link.allow_tags = True
     original_url_link.short_description = _('original url')
     original_url_link.admin_order_field = 'original_url'
     
-    def thumbnail(self, obj):
-        if obj.thumbnail_template_url:
-            width = u'150'
-            template_url = obj.thumbnail_template_url.replace(u'{{width}}', width)
-            result = u'<div style="background: url({url}) 50&#37; 50&#37; no-repeat; width: {width}px; height: {height}px"><a href="{url}"><img width={width} height={width}/></a></div>'.format(url=template_url, width=width, height=width)
+    def thumbnail_url_link(self, obj):
+        if obj.thumbnail_url:
+            thumbnail_width = u'350'
+            display_size = u'350'
+            result = """
+            <div style="width:150px; height:150px; overflow:hidden;">
+                <img src="{url}" style="width:400px; height:300px; margin: -75px 0 0 -100px;" />
+            </div>
+            """
+            result = u'<div style="background: url({url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(url=obj.thumbnail_url)
             return mark_safe(result)
-    thumbnail.allow_tags = True
-    thumbnail.short_description = _('thumbnail')
+    thumbnail_url_link.allow_tags = True
+    thumbnail_url_link.short_description = _('thumbnail url')
+    thumbnail_url_link.admin_order_field = 'thumbnail_url'
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')

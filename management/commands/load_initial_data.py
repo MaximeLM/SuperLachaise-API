@@ -126,5 +126,10 @@ class Command(BaseCommand):
         setting.value = "true"
         setting.description = _("""If set to 'true', only the main image from Wikimedia Commons categories will be synced. If set to 'false', all images will be synced.""")
         setting.save()
+        
+        setting, created = Setting.objects.get_or_create(category="Wikimedia Commons", key="thumbnail_width")
+        setting.value = "350"
+        setting.description = _("""The thumbnail width to request when syncing Wikimedia Commons files.""")
+        setting.save()
                 
         translation.deactivate()

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-02 02:41+0200\n"
+"POT-Creation-Date: 2015-06-02 05:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -115,7 +115,7 @@ msgstr "fichiers"
 msgid "main image"
 msgstr "image principale"
 
-#: admin.py:525 models.py:173 models.py:407
+#: admin.py:525 models.py:173 models.py:403
 msgid "wikimedia commons file"
 msgstr "fichier wikimedia commons"
 
@@ -123,13 +123,13 @@ msgstr "fichier wikimedia commons"
 msgid "original"
 msgstr "original"
 
-#: admin.py:532 models.py:399
+#: admin.py:532 models.py:395
 msgid "original url"
 msgstr "url original"
 
-#: admin.py:542
-msgid "thumbnail"
-msgstr "vignette"
+#: admin.py:541 models.py:396
+msgid "thumbnail url"
+msgstr "url vignette"
 
 #: apps.py:28
 msgid "SuperLachaise API"
@@ -382,7 +382,7 @@ msgstr "langage"
 msgid "languages"
 msgstr "langages"
 
-#: models.py:135 models.py:320 models.py:380 models.py:398
+#: models.py:135 models.py:320 models.py:380 models.py:394
 msgid "id"
 msgstr "id"
 
@@ -490,14 +490,6 @@ msgstr "pages wikipédia"
 msgid "wikimedia commons categories"
 msgstr "catégories wikimedia commons"
 
-#: models.py:394
-msgid "The template must contain a {{width}} placeholder"
-msgstr "Le modèle doit contenir une balise {{width}}"
-
-#: models.py:400
-msgid "thumbnail template url"
-msgstr "modèle url vignette"
-
-#: models.py:408
+#: models.py:404
 msgid "wikimedia commons files"
 msgstr "fichiers wikimedia commons"

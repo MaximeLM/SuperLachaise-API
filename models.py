@@ -389,15 +389,11 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
         verbose_name = _('wikimedia commons category')
         verbose_name_plural = _('wikimedia commons categories')
 
-def validate_thumbnail_template_url(thumbnail_template_url):
-    if not '{{width}}' in thumbnail_template_url:
-        raise ValidationError(_('The template must contain a {{width}} placeholder'))
-
 class WikimediaCommonsFile(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     original_url = models.CharField(max_length=500, blank=True, verbose_name=_('original url'))
-    thumbnail_template_url = models.CharField(max_length=500, blank=True, validators=[validate_thumbnail_template_url], verbose_name=_('thumbnail template url'))
+    thumbnail_url = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
     
     def __unicode__(self):
         return self.id

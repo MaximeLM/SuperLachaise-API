@@ -43,7 +43,7 @@ class Command(BaseCommand):
             while rawcontinue:
                 # Request properties
                 url = "http://commons.wikimedia.org/w/api.php?action=query&titles={titles}&prop=imageinfo&iiprop=url&iiurlwidth={thumbnail_size}{rawcontinue}&format=json"\
-                    .format(titles=urllib2.quote('|'.join(wikimedia_commons_files_page).encode('utf8'), '|'), rawcontinue=rawcontinue, thumbnail_size=self.placeholder_thumbnail_size)
+                    .format(titles=urllib2.quote('|'.join(wikimedia_commons_files_page).encode('utf8'), '|'), rawcontinue=rawcontinue, thumbnail_size=self.thumbnail_width)
                 
                 request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
                 u = urllib2.urlopen(request)
@@ -74,15 +74,13 @@ class Command(BaseCommand):
         except:
             return u''
     
-    def get_thumbnail_template_url(self, wikimedia_commons_file):
+    def get_thumbnail_url(self, wikimedia_commons_file):
         try:
             image_info = wikimedia_commons_file['imageinfo']
             if not len(image_info) == 1:
                 raise BaseException
             
-            thumbnail_url = image_info[0]['thumburl']
-            
-            return thumbnail_url.replace(u'/' + self.placeholder_thumbnail_size + 'px', u'/{{width}}px')
+            return image_info[0]['thumburl']
         except:
             return u''
     
@@ -90,7 +88,7 @@ class Command(BaseCommand):
         # Get data
         values_dict = {
             'original_url': self.get_original_url(wikimedia_commons_file),
-            'thumbnail_template_url': self.get_thumbnail_template_url(wikimedia_commons_file),
+            'thumbnail_url': self.get_thumbnail_url(wikimedia_commons_file),
         }
         
         # Get element in database if it exists
@@ -147,10 +145,10 @@ class Command(BaseCommand):
                 for link in wikimedia_commons_category.files.split(';'):
                     if not link in wikimedia_commons_files:
                         wikimedia_commons_files.append(link)
-            fetched_files.extend(wikimedia_commons_files)
             
             files_result = self.request_wikimedia_commons_files(wikimedia_commons_files)
             for title, wikimedia_commons_file in files_result.iteritems():
+                fetched_files.append(title)
                 self.handle_wikimedia_commons_file(title, wikimedia_commons_file)
         
         # Delete pending creations if element was not downloaded
@@ -179,8 +177,8 @@ class Command(BaseCommand):
         try:
             self.auto_apply = (Setting.objects.get(category='Wikimedia Commons', key=u'auto_apply_modifications').value == 'true')
             self.sync_only_main_image = (Setting.objects.get(category='Wikimedia Commons', key=u'sync_only_main_image').value == 'true')
+            self.thumbnail_width = int(Setting.objects.get(category='Wikimedia Commons', key=u'thumbnail_width').value)
             
-            self.placeholder_thumbnail_size = u'350'
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
