@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-02 02:13+0200\n"
+"POT-Creation-Date: 2015-06-02 02:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgid "Execute selected admin commands"
 msgstr "Exécuter les commandes admin sélectionnées"
 
 #: admin.py:55 admin.py:86 admin.py:103 admin.py:181 admin.py:220 admin.py:238
-#: admin.py:340 admin.py:394 admin.py:444 admin.py:487 admin.py:527
+#: admin.py:340 admin.py:394 admin.py:444 admin.py:506 admin.py:546
 msgid "Delete selected objects notes"
 msgstr "Supprimer les notes des objets sélectionnés"
 
@@ -103,7 +103,7 @@ msgstr "Synchroniser les entrées wikidata localisées sélectionnées"
 msgid "intro"
 msgstr "intro"
 
-#: admin.py:440
+#: admin.py:440 admin.py:502
 msgid "Sync selected wikipedia pages"
 msgstr "Synchroniser les pages Wikipédia sélectionnées"
 
@@ -115,19 +115,19 @@ msgstr "fichiers"
 msgid "main image"
 msgstr "image principale"
 
-#: admin.py:506 models.py:173 models.py:407
+#: admin.py:525 models.py:173 models.py:407
 msgid "wikimedia commons file"
 msgstr "fichier wikimedia commons"
 
-#: admin.py:511
+#: admin.py:530
 msgid "original"
 msgstr "original"
 
-#: admin.py:513 models.py:399
+#: admin.py:532 models.py:399
 msgid "original url"
 msgstr "url original"
 
-#: admin.py:523
+#: admin.py:542
 msgid "thumbnail"
 msgstr "vignette"
 
@@ -258,7 +258,7 @@ msgstr "Une page Wikipédia d'un élément OpenStreetMap n'a pas été trouvée"
 #: management/commands/make_wikidata_combined.py:152
 #: management/commands/sync_openstreetmap.py:283
 #: management/commands/sync_wikidata.py:381
-#: management/commands/sync_wikimedia_commons_categories.py:207
+#: management/commands/sync_wikimedia_commons_categories.py:216
 #: management/commands/sync_wikimedia_commons_files.py:194
 #: management/commands/sync_wikipedia.py:324
 #, python-brace-format
@@ -274,7 +274,7 @@ msgstr "{nb} erreur(s)"
 #: management/commands/make_wikidata_combined.py:159
 #: management/commands/sync_openstreetmap.py:290
 #: management/commands/sync_wikidata.py:388
-#: management/commands/sync_wikimedia_commons_categories.py:214
+#: management/commands/sync_wikimedia_commons_categories.py:223
 #: management/commands/sync_wikimedia_commons_files.py:201
 #: management/commands/sync_wikipedia.py:333
 msgid "No modifications"
@@ -286,7 +286,7 @@ msgstr "Aucun chemin extérieur trouvé pour la relation"
 
 #: management/commands/sync_openstreetmap.py:281
 #: management/commands/sync_wikidata.py:379
-#: management/commands/sync_wikimedia_commons_categories.py:205
+#: management/commands/sync_wikimedia_commons_categories.py:214
 #: management/commands/sync_wikimedia_commons_files.py:192
 #: management/commands/sync_wikipedia.py:322
 #, python-brace-format
@@ -295,7 +295,7 @@ msgstr "{nb} objet(s) créé(s)"
 
 #: management/commands/sync_openstreetmap.py:285
 #: management/commands/sync_wikidata.py:383
-#: management/commands/sync_wikimedia_commons_categories.py:209
+#: management/commands/sync_wikimedia_commons_categories.py:218
 #: management/commands/sync_wikimedia_commons_files.py:196
 #: management/commands/sync_wikipedia.py:326
 #, python-brace-format

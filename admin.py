@@ -448,7 +448,7 @@ class WikipediaPageAdmin(admin.ModelAdmin):
 @admin.register(WikimediaCommonsCategory)
 class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'wikimedia_commons_link', 'files_link', 'main_image_link', 'notes')
-    search_fields = ('id', 'files',)
+    search_fields = ('id', 'files', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
@@ -482,16 +482,35 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
     
+    def sync_page(self, request, queryset):
+        wikimedia_commons_categories = []
+        for wikimedia_commons_category in queryset:
+            wikimedia_commons_categories.append(wikimedia_commons_category.id)
+        sync_start = timezone.now()
+        call_command('sync_wikimedia_commons_categories', wikimedia_commons_categories='|'.join(wikimedia_commons_categories))
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+        
+        if pending_modifications:
+            # Open modification page with filter
+            app_name = PendingModification._meta.app_label
+            reverse_name = PendingModification.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+            url = '/'.join(split_url[0:len(split_url) - 1])
+            return HttpResponseRedirect(url)
+    sync_page.short_description = _('Sync selected wikipedia pages')
+    
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete selected objects notes')
     
-    actions = [delete_notes]
+    actions = [delete_notes, sync_page]
 
 @admin.register(WikimediaCommonsFile)
 class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     list_display = ('id', 'wikimedia_commons_link', 'original_url_link', 'thumbnail', 'notes')
-    search_fields = ('id', 'url', 'attribution',)
+    search_fields = ('id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),

@@ -137,29 +137,32 @@ class Command(BaseCommand):
                 if pending_modification:
                     pending_modification.delete()
     
-    def sync_wikimedia_commons_categories(self):
+    def sync_wikimedia_commons_categories(self, param_wikimedia_commons_categories):
         # Get wikimedia commons categories
         wikimedia_commons_categories = []
-        for openstreetmap_element in OpenStreetMapElement.objects.all():
-            if openstreetmap_element.wikimedia_commons and openstreetmap_element.wikimedia_commons.startswith('Category:'):
-                link = openstreetmap_element.wikimedia_commons.split('Category:')[1]
-                if not link in wikimedia_commons_categories:
-                    wikimedia_commons_categories.append(link)
-        for wikidata_entry in WikidataEntry.objects.all():
-            if wikidata_entry.wikimedia_commons_category:
-                sync_category = False
-                for instance_of in wikidata_entry.instance_of.split(';'):
-                    if instance_of in self.synced_instance_of:
-                        sync_category = True
-                        break
-                if sync_category:
-                    link = wikidata_entry.wikimedia_commons_category
+        if param_wikimedia_commons_categories:
+            wikimedia_commons_categories = param_wikimedia_commons_categories.split('|')
+        else:
+            for openstreetmap_element in OpenStreetMapElement.objects.all():
+                if openstreetmap_element.wikimedia_commons and openstreetmap_element.wikimedia_commons.startswith('Category:'):
+                    link = openstreetmap_element.wikimedia_commons.split('Category:')[1]
                     if not link in wikimedia_commons_categories:
                         wikimedia_commons_categories.append(link)
-            if wikidata_entry.wikimedia_commons_grave_category:
-                link = wikidata_entry.wikimedia_commons_grave_category
-                if not link in wikimedia_commons_categories:
-                    wikimedia_commons_categories.append(link)
+            for wikidata_entry in WikidataEntry.objects.all():
+                if wikidata_entry.wikimedia_commons_category:
+                    sync_category = False
+                    for instance_of in wikidata_entry.instance_of.split(';'):
+                        if instance_of in self.synced_instance_of:
+                            sync_category = True
+                            break
+                    if sync_category:
+                        link = wikidata_entry.wikimedia_commons_category
+                        if not link in wikimedia_commons_categories:
+                            wikimedia_commons_categories.append(link)
+                if wikidata_entry.wikimedia_commons_grave_category:
+                    link = wikidata_entry.wikimedia_commons_grave_category
+                    if not link in wikimedia_commons_categories:
+                        wikimedia_commons_categories.append(link)
         
         count = len(wikimedia_commons_categories)
         for wikimedia_commons_category in wikimedia_commons_categories:
@@ -167,25 +170,31 @@ class Command(BaseCommand):
             count = count - 1
             self.handle_wikimedia_commons_category(wikimedia_commons_category)
         
-        # Delete pending creations if element was not downloaded
-        for pendingModification in PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", action=PendingModification.CREATE):
-            if not pendingModification.target_object_id in wikimedia_commons_categories:
-                pendingModification.delete()
+        if not param_wikimedia_commons_categories:
+            # Delete pending creations if element was not downloaded
+            for pendingModification in PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", action=PendingModification.CREATE):
+                if not pendingModification.target_object_id in wikimedia_commons_categories:
+                    pendingModification.delete()
         
-        # Look for deleted elements
-        for wikimedia_commons_category in WikimediaCommonsCategory.objects.all():
-            if not wikimedia_commons_category.id in wikimedia_commons_categories:
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=wikimedia_commons_category.id)
+            # Look for deleted elements
+            for wikimedia_commons_category in WikimediaCommonsCategory.objects.all():
+                if not wikimedia_commons_category.id in wikimedia_commons_categories:
+                    pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=wikimedia_commons_category.id)
                 
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
+                    pendingModification.action = PendingModification.DELETE
+                    pendingModification.modified_fields = u''
                 
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.deleted_objects = self.deleted_objects + 1
+                    pendingModification.full_clean()
+                    pendingModification.save()
+                    self.deleted_objects = self.deleted_objects + 1
                 
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                    if self.auto_apply:
+                        pendingModification.apply_modification()
+    
+    def add_arguments(self, parser):
+        parser.add_argument('--wikimedia_commons_categories',
+            action='store',
+            dest='wikimedia_commons_categories')
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
@@ -198,7 +207,7 @@ class Command(BaseCommand):
             self.modified_objects = 0
             self.deleted_objects = 0
             
-            self.sync_wikimedia_commons_categories()
+            self.sync_wikimedia_commons_categories(options['wikimedia_commons_categories'])
             
             result_list = []
             if self.created_objects > 0:
