@@ -42,7 +42,7 @@ class Command(BaseCommand):
             
             while rawcontinue:
                 # Request properties
-                url = "http://commons.wikimedia.org/w/api.php?action=query&titles={titles}&prop=imageinfo|revisions&iiprop=extmetadata|url|size&iiurlwidth={thumbnail_size}&rvprop=content{rawcontinue}&format=json"\
+                url = "http://commons.wikimedia.org/w/api.php?action=query&titles={titles}&prop=imageinfo&iiprop=url&iiurlwidth={thumbnail_size}{rawcontinue}&format=json"\
                     .format(titles=urllib2.quote('|'.join(wikimedia_commons_files_page).encode('utf8'), '|'), rawcontinue=rawcontinue, thumbnail_size=self.placeholder_thumbnail_size)
                 
                 request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
@@ -86,50 +86,12 @@ class Command(BaseCommand):
         except:
             return u''
     
-    def get_size(self, wikimedia_commons_file):
-        try:
-            image_info = wikimedia_commons_file['imageinfo']
-            if not len(image_info) == 1:
-                raise BaseException
-            
-            return (image_info[0]['width'], image_info[0]['height'])
-        except:
-            return (None, None)
-    
-    def get_attribution(self, wikimedia_commons_file):
-        try:
-            image_info = wikimedia_commons_file['imageinfo']
-            if not len(image_info) == 1:
-                raise BaseException
-            licence_short_name = image_info[0]['extmetadata']['LicenseShortName']['value']
-            
-            revisions = wikimedia_commons_file['revisions']
-            if not len(revisions) == 1:
-                raise BaseException
-            
-            wikitext = revisions[0]['*']
-            for line in wikitext.split('\n'):
-                match_obj = re.search( r'^.*[aA]uthor.*\[\[User:.*\|(.*)\]\].*$', line)
-                if match_obj:
-                    author = match_obj.group(1).strip()
-                    break
-            
-            if not licence_short_name or not author:
-                raise BaseException
-            
-            return u'{author} / Wikimedia Commons / {licence}'.format(author=author, licence=licence_short_name)
-        except:
-            traceback.print_exc()
-            return u''
-    
     def handle_wikimedia_commons_file(self, id, wikimedia_commons_file):
         # Get data
         values_dict = {
             'original_url': self.get_original_url(wikimedia_commons_file),
             'thumbnail_template_url': self.get_thumbnail_template_url(wikimedia_commons_file),
-            'attribution': self.get_attribution(wikimedia_commons_file),
         }
-        values_dict['width'], values_dict['height'] = self.get_size(wikimedia_commons_file)
         
         # Get element in database if it exists
         wikimedia_commons_file = WikimediaCommonsFile.objects.filter(id=id).first()
@@ -172,29 +134,33 @@ class Command(BaseCommand):
     
     def sync_wikimedia_commons_files(self):
         # Get wikimedia commons files
-        wikimedia_commons_files = []
+        fetched_files = []
+        count = WikimediaCommonsCategory.objects.count()
         for wikimedia_commons_category in WikimediaCommonsCategory.objects.all():
-            if wikimedia_commons_category.files:
+            print str(count) + u'-' + unicode(wikimedia_commons_category)
+            count -= 1
+            wikimedia_commons_files = []
+            if wikimedia_commons_category.main_image:
+                if not wikimedia_commons_category.main_image in wikimedia_commons_files:
+                    wikimedia_commons_files.append(wikimedia_commons_category.main_image)
+            if not self.sync_only_main_image and self.wikimedia_commons_category.files:
                 for link in wikimedia_commons_category.files.split(';'):
                     if not link in wikimedia_commons_files:
                         wikimedia_commons_files.append(link)
-        
-        result = self.request_wikimedia_commons_files(wikimedia_commons_files)
-        
-        count = len(result)
-        for title, wikimedia_commons_file in result.iteritems():
-            print str(count) + u'-' + title
-            count = count - 1
-            self.handle_wikimedia_commons_file(title, wikimedia_commons_file)
+            fetched_files.extend(wikimedia_commons_files)
+            
+            files_result = self.request_wikimedia_commons_files(wikimedia_commons_files)
+            for title, wikimedia_commons_file in files_result.iteritems():
+                self.handle_wikimedia_commons_file(title, wikimedia_commons_file)
         
         # Delete pending creations if element was not downloaded
         for pendingModification in PendingModification.objects.filter(target_object_class="WikimediaCommonsFile", action=PendingModification.CREATE):
-            if not pendingModification.target_object_id in result:
+            if not pendingModification.target_object_id in fetched_files:
                 pendingModification.delete()
         
         # Look for deleted elements
         for wikimedia_commons_file in WikimediaCommonsFile.objects.all():
-            if not wikimedia_commons_file.id in result:
+            if not wikimedia_commons_file.id in fetched_files:
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsFile", target_object_id=wikimedia_commons_file.id)
                 
                 pendingModification.action = PendingModification.DELETE
@@ -212,8 +178,9 @@ class Command(BaseCommand):
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
             self.auto_apply = (Setting.objects.get(category='Wikimedia Commons', key=u'auto_apply_modifications').value == 'true')
-            self.placeholder_thumbnail_size = u'350'
+            self.sync_only_main_image = (Setting.objects.get(category='Wikimedia Commons', key=u'sync_only_main_image').value == 'true')
             
+            self.placeholder_thumbnail_size = u'350'
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0

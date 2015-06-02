@@ -479,7 +479,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
             url = u'http://commons.wikimedia.org/wiki/{file}'.format(file=unicode(obj.main_image).replace("'","%27"))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.main_image)))
     main_image_link.allow_tags = True
-    main_image_link.short_description = _('main_image')
+    main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
     
     def delete_notes(self, request, queryset):
@@ -490,12 +490,12 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsFile)
 class WikimediaCommonsFileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'wikimedia_commons_link', 'original_url_link', 'thumbnail_template_url', 'thumbnail', 'width', 'height', 'attribution', 'notes')
+    list_display = ('id', 'wikimedia_commons_link', 'original_url_link', 'thumbnail', 'notes')
     search_fields = ('id', 'url', 'attribution',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikimedia_commons_link', 'original_url', 'original_url_link', 'thumbnail_template_url', 'thumbnail', 'width', 'height', 'attribution']}),
+        (None, {'fields': ['id', 'wikimedia_commons_link', 'original_url', 'original_url_link', 'thumbnail_template_url', 'thumbnail']}),
     ]
     readonly_fields = ('wikimedia_commons_link', 'original_url_link', 'thumbnail', 'created', 'modified')
     
@@ -508,7 +508,7 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     
     def original_url_link(self, obj):
         if obj.original_url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (obj.original_url, unicode(obj.original_url)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (obj.original_url, _('original')))
     original_url_link.allow_tags = True
     original_url_link.short_description = _('original url')
     original_url_link.admin_order_field = 'original_url'

@@ -122,9 +122,9 @@ class Command(BaseCommand):
         setting.description = _("""The values of 'instance_of' fields of Wikidata entries for which Wikimedia Commons categories should be synced (note: Wikimedia Commons grave categories will always be synced).""")
         setting.save()
         
-        setting, created = Setting.objects.get_or_create(category="Wikimedia Commons", key="sync_only_first_file")
+        setting, created = Setting.objects.get_or_create(category="Wikimedia Commons", key="sync_only_main_image")
         setting.value = "true"
-        setting.description = _("""If set to 'true', only the first from Wikimedia Commons categories will be synced. If set to 'false', all images will be synced.""")
+        setting.description = _("""If set to 'true', only the main image from Wikimedia Commons categories will be synced. If set to 'false', all images will be synced.""")
         setting.save()
                 
         translation.deactivate()

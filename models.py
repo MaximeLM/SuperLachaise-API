@@ -23,6 +23,7 @@ limitations under the License.
 import json
 from decimal import Decimal
 from django.apps import apps
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -388,14 +389,15 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
         verbose_name = _('wikimedia commons category')
         verbose_name_plural = _('wikimedia commons categories')
 
+def validate_thumbnail_template_url(thumbnail_template_url):
+    if not '{{width}}' in thumbnail_template_url:
+        raise ValidationError(_('The template must contain a {{width}} placeholder'))
+
 class WikimediaCommonsFile(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    original_url = models.CharField(max_length=255, blank=True, verbose_name=_('original url'))
-    thumbnail_template_url = models.CharField(max_length=255, blank=True, verbose_name=_('thumbnail template url'))
-    width = models.IntegerField(null=True, verbose_name=_('width'))
-    height = models.IntegerField(null=True, verbose_name=_('height'))
-    attribution = models.CharField(max_length=255, blank=True, verbose_name=_('attribution'))
+    original_url = models.CharField(max_length=500, blank=True, verbose_name=_('original url'))
+    thumbnail_template_url = models.CharField(max_length=500, blank=True, validators=[validate_thumbnail_template_url], verbose_name=_('thumbnail template url'))
     
     def __unicode__(self):
         return self.id
