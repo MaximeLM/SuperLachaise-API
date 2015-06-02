@@ -210,7 +210,7 @@ class PendingModification(SuperLachaiseModel):
                     if language.code in localized_objects:
                         object = localized_objects[language.code]
                     if not object:
-                        object = object_model.objects.filter(wikidata_entry=target_object, language=language).first()
+                        object = target_object.localizations.all().first()
                     
                     if original_field == (language.code + u':') and original_value is None:
                         # Delete localization
@@ -329,7 +329,7 @@ class WikidataEntry(SuperLachaiseModel):
     
     def __unicode__(self):
         names = {}
-        for wikidata_localized_entry in WikidataLocalizedEntry.objects.filter(wikidata_entry=self):
+        for wikidata_localized_entry in self.localizations.all():
             if not wikidata_localized_entry.name in names:
                 names[wikidata_localized_entry.name] = []
             names[wikidata_localized_entry.name].append(wikidata_localized_entry.language.code)
@@ -350,7 +350,7 @@ class WikidataEntry(SuperLachaiseModel):
 class WikidataLocalizedEntry(SuperLachaiseModel):
     """ The part of a wikidata entry specific to a language """
     
-    wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
+    wikidata_entry = models.ForeignKey('WikidataEntry', related_name='localizations', verbose_name=_('wikidata entry'))
     language = models.ForeignKey('Language', verbose_name=_('language'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))

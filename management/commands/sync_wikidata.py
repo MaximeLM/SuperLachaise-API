@@ -295,7 +295,7 @@ class Command(BaseCommand):
                 
                 for language in Language.objects.all():
                     values_dict = self.get_localized_values_from_entity(entity, language.code)
-                    wikidata_localized_entry = WikidataLocalizedEntry.objects.filter(wikidata_entry=wikidata_entry, language=language).first()
+                    wikidata_localized_entry = wikidata_entry.localizations().all().first()
                     
                     if values_dict:
                         if not wikidata_localized_entry:
