@@ -412,3 +412,105 @@ class WikimediaCommonsFile(SuperLachaiseModel):
         ordering = ['id']
         verbose_name = _('wikimedia commons file')
         verbose_name_plural = _('wikimedia commons files')
+
+class SuperLachaisePOI(SuperLachaiseModel):
+    """ An object linking multiple data sources for representing a single Point Of Interest """
+    
+    openstreetmap_element = models.OneToOneField('OpenStreetMapElement', related_name='superlachaise_poi', verbose_name=_('openstreetmap element'))
+    wikidata_entries = models.ManyToManyField('WikidataEntry', related_name='superlachaise_pois', through='SuperLachaiseWikidataRelation', verbose_name=_('wikidata entries'))
+    wikimedia_commons_category = models.ForeignKey('WikimediaCommonsCategory', null=True, blank=True, related_name='superlachaise_pois', verbose_name=_('wikimedia commons category'))
+    main_image = models.ForeignKey('WikimediaCommonsFile', null=True, blank=True, related_name='superlachaise_pois', verbose_name=_('main image'))
+    categories = models.ManyToManyField('SuperLachaiseCategory', blank=True, related_name='superlachaise_pois', verbose_name=_('categories'))
+    
+    def __unicode__(self):
+        names = {}
+        for localized_poi in self.localizations.all():
+            if not localized_poi.name in names:
+                names[localized_poi.name] = []
+            names[localized_poi.name].append(localized_poi.language.code)
+        
+        if len(names) > 0:
+            result = []
+            for name, languages in names.iteritems():
+                result.append('(%s)%s' % (','.join(languages), name))
+            return '; '.join(result)
+        
+        return u'osm:' + unicode(self.openstreetmap_element)
+    
+    class Meta:
+        ordering = ['openstreetmap_element']
+        verbose_name = _('superlachaise POI')
+        verbose_name_plural = _('superlachaise POIs')
+
+class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
+    """ The part of a SuperLachaise POI specific to a language """
+    
+    language = models.ForeignKey('Language', verbose_name=_('language'))
+    superlachaise_poi = models.ForeignKey('SuperLachaisePOI', related_name='localizations', verbose_name=_('superlachaise poi'))
+    name = models.CharField(max_length=255, verbose_name=_('name'))
+    description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
+    
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name = _('superlachaise localized POI')
+        verbose_name_plural = _('superlachaise localized POIs')
+
+class SuperLachaiseWikidataRelation(SuperLachaiseModel):
+    """ A relation between a Super Lachaise POI and a Wikidata entry """
+    
+    PERSON = 'person'
+    
+    superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
+    wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
+    relation_type = models.CharField(max_length=255, blank=True, verbose_name=_('relation type'))
+    
+    def __unicode__(self):
+        if type:
+            return self.relation_type + u': ' + unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
+        else:
+            return unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
+    
+    class Meta:
+        ordering = ['superlachaise_poi', 'relation_type', 'wikidata_entry']
+        verbose_name = _('superlachaisepoi-wikidataentry relationship')
+        verbose_name_plural = _('superlachaisepoi-wikidataentry relationships')
+
+class SuperLachaiseCategory(SuperLachaiseModel):
+    """ A category for Super Lachaise POIs """
+    
+    def __unicode__(self):
+        names = {}
+        for localized_category in self.localizations.all():
+            if not localized_category.name in names:
+                names[localized_category.name] = []
+            names[localized_category.name].append(localized_category.language.code)
+        
+        if len(names) > 0:
+            result = []
+            for name, languages in names.iteritems():
+                result.append('(%s)%s' % (','.join(languages), name))
+            return '; '.join(result)
+        
+        return _('None')
+    
+    class Meta:
+        verbose_name = _('superlachaise category')
+        verbose_name_plural = _('superlachaise categories')
+
+class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
+    """ The part of a SuperLachaise category specific to a language """
+    
+    language = models.ForeignKey('Language', verbose_name=_('language'))
+    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', related_name='localizations', verbose_name=_('superlachaise category'))
+    name = models.CharField(max_length=255, verbose_name=_('name'))
+    
+    def __unicode__(self):
+        return unicode(self.language) + u':' + self.name
+    
+    class Meta:
+        ordering = ['name', 'language']
+        verbose_name = _('superlachaise localized category')
+        verbose_name_plural = _('superlachaise localized categories')

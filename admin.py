@@ -572,3 +572,67 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
+
+class SuperLachaiseWikidataRelationInline(admin.StackedInline):
+    model = SuperLachaisePOI.wikidata_entries.through
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['wikidata_entry', 'relation_type']}),
+    ]
+    
+    verbose_name = "wikidata entry"
+    verbose_name_plural = "wikidata entries"
+
+class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
+    model = SuperLachaiseLocalizedPOI
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['language', 'name', 'description']}),
+    ]
+
+@admin.register(SuperLachaisePOI)
+class SuperLachaisePOIAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'notes')
+    search_fields = ('notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories', 'categories_text']}),
+    ]
+    readonly_fields = ('categories_text', 'created', 'modified')
+    
+    inlines = [
+        SuperLachaiseLocalizedPOIInline,
+        SuperLachaiseWikidataRelationInline,
+    ]
+    
+    def categories_text(self, obj):
+        result = []
+        for category in obj.categories.all():
+            result.append(unicode(category))
+        return ' ; '.join(result)
+    categories_text.short_description = _('categories')
+    categories_text.admin_order_field = 'categories'
+
+class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
+    model = SuperLachaiseLocalizedCategory
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['language', 'name']}),
+    ]
+
+@admin.register(SuperLachaiseCategory)
+class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'notes')
+    search_fields = ('notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+    ]
+    readonly_fields = ('created', 'modified')
+    inlines = [
+        SuperLachaiseLocalizedCategoryInline,
+    ]
