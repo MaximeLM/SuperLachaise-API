@@ -529,7 +529,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsFile)
 class WikimediaCommonsFileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'notes')
+    list_display = ('__unicode__', 'wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'notes')
     search_fields = ('id', 'notes',)
     
     fieldsets = [
