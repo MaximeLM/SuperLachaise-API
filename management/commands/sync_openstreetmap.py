@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, math, os, overpy, sys, traceback
+import json, math, os, overpy, sys, traceback, urllib2
 from decimal import Decimal
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -62,6 +62,48 @@ def none_to_blank(s):
     return unicode(s)
 
 class Command(BaseCommand):
+    
+    def request_wikidata_with_wikipedia_links(self, language_code, wikipedia_links):
+        # List languages to request
+        languages = []
+        for language in Language.objects.all():
+            languages.append(language.code)
+        
+        # List props to request
+        props = ['sitelinks']
+        
+        max_items_per_request = 25
+        
+        result = {}
+        
+        i = 0
+        while i < len(wikipedia_links):
+            wikipedia_links_page = wikipedia_links[i : min(len(wikipedia_links), i + max_items_per_request)]
+        
+            # Request properties
+            url = u"http://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&sites={sites}&titles={titles}&props={props}&format=json"\
+                .format(languages='|'.join(languages), titles=urllib2.quote('|'.join(wikipedia_links_page).encode('utf8'), '|'), props='|'.join(props), sites=language_code + 'wiki')
+            request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+            u = urllib2.urlopen(request)
+        
+            # Parse result
+            data = u.read()
+            json_result = json.loads(data)
+            
+            # Add entities to result
+            result.update(json_result['entities'])
+        
+            i = i + max_items_per_request
+        
+        return result
+    
+    def get_wikipedia(self, entity, language_code):
+        try:
+            wikipedia = entity['sitelinks'][language_code + 'wiki']
+            
+            return wikipedia['title']
+        except:
+            return None
     
     def download_data(self, bounding_box):
         query_string_list = ['(\n']
@@ -112,6 +154,39 @@ class Command(BaseCommand):
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
         }
         
+        # Get combined wikidata field
+        wikidata_combined = []
+        if result['wikidata']:
+            for wikidata_link in result['wikidata'].split(';'):
+                if not wikidata_link in wikidata_combined:
+                    wikidata_combined.append(wikidata_link)
+        
+        if result['wikipedia']:
+            wikipedia_links = {}
+            for wikipedia in result['wikipedia'].split(';'):
+                if ':' in wikipedia:
+                    language_code = wikipedia.split(':')[-2]
+                    link = wikipedia.split(':')[-1]
+                    if not language_code in wikipedia_links:
+                        wikipedia_links[language_code] = []
+                    if not link in wikipedia_links[language_code]:
+                        wikipedia_links[language_code].append(link)
+            
+            if wikipedia_links:
+                for language_code, links in wikipedia_links.iteritems():
+                    entities = self.request_wikidata_with_wikipedia_links(language_code, links)
+                    for wikidata_code, entity in entities.iteritems():
+                        wikipedia = self.get_wikipedia(entity, language_code)
+                        if wikipedia:
+                            for wikipedia_link in result['wikipedia'].split(';'):
+                                if (language_code + u':' + wikipedia) in wikipedia_link:
+                                    wikidata_link = wikipedia_link.split(language_code + u':' + wikipedia)[0] + wikidata_code
+                                    if not wikidata_link in wikidata_combined:
+                                        wikidata_combined.append(wikidata_link)
+        
+        wikidata_combined.sort()
+        result['wikidata_combined'] = ';'.join(wikidata_combined)
+        
         if not result['sorting_name']:
             result['sorting_name'] = result['name']
         
@@ -149,11 +224,7 @@ class Command(BaseCommand):
                 # Get or create a modification
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id))
                 
-                modified_fields = json.loads(pendingModification.modified_fields) if pendingModification.modified_fields else {}
-                for key in values_dict:
-                    modified_fields.pop(key, None)
-                modified_fields.update(modified_values)
-                pendingModification.modified_fields = json.dumps(modified_fields, default=decimal_handler)
+                pendingModification.modified_fields = json.dumps(modified_values, default=decimal_handler)
                 pendingModification.action = "modify"
                 
                 pendingModification.full_clean()
@@ -228,18 +299,25 @@ class Command(BaseCommand):
         
         # Handle downloaded elements
         fetched_ids = []
+        count = len(result.nodes) + len(result.ways) + len(result.relations)
         for element in result.nodes:
             if self.element_accepted(element):
+                print str(count) + u'-' + none_to_blank(element.tags.get('name'))
                 fetched_ids.append(element.id)
                 self.handle_element(element, {'x': element.lat, 'y': element.lon})
+            count -= 1
         for element in result.ways:
             if self.element_accepted(element):
+                print str(count) + u'-' + none_to_blank(element.tags.get('name'))
                 fetched_ids.append(element.id)
                 self.handle_way(element)
+            count -= 1
         for element in result.relations:
             if self.element_accepted(element):
+                print str(count) + u'-' + none_to_blank(element.tags.get('name'))
                 fetched_ids.append(element.id)
                 self.handle_relation(element)
+            count -= 1
         
         # Delete pending creations if element was deleted in OSM
         for pendingModification in PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action=PendingModification.CREATE):

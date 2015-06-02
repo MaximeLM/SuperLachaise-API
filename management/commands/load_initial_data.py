@@ -40,23 +40,18 @@ class Command(BaseCommand):
         admin_command.description = _("Synchronize OpenStreetMap elements by querying Overpass API for the bouding box and the tags defined in the settings")
         admin_command.save()
         
-        admin_command, created = AdminCommand.objects.get_or_create(name="sync_wikidata_combined")
-        admin_command.dependency_order = 2
-        admin_command.description = _("Synchronize the 'wikidata combined' field of OpenStreetMap elements by querying Wikidata with the 'wikipedia' field of the elements and combining the results with the 'wikidata' field.")
-        admin_command.save()
-        
         admin_command, created = AdminCommand.objects.get_or_create(name="sync_wikidata")
-        admin_command.dependency_order = 3
+        admin_command.dependency_order = 2
         admin_command.description = _("Synchronize Wikidata entries by querying the codes listed in OpenStreetMap elements")
         admin_command.save()
         
         admin_command, created = AdminCommand.objects.get_or_create(name="sync_wikimedia_commons_categories")
-        admin_command.dependency_order = 5
+        admin_command.dependency_order = 3
         admin_command.description = _("Synchronize Wikimedia Commons categories by querying the categories listed in OpenStreetMap elements and Wikidata entries")
         admin_command.save()
         
         admin_command, created = AdminCommand.objects.get_or_create(name="sync_wikimedia_commons_files")
-        admin_command.dependency_order = 6
+        admin_command.dependency_order = 4
         admin_command.description = _("Synchronize Wikimedia Commons files by querying the files listed in Wikimedia Commons categories")
         admin_command.save()
         
