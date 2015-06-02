@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-make_wikidata_combined.py
+sync_wikidata_combined.py
 superlachaise_api
 
 Created by Maxime Le Moine on 30/05/2015.
@@ -112,9 +112,10 @@ class Command(BaseCommand):
                 admin_command_error.save()
             else:
                 wikidata_combined = []
-                for wikidata_code in openstreetmap_element.wikidata.split(';'):
-                    if not wikidata_code in wikidata_combined:
-                        wikidata_combined.append(wikidata_code)
+                if openstreetmap_element.wikidata:
+                    for wikidata_code in openstreetmap_element.wikidata.split(';'):
+                        if not wikidata_code in wikidata_combined:
+                            wikidata_combined.append(wikidata_code)
                 for wikidata_code in wikidata_codes:
                     if not wikidata_code in wikidata_combined:
                         wikidata_combined.append(wikidata_code)
