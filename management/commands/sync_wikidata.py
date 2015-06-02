@@ -222,15 +222,6 @@ class Command(BaseCommand):
         else:
             result['grave_of_wikidata'] = u''
         
-        current_language = translation.get_language().split("-", 1)[0]
-        result['name'] = u''
-        for language in Language.objects.all():
-            name = self.get_name(entity, language.code)
-            if name:
-                result['name'] = name
-            if language.code == current_language:
-                break
-        
         return result
     
     def get_localized_values_from_entity(self, entity, language_code):

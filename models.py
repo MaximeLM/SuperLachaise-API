@@ -317,7 +317,6 @@ class WikidataEntry(SuperLachaiseModel):
     )
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
     wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
     wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
@@ -329,10 +328,10 @@ class WikidataEntry(SuperLachaiseModel):
     burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
     
     def __unicode__(self):
-        return self.name
+        return self.id
     
     class Meta:
-        ordering = ['name', 'id']
+        ordering = ['id']
         verbose_name = _('wikidata entry')
         verbose_name_plural = _('wikidata entries')
 
