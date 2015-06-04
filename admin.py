@@ -248,6 +248,21 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
+class WikidataLocalizedEntryInline(admin.StackedInline):
+    model = WikidataLocalizedEntry
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['language', 'name', 'wikipedia', 'description', 'intro', 'intro_html']}),
+    ]
+    readonly_fields = ('intro_html',)
+    
+    def intro_html(self, obj):
+        return obj.intro
+    intro_html.allow_tags = True
+    intro_html.short_description = _('intro')
+    intro_html.admin_order_field = 'intro'
+
 @admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
@@ -258,6 +273,10 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         (None, {'fields': ['id', 'wikidata_link', 'instance_of', 'instance_of_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
     readonly_fields = ('wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
+    
+    inlines = [
+        WikidataLocalizedEntryInline,
+    ]
     
     def wikidata_link(self, obj):
         if obj.id:
