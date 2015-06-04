@@ -24,6 +24,7 @@ import datetime
 from django.contrib import admin
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.utils import timezone, translation
 from django.utils.safestring import mark_safe
@@ -727,7 +728,7 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'key', 'values', 'notes')
+    list_display = ('name', 'key', 'values', 'num_superlachaise_pois', 'notes')
     list_filter = ('key',)
     search_fields = ('name', 'key', 'values', 'notes',)
     
@@ -735,13 +736,23 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'key', 'values']}),
     ]
-    readonly_fields = ('created', 'modified')
+    readonly_fields = ('num_superlachaise_pois', 'created', 'modified')
     inlines = [
         SuperLachaiseLocalizedCategoryInline,
     ]
+    
+    def num_superlachaise_pois(self, obj):
+        return obj.num_superlachaise_pois
+    num_superlachaise_pois.short_description = _('members count')
+    num_superlachaise_pois.admin_order_field = 'num_superlachaise_pois'
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
+    
+    def get_queryset(self, stuff):
+        qs = super(SuperLachaiseCategoryAdmin, self).get_queryset(stuff)
+        qs = qs.annotate(num_superlachaise_pois=Count('superlachaise_pois'))
+        return qs
