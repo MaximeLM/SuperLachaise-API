@@ -62,13 +62,13 @@ class Command(BaseCommand):
         
         # Languages
         
-        language, created = Language.objects.get_or_create(code="fr")
-        language.description = _("French")
-        language.save()
+        language_fr, created = Language.objects.get_or_create(code="fr")
+        language_fr.description = _("French")
+        language_fr.save()
         
-        language, created = Language.objects.get_or_create(code="en")
-        language.description = _("English")
-        language.save()
+        language_en, created = Language.objects.get_or_create(code="en")
+        language_en.description = _("English")
+        language_en.save()
         
         # Settings
         
@@ -126,5 +126,43 @@ class Command(BaseCommand):
         setting.value = "false"
         setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
         setting.save()
+        
+        # Categories
+        
+        category, created = SuperLachaiseCategory.objects.get_or_create(type="sex_or_gender", code="Q6581097")
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Hommes')
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Men')
+        category.save()
+        
+        category, created = SuperLachaiseCategory.objects.get_or_create(type="sex_or_gender", code="Q6581072")
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Femmes')
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Women')
+        category.save()
+        
+        category, created = SuperLachaiseCategory.objects.get_or_create(type="element_nature", code="tomb")
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Tombes')
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Tombs')
+        category.save()
+        
+        category, created = SuperLachaiseCategory.objects.get_or_create(type="element_nature", code="memorial")
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Mémoriaux')
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Memorials')
+        category.save()
                 
         translation.deactivate()

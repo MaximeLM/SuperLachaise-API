@@ -709,13 +709,21 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'notes')
-    search_fields = ('notes',)
+    list_display = ('code', 'type', 'notes')
+    list_filter = ('type',)
+    search_fields = ('code', 'type', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['code', 'type']}),
     ]
     readonly_fields = ('created', 'modified')
     inlines = [
         SuperLachaiseLocalizedCategoryInline,
     ]
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]

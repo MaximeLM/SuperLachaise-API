@@ -434,19 +434,7 @@ class SuperLachaisePOI(SuperLachaiseModel):
     categories = models.ManyToManyField('SuperLachaiseCategory', blank=True, related_name='superlachaise_pois', verbose_name=_('categories'))
     
     def __unicode__(self):
-        names = {}
-        for localized_poi in self.localizations.all():
-            if not localized_poi.name in names:
-                names[localized_poi.name] = []
-            names[localized_poi.name].append(localized_poi.language.code)
-        
-        if len(names) > 0:
-            result = []
-            for name, languages in names.iteritems():
-                result.append('(%s)%s' % (','.join(languages), name))
-            return '; '.join(result)
-        
-        return u'osm:' + unicode(self.openstreetmap_element)
+        return unicode(self.openstreetmap_element)
     
     class Meta:
         ordering = ['openstreetmap_element']
@@ -491,22 +479,14 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
 class SuperLachaiseCategory(SuperLachaiseModel):
     """ A category for Super Lachaise POIs """
     
+    code = models.CharField(max_length=255, verbose_name=_('code'))
+    type = models.CharField(max_length=255, verbose_name=_('type'))
+    
     def __unicode__(self):
-        names = {}
-        for localized_category in self.localizations.all():
-            if not localized_category.name in names:
-                names[localized_category.name] = []
-            names[localized_category.name].append(localized_category.language.code)
-        
-        if len(names) > 0:
-            result = []
-            for name, languages in names.iteritems():
-                result.append('(%s)%s' % (','.join(languages), name))
-            return '; '.join(result)
-        
-        return _('None')
+        return self.type + u' - ' + self.code
     
     class Meta:
+        unique_together = ('type', 'code',)
         verbose_name = _('superlachaise category')
         verbose_name_plural = _('superlachaise categories')
 
