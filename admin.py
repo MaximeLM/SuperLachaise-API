@@ -554,13 +554,6 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     
     def thumbnail_url_link(self, obj):
         if obj.thumbnail_url:
-            thumbnail_width = u'350'
-            display_size = u'350'
-            result = """
-            <div style="width:150px; height:150px; overflow:hidden;">
-                <img src="{url}" style="width:400px; height:300px; margin: -75px 0 0 -100px;" />
-            </div>
-            """
             result = u'<div style="background: url({url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(url=obj.thumbnail_url)
             return mark_safe(result)
     thumbnail_url_link.allow_tags = True
@@ -611,14 +604,14 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'notes')
-    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'notes',)
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'notes')
+    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories', 'categories_text']}),
     ]
-    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'categories_text', 'created', 'modified')
+    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_text', 'created', 'modified')
     
     inlines = [
         SuperLachaiseLocalizedPOIInline,
@@ -643,10 +636,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             reverse_name = 'wikidataentry'
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
             url = reverse(reverse_path, args=(wikidata_entry_relation.wikidata_entry_id,))
-            if wikidata_entry_relation.relation_type:
-                text = wikidata_entry_relation.relation_type + u':' + wikidata_entry_relation.wikidata_entry_id
-            else:
-                text = wikidata_entry_relation.wikidata_entry_id
+            text = wikidata_entry_relation.relation_type + u':' + wikidata_entry_relation.wikidata_entry_id
             result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, text)))
         return ';'.join(result)
     wikidata_entries_link.allow_tags = True
@@ -664,6 +654,18 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
+    def main_image_link(self, obj):
+        if obj.main_image:
+            app_name = obj._meta.app_label
+            reverse_name = obj.main_image.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(obj.main_image.id,))
+            result = u'<div style="background: url({image_url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(image_url=obj.main_image.thumbnail_url, url=url)
+            return mark_safe(result)
+    main_image_link.allow_tags = True
+    main_image_link.short_description = _('main image')
+    main_image_link.admin_order_field = 'main_image'
+    
     def categories_text(self, obj):
         result = []
         for category in obj.categories.all():
@@ -671,6 +673,31 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
         return ' ; '.join(result)
     categories_text.short_description = _('categories')
     categories_text.admin_order_field = 'categories'
+    
+    def sync_page(self, request, queryset):
+        openstreetmap_element_ids = []
+        for superlachaise_id in queryset:
+            openstreetmap_element_ids.append(superlachaise_id.openstreetmap_element_id)
+        sync_start = timezone.now()
+        call_command('sync_superlachaise_pois', openstreetmap_element_ids='|'.join(openstreetmap_element_ids))
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+        
+        if pending_modifications:
+            # Open modification page with filter
+            app_name = PendingModification._meta.app_label
+            reverse_name = PendingModification.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+            url = '/'.join(split_url[0:len(split_url) - 1])
+            return HttpResponseRedirect(url)
+    sync_page.short_description = _('Sync selected superlachaise pois')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes, sync_page]
 
 class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
     model = SuperLachaiseLocalizedCategory

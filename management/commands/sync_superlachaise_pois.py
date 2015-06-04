@@ -43,11 +43,8 @@ class Command(BaseCommand):
                     elif wikidata_entry.instance_of == 'Q5':
                         relation_type = SuperLachaiseWikidataRelation.PERSON
                     else:
-                        relation_type = u''
-                    if relation_type:
-                        result.append(relation_type + u':' + str(wikidata_entry.id))
-                    else:
-                        result.append(str(wikidata_entry.id))
+                        relation_type = SuperLachaiseWikidataRelation.NONE
+                    result.append(relation_type + u':' + str(wikidata_entry.id))
                     
                     if wikidata_entry.grave_of_wikidata:
                         for grave_of_wikidata in wikidata_entry.grave_of_wikidata.split(';'):
@@ -59,7 +56,7 @@ class Command(BaseCommand):
         result.sort()
         return result
     
-    def get_wikimedia_commons_category_id(self, openstreetmap_element, wikidata_fetched_entries):
+    def get_wikimedia_commons_category(self, openstreetmap_element, wikidata_fetched_entries):
         wikimedia_commons_categories = []
         if openstreetmap_element.wikimedia_commons:
             wikimedia_commons = openstreetmap_element.wikimedia_commons.split('Category:')[-1]
@@ -83,29 +80,38 @@ class Command(BaseCommand):
         if len(wikimedia_commons_categories) == 1:
             wikimedia_commons_category = WikimediaCommonsCategory.objects.filter(id=wikimedia_commons_categories[0]).first()
             if wikimedia_commons_category:
-                return wikimedia_commons_category.id
+                return wikimedia_commons_category
             else:
                 return None
+        else:
+            return None
+    
+    def get_main_image(self, wikimedia_commons_category):
+        if wikimedia_commons_category and wikimedia_commons_category.main_image:
+            result =  WikimediaCommonsFile.objects.filter(id=wikimedia_commons_category.main_image).first()
+            if not result:
+                print wikimedia_commons_category.main_image
+            return result
         else:
             return None
     
     def get_superlachaise_poi_wikidata_entries(self, superlachaise_poi):
         result = []
         for wikidata_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
-            if wikidata_relation.relation_type:
-                result.append(wikidata_relation.relation_type + u':' + str(wikidata_relation.wikidata_entry_id))
-            else:
-                result.append(str(wikidata_relation.wikidata_entry_id))
+            result.append(wikidata_relation.relation_type + u':' + str(wikidata_relation.wikidata_entry_id))
         
         result.sort()
         return result
     
     def get_values_for_openstreetmap_element(self, openstreetmap_element):
         wikidata_entries = self.get_wikidata_entries(openstreetmap_element)
+        wikimedia_commons_category = self.get_wikimedia_commons_category(openstreetmap_element, wikidata_entries)
+        main_image = self.get_main_image(wikimedia_commons_category)
         
         result = {
             'wikidata_entries': wikidata_entries,
-            'wikimedia_commons_category_id': self.get_wikimedia_commons_category_id(openstreetmap_element, wikidata_entries),
+            'wikimedia_commons_category_id': wikimedia_commons_category.id if wikimedia_commons_category else None,
+            'main_image_id': main_image.id if main_image else None,
         }
         
         return result
@@ -185,11 +191,10 @@ class Command(BaseCommand):
                 if pendingModification:
                     pendingModification.delete()
     
-    def sync_superlachaise_pois(self, superlachaise_poi_ids):
+    def sync_superlachaise_pois(self, param_openstreetmap_element_ids):
         # Get OpenStreetMap elements
-        openstreetmap_element_ids = []
-        if superlachaise_poi_ids:
-            openstreetmap_element_ids = superlachaise_poi_ids
+        if param_openstreetmap_element_ids:
+            openstreetmap_element_ids = param_openstreetmap_element_ids.split('|')
         else:
             openstreetmap_element_ids = []
             for openstreetmap_element in OpenStreetMapElement.objects.all():
@@ -198,7 +203,7 @@ class Command(BaseCommand):
         for openstreetmap_element_id in openstreetmap_element_ids:
             self.sync_superlachaise_poi(openstreetmap_element_id)
         
-        if not superlachaise_poi_ids:
+        if not param_openstreetmap_element_ids:
             # Delete pending creations if element was not fetched
             for pendingModification in PendingModification.objects.filter(target_object_class="SuperLachaisePOI", action=PendingModification.CREATE):
                 if not pendingModification.target_object_id in openstreetmap_element_ids:
@@ -220,9 +225,9 @@ class Command(BaseCommand):
                         pendingModification.apply_modification()
     
     def add_arguments(self, parser):
-        parser.add_argument('--superlachaise_poi_ids',
+        parser.add_argument('--openstreetmap_element_ids',
             action='store',
-            dest='superlachaise_poi_ids')
+            dest='openstreetmap_element_ids')
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
@@ -234,7 +239,7 @@ class Command(BaseCommand):
             self.modified_objects = 0
             self.deleted_objects = 0
             
-            self.sync_superlachaise_pois(options['superlachaise_poi_ids'])
+            self.sync_superlachaise_pois(options['openstreetmap_element_ids'])
             
             result_list = []
             if self.created_objects > 0:

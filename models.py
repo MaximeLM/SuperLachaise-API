@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json
+import json, traceback
 from decimal import Decimal
 from django.apps import apps
 from django.core.exceptions import ValidationError
@@ -181,121 +181,118 @@ class PendingModification(SuperLachaiseModel):
     def apply_modification(self):
         """ Apply the modification and delete self """
         
-        if self.action in [self.CREATE, self.MODIFY]:
-            # Get or create target object
-            target_model = self.target_model()
-            target_object = self.target_object()
-            if not target_object:
-                if self.target_object_class == 'SuperLachaisePOI':
-                    openstreetmap_element = OpenStreetMapElement.objects.get(id=self.target_object_id)
-                    target_object = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
-                else:
-                    target_object = target_model(id=self.target_object_id)
+        try:
+            if self.action in [self.CREATE, self.MODIFY]:
+                # Get or create target object
+                target_model = self.target_model()
+                target_object = self.target_object()
+                if not target_object:
+                    if self.target_object_class == 'SuperLachaisePOI':
+                        openstreetmap_element = OpenStreetMapElement.objects.get(id=self.target_object_id)
+                        target_object = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
+                    else:
+                        target_object = target_model(id=self.target_object_id)
             
-            localized_objects = {}
-            wikidata_entries = None
+                localized_objects = {}
+                wikidata_entries = None
             
-            # Set field values
-            for original_field, original_value in json.loads(self.modified_fields).iteritems():
-                object_model = target_model
-                object = target_object
-                field = original_field
+                # Set field values
+                for original_field, original_value in json.loads(self.modified_fields).iteritems():
+                    object_model = target_model
+                    object = target_object
+                    field = original_field
                 
-                if ':' in field and self.target_object_class in ['WikidataEntry', 'SuperLachaisePOI']:
+                    if ':' in field and self.target_object_class in ['WikidataEntry', 'SuperLachaisePOI']:
                     
-                    if self.target_object_class == 'WikidataEntry':
-                        object_model = apps.get_model(self._meta.app_label, 'WikidataLocalizedEntry')
-                    elif self.target_object_class == 'SuperLachaisePOI':
-                        object_model = apps.get_model(self._meta.app_label, 'SuperLachaiseLocalizedPOI')
-                    if not object_model or object_model == target_model:
-                        raise BaseException
-                    language = Language.objects.get(code=original_field.split(':')[0])
-                    
-                    object = None
-                    if language.code in localized_objects:
-                        object = localized_objects[language.code]
-                    if not object:
-                        object = target_object.localizations.filter(language=language).first()
-                    
-                    if original_field == (language.code + u':') and original_value is None:
-                        # Delete localization
-                        if object:
-                            object.delete()
-                        continue
-                    
-                    if not object:
                         if self.target_object_class == 'WikidataEntry':
-                            object = object_model(wikidata_entry=target_object, language=language)
+                            object_model = apps.get_model(self._meta.app_label, 'WikidataLocalizedEntry')
                         elif self.target_object_class == 'SuperLachaisePOI':
-                            object = object_model(superlachaise_poi=target_object, language=language)
+                            object_model = apps.get_model(self._meta.app_label, 'SuperLachaiseLocalizedPOI')
+                        if not object_model or object_model == target_model:
+                            raise BaseException
+                        language = Language.objects.get(code=original_field.split(':')[0])
                     
-                    if not language.code in localized_objects:
-                        localized_objects[language.code] = object
-                    field = original_field.split(':')[1]
+                        object = None
+                        if language.code in localized_objects:
+                            object = localized_objects[language.code]
+                        if not object:
+                            object = target_object.localizations.filter(language=language).first()
+                    
+                        if original_field == (language.code + u':') and original_value is None:
+                            # Delete localization
+                            if object:
+                                object.delete()
+                            continue
+                    
+                        if not object:
+                            if self.target_object_class == 'WikidataEntry':
+                                object = object_model(wikidata_entry=target_object, language=language)
+                            elif self.target_object_class == 'SuperLachaisePOI':
+                                object = object_model(superlachaise_poi=target_object, language=language)
+                    
+                        if not language.code in localized_objects:
+                            localized_objects[language.code] = object
+                        field = original_field.split(':')[1]
                 
-                if field == 'wikidata_entries' and self.target_object_class == 'SuperLachaisePOI':
-                    wikidata_entries = original_value
-                    continue
+                    if field == 'wikidata_entries' and self.target_object_class == 'SuperLachaisePOI':
+                        wikidata_entries = original_value
+                        continue
                 
-                if not field in object_model._meta.get_all_field_names():
-                    raise BaseException
-                field_type = object_model._meta.get_field(field).get_internal_type()
-                if field_type == 'CharField':
-                    if original_value is None:
-                        value = u''
+                    if not field in object_model._meta.get_all_field_names():
+                        raise BaseException
+                    field_type = object_model._meta.get_field(field).get_internal_type()
+                    if field_type == 'CharField':
+                        if original_value is None:
+                            value = u''
+                        else:
+                            value = original_value
+                    elif field_type == 'DecimalField':
+                        value = Decimal(original_value)
                     else:
                         value = original_value
-                elif field_type == 'DecimalField':
-                    value = Decimal(original_value)
-                else:
-                    value = original_value
-                setattr(object, field, value)
+                    setattr(object, field, value)
             
-            # Save
-            target_object.full_clean()
-            target_object.save()
+                # Save
+                target_object.full_clean()
+                target_object.save()
             
-            for language_code, localized_object in localized_objects.iteritems():
-                localized_object.full_clean()
-                localized_object.save()
+                for language_code, localized_object in localized_objects.iteritems():
+                    localized_object.full_clean()
+                    localized_object.save()
             
-            if wikidata_entries:
-                for wikidata_entry_relation in wikidata_entries:
-                    if len(wikidata_entry_relation.split(':')) == 2:
+                if wikidata_entries:
+                    for wikidata_entry_relation in wikidata_entries:
                         relation_type = wikidata_entry_relation.split(':')[0]
-                    else:
-                        relation_type = u''
-                    wikidata_id = wikidata_entry_relation.split(':')[-1]
-                    wikidata_entry = WikidataEntry.objects.get(id=wikidata_id)
-                    if object.pk:
-                        wikidata_entry_relation = object.superlachaisewikidatarelation_set.filter(wikidata_entry_id=wikidata_id).first()
-                    else:
-                        wikidata_entry_relation = None
-                    if not wikidata_entry_relation:
-                        # Create relation
-                        wikidata_entry_relation = SuperLachaiseWikidataRelation(superlachaise_poi=object, wikidata_entry=wikidata_entry, relation_type=relation_type)
-                        wikidata_entry_relation.full_clean()
-                        wikidata_entry_relation.save()
-                    elif not wikidata_entry_relation.relation_type == relation_type:
-                        # Modify relation
-                        wikidata_entry_relation.relation_type = relation_type
-                        wikidata_entry_relation.full_clean()
-                        wikidata_entry_relation.save()
-                for wikidata_entry_relation in object.superlachaisewikidatarelation_set.all():
-                    if wikidata_entry_relation.relation_type:
+                        wikidata_id = wikidata_entry_relation.split(':')[-1]
+                        wikidata_entry = WikidataEntry.objects.get(id=wikidata_id)
+                        if object.pk:
+                            wikidata_entry_relation = object.superlachaisewikidatarelation_set.filter(wikidata_entry_id=wikidata_id, relation_type=relation_type).first()
+                        else:
+                            wikidata_entry_relation = None
+                        if not wikidata_entry_relation:
+                            # Create relation
+                            wikidata_entry_relation = SuperLachaiseWikidataRelation(superlachaise_poi=object, wikidata_entry=wikidata_entry, relation_type=relation_type)
+                            wikidata_entry_relation.full_clean()
+                            wikidata_entry_relation.save()
+                        elif not wikidata_entry_relation.relation_type == relation_type:
+                            # Modify relation
+                            wikidata_entry_relation.relation_type = relation_type
+                            wikidata_entry_relation.full_clean()
+                            wikidata_entry_relation.save()
+                    for wikidata_entry_relation in object.superlachaisewikidatarelation_set.all():
                         relation_str = wikidata_entry_relation.relation_type + u':' + str(wikidata_entry_relation.wikidata_entry_id)
-                    else:
-                        relation_str = str(wikidata_entry_relation.wikidata_entry_id)
-                    if not relation_str in original_value:
-                        # Delete relation
-                        wikidata_entry_relation.delete()
+                        if not original_value or not relation_str in original_value:
+                            # Delete relation
+                            wikidata_entry_relation.delete()
             
-        elif self.action == self.DELETE:
-            target_object = self.target_object()
-            if target_object:
-                target_object.delete()
-        else:
-            raise BaseException
+            elif self.action == self.DELETE:
+                target_object = self.target_object()
+                if target_object:
+                    target_object.delete()
+            else:
+                raise BaseException
+        except:
+            traceback.print_exc()
         
         self.delete()
 
@@ -475,20 +472,18 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
 class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a Wikidata entry """
     
+    NONE = 'none'
     PERSON = 'person'
     
     superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
     wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
-    relation_type = models.CharField(max_length=255, blank=True, verbose_name=_('relation type'))
+    relation_type = models.CharField(max_length=255, verbose_name=_('relation type'))
     
     def __unicode__(self):
-        if self.relation_type:
-            return self.relation_type + u': ' + unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
-        else:
-            return unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
+        return self.relation_type + u': ' + unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
     
     class Meta:
-        unique_together = ('superlachaise_poi', 'wikidata_entry',)
+        unique_together = ('superlachaise_poi', 'wikidata_entry', 'relation_type',)
         ordering = ['superlachaise_poi', 'relation_type', 'wikidata_entry']
         verbose_name = _('superlachaisepoi-wikidataentry relationship')
         verbose_name_plural = _('superlachaisepoi-wikidataentry relationships')
