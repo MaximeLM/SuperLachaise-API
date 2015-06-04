@@ -129,7 +129,7 @@ class Command(BaseCommand):
         
         # Categories
         
-        category, created = SuperLachaiseCategory.objects.get_or_create(name=u'tombs')
+        category, created = SuperLachaiseCategory.objects.get_or_create(name=u'tomb')
         category.key = SuperLachaiseCategory.ELEMENT_NATURE
         category.values = ';'.join([u'tomb'])
         category.save()
@@ -140,7 +140,7 @@ class Command(BaseCommand):
         localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Tombs')
         category.save()
         
-        category, created = SuperLachaiseCategory.objects.get_or_create(name=u'memorials')
+        category, created = SuperLachaiseCategory.objects.get_or_create(name=u'memorial')
         category.key = SuperLachaiseCategory.ELEMENT_NATURE
         category.values = ';'.join([u'memorial'])
         category.save()
@@ -151,7 +151,7 @@ class Command(BaseCommand):
         localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Memorials')
         category.save()
         
-        category, created = SuperLachaiseCategory.objects.get_or_create(name=u'men')
+        category, created = SuperLachaiseCategory.objects.get_or_create(name=u'male')
         category.key = SuperLachaiseCategory.SEX_OR_GENDER
         category.values = ';'.join([u'Q6581097'])
         category.save()
@@ -162,7 +162,7 @@ class Command(BaseCommand):
         localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Men')
         category.save()
         
-        category, created = SuperLachaiseCategory.objects.get_or_create(name=u'women')
+        category, created = SuperLachaiseCategory.objects.get_or_create(name=u'female')
         category.key = SuperLachaiseCategory.SEX_OR_GENDER
         category.values = ';'.join([u'Q6581072'])
         category.save()

@@ -103,14 +103,22 @@ class Command(BaseCommand):
         if openstreetmap_element.nature:
             properties[SuperLachaiseCategory.ELEMENT_NATURE] = [openstreetmap_element.nature]
         
-        sex_or_gender = []
         for wikidata_fetched_entry in wikidata_fetched_entries:
             wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
             if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                 # Person relation
-                if wikidata_entry.sex_or_gender and not wikidata_entry.sex_or_gender in sex_or_gender:
-                    sex_or_gender.append(wikidata_entry.sex_or_gender)
-        properties[SuperLachaiseCategory.SEX_OR_GENDER] = sex_or_gender
+                if wikidata_entry.sex_or_gender:
+                    if not SuperLachaiseCategory.SEX_OR_GENDER in properties:
+                        properties[SuperLachaiseCategory.SEX_OR_GENDER] = []
+                    if not wikidata_entry.sex_or_gender in properties[SuperLachaiseCategory.SEX_OR_GENDER]:
+                        properties[SuperLachaiseCategory.SEX_OR_GENDER].append(wikidata_entry.sex_or_gender)
+                
+                if wikidata_entry.occupations:
+                    for occupation in wikidata_entry.occupations.split(';'):
+                        if not SuperLachaiseCategory.OCCUPATION in properties:
+                            properties[SuperLachaiseCategory.OCCUPATION] = []
+                        if not occupation in properties[SuperLachaiseCategory.OCCUPATION]:
+                            properties[SuperLachaiseCategory.OCCUPATION].append(occupation)
         
         result = []
         for key, values in properties.iteritems():

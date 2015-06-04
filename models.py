@@ -373,6 +373,7 @@ class WikidataEntry(SuperLachaiseModel):
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
     sex_or_gender = models.CharField(max_length=255, blank=True, verbose_name=_('sex or gender'))
+    occupations = models.CharField(max_length=255, blank=True, verbose_name=_('occupations'))
     wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
     wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
     grave_of_wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('grave_of:wikidata'))
@@ -494,6 +495,7 @@ class SuperLachaiseCategory(SuperLachaiseModel):
     
     ELEMENT_NATURE = u'osm_element:nature'
     SEX_OR_GENDER = u'wikidata_entry:sex_or_gender'
+    OCCUPATION = u'wikidata_entry:occupation'
     
     name = models.CharField(max_length=255, unique=True, verbose_name=_('name'))
     key = models.CharField(max_length=255, verbose_name=_('key'))

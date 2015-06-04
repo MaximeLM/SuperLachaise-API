@@ -243,6 +243,18 @@ class Command(BaseCommand):
         except:
             return []
     
+    def get_occupations(self, entity):
+        try:
+            p106 = entity['claims']['P106']
+            
+            result = []
+            for entry in p106:
+                result.append('Q' + str(entry['mainsnak']['datavalue']['value']['numeric-id']))
+            
+            return result
+        except:
+            return []
+    
     def get_sex_or_gender(self, entity):
         try:
             p31 = entity['claims']['P21']
@@ -383,12 +395,14 @@ class Command(BaseCommand):
             result['date_of_birth'], result['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
             result['date_of_death'], result['date_of_death_accuracy'] = self.get_date(entity, 'P570')
             result['sex_or_gender'] = self.get_sex_or_gender(entity)
+            result['occupations'] = ';'.join(self.get_occupations(entity))
         else:
             result['wikimedia_commons_grave_category'] = u''
             result['burial_plot_reference'] = self.get_burial_plot_reference(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = (None, u'')
             result['date_of_death'], result['date_of_death_accuracy'] = (None, u'')
             result['sex_or_gender'] = u''
+            result['occupations'] = u''
         
         if 'Q173387' in instance_of:
             # tomb
