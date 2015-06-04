@@ -110,7 +110,7 @@ class Command(BaseCommand):
             wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
             if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                 # Person relation
-                if wikidata_entry.sex_or_gender:
+                if wikidata_entry.sex_or_gender and not wikidata_entry.sex_or_gender in sex_or_gender:
                     sex_or_gender.append(wikidata_entry.sex_or_gender)
         result[SuperLachaiseCategory.SEX_OR_GENDER] = sex_or_gender
         
