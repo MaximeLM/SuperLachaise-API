@@ -611,14 +611,14 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'notes')
-    search_fields = ('notes',)
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'notes')
+    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories', 'categories_text']}),
     ]
-    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'categories_text', 'created', 'modified')
+    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'categories_text', 'created', 'modified')
     
     inlines = [
         SuperLachaiseLocalizedPOIInline,
@@ -652,6 +652,17 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     wikidata_entries_link.allow_tags = True
     wikidata_entries_link.short_description = _('wikidata entries')
     wikidata_entries_link.admin_order_field = 'wikidata_entries'
+    
+    def wikimedia_commons_category_link(self, obj):
+        if obj.wikimedia_commons_category:
+            app_name = obj._meta.app_label
+            reverse_name = obj.wikimedia_commons_category.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(obj.wikimedia_commons_category.id,))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
+    wikimedia_commons_category_link.allow_tags = True
+    wikimedia_commons_category_link.short_description = _('wikimedia commons category')
+    wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
     def categories_text(self, obj):
         result = []

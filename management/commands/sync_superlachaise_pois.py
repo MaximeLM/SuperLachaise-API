@@ -32,6 +32,7 @@ class Command(BaseCommand):
     
     def get_wikidata_entries(self, openstreetmap_element):
         result = []
+        
         if openstreetmap_element.wikidata_combined:
             for wikidata in openstreetmap_element.wikidata_combined.split(';'):
                 wikidata_id = wikidata.split(':')[-1]
@@ -47,9 +48,46 @@ class Command(BaseCommand):
                         result.append(relation_type + u':' + str(wikidata_entry.id))
                     else:
                         result.append(str(wikidata_entry.id))
+                    
+                    if wikidata_entry.grave_of_wikidata:
+                        for grave_of_wikidata in wikidata_entry.grave_of_wikidata.split(';'):
+                            grave_of_wikidata_entry = WikidataEntry.objects.filter(id=grave_of_wikidata).first()
+                            if grave_of_wikidata_entry:
+                                relation_type = SuperLachaiseWikidataRelation.PERSON
+                                result.append(relation_type + u':' + str(grave_of_wikidata_entry.id))
         
         result.sort()
         return result
+    
+    def get_wikimedia_commons_category_id(self, openstreetmap_element, wikidata_fetched_entries):
+        wikimedia_commons_categories = []
+        if openstreetmap_element.wikimedia_commons:
+            wikimedia_commons = openstreetmap_element.wikimedia_commons.split('Category:')[-1]
+            if not wikimedia_commons in wikimedia_commons_categories:
+                wikimedia_commons_categories.append(wikimedia_commons)
+        for wikidata_fetched_entry in wikidata_fetched_entries:
+            wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+            if len(wikidata_fetched_entry.split(':')) == 0:
+                # No relation type
+                wikimedia_commons = wikidata_entry.wikimedia_commons_category
+                if wikimedia_commons:
+                    if not wikimedia_commons in wikimedia_commons_categories:
+                        wikimedia_commons_categories.append(wikimedia_commons)
+            elif wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                # Person relation
+                wikimedia_commons = wikidata_entry.wikimedia_commons_grave_category
+                if wikimedia_commons:
+                    if not wikimedia_commons in wikimedia_commons_categories:
+                        wikimedia_commons_categories.append(wikimedia_commons)
+        
+        if len(wikimedia_commons_categories) == 1:
+            wikimedia_commons_category = WikimediaCommonsCategory.objects.filter(id=wikimedia_commons_categories[0]).first()
+            if wikimedia_commons_category:
+                return wikimedia_commons_category.id
+            else:
+                return None
+        else:
+            return None
     
     def get_superlachaise_poi_wikidata_entries(self, superlachaise_poi):
         result = []
@@ -63,8 +101,11 @@ class Command(BaseCommand):
         return result
     
     def get_values_for_openstreetmap_element(self, openstreetmap_element):
+        wikidata_entries = self.get_wikidata_entries(openstreetmap_element)
+        
         result = {
-            'wikidata_entries': self.get_wikidata_entries(openstreetmap_element)
+            'wikidata_entries': wikidata_entries,
+            'wikimedia_commons_category_id': self.get_wikimedia_commons_category_id(openstreetmap_element, wikidata_entries),
         }
         
         return result
