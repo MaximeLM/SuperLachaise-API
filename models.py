@@ -138,6 +138,7 @@ class PendingModification(SuperLachaiseModel):
         ('WikidataEntry', _('wikidata entry')),
         ('WikimediaCommonsCategory', _('wikimedia commons category')),
         ('WikimediaCommonsFile', _('wikimedia commons file')),
+        ('SuperLachaisePOI', _('superlachaise POI')),
     )
     
     target_object_class = models.CharField(max_length=255, choices=target_object_class_choices, verbose_name=_('target object class'))
@@ -156,7 +157,10 @@ class PendingModification(SuperLachaiseModel):
     def target_object(self):
         """ Returns the target object """
         try:
-            result = self.target_model().objects.get(id=self.target_object_id)
+            if self.target_object_class == 'SuperLachaisePOI':
+                result = SuperLachaisePOI.objects.get(openstreetmap_element__id=self.target_object_id)
+            else:
+                result = self.target_model().objects.get(id=self.target_object_id)
         except:
             result = None
         return result
@@ -182,9 +186,14 @@ class PendingModification(SuperLachaiseModel):
             target_model = self.target_model()
             target_object = self.target_object()
             if not target_object:
-                target_object = target_model(id=self.target_object_id)
+                if self.target_object_class == 'SuperLachaisePOI':
+                    openstreetmap_element = OpenStreetMapElement.objects.get(id=self.target_object_id)
+                    target_object = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
+                else:
+                    target_object = target_model(id=self.target_object_id)
             
             localized_objects = {}
+            wikidata_entries = None
             
             # Set field values
             for original_field, original_value in json.loads(self.modified_fields).iteritems():
@@ -192,9 +201,12 @@ class PendingModification(SuperLachaiseModel):
                 object = target_object
                 field = original_field
                 
-                if ':' in field and self.target_object_class == 'WikidataEntry':
+                if ':' in field and self.target_object_class in ['WikidataEntry', 'SuperLachaisePOI']:
                     
-                    object_model = apps.get_model(self._meta.app_label, 'WikidataLocalizedEntry')
+                    if self.target_object_class == 'WikidataEntry':
+                        object_model = apps.get_model(self._meta.app_label, 'WikidataLocalizedEntry')
+                    elif self.target_object_class == 'SuperLachaisePOI':
+                        object_model = apps.get_model(self._meta.app_label, 'SuperLachaiseLocalizedPOI')
                     if not object_model or object_model == target_model:
                         raise BaseException
                     language = Language.objects.get(code=original_field.split(':')[0])
@@ -212,11 +224,18 @@ class PendingModification(SuperLachaiseModel):
                         continue
                     
                     if not object:
-                        object = object_model(wikidata_entry=target_object, language=language)
+                        if self.target_object_class == 'WikidataEntry':
+                            object = object_model(wikidata_entry=target_object, language=language)
+                        elif self.target_object_class == 'SuperLachaisePOI':
+                            object = object_model(superlachaise_poi=target_object, language=language)
                     
                     if not language.code in localized_objects:
                         localized_objects[language.code] = object
                     field = original_field.split(':')[1]
+                
+                if field == 'wikidata_entries' and self.target_object_class == 'SuperLachaisePOI':
+                    wikidata_entries = original_value
+                    continue
                 
                 if not field in object_model._meta.get_all_field_names():
                     raise BaseException
@@ -239,6 +258,37 @@ class PendingModification(SuperLachaiseModel):
             for language_code, localized_object in localized_objects.iteritems():
                 localized_object.full_clean()
                 localized_object.save()
+            
+            if wikidata_entries:
+                for wikidata_entry_relation in wikidata_entries:
+                    if len(wikidata_entry_relation.split(':')) == 2:
+                        relation_type = wikidata_entry_relation.split(':')[0]
+                    else:
+                        relation_type = u''
+                    wikidata_id = wikidata_entry_relation.split(':')[-1]
+                    wikidata_entry = WikidataEntry.objects.get(id=wikidata_id)
+                    if object.pk:
+                        wikidata_entry_relation = object.superlachaisewikidatarelation_set.filter(wikidata_entry_id=wikidata_id).first()
+                    else:
+                        wikidata_entry_relation = None
+                    if not wikidata_entry_relation:
+                        # Create relation
+                        wikidata_entry_relation = SuperLachaiseWikidataRelation(superlachaise_poi=object, wikidata_entry=wikidata_entry, relation_type=relation_type)
+                        wikidata_entry_relation.full_clean()
+                        wikidata_entry_relation.save()
+                    elif not wikidata_entry_relation.relation_type == relation_type:
+                        # Modify relation
+                        wikidata_entry_relation.relation_type = relation_type
+                        wikidata_entry_relation.full_clean()
+                        wikidata_entry_relation.save()
+                for wikidata_entry_relation in object.superlachaisewikidatarelation_set.all():
+                    if wikidata_entry_relation.relation_type:
+                        relation_str = wikidata_entry_relation.relation_type + u':' + str(wikidata_entry_relation.wikidata_entry_id)
+                    else:
+                        relation_str = str(wikidata_entry_relation.wikidata_entry_id)
+                    if not relation_str in original_value:
+                        # Delete relation
+                        wikidata_entry_relation.delete()
             
         elif self.action == self.DELETE:
             target_object = self.target_object()
@@ -444,12 +494,13 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     relation_type = models.CharField(max_length=255, blank=True, verbose_name=_('relation type'))
     
     def __unicode__(self):
-        if type:
+        if self.relation_type:
             return self.relation_type + u': ' + unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
         else:
             return unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
     
     class Meta:
+        unique_together = ('superlachaise_poi', 'wikidata_entry',)
         ordering = ['superlachaise_poi', 'relation_type', 'wikidata_entry']
         verbose_name = _('superlachaisepoi-wikidataentry relationship')
         verbose_name_plural = _('superlachaisepoi-wikidataentry relationships')

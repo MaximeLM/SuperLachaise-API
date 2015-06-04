@@ -55,6 +55,11 @@ class Command(BaseCommand):
         admin_command.description = _("Synchronize Wikimedia Commons files by querying the files listed in Wikimedia Commons categories")
         admin_command.save()
         
+        admin_command, created = AdminCommand.objects.get_or_create(name="sync_superlachaise_pois")
+        admin_command.dependency_order = 5
+        admin_command.description = _("Synchronize SuperLachaise POI by linking OpenStreetMap, Wikidata and Wikimedia Commons objects")
+        admin_command.save()
+        
         # Languages
         
         language, created = Language.objects.get_or_create(code="fr")
@@ -115,6 +120,11 @@ class Command(BaseCommand):
         setting, created = Setting.objects.get_or_create(category="Wikimedia Commons", key="thumbnail_width")
         setting.value = "350"
         setting.description = _("""The thumbnail width to request when syncing Wikimedia Commons files.""")
+        setting.save()
+        
+        setting, created = Setting.objects.get_or_create(category="SuperLachaise POI", key="auto_apply_modifications")
+        setting.value = "false"
+        setting.description = _("""If set to 'true', new modifications are applied immediately after being created. If set to 'false', a pending modification is created and must be manually accepted.""")
         setting.save()
                 
         translation.deactivate()
