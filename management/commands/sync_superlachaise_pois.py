@@ -98,12 +98,10 @@ class Command(BaseCommand):
         return result
     
     def get_categories(self, openstreetmap_element, wikidata_fetched_entries):
-        result = { }
+        properties = {}
         
         if openstreetmap_element.nature:
-            result[SuperLachaiseCategory.ELEMENT_NATURE] = [openstreetmap_element.nature]
-        else:
-            result[SuperLachaiseCategory.ELEMENT_NATURE] = []
+            properties[SuperLachaiseCategory.ELEMENT_NATURE] = [openstreetmap_element.nature]
         
         sex_or_gender = []
         for wikidata_fetched_entry in wikidata_fetched_entries:
@@ -112,18 +110,25 @@ class Command(BaseCommand):
                 # Person relation
                 if wikidata_entry.sex_or_gender and not wikidata_entry.sex_or_gender in sex_or_gender:
                     sex_or_gender.append(wikidata_entry.sex_or_gender)
-        result[SuperLachaiseCategory.SEX_OR_GENDER] = sex_or_gender
+        properties[SuperLachaiseCategory.SEX_OR_GENDER] = sex_or_gender
         
+        result = []
+        for key, values in properties.iteritems():
+            for value in values:
+                for category in SuperLachaiseCategory.objects.filter(key=key):
+                    if value in category.values.split(';') and not category.name in result:
+                        result.append(category.name)
+        
+        result.sort()
         return result
     
     def get_superlachaise_poi_categories(self, superlachaise_poi):
-        result = {
-            SuperLachaiseCategory.ELEMENT_NATURE: [],
-            SuperLachaiseCategory.SEX_OR_GENDER: [],
-        }
-        for category in superlachaise_poi.categories.filter(type__in=[SuperLachaiseCategory.ELEMENT_NATURE, SuperLachaiseCategory.SEX_OR_GENDER]):
-            result[category.type].append(category.code)
+        result = []
+        for category in superlachaise_poi.categories.all():
+            if not category.name in result:
+                result.append(category.name)
         
+        result.sort()
         return result
     
     def get_values_for_openstreetmap_element(self, openstreetmap_element):

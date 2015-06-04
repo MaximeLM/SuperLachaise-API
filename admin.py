@@ -674,7 +674,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
             url = reverse(reverse_path, args=(category.id,))
             result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(category))))
-        return ' ; '.join(result)
+        return ';'.join(result)
     categories_link.allow_tags = True
     categories_link.short_description = _('categories')
     categories_link.admin_order_field = 'categories'
@@ -714,13 +714,13 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('code', 'type', 'notes')
-    list_filter = ('type',)
-    search_fields = ('code', 'type', 'notes',)
+    list_display = ('name', 'key', 'values', 'notes')
+    list_filter = ('key',)
+    search_fields = ('name', 'key', 'values', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['code', 'type']}),
+        (None, {'fields': ['name', 'key', 'values']}),
     ]
     readonly_fields = ('created', 'modified')
     inlines = [

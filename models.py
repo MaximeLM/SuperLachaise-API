@@ -288,16 +288,15 @@ class PendingModification(SuperLachaiseModel):
                             wikidata_entry_relation.delete()
                 
                 if categories:
-                    for type, codes in categories.iteritems():
-                        for code in codes:
-                            category, created = SuperLachaiseCategory.objects.get_or_create(type=type, code=code)
-                            if not category in target_object.categories.all():
-                                # Create relation
-                                target_object.categories.add(category.id)
-                    for category in target_object.categories.filter(type__in=[SuperLachaiseCategory.ELEMENT_NATURE, SuperLachaiseCategory.SEX_OR_GENDER]):
-                        if not category.code in categories[category.type]:
-                            # Delete relation
-                            target_object.categories.remove(category.id)
+                    for category_name in categories:
+                        category = SuperLachaiseCategory.objects.get(name=category_name)
+                        if not category in target_object.categories.all():
+                            # Create relation
+                            target_object.categories.add(category.id)
+                        for category in target_object.categories.all():
+                            if not category.name in categories:
+                                # Delete relation
+                                target_object.categories.remove(category.id)
             
             elif self.action == self.DELETE:
                 target_object = self.target_object()
@@ -493,17 +492,17 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
 class SuperLachaiseCategory(SuperLachaiseModel):
     """ A category for Super Lachaise POIs """
     
-    ELEMENT_NATURE = u'element_nature'
-    SEX_OR_GENDER = u'sex_or_gender'
+    ELEMENT_NATURE = u'osm_element:nature'
+    SEX_OR_GENDER = u'wikidata_entry:sex_or_gender'
     
-    code = models.CharField(max_length=255, verbose_name=_('code'))
-    type = models.CharField(max_length=255, verbose_name=_('type'))
+    name = models.CharField(max_length=255, unique=True, verbose_name=_('name'))
+    key = models.CharField(max_length=255, verbose_name=_('key'))
+    values = models.CharField(max_length=255, verbose_name=_('codes'))
     
     def __unicode__(self):
-        return self.type + u':' + self.code
+        return self.name
     
     class Meta:
-        unique_together = ('type', 'code',)
         verbose_name = _('superlachaise category')
         verbose_name_plural = _('superlachaise categories')
 
