@@ -282,6 +282,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
     type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
     sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
+    nature = models.CharField(max_length=255, blank=True, verbose_name=_('nature'))
     latitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('latitude'))
     longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
@@ -311,6 +312,7 @@ class WikidataEntry(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
+    sex_or_gender = models.CharField(max_length=255, blank=True, verbose_name=_('sex or gender'))
     wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
     wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
     grave_of_wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('grave_of:wikidata'))

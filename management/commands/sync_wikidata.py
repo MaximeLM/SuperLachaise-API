@@ -243,6 +243,18 @@ class Command(BaseCommand):
         except:
             return []
     
+    def get_sex_or_gender(self, entity):
+        try:
+            p31 = entity['claims']['P21']
+            
+            result = []
+            if len(p31) == 1:
+                result = 'Q' + str(p31[0]['mainsnak']['datavalue']['value']['numeric-id'])
+            
+            return result
+        except:
+            return []
+    
     def get_wikimedia_commons_category(self, entity):
         try:
             # Use P373
@@ -370,11 +382,13 @@ class Command(BaseCommand):
             result['burial_plot_reference'] = self.get_person_burial_plot_reference(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = self.get_date(entity, 'P569')
             result['date_of_death'], result['date_of_death_accuracy'] = self.get_date(entity, 'P570')
+            result['sex_or_gender'] = self.get_sex_or_gender(entity)
         else:
             result['wikimedia_commons_grave_category'] = u''
             result['burial_plot_reference'] = self.get_burial_plot_reference(entity)
             result['date_of_birth'], result['date_of_birth_accuracy'] = (None, u'')
             result['date_of_death'], result['date_of_death_accuracy'] = (None, u'')
+            result['sex_or_gender'] = u''
         
         if 'Q173387' in instance_of:
             # tomb

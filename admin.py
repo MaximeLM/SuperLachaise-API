@@ -172,12 +172,13 @@ class SettingAdmin(admin.ModelAdmin):
 
 @admin.register(OpenStreetMapElement)
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('sorted_name', 'openstreetmap_link', 'type', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
-    search_fields = ('name', 'id', 'type', 'wikidata', 'wikipedia', 'wikimedia_commons', 'notes',)
+    list_display = ('sorted_name', 'openstreetmap_link', 'type', 'nature', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
+    list_filter = ('type', 'nature',)
+    search_fields = ('name', 'id', 'wikidata', 'wikipedia', 'wikimedia_commons', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['name', 'sorting_name', 'id', 'type', 'latitude', 'longitude', 'wikipedia', 'wikipedia_link', 'wikidata', 'wikidata_link', 'wikidata_combined', 'wikidata_combined_link', 'wikimedia_commons', 'wikimedia_commons_link']}),
+        (None, {'fields': ['name', 'sorting_name', 'id', 'type', 'nature', 'latitude', 'longitude', 'wikipedia', 'wikipedia_link', 'wikidata', 'wikidata_link', 'wikidata_combined', 'wikidata_combined_link', 'wikimedia_commons', 'wikimedia_commons_link']}),
     ]
     readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link')
     
@@ -265,14 +266,14 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
 
 @admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
-    search_fields = ('localizations__name', 'id', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
+    list_display = ('__unicode__', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    search_fields = ('localizations__name', 'id', 'instance_of', 'sex_or_gender', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikidata_link', 'instance_of', 'instance_of_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+        (None, {'fields': ['id', 'wikidata_link', 'instance_of', 'instance_of_link', 'sex_or_gender', 'sex_or_gender_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
+    readonly_fields = ('sex_or_gender_link', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
     
     inlines = [
         WikidataLocalizedEntryInline,
@@ -299,6 +300,16 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     instance_of_link.allow_tags = True
     instance_of_link.short_description = _('instance of')
     instance_of_link.admin_order_field = 'instance_of'
+    
+    def sex_or_gender_link(self, obj):
+        if obj.sex_or_gender:
+            language = translation.get_language().split("-", 1)[0]
+            
+            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.sex_or_gender), language=language)
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.sex_or_gender)))
+    sex_or_gender_link.allow_tags = True
+    sex_or_gender_link.short_description = _('sex or gender')
+    sex_or_gender_link.admin_order_field = 'sex_or_gender'
     
     def wikimedia_commons_category_link(self, obj):
         if obj.wikimedia_commons_category:

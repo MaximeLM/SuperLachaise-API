@@ -142,6 +142,9 @@ class Command(BaseCommand):
         
         return ';'.join(result)
     
+    def get_nature(self, overpass_element):
+        return overpass_element.tags.get("historic")
+    
     def get_values_from_element(self, overpass_element, coordinate):
         result = {
             'type': overpass_element.__class__.__name__.lower(),
@@ -153,6 +156,8 @@ class Command(BaseCommand):
             'wikidata': none_to_blank(self.get_wiki_values(overpass_element, 'wikidata')),
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
         }
+        
+        result['nature'] = self.get_nature(overpass_element)
         
         # Get combined wikidata field
         wikidata_combined = []
