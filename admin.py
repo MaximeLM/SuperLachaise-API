@@ -133,8 +133,6 @@ class PendingModificationAdmin(admin.ModelAdmin):
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
             url = reverse(reverse_path, args=(obj.target_object().id,))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
-        else:
-            return _('None')
     target_object_link.allow_tags = True
     target_object_link.short_description = _('target object link')
     
@@ -266,18 +264,34 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
 
 @admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    list_display = ('name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
     search_fields = ('localizations__name', 'id', 'instance_of', 'sex_or_gender', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['id', 'wikidata_link', 'instance_of', 'instance_of_link', 'sex_or_gender', 'sex_or_gender_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('sex_or_gender_link', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
+    readonly_fields = ('name', 'sex_or_gender_link', 'wikidata_link', 'instance_of_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
     
     inlines = [
         WikidataLocalizedEntryInline,
     ]
+    
+    def name(self, obj):
+        names = {}
+        for wikidata_localized_entry in obj.localizations.all():
+            if not wikidata_localized_entry.name in names:
+                names[wikidata_localized_entry.name] = []
+            names[wikidata_localized_entry.name].append(wikidata_localized_entry.language.code)
+        
+        if len(names) > 0:
+            result = []
+            for name, languages in names.iteritems():
+                result.append('(%s)%s' % (','.join(languages), name))
+            return '; '.join(result)
+        
+        return obj.id
+    name.short_description = _('name')
     
     def wikidata_link(self, obj):
         if obj.id:
@@ -564,8 +578,25 @@ class SuperLachaiseWikidataRelationInline(admin.StackedInline):
     extra = 0
     
     fieldsets = [
-        (None, {'fields': ['wikidata_entry', 'relation_type']}),
+        (None, {'fields': ['wikidata_entry', 'name', 'relation_type']}),
     ]
+    readonly_fields = ('name',)
+    
+    def name(self, obj):
+        names = {}
+        for wikidata_localized_entry in obj.wikidata_entry.localizations.all():
+            if not wikidata_localized_entry.name in names:
+                names[wikidata_localized_entry.name] = []
+            names[wikidata_localized_entry.name].append(wikidata_localized_entry.language.code)
+        
+        if len(names) > 0:
+            result = []
+            for name, languages in names.iteritems():
+                result.append('(%s)%s' % (','.join(languages), name))
+            return '; '.join(result)
+        
+        return obj.wikidata_entry.id
+    name.short_description = _('name')
     
     verbose_name = "wikidata entry"
     verbose_name_plural = "wikidata entries"
@@ -580,19 +611,47 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'notes')
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'notes')
     search_fields = ('notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories', 'categories_text']}),
     ]
-    readonly_fields = ('categories_text', 'created', 'modified')
+    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'categories_text', 'created', 'modified')
     
     inlines = [
         SuperLachaiseLocalizedPOIInline,
         SuperLachaiseWikidataRelationInline,
     ]
+    
+    def openstreetmap_element_link(self, obj):
+        if obj.openstreetmap_element:
+            app_name = obj._meta.app_label
+            reverse_name = obj.openstreetmap_element.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(obj.openstreetmap_element.id,))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.openstreetmap_element)))
+    openstreetmap_element_link.allow_tags = True
+    openstreetmap_element_link.short_description = _('openstreetmap element')
+    openstreetmap_element_link.admin_order_field = 'openstreetmap_element'
+    
+    def wikidata_entries_link(self, obj):
+        result = []
+        for wikidata_entry_relation in obj.superlachaisewikidatarelation_set.all():
+            app_name = obj._meta.app_label
+            reverse_name = 'wikidataentry'
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(wikidata_entry_relation.wikidata_entry_id,))
+            if wikidata_entry_relation.relation_type:
+                text = wikidata_entry_relation.relation_type + u':' + wikidata_entry_relation.wikidata_entry_id
+            else:
+                text = wikidata_entry_relation.wikidata_entry_id
+            result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, text)))
+        return ';'.join(result)
+    wikidata_entries_link.allow_tags = True
+    wikidata_entries_link.short_description = _('wikidata entries')
+    wikidata_entries_link.admin_order_field = 'wikidata_entries'
     
     def categories_text(self, obj):
         result = []

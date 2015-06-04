@@ -373,18 +373,6 @@ class WikidataEntry(SuperLachaiseModel):
     burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
     
     def __unicode__(self):
-        names = {}
-        for wikidata_localized_entry in self.localizations.all():
-            if not wikidata_localized_entry.name in names:
-                names[wikidata_localized_entry.name] = []
-            names[wikidata_localized_entry.name].append(wikidata_localized_entry.language.code)
-        
-        if len(names) > 0:
-            result = []
-            for name, languages in names.iteritems():
-                result.append('(%s)%s' % (','.join(languages), name))
-            return '; '.join(result)
-        
         return self.id
     
     class Meta:
