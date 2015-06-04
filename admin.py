@@ -604,14 +604,14 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'notes')
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'notes')
     search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories', 'categories_text']}),
+        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories', 'categories_link']}),
     ]
-    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_text', 'created', 'modified')
+    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'created', 'modified')
     
     inlines = [
         SuperLachaiseLocalizedPOIInline,
@@ -666,13 +666,18 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
     
-    def categories_text(self, obj):
+    def categories_link(self, obj):
         result = []
         for category in obj.categories.all():
-            result.append(unicode(category))
+            app_name = obj._meta.app_label
+            reverse_name = category.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(category.id,))
+            result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(category))))
         return ' ; '.join(result)
-    categories_text.short_description = _('categories')
-    categories_text.admin_order_field = 'categories'
+    categories_link.allow_tags = True
+    categories_link.short_description = _('categories')
+    categories_link.admin_order_field = 'categories'
     
     def sync_page(self, request, queryset):
         openstreetmap_element_ids = []

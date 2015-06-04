@@ -129,25 +129,7 @@ class Command(BaseCommand):
         
         # Categories
         
-        category, created = SuperLachaiseCategory.objects.get_or_create(type="sex_or_gender", code="Q6581097")
-        category.save()
-        
-        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Hommes')
-        category.save()
-        
-        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Men')
-        category.save()
-        
-        category, created = SuperLachaiseCategory.objects.get_or_create(type="sex_or_gender", code="Q6581072")
-        category.save()
-        
-        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Femmes')
-        category.save()
-        
-        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Women')
-        category.save()
-        
-        category, created = SuperLachaiseCategory.objects.get_or_create(type="element_nature", code="tomb")
+        category, created = SuperLachaiseCategory.objects.get_or_create(type=SuperLachaiseCategory.ELEMENT_NATURE, code="tomb")
         category.save()
         
         localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Tombes')
@@ -156,13 +138,31 @@ class Command(BaseCommand):
         localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Tombs')
         category.save()
         
-        category, created = SuperLachaiseCategory.objects.get_or_create(type="element_nature", code="memorial")
+        category, created = SuperLachaiseCategory.objects.get_or_create(type=SuperLachaiseCategory.ELEMENT_NATURE, code="memorial")
         category.save()
         
         localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Mémoriaux')
         category.save()
         
         localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Memorials')
+        category.save()
+        
+        category, created = SuperLachaiseCategory.objects.get_or_create(type=SuperLachaiseCategory.SEX_OR_GENDER, code="Q6581097")
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Hommes')
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Men')
+        category.save()
+        
+        category, created = SuperLachaiseCategory.objects.get_or_create(type=SuperLachaiseCategory.SEX_OR_GENDER, code="Q6581072")
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_fr, superlachaise_category=category, name=u'Femmes')
+        category.save()
+        
+        localized_category, created = SuperLachaiseLocalizedCategory.objects.get_or_create(language=language_en, superlachaise_category=category, name=u'Women')
         category.save()
                 
         translation.deactivate()

@@ -195,6 +195,7 @@ class PendingModification(SuperLachaiseModel):
             
                 localized_objects = {}
                 wikidata_entries = None
+                categories = None
             
                 # Set field values
                 for original_field, original_value in json.loads(self.modified_fields).iteritems():
@@ -237,6 +238,10 @@ class PendingModification(SuperLachaiseModel):
                     if field == 'wikidata_entries' and self.target_object_class == 'SuperLachaisePOI':
                         wikidata_entries = original_value
                         continue
+                    
+                    if field == 'categories' and self.target_object_class == 'SuperLachaisePOI':
+                        categories = original_value
+                        continue
                 
                     if not field in object_model._meta.get_all_field_names():
                         raise BaseException
@@ -265,13 +270,10 @@ class PendingModification(SuperLachaiseModel):
                         relation_type = wikidata_entry_relation.split(':')[0]
                         wikidata_id = wikidata_entry_relation.split(':')[-1]
                         wikidata_entry = WikidataEntry.objects.get(id=wikidata_id)
-                        if object.pk:
-                            wikidata_entry_relation = object.superlachaisewikidatarelation_set.filter(wikidata_entry_id=wikidata_id, relation_type=relation_type).first()
-                        else:
-                            wikidata_entry_relation = None
+                        wikidata_entry_relation = target_object.superlachaisewikidatarelation_set.filter(wikidata_entry_id=wikidata_id, relation_type=relation_type).first()
                         if not wikidata_entry_relation:
                             # Create relation
-                            wikidata_entry_relation = SuperLachaiseWikidataRelation(superlachaise_poi=object, wikidata_entry=wikidata_entry, relation_type=relation_type)
+                            wikidata_entry_relation = SuperLachaiseWikidataRelation(superlachaise_poi=target_object, wikidata_entry=wikidata_entry, relation_type=relation_type)
                             wikidata_entry_relation.full_clean()
                             wikidata_entry_relation.save()
                         elif not wikidata_entry_relation.relation_type == relation_type:
@@ -279,11 +281,23 @@ class PendingModification(SuperLachaiseModel):
                             wikidata_entry_relation.relation_type = relation_type
                             wikidata_entry_relation.full_clean()
                             wikidata_entry_relation.save()
-                    for wikidata_entry_relation in object.superlachaisewikidatarelation_set.all():
+                    for wikidata_entry_relation in target_object.superlachaisewikidatarelation_set.all():
                         relation_str = wikidata_entry_relation.relation_type + u':' + str(wikidata_entry_relation.wikidata_entry_id)
                         if not original_value or not relation_str in original_value:
                             # Delete relation
                             wikidata_entry_relation.delete()
+                
+                if categories:
+                    for type, codes in categories.iteritems():
+                        for code in codes:
+                            category, created = SuperLachaiseCategory.objects.get_or_create(type=type, code=code)
+                            if not category in target_object.categories.all():
+                                # Create relation
+                                target_object.categories.add(category.id)
+                    for category in target_object.categories.filter(type__in=[SuperLachaiseCategory.ELEMENT_NATURE, SuperLachaiseCategory.SEX_OR_GENDER]):
+                        if not category.code in categories[category.type]:
+                            # Delete relation
+                            target_object.categories.remove(category.id)
             
             elif self.action == self.DELETE:
                 target_object = self.target_object()
@@ -291,10 +305,10 @@ class PendingModification(SuperLachaiseModel):
                     target_object.delete()
             else:
                 raise BaseException
+            
+            self.delete()
         except:
             traceback.print_exc()
-        
-        self.delete()
 
 class Setting(SuperLachaiseModel):
     """ A custom setting """
@@ -479,11 +493,14 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
 class SuperLachaiseCategory(SuperLachaiseModel):
     """ A category for Super Lachaise POIs """
     
+    ELEMENT_NATURE = u'element_nature'
+    SEX_OR_GENDER = u'sex_or_gender'
+    
     code = models.CharField(max_length=255, verbose_name=_('code'))
     type = models.CharField(max_length=255, verbose_name=_('type'))
     
     def __unicode__(self):
-        return self.type + u' - ' + self.code
+        return self.type + u':' + self.code
     
     class Meta:
         unique_together = ('type', 'code',)

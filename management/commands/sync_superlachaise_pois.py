@@ -64,13 +64,7 @@ class Command(BaseCommand):
                 wikimedia_commons_categories.append(wikimedia_commons)
         for wikidata_fetched_entry in wikidata_fetched_entries:
             wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
-            if len(wikidata_fetched_entry.split(':')) == 0:
-                # No relation type
-                wikimedia_commons = wikidata_entry.wikimedia_commons_category
-                if wikimedia_commons:
-                    if not wikimedia_commons in wikimedia_commons_categories:
-                        wikimedia_commons_categories.append(wikimedia_commons)
-            elif wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                 # Person relation
                 wikimedia_commons = wikidata_entry.wikimedia_commons_grave_category
                 if wikimedia_commons:
@@ -103,15 +97,46 @@ class Command(BaseCommand):
         result.sort()
         return result
     
+    def get_categories(self, openstreetmap_element, wikidata_fetched_entries):
+        result = { }
+        
+        if openstreetmap_element.nature:
+            result[SuperLachaiseCategory.ELEMENT_NATURE] = [openstreetmap_element.nature]
+        else:
+            result[SuperLachaiseCategory.ELEMENT_NATURE] = []
+        
+        sex_or_gender = []
+        for wikidata_fetched_entry in wikidata_fetched_entries:
+            wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                # Person relation
+                if wikidata_entry.sex_or_gender:
+                    sex_or_gender.append(wikidata_entry.sex_or_gender)
+        result[SuperLachaiseCategory.SEX_OR_GENDER] = sex_or_gender
+        
+        return result
+    
+    def get_superlachaise_poi_categories(self, superlachaise_poi):
+        result = {
+            SuperLachaiseCategory.ELEMENT_NATURE: [],
+            SuperLachaiseCategory.SEX_OR_GENDER: [],
+        }
+        for category in superlachaise_poi.categories.filter(type__in=[SuperLachaiseCategory.ELEMENT_NATURE, SuperLachaiseCategory.SEX_OR_GENDER]):
+            result[category.type].append(category.code)
+        
+        return result
+    
     def get_values_for_openstreetmap_element(self, openstreetmap_element):
         wikidata_entries = self.get_wikidata_entries(openstreetmap_element)
         wikimedia_commons_category = self.get_wikimedia_commons_category(openstreetmap_element, wikidata_entries)
         main_image = self.get_main_image(wikimedia_commons_category)
+        categories = self.get_categories(openstreetmap_element, wikidata_entries)
         
         result = {
             'wikidata_entries': wikidata_entries,
             'wikimedia_commons_category_id': wikimedia_commons_category.id if wikimedia_commons_category else None,
             'main_image_id': main_image.id if main_image else None,
+            'categories': categories,
         }
         
         return result
@@ -153,6 +178,10 @@ class Command(BaseCommand):
                 if field == 'wikidata_entries':
                     superlachaise_poi_wikidata_entries = self.get_superlachaise_poi_wikidata_entries(superlachaise_poi)
                     if value != superlachaise_poi_wikidata_entries:
+                        modified_values[field] = value
+                elif field == 'categories':
+                    superlachaise_poi_categories = self.get_superlachaise_poi_categories(superlachaise_poi)
+                    if value != superlachaise_poi_categories:
                         modified_values[field] = value
                 else:
                     if value != getattr(superlachaise_poi, field):
