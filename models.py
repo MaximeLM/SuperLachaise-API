@@ -405,7 +405,7 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         return unicode(self.language) + u':' + self.name
     
     class Meta:
-        ordering = ['name', 'language']
+        ordering = ['language', 'name']
         verbose_name = _('wikidata localized entry')
         verbose_name_plural = _('wikidata localized entries')
         unique_together = ('wikidata_entry', 'language',)
@@ -467,7 +467,7 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
         return self.name
     
     class Meta:
-        ordering = ['name']
+        ordering = ['language', 'name']
         verbose_name = _('superlachaise localized POI')
         verbose_name_plural = _('superlachaise localized POIs')
 
@@ -521,7 +521,7 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
         return unicode(self.language) + u':' + self.name
     
     class Meta:
-        ordering = ['name', 'language']
+        ordering = ['language', 'name']
         verbose_name = _('superlachaise localized category')
         verbose_name_plural = _('superlachaise localized categories')
 
