@@ -126,7 +126,6 @@ class Setting(SuperLachaiseModel):
     
     key = models.CharField(primary_key=True, max_length=255, verbose_name=_('key'))
     value = models.CharField(max_length=255, blank=True, verbose_name=_('value'))
-    description = models.TextField(blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
         return self.key

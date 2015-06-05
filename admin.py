@@ -116,12 +116,12 @@ class LanguageAdmin(admin.ModelAdmin):
 
 @admin.register(Setting)
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('key', 'value', 'description', 'notes')
-    search_fields = ('key', 'value', 'description', 'notes',)
+    list_display = ('key', 'value', 'notes')
+    search_fields = ('key', 'value', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['key', 'value', 'description']}),
+        (None, {'fields': ['key', 'value']}),
     ]
     readonly_fields = ('created', 'modified')
     
