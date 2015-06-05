@@ -283,7 +283,7 @@ class PendingModification(SuperLachaiseModel):
                             wikidata_entry_relation.save()
                     for wikidata_entry_relation in target_object.superlachaisewikidatarelation_set.all():
                         relation_str = wikidata_entry_relation.relation_type + u':' + str(wikidata_entry_relation.wikidata_entry_id)
-                        if not original_value or not relation_str in original_value:
+                        if not wikidata_entries or not relation_str in wikidata_entries:
                             # Delete relation
                             wikidata_entry_relation.delete()
                 
@@ -528,8 +528,9 @@ class SuperLachaiseOccupation(SuperLachaiseModel):
     """ Associate a person's occupation to a category """
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'key': SuperLachaiseCategory.OCCUPATION}, related_name='occupations', verbose_name=_('superlachaise category'))
-    used_in_wikidata_entries = models.IntegerField(default=0, verbose_name=_('used in wikidata entries'))
+    used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='superlachaise_occupations', verbose_name=_('used in'))
     
     def __unicode__(self):
         return self.id

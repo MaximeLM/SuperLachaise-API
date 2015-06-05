@@ -627,6 +627,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
         (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories', 'categories_link']}),
     ]
     readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'created', 'modified')
+    filter_horizontal = ('categories',)
     
     inlines = [
         SuperLachaiseLocalizedPOIInline,
@@ -758,16 +759,17 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(SuperLachaiseOccupation)
 class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'wikidata_link', 'superlachaise_category', 'used_in_wikidata_entries', 'notes')
+    list_display = ('id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in_link', 'notes')
     list_filter = ('superlachaise_category',)
     list_editable = ('superlachaise_category',)
-    search_fields = ('id', 'superlachaise_category__name', 'notes',)
+    search_fields = ('id', 'name', 'superlachaise_category__name', 'used_in__id', 'used_in__localizations__name', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikidata_link', 'superlachaise_category', 'used_in_wikidata_entries']}),
+        (None, {'fields': ['id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in']}),
     ]
-    readonly_fields = ('wikidata_link', 'created', 'modified')
+    filter_horizontal = ('used_in',)
+    readonly_fields = ('wikidata_link', 'used_in_link', 'created', 'modified')
     
     def wikidata_link(self, obj):
         if obj.id:
@@ -777,3 +779,20 @@ class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'id'
+    
+    def used_in_count(self, obj):
+        return obj.used_in.count()
+    used_in_count.short_description = _('used in count')
+    
+    def used_in_link(self, obj):
+        result = []
+        for wikidata_entry in obj.used_in.all():
+            app_name = obj._meta.app_label
+            reverse_name = wikidata_entry.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(wikidata_entry.id,))
+            result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(wikidata_entry))))
+        return ';'.join(result)
+    used_in_link.allow_tags = True
+    used_in_link.short_description = _('used in')
+    used_in_link.admin_order_field = 'used_in'

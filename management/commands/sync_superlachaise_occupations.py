@@ -31,16 +31,18 @@ from superlachaise_api.models import *
 class Command(BaseCommand):
     
     def sync_superlachaise_occupations(self):
-        SuperLachaiseOccupation.objects.all().update(used_in_wikidata_entries=0)
-        
         for wikidata_entry in WikidataEntry.objects.all():
             if wikidata_entry.occupations:
                 for occupation in wikidata_entry.occupations.split(';'):
                     superlachaise_occupation, created = SuperLachaiseOccupation.objects.get_or_create(id=occupation)
                     if created:
                         self.created_objects += 1
-                    superlachaise_occupation.used_in_wikidata_entries = superlachaise_occupation.used_in_wikidata_entries + 1
                     superlachaise_occupation.save()
+                    if not superlachaise_occupation in wikidata_entry.superlachaise_occupations.all():
+                        wikidata_entry.superlachaise_occupations.add(superlachaise_occupation.id)
+                for superlachaise_occupation in wikidata_entry.superlachaise_occupations.all():
+                    if not superlachaise_occupation.id in wikidata_entry.occupations.split(';'):
+                        wikidata_entry.superlachaise_occupations.remove(superlachaise_occupation.id)
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
