@@ -34,12 +34,12 @@ from superlachaise_api.models import *
 
 @admin.register(AdminCommand)
 class AdminCommandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dependency_order', 'last_executed', 'last_result', 'description', 'notes')
-    search_fields = ('name', 'last_result', 'description', 'notes',)
+    list_display = ('name', 'dependency_order', 'last_executed', 'last_result', 'notes')
+    search_fields = ('name', 'last_result', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['name', 'dependency_order', 'last_executed', 'last_result', 'description']}),
+        (None, {'fields': ['name', 'dependency_order', 'last_executed', 'last_result']}),
     ]
     readonly_fields = ('last_executed', 'last_result', 'created', 'modified')
     
