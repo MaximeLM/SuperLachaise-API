@@ -75,7 +75,7 @@ class WikipediaIntroHTMLParser(HTMLParser):
                         return False
             if opened_tag['tag'] == 'span':
                 for attr in opened_tag['attrs']:
-                    if attr[0] == 'id' or (attr[0] == 'class' and attr[1] == 'noprint'):
+                    if attr[0] == 'id' or (attr[0] == 'class' and attr[1] in ['noprint', 'unicode haudio']):
                         return False
             if opened_tag['tag'] == 'small':
                 for attr in opened_tag['attrs']:
@@ -355,9 +355,9 @@ class Command(BaseCommand):
                         result.append('Q' + str(p642['datavalue']['value']['numeric-id']))
                     break
             
-            return ';'.join(result)
+            return result
         except:
-            return u''
+            return None
     
     def get_person_burial_plot_reference(self, entity):
         try:
@@ -373,6 +373,14 @@ class Command(BaseCommand):
             return u''
     
     def get_burial_plot_reference(self, entity):
+        try:
+            p965 = entity['claims']['P965']
+            
+            return p965[0]['mainsnak']['datavalue']['value']
+        except:
+            return u''
+    
+    def get_field_of_profession(self, entity):
         try:
             p965 = entity['claims']['P965']
             
@@ -406,7 +414,14 @@ class Command(BaseCommand):
         
         if 'Q173387' in instance_of:
             # tomb
-            result['grave_of_wikidata'] = self.get_grave_of_wikidata(entity)
+            grave_of_wikidata = self.get_grave_of_wikidata(entity)
+            if grave_of_wikidata:
+                for grave_of in grave_of_wikidata:
+                    if not grave_of in self.wikidata_codes and not grave_of in self.grave_of_wikidata_codes:
+                        self.grave_of_wikidata_codes.append(grave_of)
+                result['grave_of_wikidata'] = ';'.join(grave_of_wikidata)
+            else:
+                result['grave_of_wikidata'] = u''
         else:
             result['grave_of_wikidata'] = u''
         
@@ -428,98 +443,113 @@ class Command(BaseCommand):
         
         return None
     
+    def handle_entity(self, code, entity):
+        # Get element in database if it exists
+        wikidata_entry = WikidataEntry.objects.filter(id=code).first()
+        
+        if not wikidata_entry:
+            # Creation
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=code)
+            
+            values_dict = self.get_values_from_entity(entity)
+            for language in Language.objects.all():
+                localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
+                if localized_values_dict:
+                    values_dict.update(localized_values_dict)
+            
+            pendingModification.action = PendingModification.CREATE
+            pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)
+            
+            pendingModification.full_clean()
+            pendingModification.save()
+            self.created_objects = self.created_objects + 1
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
+        else:
+            # Search for modifications
+            modified_values = {}
+            
+            values_dict = self.get_values_from_entity(entity)
+            for field, value in values_dict.iteritems():
+                if value != getattr(wikidata_entry, field):
+                    modified_values[field] = value
+            
+            for language in Language.objects.all():
+                values_dict = self.get_localized_values_from_entity(entity, language.code)
+                wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
+                
+                if values_dict:
+                    if not wikidata_localized_entry:
+                        modified_values.update(values_dict)
+                    else:
+                        for field, value in values_dict.iteritems():
+                            if value != getattr(wikidata_localized_entry, field.split(':')[1]):
+                                modified_values[field] = value
+                else:
+                    if wikidata_localized_entry:
+                        modified_values[language.code + u':'] = None
+            
+            if modified_values:
+                # Get or create a modification
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=code)
+                pendingModification.modified_fields = json.dumps(modified_values, default=date_handler)
+                pendingModification.action = PendingModification.MODIFY
+            
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.modified_objects = self.modified_objects + 1
+            
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+            else:
+                # Delete the previous modification if any
+                pendingModification = PendingModification.objects.filter(target_object_class="WikidataEntry", target_object_id=code).first()
+                if pendingModification:
+                    pendingModification.delete()
+    
     def sync_wikidata(self, wikidata_ids):
-        wikidata_codes = []
+        self.wikidata_codes = []
         
         # List wikidata codes and/or wikipedia titles in openstreetmap objects
         if wikidata_ids:
-            wikidata_codes = wikidata_ids.split('|')
+            self.wikidata_codes = wikidata_ids.split('|')
         else:
             for openstreetmap_element in OpenStreetMapElement.objects.all():
                 if openstreetmap_element.wikidata_combined:
                     for wikidata in openstreetmap_element.wikidata_combined.split(';'):
                         link = wikidata.split(':')[-1]
-                        if not link in wikidata_codes:
-                            wikidata_codes.append(link)
+                        if not link in self.wikidata_codes:
+                            self.wikidata_codes.append(link)
             for wikidata_entry in WikidataEntry.objects.all():
                 if wikidata_entry.grave_of_wikidata:
                     for link in wikidata_entry.grave_of_wikidata.split(';'):
-                        if not link in wikidata_codes:
-                            wikidata_codes.append(link)
+                        if not link in self.wikidata_codes:
+                            self.wikidata_codes.append(link)
         
         # Request wikidata entities
         entities = {}
-        if wikidata_codes:
-            entities.update(self.request_wikidata(wikidata_codes))
+        if self.wikidata_codes:
+            entities.update(self.request_wikidata(self.wikidata_codes))
         
         count = len(entities)
+        self.grave_of_wikidata_codes = []
         for code, entity in entities.iteritems():
             print str(count) + u'-' + code
             count -= 1
-            
-            # Get element in database if it exists
-            wikidata_entry = WikidataEntry.objects.filter(id=code).first()
-            
-            if not wikidata_entry:
-                # Creation
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=code)
-                
-                values_dict = self.get_values_from_entity(entity)
-                for language in Language.objects.all():
-                    localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
-                    if localized_values_dict:
-                        values_dict.update(localized_values_dict)
-                
-                pendingModification.action = PendingModification.CREATE
-                pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)
-                
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.created_objects = self.created_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
-            else:
-                # Search for modifications
-                modified_values = {}
-                
-                values_dict = self.get_values_from_entity(entity)
-                for field, value in values_dict.iteritems():
-                    if value != getattr(wikidata_entry, field):
-                        modified_values[field] = value
-                
-                for language in Language.objects.all():
-                    values_dict = self.get_localized_values_from_entity(entity, language.code)
-                    wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
-                    
-                    if values_dict:
-                        if not wikidata_localized_entry:
-                            modified_values.update(values_dict)
-                        else:
-                            for field, value in values_dict.iteritems():
-                                if value != getattr(wikidata_localized_entry, field.split(':')[1]):
-                                    modified_values[field] = value
-                    else:
-                        if wikidata_localized_entry:
-                            modified_values[language.code + u':'] = None
-                
-                if modified_values:
-                    # Get or create a modification
-                    pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=code)
-                    pendingModification.modified_fields = json.dumps(modified_values, default=date_handler)
-                    pendingModification.action = PendingModification.MODIFY
-                
-                    pendingModification.full_clean()
-                    pendingModification.save()
-                    self.modified_objects = self.modified_objects + 1
-                
-                    if self.auto_apply:
-                        pendingModification.apply_modification()
-                else:
-                    # Delete the previous modification if any
-                    pendingModification = PendingModification.objects.filter(target_object_class="WikidataEntry", target_object_id=code).first()
-                    if pendingModification:
-                        pendingModification.delete()
+            self.handle_entity(code, entity)
+        
+        # Request grave of entities
+        grave_of_entities = {}
+        if self.grave_of_wikidata_codes:
+            grave_of_entities.update(self.request_wikidata(self.grave_of_wikidata_codes))
+            entities.update(grave_of_entities)
+        
+        count = len(grave_of_entities)
+        for code, entity in grave_of_entities.iteritems():
+            print u'grave-' + str(count) + u'-' + code
+            count -= 1
+            self.handle_entity(code, entity)
         
         if not wikidata_ids:
             # Delete pending creations if element was deleted in Wikidata

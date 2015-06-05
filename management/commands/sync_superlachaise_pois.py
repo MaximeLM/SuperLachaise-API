@@ -102,11 +102,17 @@ class Command(BaseCommand):
         
         if openstreetmap_element.nature:
             properties[SuperLachaiseCategory.ELEMENT_NATURE] = [openstreetmap_element.nature]
+            if openstreetmap_element.nature == u'tomb':
+                if not SuperLachaiseCategory.OCCUPATION in properties:
+                    properties[SuperLachaiseCategory.OCCUPATION] = []
         
         for wikidata_fetched_entry in wikidata_fetched_entries:
             wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
             if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                 # Person relation
+                if not SuperLachaiseCategory.OCCUPATION in properties:
+                    properties[SuperLachaiseCategory.OCCUPATION] = []
+                
                 if wikidata_entry.sex_or_gender:
                     if not SuperLachaiseCategory.SEX_OR_GENDER in properties:
                         properties[SuperLachaiseCategory.SEX_OR_GENDER] = []
@@ -115,8 +121,6 @@ class Command(BaseCommand):
                 
                 if wikidata_entry.occupations:
                     for occupation in wikidata_entry.occupations.split(';'):
-                        if not SuperLachaiseCategory.OCCUPATION in properties:
-                            properties[SuperLachaiseCategory.OCCUPATION] = []
                         if not occupation in properties[SuperLachaiseCategory.OCCUPATION]:
                             properties[SuperLachaiseCategory.OCCUPATION].append(occupation)
         

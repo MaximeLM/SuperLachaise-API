@@ -505,7 +505,8 @@ class SuperLachaiseCategory(SuperLachaiseModel):
         return self.name
     
     class Meta:
-        ordering = ['name', 'key']
+        ordering = ['key', 'name']
+        unique_together = ('key', 'name',)
         verbose_name = _('superlachaise category')
         verbose_name_plural = _('superlachaise categories')
 

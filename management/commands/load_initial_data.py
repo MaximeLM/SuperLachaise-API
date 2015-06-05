@@ -55,14 +55,14 @@ class Command(BaseCommand):
         admin_command.description = _("Synchronize Wikimedia Commons files by querying the files listed in Wikimedia Commons categories")
         admin_command.save()
         
-        admin_command, created = AdminCommand.objects.get_or_create(name="sync_superlachaise_pois")
+        admin_command, created = AdminCommand.objects.get_or_create(name="sync_superlachaise_occupations")
         admin_command.dependency_order = 5
-        admin_command.description = _("Synchronize SuperLachaise POI by linking OpenStreetMap, Wikidata and Wikimedia Commons objects")
+        admin_command.description = _("Add wikidata entries occupations to SuperLachaiseOccupation if needed and count the wikidata entries referencing the occupations.")
         admin_command.save()
         
-        admin_command, created = AdminCommand.objects.get_or_create(name="sync_superlachaise_occupations")
+        admin_command, created = AdminCommand.objects.get_or_create(name="sync_superlachaise_pois")
         admin_command.dependency_order = 6
-        admin_command.description = _("Add wikidata entries occupations to SuperLachaiseOccupation if needed and count the wikidata entries referencing the occupations.")
+        admin_command.description = _("Synchronize SuperLachaise POI by linking OpenStreetMap, Wikidata and Wikimedia Commons objects")
         admin_command.save()
         
         # Languages

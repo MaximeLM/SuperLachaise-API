@@ -253,9 +253,17 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     extra = 0
     
     fieldsets = [
-        (None, {'fields': ['language', 'name', 'wikipedia', 'description', 'intro', 'intro_html']}),
+        (None, {'fields': ['language', 'name', 'wikipedia', 'wikipedia_link', 'description', 'intro', 'intro_html']}),
     ]
-    readonly_fields = ('intro_html',)
+    readonly_fields = ('wikipedia_link', 'intro_html',)
+    
+    def wikipedia_link(self, obj):
+        if obj.wikipedia:
+            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
+    wikipedia_link.allow_tags = True
+    wikipedia_link.short_description = _('wikipedia')
+    wikipedia_link.admin_order_field = 'wikipedia'
     
     def intro_html(self, obj):
         return obj.intro
@@ -664,7 +672,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.wikimedia_commons_category.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.wikimedia_commons_category.id,))
+            url = reverse(reverse_path, args=(obj.wikimedia_commons_category.id,)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
@@ -675,7 +683,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.main_image.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.main_image.id,))
+            url = reverse(reverse_path, args=(obj.main_image.id,)).replace("'","%27")
             result = u'<div style="background: url({image_url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(image_url=obj.main_image.thumbnail_url, url=url)
             return mark_safe(result)
     main_image_link.allow_tags = True
