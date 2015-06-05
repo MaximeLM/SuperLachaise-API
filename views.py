@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import datetime, json
+import datetime, dateutil.parser, json
 from decimal import Decimal
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
@@ -38,10 +38,18 @@ def to_json_string(obj):
 def dump_json(jsonObject):
     return json.dumps(jsonObject, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True, default=to_json_string)
 
+def get_superlachaise_pois_dict(superlachaise_pois, languages):
+    result = []
+    
+    for superlachaise_poi in superlachaise_pois:
+        result.append(get_superlachaise_poi_dict(superlachaise_poi, languages))
+    
+    return {'superlachaise_pois': result}
+
 def get_superlachaise_poi_dict(superlachaise_poi, languages):
     result = {
         'openstreetmap_element': get_openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
-        'wikimedia_commons_category': get_wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category, superlachaise_poi.main_image)
+        'wikimedia_commons_category': get_wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category, superlachaise_poi.main_image),
     }
     
     for language in languages:
@@ -109,19 +117,7 @@ def get_wikimedia_commons_category_dict(wikimedia_commons_category, main_image):
         result = {
             'name': 'Category:' + wikimedia_commons_category.id,
             'files': wikimedia_commons_category.files,
-            'main_image': get_wikimedia_commons_file_dict(main_image),
-        }
-    
-    return result
-
-def get_wikimedia_commons_file_dict(wikimedia_commons_file):
-    result = None
-    
-    if wikimedia_commons_file:
-        result = {
-            'name': wikimedia_commons_file.id,
-            'original_url': wikimedia_commons_file.original_url,
-            'thumbnail_url': wikimedia_commons_file.thumbnail_url,
+            'main_image': main_image.id if main_image else None,
         }
     
     return result
@@ -151,21 +147,28 @@ def get_languages(request):
     return languages
 
 @require_http_methods(["GET"])
-def superlachaise_pois(request):
-    # Language
-    languages = get_languages(request)
-    
+def superlachaise_poi_list(request):
+    modified_since = request.GET.get('modified_since', None)
+    print dateutil.parser.parse(modified_since)
     # Get objects
-    superlachaise_pois = [SuperLachaisePOI.objects.all().first()]
+    if modified_since:
+        superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=dateutil.parser.parse(modified_since))
+    else:
+        superlachaise_pois = SuperLachaisePOI.objects.all()
     
-    # Prepare for dump
-    superlachaise_pois_dict = []
-    for superlachaise_poi in superlachaise_pois:
-        superlachaise_pois_dict.append(get_superlachaise_poi_dict(superlachaise_poi, languages))
+    # Prepare dict
+    result = get_superlachaise_pois_dict(superlachaise_pois, get_languages(request))
     
-    result = {
-        'superlachaise_pois': superlachaise_pois_dict,
-    }
+    content = dump_json(result)
+    return HttpResponse(content, content_type='application/json; charset=utf-8')
+
+@require_http_methods(["GET"])
+def superlachaise_poi(request, id):
+    # Get objects
+    superlachaise_pois = [SuperLachaisePOI.objects.get(openstreetmap_element__id=id)]
+    
+    # Prepare dict
+    result = get_superlachaise_pois_dict(superlachaise_pois, get_languages(request))
     
     content = dump_json(result)
     return HttpResponse(content, content_type='application/json; charset=utf-8')

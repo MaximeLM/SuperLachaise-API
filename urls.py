@@ -22,8 +22,9 @@ limitations under the License.
 
 from django.conf.urls import patterns, url
 
-from superlachaise_api.views import *
+from superlachaise_api import views
 
 urlpatterns = patterns('',
-    url(r'^superlachaise_poi/$', superlachaise_pois, name='superlachaise_pois'),
+    url(r'^superlachaise_poi/$', views.superlachaise_poi_list),
+    url(r'^superlachaise_poi/(?P<id>[0-9]*)/$', views.superlachaise_poi),
 )
