@@ -125,16 +125,16 @@ class Command(BaseCommand):
                             properties[SuperLachaiseCategory.OCCUPATION].append(occupation)
         
         result = []
-        for key, values in properties.iteritems():
+        for type, values in properties.iteritems():
             categories = []
             for value in values:
-                for category in SuperLachaiseCategory.objects.filter(key=key):
-                    if value in category.values.split(';') and not category.name in categories:
-                        categories.append(category.name)
-                for category in SuperLachaiseCategory.objects.filter(key=key, occupations__id=value):
-                    if not category.name in categories:
-                        categories.append(category.name)
-            if not categories and key == SuperLachaiseCategory.OCCUPATION:
+                for category in SuperLachaiseCategory.objects.filter(type=type):
+                    if value in category.values.split(';') and not category.code in categories:
+                        categories.append(category.code)
+                for category in SuperLachaiseCategory.objects.filter(type=type, occupations__id=value):
+                    if not category.code in categories:
+                        categories.append(category.code)
+            if not categories and type == SuperLachaiseCategory.OCCUPATION:
                 categories = [u'other']
             result.extend(categories)
         
@@ -144,8 +144,8 @@ class Command(BaseCommand):
     def get_superlachaise_poi_categories(self, superlachaise_poi):
         result = []
         for category in superlachaise_poi.categories.all():
-            if not category.name in result:
-                result.append(category.name)
+            if not category.code in result:
+                result.append(category.code)
         
         result.sort()
         return result
@@ -286,7 +286,7 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
-            self.auto_apply = (Setting.objects.get(category='SuperLachaise POI', key=u'auto_apply_modifications').value == 'true')
+            self.auto_apply = (Setting.objects.get(key=u'superlachaise_poi:auto_apply_modifications').value == 'true')
             
             self.created_objects = 0
             self.modified_objects = 0

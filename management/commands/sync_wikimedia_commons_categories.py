@@ -200,8 +200,8 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
-            self.auto_apply = (Setting.objects.get(category='Wikimedia Commons', key=u'auto_apply_modifications').value == 'true')
-            self.synced_instance_of = json.loads(Setting.objects.get(category='Wikimedia Commons', key=u'synced_instance_of').value)
+            self.auto_apply = (Setting.objects.get(key=u'wikimedia_commons:auto_apply_modifications').value == 'true')
+            self.synced_instance_of = json.loads(Setting.objects.get(key=u'wikimedia_commons:synced_instance_of').value)
             
             self.created_objects = 0
             self.modified_objects = 0

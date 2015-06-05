@@ -46,7 +46,7 @@ class SuperLachaiseModel(models.Model):
 class AdminCommand(SuperLachaiseModel):
     """ An admin command that can be monitored """
     
-    name = models.CharField(max_length=255, unique=True, verbose_name=_('name'))
+    name = models.CharField(primary_key=True, max_length=255, verbose_name=_('name'))
     dependency_order = models.IntegerField(null=True, verbose_name=_('dependency order'))
     description = models.TextField(blank=True, verbose_name=_('description'))
     last_executed = models.DateTimeField(null=True, verbose_name=_('last executed'))
@@ -109,7 +109,7 @@ class AdminCommandError(SuperLachaiseModel):
 class Language(SuperLachaiseModel):
     """ A language used in the sync operations """
     
-    code = models.CharField(max_length=10, unique=True, verbose_name=_('code'))
+    code = models.CharField(primary_key=True, max_length=10, unique=True, verbose_name=_('code'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
@@ -119,6 +119,21 @@ class Language(SuperLachaiseModel):
         ordering = ['code']
         verbose_name = _('language')
         verbose_name_plural = _('languages')
+
+class Setting(SuperLachaiseModel):
+    """ A custom setting """
+    
+    key = models.CharField(primary_key=True, max_length=255, verbose_name=_('key'))
+    value = models.CharField(max_length=255, blank=True, verbose_name=_('value'))
+    description = models.TextField(blank=True, verbose_name=_('description'))
+    
+    def __unicode__(self):
+        return self.category + u':' + self.key
+    
+    class Meta:
+        ordering = ['key']
+        verbose_name = _('setting')
+        verbose_name_plural = _('settings')
 
 class PendingModification(SuperLachaiseModel):
     """ A modification to an object that is not yet applied """
@@ -289,14 +304,14 @@ class PendingModification(SuperLachaiseModel):
                 
                 if categories:
                     for category_name in categories:
-                        category = SuperLachaiseCategory.objects.get(name=category_name)
+                        category = SuperLachaiseCategory.objects.get(code=category_name)
                         if not category in target_object.categories.all():
                             # Create relation
-                            target_object.categories.add(category.id)
+                            target_object.categories.add(category.code)
                         for category in target_object.categories.all():
-                            if not category.name in categories:
+                            if not category.code in categories:
                                 # Delete relation
-                                target_object.categories.remove(category.id)
+                                target_object.categories.remove(category.code)
             
             elif self.action == self.DELETE:
                 target_object = self.target_object()
@@ -308,23 +323,6 @@ class PendingModification(SuperLachaiseModel):
             self.delete()
         except:
             traceback.print_exc()
-
-class Setting(SuperLachaiseModel):
-    """ A custom setting """
-    
-    category = models.CharField(max_length=255, verbose_name=_('category'))
-    key = models.CharField(max_length=255, verbose_name=_('key'))
-    value = models.CharField(max_length=255, blank=True, verbose_name=_('value'))
-    description = models.TextField(blank=True, verbose_name=_('description'))
-    
-    def __unicode__(self):
-        return self.category + u':' + self.key
-    
-    class Meta:
-        ordering = ['category', 'key']
-        verbose_name = _('setting')
-        verbose_name_plural = _('settings')
-        unique_together = ('category', 'key',)
 
 class OpenStreetMapElement(SuperLachaiseModel):
     
@@ -441,7 +439,7 @@ class WikimediaCommonsFile(SuperLachaiseModel):
 class SuperLachaisePOI(SuperLachaiseModel):
     """ An object linking multiple data sources for representing a single Point Of Interest """
     
-    openstreetmap_element = models.OneToOneField('OpenStreetMapElement', related_name='superlachaise_poi', verbose_name=_('openstreetmap element'))
+    openstreetmap_element = models.OneToOneField('OpenStreetMapElement', unique=True, related_name='superlachaise_poi', verbose_name=_('openstreetmap element'))
     wikidata_entries = models.ManyToManyField('WikidataEntry', related_name='superlachaise_pois', through='SuperLachaiseWikidataRelation', verbose_name=_('wikidata entries'))
     wikimedia_commons_category = models.ForeignKey('WikimediaCommonsCategory', null=True, blank=True, related_name='superlachaise_pois', verbose_name=_('wikimedia commons category'))
     main_image = models.ForeignKey('WikimediaCommonsFile', null=True, blank=True, related_name='superlachaise_pois', verbose_name=_('main image'))
@@ -493,20 +491,19 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
 class SuperLachaiseCategory(SuperLachaiseModel):
     """ A category for Super Lachaise POIs """
     
-    ELEMENT_NATURE = u'osm_element:nature'
-    SEX_OR_GENDER = u'wikidata_entry:sex_or_gender'
-    OCCUPATION = u'wikidata_entry:occupation'
+    ELEMENT_NATURE = u'element_nature'
+    SEX_OR_GENDER = u'sex_or_gender'
+    OCCUPATION = u'occupation'
     
-    name = models.CharField(max_length=255, unique=True, verbose_name=_('name'))
-    key = models.CharField(max_length=255, verbose_name=_('key'))
+    code = models.CharField(primary_key=True, max_length=255, unique=True, verbose_name=_('code'))
+    type = models.CharField(max_length=255, verbose_name=_('type'))
     values = models.CharField(max_length=255, blank=True, verbose_name=_('codes'))
     
     def __unicode__(self):
-        return self.name
+        return self.code
     
     class Meta:
-        ordering = ['key', 'name']
-        unique_together = ('key', 'name',)
+        ordering = ['type', 'code']
         verbose_name = _('superlachaise category')
         verbose_name_plural = _('superlachaise categories')
 
@@ -530,7 +527,7 @@ class SuperLachaiseOccupation(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
-    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'key': SuperLachaiseCategory.OCCUPATION}, related_name='occupations', verbose_name=_('superlachaise category'))
+    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'type': SuperLachaiseCategory.OCCUPATION}, related_name='occupations', verbose_name=_('superlachaise category'))
     used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='superlachaise_occupations', verbose_name=_('used in'))
     
     def __unicode__(self):

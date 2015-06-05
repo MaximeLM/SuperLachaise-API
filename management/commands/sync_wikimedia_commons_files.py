@@ -175,9 +175,9 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
-            self.auto_apply = (Setting.objects.get(category='Wikimedia Commons', key=u'auto_apply_modifications').value == 'true')
-            self.sync_only_main_image = (Setting.objects.get(category='Wikimedia Commons', key=u'sync_only_main_image').value == 'true')
-            self.thumbnail_width = int(Setting.objects.get(category='Wikimedia Commons', key=u'thumbnail_width').value)
+            self.auto_apply = (Setting.objects.get(key=u'wikimedia_commons:auto_apply_modifications').value == 'true')
+            self.sync_only_main_image = (Setting.objects.get(key=u'wikimedia_commons:sync_only_main_image').value == 'true')
+            self.thumbnail_width = int(Setting.objects.get(key=u'wikimedia_commons:thumbnail_width').value)
             
             self.created_objects = 0
             self.modified_objects = 0

@@ -358,10 +358,10 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
-            self.auto_apply = (Setting.objects.get(category='OpenStreetMap', key=u'auto_apply_modifications').value == 'true')
-            self.bounding_box = Setting.objects.get(category='OpenStreetMap', key=u'bounding_box').value
-            self.exclude_ids = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'exclude_ids').value)
-            self.synced_tags = json.loads(Setting.objects.get(category='OpenStreetMap', key=u'synced_tags').value)
+            self.auto_apply = (Setting.objects.get(key=u'openstreetmap:auto_apply_modifications').value == 'true')
+            self.bounding_box = Setting.objects.get(key=u'openstreetmap:bounding_box').value
+            self.exclude_ids = json.loads(Setting.objects.get(key=u'openstreetmap:exclude_ids').value)
+            self.synced_tags = json.loads(Setting.objects.get(key=u'openstreetmap:synced_tags').value)
         
             self.created_objects = 0
             self.modified_objects = 0

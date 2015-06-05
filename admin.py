@@ -114,6 +114,23 @@ class LanguageAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
+@admin.register(Setting)
+class SettingAdmin(admin.ModelAdmin):
+    list_display = ('key', 'value', 'description', 'notes')
+    search_fields = ('key', 'value', 'description', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['key', 'value', 'description']}),
+    ]
+    readonly_fields = ('created', 'modified')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]
+
 @admin.register(PendingModification)
 class PendingModificationAdmin(admin.ModelAdmin):
     list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
@@ -150,24 +167,6 @@ class PendingModificationAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes, apply_modifications]
-
-@admin.register(Setting)
-class SettingAdmin(admin.ModelAdmin):
-    list_display = ('category', 'key', 'value', 'description', 'notes')
-    list_filter = ('category',)
-    search_fields = ('key', 'value', 'description', 'notes',)
-    
-    fieldsets = [
-        (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['category', 'key', 'value', 'description']}),
-    ]
-    readonly_fields = ('created', 'modified')
-    
-    def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
-    
-    actions = [delete_notes]
 
 @admin.register(OpenStreetMapElement)
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
@@ -696,7 +695,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = category.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(category.id,))
+            url = reverse(reverse_path, args=(category.code,))
             result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(category))))
         return ';'.join(result)
     categories_link.allow_tags = True
@@ -738,13 +737,13 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'key', 'values', 'superlachaise_pois_count', 'occupations_count', 'notes')
-    list_filter = ('key',)
-    search_fields = ('name', 'key', 'values', 'notes',)
+    list_display = ('code', 'type', 'values', 'superlachaise_pois_count', 'occupations_count', 'notes')
+    list_filter = ('type',)
+    search_fields = ('code', 'type', 'values', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['name', 'key', 'values']}),
+        (None, {'fields': ['code', 'type', 'values']}),
     ]
     readonly_fields = ('superlachaise_pois_count', 'occupations_count', 'created', 'modified')
     inlines = [
@@ -804,3 +803,9 @@ class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
     used_in_link.allow_tags = True
     used_in_link.short_description = _('used in')
     used_in_link.admin_order_field = 'used_in'
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]
