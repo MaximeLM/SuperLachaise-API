@@ -728,7 +728,7 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'key', 'values', 'num_superlachaise_pois', 'notes')
+    list_display = ('name', 'key', 'values', 'superlachaise_pois_count', 'occupations_count', 'notes')
     list_filter = ('key',)
     search_fields = ('name', 'key', 'values', 'notes',)
     
@@ -736,26 +736,24 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'key', 'values']}),
     ]
-    readonly_fields = ('num_superlachaise_pois', 'created', 'modified')
+    readonly_fields = ('superlachaise_pois_count', 'occupations_count', 'created', 'modified')
     inlines = [
         SuperLachaiseLocalizedCategoryInline,
     ]
     
-    def num_superlachaise_pois(self, obj):
-        return obj.num_superlachaise_pois
-    num_superlachaise_pois.short_description = _('members count')
-    num_superlachaise_pois.admin_order_field = 'num_superlachaise_pois'
+    def superlachaise_pois_count(self, obj):
+        return obj.superlachaise_pois.count()
+    superlachaise_pois_count.short_description = _('members count')
+    
+    def occupations_count(self, obj):
+        return obj.occupations.count()
+    occupations_count.short_description = _('occupations count')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
-    
-    def get_queryset(self, stuff):
-        qs = super(SuperLachaiseCategoryAdmin, self).get_queryset(stuff)
-        qs = qs.annotate(num_superlachaise_pois=Count('superlachaise_pois'))
-        return qs
 
 @admin.register(SuperLachaiseOccupation)
 class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
@@ -778,8 +776,3 @@ class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'id'
-    """
-    def get_queryset(self, stuff):
-        qs = super(SuperLachaiseOccupationAdmin, self).get_queryset(stuff)
-        qs = qs.filter(superlachaise_category__isnull = True)
-        return qs"""
