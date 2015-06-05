@@ -173,13 +173,6 @@ class Command(BaseCommand):
     def get_name(self, language, openstreetmap_element, wikidata_fetched_entries):
         result = u''
         
-        # Use localized wikidata entry if unique
-        if not result and len(wikidata_fetched_entries) == 1:
-            wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entries[0].split(':')[-1])
-            wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
-            if wikidata_localized_entry:
-                result = wikidata_localized_entry.name
-        
         # Use person localized wikidata entry if unique
         if not result:
             unique_wikidata_entry = None
@@ -242,13 +235,6 @@ class Command(BaseCommand):
     def get_description(self, language, openstreetmap_element, wikidata_fetched_entries):
         result = u''
         
-        # Use localized wikidata entry if unique
-        if not result and len(wikidata_fetched_entries) == 1:
-            wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entries[0].split(':')[-1])
-            wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
-            if wikidata_localized_entry:
-                result = wikidata_localized_entry.description
-        
         # Use person localized wikidata entry if unique
         if not result:
             unique_wikidata_entry = None
@@ -278,6 +264,21 @@ class Command(BaseCommand):
                 wikidata_localized_entry = unique_wikidata_entry.localizations.filter(language=language).first()
                 if wikidata_localized_entry:
                     result = wikidata_localized_entry.description
+        
+        # Use artist localized wikidata entry if unique
+        if not result:
+            unique_wikidata_entry = None
+            for wikidata_fetched_entry in wikidata_fetched_entries:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.ARTIST:
+                    if not unique_wikidata_entry:
+                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                    else:
+                        unique_wikidata_entry = None
+                        break
+            if unique_wikidata_entry:
+                wikidata_localized_entry = unique_wikidata_entry.localizations.filter(language=language).first()
+                if wikidata_localized_entry and wikidata_localized_entry.name:
+                    result = _('Artist: ') + wikidata_localized_entry.name
         
         return result
     

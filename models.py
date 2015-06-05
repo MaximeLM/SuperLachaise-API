@@ -475,6 +475,7 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     
     NONE = 'none'
     PERSON = 'person'
+    ARTIST = 'artist'
     
     superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
     wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
