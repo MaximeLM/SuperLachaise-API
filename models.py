@@ -499,7 +499,7 @@ class SuperLachaiseCategory(SuperLachaiseModel):
     
     name = models.CharField(max_length=255, unique=True, verbose_name=_('name'))
     key = models.CharField(max_length=255, verbose_name=_('key'))
-    values = models.CharField(max_length=255, verbose_name=_('codes'))
+    values = models.CharField(max_length=255, blank=True, verbose_name=_('codes'))
     
     def __unicode__(self):
         return self.name
@@ -522,3 +522,18 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
         ordering = ['name', 'language']
         verbose_name = _('superlachaise localized category')
         verbose_name_plural = _('superlachaise localized categories')
+
+class SuperLachaiseOccupation(SuperLachaiseModel):
+    """ Associate a person's occupation to a category """
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'key': SuperLachaiseCategory.OCCUPATION}, related_name='occupations', verbose_name=_('superlachaise category'))
+    used_in_wikidata_entries = models.IntegerField(default=0, verbose_name=_('used in wikidata entries'))
+    
+    def __unicode__(self):
+        return self.id
+    
+    class Meta:
+        ordering = ['id']
+        verbose_name = _('superlachaise occupation')
+        verbose_name_plural = _('superlachaise occupations')

@@ -756,3 +756,30 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
         qs = super(SuperLachaiseCategoryAdmin, self).get_queryset(stuff)
         qs = qs.annotate(num_superlachaise_pois=Count('superlachaise_pois'))
         return qs
+
+@admin.register(SuperLachaiseOccupation)
+class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'wikidata_link', 'superlachaise_category', 'used_in_wikidata_entries', 'notes')
+    list_filter = ('superlachaise_category',)
+    list_editable = ('superlachaise_category',)
+    search_fields = ('id', 'superlachaise_category', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['id', 'wikidata_link', 'superlachaise_category', 'used_in_wikidata_entries']}),
+    ]
+    readonly_fields = ('wikidata_link', 'created', 'modified')
+    
+    def wikidata_link(self, obj):
+        if obj.id:
+            language = translation.get_language().split("-", 1)[0]
+            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.id), language=language)
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
+    wikidata_link.allow_tags = True
+    wikidata_link.short_description = _('wikidata')
+    wikidata_link.admin_order_field = 'id'
+    """
+    def get_queryset(self, stuff):
+        qs = super(SuperLachaiseOccupationAdmin, self).get_queryset(stuff)
+        qs = qs.filter(superlachaise_category__isnull = True)
+        return qs"""
