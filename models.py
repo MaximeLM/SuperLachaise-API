@@ -112,6 +112,7 @@ class Language(SuperLachaiseModel):
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     enumeration_separator = models.CharField(max_length=255, verbose_name=_('enumeration separator'))
     last_enumeration_separator = models.CharField(max_length=255, verbose_name=_('last enumeration separator'))
+    artist_prefix = models.CharField(max_length=255, verbose_name=_('artist prefix'))
     
     def __unicode__(self):
         return self.code

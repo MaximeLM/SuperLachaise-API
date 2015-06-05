@@ -278,7 +278,7 @@ class Command(BaseCommand):
             if unique_wikidata_entry:
                 wikidata_localized_entry = unique_wikidata_entry.localizations.filter(language=language).first()
                 if wikidata_localized_entry and wikidata_localized_entry.name:
-                    result = _('Artist: ') + wikidata_localized_entry.name
+                    result = language.artist_prefix + wikidata_localized_entry.name
         
         return result
     

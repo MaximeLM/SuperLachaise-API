@@ -99,12 +99,12 @@ class AdminCommandErrorAdmin(admin.ModelAdmin):
 
 @admin.register(Language)
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ('code', 'description', 'enumeration_separator', 'last_enumeration_separator', 'notes')
+    list_display = ('code', 'description', 'enumeration_separator', 'last_enumeration_separator', 'artist_prefix', 'notes')
     search_fields = ('code', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['code', 'description', 'enumeration_separator', 'last_enumeration_separator']}),
+        (None, {'fields': ['code', 'description', 'enumeration_separator', 'last_enumeration_separator', 'artist_prefix']}),
     ]
     readonly_fields = ('created', 'modified')
     
@@ -152,7 +152,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
             url = reverse(reverse_path, args=(obj.target_object().id,))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
     target_object_link.allow_tags = True
-    target_object_link.short_description = _('target object link')
+    target_object_link.short_description = _('target object')
     
     def apply_modifications(self, request, queryset):
         for pending_modification in queryset:
@@ -719,13 +719,41 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
-    sync_page.short_description = _('Sync selected superlachaise pois')
+    sync_page.short_description = _('Sync selected superlachaise POIs')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_page]
+
+@admin.register(SuperLachaiseLocalizedPOI)
+class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
+    list_display = ('language', 'name', 'superlachaise_poi_link', 'description', 'notes')
+    list_filter = ('language',)
+    search_fields = ('name', 'description', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['language', 'name', 'superlachaise_poi', 'description']}),
+    ]
+    readonly_fields = ('superlachaise_poi_link', 'created', 'modified')
+    
+    def superlachaise_poi_link(self, obj):
+        app_name = obj._meta.app_label
+        reverse_name = obj.superlachaise_poi.__class__.__name__.lower()
+        reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+        url = reverse(reverse_path, args=(obj.superlachaise_poi.id,))
+        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.superlachaise_poi)))
+    superlachaise_poi_link.allow_tags = True
+    superlachaise_poi_link.short_description = _('superlachaise poi')
+    superlachaise_poi_link.admin_order_field = 'superlachaise_poi'
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes]
 
 class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
     model = SuperLachaiseLocalizedCategory
