@@ -40,7 +40,7 @@ class Command(BaseCommand):
                 if wikidata_entry:
                     if len(wikidata.split(':')) == 2:
                         relation_type = wikidata.split(':')[0]
-                    elif wikidata_entry.instance_of == 'Q5':
+                    elif 'Q5' in wikidata_entry.instance_of.split(';'):
                         relation_type = SuperLachaiseWikidataRelation.PERSON
                     else:
                         relation_type = SuperLachaiseWikidataRelation.NONE
@@ -125,6 +125,9 @@ class Command(BaseCommand):
             for value in values:
                 for category in SuperLachaiseCategory.objects.filter(key=key):
                     if value in category.values.split(';') and not category.name in result:
+                        result.append(category.name)
+                for category in SuperLachaiseCategory.objects.filter(key=key, occupations__id=value):
+                    if not category.name in result:
                         result.append(category.name)
         
         result.sort()

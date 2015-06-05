@@ -619,7 +619,8 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'notes')
-    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
+    list_filter = ('categories',)
+    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'categories__name', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
@@ -760,7 +761,7 @@ class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
     list_display = ('id', 'wikidata_link', 'superlachaise_category', 'used_in_wikidata_entries', 'notes')
     list_filter = ('superlachaise_category',)
     list_editable = ('superlachaise_category',)
-    search_fields = ('id', 'superlachaise_category', 'notes',)
+    search_fields = ('id', 'superlachaise_category__name', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
