@@ -620,18 +620,30 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
     extra = 0
     
     fieldsets = [
-        (None, {'fields': ['language', 'name', 'description']}),
+        (None, {'fields': ['language', 'name', 'description', 'modified']}),
     ]
+    readonly_fields = ('created', 'modified')
+
+class SuperLachaiseCategoryRelationInline(admin.StackedInline):
+    model = SuperLachaiseCategoryRelation
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['category']}),
+    ]
+    
+    verbose_name = "category"
+    verbose_name_plural = "categories"
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'notes')
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'modified', 'notes')
     list_filter = ('categories',)
     search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories', 'categories_link']}),
+        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories_link']}),
     ]
     readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'created', 'modified')
     filter_horizontal = ('categories',)
@@ -639,6 +651,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     inlines = [
         SuperLachaiseLocalizedPOIInline,
         SuperLachaiseWikidataRelationInline,
+        SuperLachaiseCategoryRelationInline,
     ]
     
     def openstreetmap_element_link(self, obj):
@@ -729,7 +742,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
 
 @admin.register(SuperLachaiseLocalizedPOI)
 class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
-    list_display = ('language', 'name', 'superlachaise_poi_link', 'description', 'notes')
+    list_display = ('language', 'name', 'superlachaise_poi_link', 'description', 'modified', 'notes')
     list_filter = ('language',)
     search_fields = ('name', 'description', 'notes',)
     
@@ -765,7 +778,7 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('code', 'type', 'values', 'superlachaise_pois_count', 'occupations_count', 'notes')
+    list_display = ('code', 'type', 'values', 'members_count', 'occupations_count', 'notes')
     list_filter = ('type',)
     search_fields = ('code', 'type', 'values', 'notes',)
     
@@ -773,14 +786,14 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['code', 'type', 'values']}),
     ]
-    readonly_fields = ('superlachaise_pois_count', 'occupations_count', 'created', 'modified')
+    readonly_fields = ('code', 'members_count', 'occupations_count', 'created', 'modified')
     inlines = [
         SuperLachaiseLocalizedCategoryInline,
     ]
     
-    def superlachaise_pois_count(self, obj):
-        return obj.superlachaise_pois.count()
-    superlachaise_pois_count.short_description = _('members count')
+    def members_count(self, obj):
+        return obj.members.count()
+    members_count.short_description = _('members count')
     
     def occupations_count(self, obj):
         return obj.occupations.count()
@@ -797,7 +810,7 @@ class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in_link', 'notes')
     list_filter = ('superlachaise_category',)
     list_editable = ('superlachaise_category',)
-    search_fields = ('id', 'name', 'superlachaise_category__name', 'used_in__id', 'used_in__localizations__name', 'notes',)
+    search_fields = ('id', 'name', 'used_in__id', 'used_in__localizations__name', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),

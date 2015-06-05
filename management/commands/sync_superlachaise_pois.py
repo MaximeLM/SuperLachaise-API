@@ -305,7 +305,7 @@ class Command(BaseCommand):
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=openstreetmap_element_id)
             
             values_dict, localized_values_dicts = self.get_values_for_openstreetmap_element(openstreetmap_element)
-            for language, localized_value_dict in localized_values_dicts.iteritems():
+            for language, localized_values_dict in localized_values_dicts.iteritems():
                 if localized_values_dict:
                     values_dict.update(localized_values_dict)
             
