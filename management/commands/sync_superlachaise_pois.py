@@ -122,13 +122,17 @@ class Command(BaseCommand):
         
         result = []
         for key, values in properties.iteritems():
+            categories = []
             for value in values:
                 for category in SuperLachaiseCategory.objects.filter(key=key):
-                    if value in category.values.split(';') and not category.name in result:
-                        result.append(category.name)
+                    if value in category.values.split(';') and not category.name in categories:
+                        categories.append(category.name)
                 for category in SuperLachaiseCategory.objects.filter(key=key, occupations__id=value):
-                    if not category.name in result:
-                        result.append(category.name)
+                    if not category.name in categories:
+                        categories.append(category.name)
+            if not categories and key == SuperLachaiseCategory.OCCUPATION:
+                categories = [u'other']
+            result.extend(categories)
         
         result.sort()
         return result
