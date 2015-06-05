@@ -110,6 +110,8 @@ class Language(SuperLachaiseModel):
     
     code = models.CharField(primary_key=True, max_length=10, unique=True, verbose_name=_('code'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
+    enumeration_separator = models.CharField(max_length=255, verbose_name=_('enumeration separator'))
+    last_enumeration_separator = models.CharField(max_length=255, verbose_name=_('last enumeration separator'))
     
     def __unicode__(self):
         return self.code
@@ -127,7 +129,7 @@ class Setting(SuperLachaiseModel):
     description = models.TextField(blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
-        return self.category + u':' + self.key
+        return self.key
     
     class Meta:
         ordering = ['key']

@@ -99,12 +99,12 @@ class AdminCommandErrorAdmin(admin.ModelAdmin):
 
 @admin.register(Language)
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ('code', 'description', 'notes')
+    list_display = ('code', 'description', 'enumeration_separator', 'last_enumeration_separator', 'notes')
     search_fields = ('code', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['code', 'description']}),
+        (None, {'fields': ['code', 'description', 'enumeration_separator', 'last_enumeration_separator']}),
     ]
     readonly_fields = ('created', 'modified')
     
@@ -627,7 +627,7 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'notes')
     list_filter = ('categories',)
-    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'categories__name', 'notes',)
+    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),

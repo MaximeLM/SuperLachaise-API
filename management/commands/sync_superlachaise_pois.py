@@ -163,10 +163,83 @@ class Command(BaseCommand):
             'categories': categories,
         }
         
+        localized_results = {}
+        for language in Language.objects.all():
+            localized_result = self.get_localized_values_for_openstreetmap_element(language, openstreetmap_element, wikidata_entries)
+            localized_results[language] = localized_result
+        
+        return (result, localized_results)
+    
+    def get_name(self, language, openstreetmap_element, wikidata_fetched_entries):
+        result = None
+        
+        # Use localized wikidata entry name if unique
+        if not result and len(wikidata_fetched_entries) == 1:
+            wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entries[0].split(':')[-1])
+            wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
+            if wikidata_localized_entry:
+                result = wikidata_localized_entry.name
+        
+        # Use none-type localized wikidata entry name if unique
+        if not result:
+            unique_none_wikidata_entry = None
+            for wikidata_fetched_entry in wikidata_fetched_entries:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NONE:
+                    if not unique_none_wikidata_entry:
+                        unique_none_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                    else:
+                        unique_none_wikidata_entry = None
+                        break
+            if unique_none_wikidata_entry:
+                wikidata_localized_entry = unique_none_wikidata_entry.localizations.filter(language=language).first()
+                if wikidata_localized_entry:
+                    result = wikidata_localized_entry.name
+        
+        # Use OpenStreetMap name if language match
+        if not result and language.code == self.openstreetmap_name_tag_language:
+            result = openstreetmap_element.name
+        
+        # Concatenate names of person wikidata entries
+        if not result:
+            error = False
+            person_localized_names = []
+            for wikidata_fetched_entry in wikidata_fetched_entries:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                    wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                    wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
+                    if wikidata_localized_entry and wikidata_localized_entry.name:
+                        person_localized_names.append(wikidata_localized_entry.name)
+                    else:
+                        # No localization or no name for this entry
+                        error = True
+                        break
+            if person_localized_names:
+                last_part = language.last_enumeration_separator.join(person_localized_names[-2:])
+                person_localized_names[-2:] = [last_part]
+                result = language.enumeration_separator.join(person_localized_names)
+        
+        # Use OpenStreetMap name
+        if not result:
+            result = openstreetmap_element.name
+        
         return result
     
-    def get_localized_values_for_openstreetmap_element(self, openstreetmap_element, language):
-        return {}
+    def get_description(self, language, openstreetmap_element, wikidata_entries):
+        result = u''
+        
+        return result
+    
+    def get_localized_values_for_openstreetmap_element(self, language, openstreetmap_element, wikidata_entries):
+        result = {
+            language.code + ':name': self.get_name(language, openstreetmap_element, wikidata_entries),
+            language.code + ':description': self.get_description(language, openstreetmap_element, wikidata_entries),
+        }
+        
+        for key, value in result.iteritems():
+            if value != u'' and not value is None:
+                return result
+        
+        return None
     
     def sync_superlachaise_poi(self, openstreetmap_element_id):
         openstreetmap_element = OpenStreetMapElement.objects.get(id=openstreetmap_element_id)
@@ -178,9 +251,8 @@ class Command(BaseCommand):
             # Creation
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=openstreetmap_element_id)
             
-            values_dict = self.get_values_for_openstreetmap_element(openstreetmap_element)
-            for language in Language.objects.all():
-                localized_values_dict = self.get_localized_values_for_openstreetmap_element(openstreetmap_element, language)
+            values_dict, localized_values_dicts = self.get_values_for_openstreetmap_element(openstreetmap_element)
+            for language, localized_value_dict in localized_values_dicts.iteritems():
                 if localized_values_dict:
                     values_dict.update(localized_values_dict)
             
@@ -197,7 +269,7 @@ class Command(BaseCommand):
             # Search for modifications
             modified_values = {}
             
-            values_dict = self.get_values_for_openstreetmap_element(openstreetmap_element)
+            values_dict, localized_values_dicts = self.get_values_for_openstreetmap_element(openstreetmap_element)
             for field, value in values_dict.iteritems():
                 if field == 'wikidata_entries':
                     superlachaise_poi_wikidata_entries = self.get_superlachaise_poi_wikidata_entries(superlachaise_poi)
@@ -211,15 +283,14 @@ class Command(BaseCommand):
                     if value != getattr(superlachaise_poi, field):
                         modified_values[field] = value
             
-            for language in Language.objects.all():
-                values_dict = self.get_localized_values_for_openstreetmap_element(openstreetmap_element, language)
+            for language, localized_value_dict in localized_values_dicts.iteritems():
                 superlachaise_localized_poi = superlachaise_poi.localizations.filter(language=language).first()
                 
-                if values_dict:
+                if localized_value_dict:
                     if not superlachaise_localized_poi:
-                        modified_values.update(values_dict)
+                        modified_values.update(localized_value_dict)
                     else:
-                        for field, value in values_dict.iteritems():
+                        for field, value in localized_value_dict.iteritems():
                             if value != getattr(superlachaise_localized_poi, field.split(':')[1]):
                                 modified_values[field] = value
                 else:
@@ -287,6 +358,7 @@ class Command(BaseCommand):
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
             self.auto_apply = (Setting.objects.get(key=u'superlachaise_poi:auto_apply_modifications').value == 'true')
+            self.openstreetmap_name_tag_language = Setting.objects.get(key=u'openstreetmap:name_tag_language').value
             
             self.created_objects = 0
             self.modified_objects = 0
