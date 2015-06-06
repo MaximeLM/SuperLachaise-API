@@ -25,6 +25,15 @@ from django.conf.urls import patterns, url
 from superlachaise_api import views
 
 urlpatterns = patterns('',
+    url(r'^openstreetmap_element/$', views.openstreetmap_element_list),
+    url(r'^openstreetmap_element/(?P<id>[0-9]*)/$', views.openstreetmap_element),
+    
+    url(r'^wikidata_entry/$', views.wikidata_entry_list),
+    url(r'^wikidata_entry/(?P<id>Q[0-9]*)/$', views.wikidata_entry),
+    
+    url(r'^wikimedia_commons_category/$', views.wikimedia_commons_category_list),
+    url(r'^wikimedia_commons_category/(?P<id>.*)/$', views.wikimedia_commons_category),
+    
     url(r'^superlachaise_poi/$', views.superlachaise_poi_list),
     url(r'^superlachaise_poi/(?P<id>[0-9]*)/$', views.superlachaise_poi),
 )

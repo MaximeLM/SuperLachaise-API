@@ -381,13 +381,6 @@ class OpenStreetMapElement(SuperLachaiseModel):
         ordering = ['sorting_name', 'id']
         verbose_name = _('openstreetmap element')
         verbose_name_plural = _('openstreetmap elements')
-    
-    def save(self, *args, **kwargs):
-        super(OpenStreetMapElement, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        if hasattr(self, 'superlachaise_poi'):
-            self.superlachaise_poi.save()
 
 class WikidataEntry(SuperLachaiseModel):
     
@@ -421,13 +414,6 @@ class WikidataEntry(SuperLachaiseModel):
         ordering = ['id']
         verbose_name = _('wikidata entry')
         verbose_name_plural = _('wikidata entries')
-    
-    def save(self, *args, **kwargs):
-        super(WikidataEntry, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        for superlachaise_poi in self.superlachaise_pois.all():
-            superlachaise_poi.save()
 
 class WikidataLocalizedEntry(SuperLachaiseModel):
     """ The part of a wikidata entry specific to a language """
@@ -453,10 +439,8 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         self.intro = self.intro.replace('\r','')
         super(WikidataLocalizedEntry, self).save(*args, **kwargs)
         
-        # Touch SuperLachaise POIs
-        for superlachaise_poi in self.wikidata_entry.superlachaise_pois.all():
-            for superlachaise_localized_poi in superlachaise_poi.localizations.filter(language=self.language):
-                superlachaise_localized_poi.save()
+        # Touch Wikidata entry
+        self.wikidata_entry.save()
         
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
@@ -472,13 +456,6 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
         ordering = ['id']
         verbose_name = _('wikimedia commons category')
         verbose_name_plural = _('wikimedia commons categories')
-    
-    def save(self, *args, **kwargs):
-        super(WikimediaCommonsCategory, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        for superlachaise_poi in self.superlachaise_pois.all():
-            superlachaise_poi.save()
 
 class WikimediaCommonsFile(SuperLachaiseModel):
     
@@ -493,13 +470,6 @@ class WikimediaCommonsFile(SuperLachaiseModel):
         ordering = ['id']
         verbose_name = _('wikimedia commons file')
         verbose_name_plural = _('wikimedia commons files')
-    
-    def save(self, *args, **kwargs):
-        super(WikimediaCommonsFile, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        for superlachaise_poi in self.superlachaise_pois.all():
-            superlachaise_poi.save()
 
 class SuperLachaisePOI(SuperLachaiseModel):
     """ An object linking multiple data sources for representing a single Point Of Interest """
