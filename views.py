@@ -31,9 +31,8 @@ from superlachaise_api.models import *
 
 class SuperLachaiseEncoder(object):
     
-    def __init__(self, languages=None, recursive=False, modified_since=None, restrict_fields=True):
+    def __init__(self, languages=None, modified_since=None, restrict_fields=True):
         self.languages = languages
-        self.recursive = recursive
         self.modified_since = modified_since
         self.restrict_fields = restrict_fields
     
@@ -53,6 +52,10 @@ class SuperLachaiseEncoder(object):
     def obj_dict(self, obj):
         if isinstance(obj, Page):
             return self.page_dict(obj)
+        elif isinstance(obj, SuperLachaisePOI):
+            return self.superlachaise_poi_dict(obj)
+        elif isinstance(obj, SuperLachaiseCategory):
+            return self.category_dict(obj)
         elif isinstance(obj, OpenStreetMapElement):
             return self.openstreetmap_element_dict(obj)
         elif isinstance(obj, WikidataEntry):
@@ -77,6 +80,60 @@ class SuperLachaiseEncoder(object):
         
         if page.has_next():
             result['next'] = page.next_page_number()
+        
+        return result
+    
+    def superlachaise_poi_dict(self, superlachaise_poi):
+        result = {
+            'id': superlachaise_poi.openstreetmap_element_id,
+        }
+        
+        if self.languages:
+            for language in self.languages:
+                superlachaise_localized_poi = superlachaise_poi.localizations.filter(language=language).first()
+                if superlachaise_localized_poi:
+                    result[language.code] = {
+                        'name': superlachaise_localized_poi.name,
+                        'description': superlachaise_localized_poi.description,
+                    }
+                else:
+                    result[language.code] = None
+        
+        wikidata_entries = {}
+        for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
+            if not wikidata_entry_relation.relation_type in wikidata_entries:
+                wikidata_entries[wikidata_entry_relation.relation_type] = []
+            wikidata_entries[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry_id)
+        
+        categories = []
+        for category in superlachaise_poi.categories.all():
+            categories.append(category.code)
+        
+        result.update({
+            'openstreetmap_element': self.openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
+            'wikidata_entries': wikidata_entries,
+            'categories': categories,
+            'wikimedia_commons_category': self.wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category),
+            'main_image': None,
+        })
+        
+        return result
+    
+    def category_dict(self, category):
+        result = {
+            'code': category.code,
+            'type': category.type,
+        }
+        
+        if self.languages:
+            for language in self.languages:
+                localized_category = category.localizations.filter(language=language).first()
+                if localized_category:
+                    result[language.code] = {
+                        'name': localized_category.name,
+                    }
+                else:
+                    result[language.code] = None
         
         return result
     
@@ -155,117 +212,6 @@ class SuperLachaiseEncoder(object):
         
         return result
 
-def to_json_string(obj):
-    if isinstance(obj, datetime.date):
-        return obj.isoformat()
-    elif isinstance(obj, Decimal):
-        return str(obj)
-    else:
-        return obj
-
-def dump_json(jsonObject):
-    return json.dumps(jsonObject, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True, default=to_json_string)
-
-def get_superlachaise_pois_dict(superlachaise_pois, languages):
-    result = []
-    
-    for superlachaise_poi in superlachaise_pois:
-        result.append(get_superlachaise_poi_dict(superlachaise_poi, languages))
-    
-    return {'superlachaise_pois': result}
-
-def get_superlachaise_poi_dict(superlachaise_poi, languages):
-    result = {
-        'openstreetmap_element': get_openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
-        'wikimedia_commons_category': get_wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category, superlachaise_poi.main_image),
-    }
-    
-    for language in languages:
-        superlachaise_localized_poi = superlachaise_poi.localizations.filter(language=language).first()
-        if superlachaise_localized_poi:
-            result[language.code] = {
-                'name': superlachaise_localized_poi.name,
-                'description': superlachaise_localized_poi.description,
-            }
-    
-    wikidata_entries = {}
-    for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
-        if not wikidata_entry_relation.relation_type in wikidata_entries:
-            wikidata_entries[wikidata_entry_relation.relation_type] = []
-        wikidata_entries[wikidata_entry_relation.relation_type].append(get_wikidata_entry_dict(wikidata_entry_relation.wikidata_entry, languages))
-    result['wikidata_entries'] = wikidata_entries
-    
-    categories = []
-    for category in superlachaise_poi.categories.all():
-        categories.append(get_category_dict(category, languages))
-    result['categories'] = categories
-    
-    return result
-
-def get_openstreetmap_element_dict(openstreetmap_element):
-    result = {
-        'id': openstreetmap_element.id,
-        'type': openstreetmap_element.type,
-        'sorting_name': openstreetmap_element.sorting_name,
-        'latitude': openstreetmap_element.latitude,
-        'longitude': openstreetmap_element.longitude,
-    }
-    
-    return result
-
-def get_wikidata_entry_dict(wikidata_entry, languages):
-    result = {
-        'id': wikidata_entry.id,
-    }
-    
-    if wikidata_entry.date_of_birth:
-        result['date_of_birth'] = wikidata_entry.date_of_birth
-    if wikidata_entry.date_of_birth_accuracy:
-        result['date_of_birth_accuracy'] = wikidata_entry.date_of_birth_accuracy
-    if wikidata_entry.date_of_death:
-        result['date_of_death'] = wikidata_entry.date_of_death
-    if wikidata_entry.date_of_death_accuracy:
-        result['date_of_death_accuracy'] = wikidata_entry.date_of_death_accuracy
-    if wikidata_entry.burial_plot_reference:
-        result['burial_plot_reference'] = wikidata_entry.burial_plot_reference
-    
-    for language in languages:
-        wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
-        if wikidata_localized_entry:
-            result[language.code] = {
-                'name': wikidata_localized_entry.name,
-                'intro': wikidata_localized_entry.intro,
-            }
-    
-    return result
-
-def get_wikimedia_commons_category_dict(wikimedia_commons_category, main_image):
-    result = None
-    
-    if wikimedia_commons_category:
-        result = {
-            'name': 'Category:' + wikimedia_commons_category.id,
-            'files': wikimedia_commons_category.files,
-            'main_image': main_image.id if main_image else None,
-        }
-    
-    return result
-
-def get_category_dict(category, languages):
-    result = {
-        'code': category.code,
-        'type': category.type,
-    }
-    
-    for language in languages:
-        localized_category = category.localizations.filter(language=language).first()
-        if localized_category:
-            result[language.code] = {
-                'name': localized_category.name,
-            }
-    
-    return result
-
 def get_languages(request):
     language_code = request.GET.get('language', None)
     if language_code:
@@ -282,25 +228,9 @@ def get_modified_since(request):
     
     return modified_since
 
-def get_recursive(request):
-    result = request.GET.get('recursive', False)
-    
-    if result == '':
-        result = True
-    
-    return result
-
-def get_restrict_fields(request):
-    result = request.GET.get('restrict_fields', False)
-    
-    if result == '':
-        result = True
-    
-    return result
-
 @require_http_methods(["GET"])
 def openstreetmap_element_list(request):
-    restrict_fields = get_restrict_fields(request)
+    restrict_fields = False
     modified_since = get_modified_since(request)
     
     if modified_since:
@@ -330,7 +260,7 @@ def openstreetmap_element_list(request):
 
 @require_http_methods(["GET"])
 def openstreetmap_element(request, id):
-    restrict_fields = get_restrict_fields(request)
+    restrict_fields = False
     
     openstreetmap_element = OpenStreetMapElement.objects.get(id=id)
     
@@ -341,7 +271,7 @@ def openstreetmap_element(request, id):
 @require_http_methods(["GET"])
 def wikidata_entry_list(request):
     languages = get_languages(request)
-    restrict_fields = get_restrict_fields(request)
+    restrict_fields = False
     modified_since = get_modified_since(request)
     
     if modified_since:
@@ -372,7 +302,7 @@ def wikidata_entry_list(request):
 @require_http_methods(["GET"])
 def wikidata_entry(request, id):
     languages = get_languages(request)
-    restrict_fields = get_restrict_fields(request)
+    restrict_fields = False
     
     wikidata_entry = WikidataEntry.objects.get(id=id)
     
@@ -382,7 +312,7 @@ def wikidata_entry(request, id):
 
 @require_http_methods(["GET"])
 def wikimedia_commons_category_list(request):
-    restrict_fields = get_restrict_fields(request)
+    restrict_fields = False
     modified_since = get_modified_since(request)
     
     if modified_since:
@@ -413,7 +343,7 @@ def wikimedia_commons_category_list(request):
 @require_http_methods(["GET"])
 def wikimedia_commons_category(request, id):
     languages = get_languages(request)
-    restrict_fields = get_restrict_fields(request)
+    restrict_fields = False
     
     wikimedia_commons_category = WikimediaCommonsCategory.objects.get(id=id)
     
@@ -423,27 +353,55 @@ def wikimedia_commons_category(request, id):
 
 @require_http_methods(["GET"])
 def superlachaise_poi_list(request):
-    modified_since = request.GET.get('modified_since', None)
-    print dateutil.parser.parse(modified_since)
-    # Get objects
+    languages = get_languages(request)
+    restrict_fields = True
+    modified_since = get_modified_since(request)
+    
     if modified_since:
-        superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=dateutil.parser.parse(modified_since))
+        superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=modified_since).order_by('openstreetmap_element_id')
     else:
-        superlachaise_pois = SuperLachaisePOI.objects.all()
+        superlachaise_pois = SuperLachaisePOI.objects.all().order_by('openstreetmap_element_id')
     
-    # Prepare dict
-    result = get_superlachaise_pois_dict(superlachaise_pois, get_languages(request))
+    paginator = Paginator(superlachaise_pois, 10)
+    page = request.GET.get('page')
+    try:
+        page_content = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_content = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_content = paginator.page(paginator.num_pages)
     
-    content = dump_json(result)
+    wikidata_entries = WikidataEntry.objects.filter(superlachaisewikidatarelation__superlachaise_poi__in=page_content.object_list).distinct()
+    categories = SuperLachaiseCategory.objects.filter(superlachaisecategoryrelation__superlachaise_poi__in=page_content.object_list).distinct()
+    
+    obj_to_encode = {
+        'superlachaise_pois': page_content.object_list,
+        'wikidata_entries': wikidata_entries,
+        'categories': categories,
+        'page': page_content,
+    }
+    
+    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields, modified_since=modified_since).encode(obj_to_encode)
+    
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
 @require_http_methods(["GET"])
 def superlachaise_poi(request, id):
-    # Get objects
-    superlachaise_pois = [SuperLachaisePOI.objects.get(openstreetmap_element__id=id)]
+    languages = get_languages(request)
+    restrict_fields = True
     
-    # Prepare dict
-    result = get_superlachaise_pois_dict(superlachaise_pois, get_languages(request))
+    superlachaise_poi = SuperLachaisePOI.objects.get(openstreetmap_element_id=id)
+    wikidata_entries = superlachaise_poi.wikidata_entries.all()
+    categories = superlachaise_poi.categories.all()
     
-    content = dump_json(result)
+    obj_to_encode = {
+        'superlachaise_poi': superlachaise_poi,
+        'wikidata_entries': wikidata_entries,
+        'categories': categories,
+    }
+    
+    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    
     return HttpResponse(content, content_type='application/json; charset=utf-8')
