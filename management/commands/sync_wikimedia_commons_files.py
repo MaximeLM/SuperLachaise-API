@@ -42,10 +42,13 @@ class Command(BaseCommand):
             
             while rawcontinue:
                 # Request properties
-                url = "http://commons.wikimedia.org/w/api.php?action=query&titles={titles}&prop=imageinfo&iiprop=url&iiurlwidth={thumbnail_size}{rawcontinue}&format=json"\
+                url = "https://commons.wikimedia.org/w/api.php?action=query&titles={titles}&prop=imageinfo&iiprop=url&iiurlwidth={thumbnail_size}{rawcontinue}&format=json"\
                     .format(titles=urllib2.quote('|'.join(wikimedia_commons_files_page).encode('utf8'), '|'), rawcontinue=rawcontinue, thumbnail_size=self.thumbnail_width)
                 
-                request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+                if settings.USER_AGENT:
+                    request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+                else:
+                    raise 'no USER_AGENT defined in settings.py'
                 u = urllib2.urlopen(request)
                 
                 # Parse result

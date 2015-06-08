@@ -39,9 +39,12 @@ class Command(BaseCommand):
         
         while should_continue:
             # Request properties
-            url = "http://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&rawcontinue&format=json&cmtitle=Category:{category}{cmcontinue}&prop=revisions&titles=Category:{category}&rvprop=content"\
+            url = "https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&rawcontinue&format=json&cmtitle=Category:{category}{cmcontinue}&prop=revisions&titles=Category:{category}&rvprop=content"\
                 .format(category=urllib2.quote(wikimedia_commons_category.encode('utf8')), cmcontinue=cmcontinue)
-            request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+            if settings.USER_AGENT:
+                request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+            else:
+                raise 'no USER_AGENT defined in settings.py'
             u = urllib2.urlopen(request)
             
             # Parse result

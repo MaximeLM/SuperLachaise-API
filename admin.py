@@ -198,7 +198,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
             for link in obj.wikipedia.split(';'):
                 if ':' in link:
                     language = link.split(':')[-2]
-                    url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(link.split(':')[-1])).replace("'","%27")
+                    url = u'https://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(link.split(':')[-1])).replace("'","%27")
                     result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
                 else:
                     result.append(link)
@@ -213,7 +213,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
             
             result = []
             for link in obj.wikidata.split(';'):
-                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link.split(':')[-1]), language=language)
+                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link.split(':')[-1]), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
     wikidata_link.allow_tags = True
@@ -226,7 +226,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
             
             result = []
             for link in obj.wikidata_combined.split(';'):
-                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link.split(':')[-1]), language=language)
+                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link.split(':')[-1]), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
     wikidata_combined_link.allow_tags = True
@@ -235,7 +235,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     def wikimedia_commons_link(self, obj):
         if obj.wikimedia_commons:
-            url = u'http://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons)).replace("'","%27")
+            url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons)))
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
@@ -258,7 +258,7 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
-            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
+            url = u'https://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
@@ -304,7 +304,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     def wikidata_link(self, obj):
         if obj.id:
             language = translation.get_language().split("-", 1)[0]
-            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.id), language=language)
+            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.id), language=language)
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
@@ -316,7 +316,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
             
             result = []
             for link in obj.instance_of.split(';'):
-                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
     instance_of_link.allow_tags = True
@@ -329,7 +329,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
             
             result = []
             for link in obj.occupations.split(';'):
-                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
     occupations_link.allow_tags = True
@@ -340,7 +340,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         if obj.sex_or_gender:
             language = translation.get_language().split("-", 1)[0]
             
-            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.sex_or_gender), language=language)
+            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.sex_or_gender), language=language)
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.sex_or_gender)))
     sex_or_gender_link.allow_tags = True
     sex_or_gender_link.short_description = _('sex or gender')
@@ -348,7 +348,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def wikimedia_commons_category_link(self, obj):
         if obj.wikimedia_commons_category:
-            url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_category)).replace("'","%27")
+            url = u'https://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_category)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
@@ -356,7 +356,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def wikimedia_commons_grave_category_link(self, obj):
         if obj.wikimedia_commons_grave_category:
-            url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_grave_category)).replace("'","%27")
+            url = u'https://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_grave_category)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_grave_category)))
     wikimedia_commons_grave_category_link.allow_tags = True
     wikimedia_commons_grave_category_link.short_description = _('wikimedia commons grave category')
@@ -368,7 +368,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
             
             result = []
             for link in obj.grave_of_wikidata.split(';'):
-                url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
+                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
     grave_of_wikidata_link.allow_tags = True
@@ -441,7 +441,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     def wikidata_link(self, obj):
         if obj.wikidata_entry:
             language = translation.get_language().split("-", 1)[0]
-            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_entry.id), language=language)
+            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_entry.id), language=language)
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry.id)))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
@@ -449,7 +449,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
-            url = u'http://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
+            url = u'https://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
@@ -498,7 +498,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('wikimedia_commons_link', 'files_link', 'main_image_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = u'http://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.id)).replace("'","%27")
+        url = u'https://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.id)).replace("'","%27")
         return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons category')
@@ -508,7 +508,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
         if obj.files:
             result = []
             for link in obj.files.split(';'):
-                url = u'http://commons.wikimedia.org/wiki/{file}'.format(file=unicode(link).replace("'","%27"))
+                url = u'https://commons.wikimedia.org/wiki/{file}'.format(file=unicode(link).replace("'","%27"))
                 result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
             return ';'.join(result)
     files_link.allow_tags = True
@@ -517,7 +517,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     
     def main_image_link(self, obj):
         if obj.main_image:
-            url = u'http://commons.wikimedia.org/wiki/{file}'.format(file=unicode(obj.main_image).replace("'","%27"))
+            url = u'https://commons.wikimedia.org/wiki/{file}'.format(file=unicode(obj.main_image).replace("'","%27"))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.main_image)))
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
@@ -560,7 +560,7 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     readonly_fields = ('wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = u'http://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.id)).replace("'","%27")
+        url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.id)).replace("'","%27")
         return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons file')
@@ -822,7 +822,7 @@ class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
     def wikidata_link(self, obj):
         if obj.id:
             language = translation.get_language().split("-", 1)[0]
-            url = u'http://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.id), language=language)
+            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.id), language=language)
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')

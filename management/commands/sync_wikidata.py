@@ -114,7 +114,7 @@ class WikipediaIntroHTMLParser(HTMLParser):
                 for attr in attrs:
                     if attr[0] == 'href':
                         if attr[1].startswith('/wiki/') or attr[1].startswith('/w/'):
-                            self.current_content.append(' href="http://{language_code}.wikipedia.org{link}"'.format(language_code=self.language_code, link=attr[1]))
+                            self.current_content.append(' href="https://{language_code}.wikipedia.org{link}"'.format(language_code=self.language_code, link=attr[1]))
                         elif attr[1].startswith('//'):
                             self.current_content.append(' href="http:{link}"'.format(link=attr[1]))
             
@@ -159,9 +159,12 @@ class Command(BaseCommand):
                 links_page = links[i : min(len(links), i + max_items_per_request)]
                 
                 # Request properties
-                url = "http://{language_code}.wikipedia.org/w/api.php?action=query&prop=info&format=json&titles={titles}"\
+                url = "https://{language_code}.wikipedia.org/w/api.php?action=query&prop=info&format=json&titles={titles}"\
                     .format(language_code=language.code, titles=urllib2.quote('|'.join(links_page).encode('utf8'), '|'))
-                request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+                if settings.USER_AGENT:
+                    request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+                else:
+                    raise 'no USER_AGENT defined in settings.py'
                 u = urllib2.urlopen(request)
                 
                 # Parse result
@@ -177,9 +180,12 @@ class Command(BaseCommand):
     
     def request_wikipedia_pre_section(self, language_code, title):
         # Request properties
-        url = "http://{language_code}.wikipedia.org/w/api.php?action=parse&page={title}&format=json&prop=text&section=0"\
+        url = "https://{language_code}.wikipedia.org/w/api.php?action=parse&page={title}&format=json&prop=text&section=0"\
             .format(language_code=language_code, title=urllib2.quote(title.encode('utf8')))
-        request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+        if settings.USER_AGENT:
+            request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+        else:
+            raise 'no USER_AGENT defined in settings.py'
         u = urllib2.urlopen(request)
         
         # Parse result
@@ -215,9 +221,12 @@ class Command(BaseCommand):
             wikidata_codes_page = wikidata_codes[i : min(len(wikidata_codes), i + max_items_per_request)]
             
             # Request properties
-            url = "http://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&ids={ids}&props={props}&format=json"\
+            url = "https://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&ids={ids}&props={props}&format=json"\
                 .format(languages='|'.join(languages), ids='|'.join(wikidata_codes_page), props='|'.join(props))
-            request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+            if settings.USER_AGENT:
+                request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+            else:
+                raise 'no USER_AGENT defined in settings.py'
             u = urllib2.urlopen(request)
             
             # Parse result

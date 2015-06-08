@@ -81,9 +81,12 @@ class Command(BaseCommand):
             wikipedia_links_page = wikipedia_links[i : min(len(wikipedia_links), i + max_items_per_request)]
         
             # Request properties
-            url = u"http://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&sites={sites}&titles={titles}&props={props}&format=json"\
+            url = u"https://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&sites={sites}&titles={titles}&props={props}&format=json"\
                 .format(languages='|'.join(languages), titles=urllib2.quote('|'.join(wikipedia_links_page).encode('utf8'), '|'), props='|'.join(props), sites=language_code + 'wiki')
-            request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+            if settings.USER_AGENT:
+                request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+            else:
+                raise 'no USER_AGENT defined in settings.py'
             u = urllib2.urlopen(request)
         
             # Parse result

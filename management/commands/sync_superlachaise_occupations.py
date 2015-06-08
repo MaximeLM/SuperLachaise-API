@@ -47,9 +47,12 @@ class Command(BaseCommand):
             wikidata_codes_page = wikidata_codes[i : min(len(wikidata_codes), i + max_items_per_request)]
             
             # Request properties
-            url = "http://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&ids={ids}&props={props}&format=json"\
+            url = "https://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&ids={ids}&props={props}&format=json"\
                 .format(languages='|'.join(languages), ids='|'.join(wikidata_codes_page), props='|'.join(props))
-            request = urllib2.Request(url, headers={"User-Agent" : "SuperLachaise API superlachaise@gmail.com"})
+            if settings.USER_AGENT:
+                request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+            else:
+                raise 'no USER_AGENT defined in settings.py'
             u = urllib2.urlopen(request)
             
             # Parse result
