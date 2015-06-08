@@ -150,6 +150,7 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
+                'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=unicode(openstreetmap_element.id)),
                 'name': openstreetmap_element.name,
                 'nature': openstreetmap_element.nature,
                 'wikipedia': openstreetmap_element.wikipedia,
@@ -176,6 +177,7 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
+                'url': u'https://www.wikidata.org/wiki/{name}'.format(name=unicode(wikidata_entry.id)),
                 'instance_of': wikidata_entry.instance_of.split(';'),
                 'wikimedia_commons_category': wikidata_entry.wikimedia_commons_category,
             })
@@ -197,7 +199,7 @@ class SuperLachaiseEncoder(object):
                 if wikidata_localized_entry:
                     result[language.code] = {
                         'name': wikidata_localized_entry.name,
-                        'wikipedia': wikidata_localized_entry.name,
+                        'wikipedia': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=language.code, name=unicode(wikidata_localized_entry.wikipedia)),
                         'intro': wikidata_localized_entry.intro,
                     }
                 else:
@@ -211,6 +213,11 @@ class SuperLachaiseEncoder(object):
             'files': wikimedia_commons_category.files.split(';'),
             'main_file': wikimedia_commons_category.main_image,
         }
+        
+        if not self.restrict_fields:
+            result.update({
+                'url': u'https://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(wikimedia_commons_category.id)),
+            })
         
         return result
 
@@ -238,7 +245,7 @@ def get_restrict_fields(request):
     
     if restrict_fields == 'False' or restrict_fields == 'false' or restrict_fields == '0' or restrict_fields == 0:
         restrict_fields = False
-    elif restrict_fields:
+    elif restrict_fields or restrict_fields == '':
         restrict_fields = True
     else:
         restrict_fields = False
