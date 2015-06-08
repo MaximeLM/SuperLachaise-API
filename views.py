@@ -22,7 +22,9 @@ limitations under the License.
 
 import datetime, dateutil.parser, json
 from decimal import Decimal
+from django.core.exceptions import SuspiciousOperation
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
+from django.core.urlresolvers import reverse
 from django.db.models.query import QuerySet
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
@@ -31,9 +33,8 @@ from superlachaise_api.models import *
 
 class SuperLachaiseEncoder(object):
     
-    def __init__(self, languages=None, modified_since=None, restrict_fields=True):
+    def __init__(self, languages=None, restrict_fields=True):
         self.languages = languages
-        self.modified_since = modified_since
         self.restrict_fields = restrict_fields
     
     def encode(self, obj):
@@ -41,13 +42,14 @@ class SuperLachaiseEncoder(object):
     
     def default(self, obj):
         if isinstance(obj, datetime.date):
-            return obj.isoformat()
+            result = obj.isoformat()
         elif isinstance(obj, Decimal):
-            return str(obj)
+            result = str(obj)
         elif isinstance(obj, basestring):
-            return obj
+            result = obj
         else:
-            return None
+            result = None
+        return result
     
     def obj_dict(self, obj):
         if isinstance(obj, Page):
@@ -155,7 +157,7 @@ class SuperLachaiseEncoder(object):
                 'wikidata_combined': openstreetmap_element.wikidata_combined,
                 'wikimedia_commons': openstreetmap_element.wikimedia_commons,
             })
-    
+        
         return result
     
     def wikidata_entry_dict(self, wikidata_entry):
@@ -218,19 +220,34 @@ def get_languages(request):
         languages = Language.objects.filter(code=language_code)
     else:
         languages = Language.objects.all()
-    
+
     return languages
 
 def get_modified_since(request):
-    modified_since = request.GET.get('modified_since', None)
-    if modified_since:
-        modified_since = dateutil.parser.parse(modified_since)
+    try:
+        modified_since = request.GET.get('modified_since', None)
+        if modified_since:
+            modified_since = dateutil.parser.parse(modified_since).date()
     
-    return modified_since
+        return modified_since
+    except:
+        raise SuspiciousOperation('Invalid parameter : modified_since')
+
+def get_restrict_fields(request):
+    restrict_fields = request.GET.get('restrict_fields', False)
+    
+    if restrict_fields == 'False' or restrict_fields == 'false' or restrict_fields == '0' or restrict_fields == 0:
+        restrict_fields = False
+    elif restrict_fields:
+        restrict_fields = True
+    else:
+        restrict_fields = False
+    
+    return restrict_fields
 
 @require_http_methods(["GET"])
 def openstreetmap_element_list(request):
-    restrict_fields = False
+    restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
     
     if modified_since:
@@ -260,7 +277,7 @@ def openstreetmap_element_list(request):
 
 @require_http_methods(["GET"])
 def openstreetmap_element(request, id):
-    restrict_fields = False
+    restrict_fields = get_restrict_fields(request)
     
     openstreetmap_element = OpenStreetMapElement.objects.get(id=id)
     
@@ -271,7 +288,7 @@ def openstreetmap_element(request, id):
 @require_http_methods(["GET"])
 def wikidata_entry_list(request):
     languages = get_languages(request)
-    restrict_fields = False
+    restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
     
     if modified_since:
@@ -302,7 +319,7 @@ def wikidata_entry_list(request):
 @require_http_methods(["GET"])
 def wikidata_entry(request, id):
     languages = get_languages(request)
-    restrict_fields = False
+    restrict_fields = get_restrict_fields(request)
     
     wikidata_entry = WikidataEntry.objects.get(id=id)
     
@@ -313,7 +330,7 @@ def wikidata_entry(request, id):
 @require_http_methods(["GET"])
 def wikimedia_commons_category_list(request):
     languages = get_languages(request)
-    restrict_fields = False
+    restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
     
     if modified_since:
@@ -344,7 +361,7 @@ def wikimedia_commons_category_list(request):
 @require_http_methods(["GET"])
 def wikimedia_commons_category(request, id):
     languages = get_languages(request)
-    restrict_fields = False
+    restrict_fields = get_restrict_fields(request)
     
     wikimedia_commons_category = WikimediaCommonsCategory.objects.get(id=id)
     
@@ -355,7 +372,7 @@ def wikimedia_commons_category(request, id):
 @require_http_methods(["GET"])
 def superlachaise_category_list(request):
     languages = get_languages(request)
-    restrict_fields = False
+    restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
     
     if modified_since:
@@ -386,7 +403,7 @@ def superlachaise_category_list(request):
 @require_http_methods(["GET"])
 def superlachaise_category(request, id):
     languages = get_languages(request)
-    restrict_fields = False
+    restrict_fields = get_restrict_fields(request)
     
     superlachaise_category = SuperLachaiseCategory.objects.get(code=id)
     
@@ -397,7 +414,7 @@ def superlachaise_category(request, id):
 @require_http_methods(["GET"])
 def superlachaise_poi_list(request):
     languages = get_languages(request)
-    restrict_fields = True
+    restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
     
     if modified_since:
@@ -426,14 +443,14 @@ def superlachaise_poi_list(request):
         'page': page_content,
     }
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields, modified_since=modified_since).encode(obj_to_encode)
+    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
 @require_http_methods(["GET"])
 def superlachaise_poi(request, id):
     languages = get_languages(request)
-    restrict_fields = True
+    restrict_fields = get_restrict_fields(request)
     
     superlachaise_poi = SuperLachaisePOI.objects.get(openstreetmap_element_id=id)
     wikidata_entries = superlachaise_poi.wikidata_entries.all()
@@ -446,5 +463,38 @@ def superlachaise_poi(request, id):
     }
     
     content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    
+    return HttpResponse(content, content_type='application/json; charset=utf-8')
+
+@require_http_methods(["GET"])
+def modified_objects(request):
+    modified_since = get_modified_since(request)
+    
+    modified_objects = {}
+    
+    for model, view in [
+        (OpenStreetMapElement, openstreetmap_element_list),
+        (WikidataEntry, wikidata_entry_list),
+        (WikimediaCommonsCategory, wikimedia_commons_category_list),
+        (SuperLachaiseCategory, superlachaise_category_list),
+        (SuperLachaisePOI, superlachaise_poi_list),
+    ]:
+        if modified_since:
+            count = model.objects.filter(modified__gt=modified_since).count()
+            url = reverse(view) + '?modified_since=%s' % modified_since
+        else:
+            count = 0
+            url = reverse(view)
+        
+        modified_objects[model.__name__] = {
+            'count': count,
+            'url': url,
+        }
+    
+    obj_to_encode = {
+        'modified_objects': modified_objects,
+    }
+    
+    content = SuperLachaiseEncoder().encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
