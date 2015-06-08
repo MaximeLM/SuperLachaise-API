@@ -55,7 +55,7 @@ class SuperLachaiseEncoder(object):
         elif isinstance(obj, SuperLachaisePOI):
             return self.superlachaise_poi_dict(obj)
         elif isinstance(obj, SuperLachaiseCategory):
-            return self.category_dict(obj)
+            return self.superlachaise_category_dict(obj)
         elif isinstance(obj, OpenStreetMapElement):
             return self.openstreetmap_element_dict(obj)
         elif isinstance(obj, WikidataEntry):
@@ -119,18 +119,18 @@ class SuperLachaiseEncoder(object):
         
         return result
     
-    def category_dict(self, category):
+    def superlachaise_category_dict(self, superlachaise_category):
         result = {
-            'code': category.code,
-            'type': category.type,
+            'id': superlachaise_category.code,
+            'type': superlachaise_category.type,
         }
         
         if self.languages:
             for language in self.languages:
-                localized_category = category.localizations.filter(language=language).first()
-                if localized_category:
+                superlachaise_localized_category = superlachaise_category.localizations.filter(language=language).first()
+                if superlachaise_localized_category:
                     result[language.code] = {
-                        'name': localized_category.name,
+                        'name': superlachaise_localized_category.name,
                     }
                 else:
                     result[language.code] = None
@@ -312,6 +312,7 @@ def wikidata_entry(request, id):
 
 @require_http_methods(["GET"])
 def wikimedia_commons_category_list(request):
+    languages = get_languages(request)
     restrict_fields = False
     modified_since = get_modified_since(request)
     
@@ -336,7 +337,7 @@ def wikimedia_commons_category_list(request):
         'page': page_content,
     }
     
-    content = SuperLachaiseEncoder(restrict_fields=restrict_fields).encode(obj_to_encode)
+    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -348,6 +349,48 @@ def wikimedia_commons_category(request, id):
     wikimedia_commons_category = WikimediaCommonsCategory.objects.get(id=id)
     
     content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode({'wikimedia_commons_category': wikimedia_commons_category})
+    
+    return HttpResponse(content, content_type='application/json; charset=utf-8')
+
+@require_http_methods(["GET"])
+def superlachaise_category_list(request):
+    languages = get_languages(request)
+    restrict_fields = False
+    modified_since = get_modified_since(request)
+    
+    if modified_since:
+        superlachaise_categories = SuperLachaiseCategory.objects.filter(modified__gt=modified_since).order_by('code')
+    else:
+        superlachaise_categories = SuperLachaiseCategory.objects.all().order_by('code')
+    
+    paginator = Paginator(superlachaise_categories, 25)
+    page = request.GET.get('page')
+    try:
+        page_content = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_content = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_content = paginator.page(paginator.num_pages)
+    
+    obj_to_encode = {
+        'superlachaise_categories': page_content.object_list,
+        'page': page_content,
+    }
+    
+    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    
+    return HttpResponse(content, content_type='application/json; charset=utf-8')
+
+@require_http_methods(["GET"])
+def superlachaise_category(request, id):
+    languages = get_languages(request)
+    restrict_fields = False
+    
+    superlachaise_category = SuperLachaiseCategory.objects.get(code=id)
+    
+    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode({'superlachaise_category': superlachaise_category})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -374,12 +417,12 @@ def superlachaise_poi_list(request):
         page_content = paginator.page(paginator.num_pages)
     
     wikidata_entries = WikidataEntry.objects.filter(superlachaisewikidatarelation__superlachaise_poi__in=page_content.object_list).distinct()
-    categories = SuperLachaiseCategory.objects.filter(superlachaisecategoryrelation__superlachaise_poi__in=page_content.object_list).distinct()
+    superlachaise_categories = SuperLachaiseCategory.objects.filter(superlachaisecategoryrelation__superlachaise_poi__in=page_content.object_list).distinct()
     
     obj_to_encode = {
         'superlachaise_pois': page_content.object_list,
         'wikidata_entries': wikidata_entries,
-        'categories': categories,
+        'superlachaise_categories': superlachaise_categories,
         'page': page_content,
     }
     
@@ -394,12 +437,12 @@ def superlachaise_poi(request, id):
     
     superlachaise_poi = SuperLachaisePOI.objects.get(openstreetmap_element_id=id)
     wikidata_entries = superlachaise_poi.wikidata_entries.all()
-    categories = superlachaise_poi.categories.all()
+    superlachaise_categories = superlachaise_poi.categories.all()
     
     obj_to_encode = {
         'superlachaise_poi': superlachaise_poi,
         'wikidata_entries': wikidata_entries,
-        'categories': categories,
+        'superlachaise_categories': superlachaise_categories,
     }
     
     content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)

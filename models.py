@@ -503,6 +503,12 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
         ordering = ['language', 'name']
         verbose_name = _('superlachaise localized POI')
         verbose_name_plural = _('superlachaise localized POIs')
+    
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseLocalizedCategory, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
 
 class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a Wikidata entry """
@@ -563,6 +569,12 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
         ordering = ['language', 'name']
         verbose_name = _('superlachaise localized category')
         verbose_name_plural = _('superlachaise localized categories')
+    
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseLocalizedCategory, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise categories
+        self.superlachaise_category.save()
 
 class SuperLachaiseCategoryRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a SuperLachaise category """

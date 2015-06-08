@@ -34,6 +34,9 @@ urlpatterns = patterns('',
     url(r'^wikimedia_commons_category/$', views.wikimedia_commons_category_list),
     url(r'^wikimedia_commons_category/(?P<id>.*)/$', views.wikimedia_commons_category),
     
+    url(r'^superlachaise_category/$', views.superlachaise_category_list),
+    url(r'^superlachaise_category/(?P<id>.*)/$', views.superlachaise_category),
+    
     url(r'^superlachaise_poi/$', views.superlachaise_poi_list),
     url(r'^superlachaise_poi/(?P<id>[0-9]*)/$', views.superlachaise_poi),
 )
