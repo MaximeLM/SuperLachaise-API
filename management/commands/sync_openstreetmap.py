@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, math, os, overpy, sys, traceback, urllib2
+import json, math, os, overpy, requests, sys, traceback, urllib2
 from decimal import Decimal
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -64,39 +64,39 @@ def none_to_blank(s):
 class Command(BaseCommand):
     
     def request_wikidata_with_wikipedia_links(self, language_code, wikipedia_links):
-        # List languages to request
-        languages = []
-        for language in Language.objects.all():
-            languages.append(language.code)
-        
-        # List props to request
-        props = ['sitelinks']
-        
-        max_items_per_request = 25
-        
         result = {}
+        last_continue = {
+            'continue': '',
+        }
+        languages = Language.objects.all().values_list('code', flat=True)
+        titles = '|'.join(wikipedia_links).encode('utf8')
+        sites = language_code + 'wiki'
         
-        i = 0
-        while i < len(wikipedia_links):
-            wikipedia_links_page = wikipedia_links[i : min(len(wikipedia_links), i + max_items_per_request)]
-        
+        while True:
             # Request properties
-            url = u"https://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&sites={sites}&titles={titles}&props={props}&format=json"\
-                .format(languages='|'.join(languages), titles=urllib2.quote('|'.join(wikipedia_links_page).encode('utf8'), '|'), props='|'.join(props), sites=language_code + 'wiki')
+            params = {
+                'languages': languages,
+                'action': 'wbgetentities',
+                'props': 'sitelinks',
+                'format': 'json',
+                'sites': sites,
+                'titles': titles,
+            }
+            params.update(last_continue)
+            
             if settings.USER_AGENT:
-                request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+                headers = {"User-Agent" : settings.USER_AGENT}
             else:
                 raise 'no USER_AGENT defined in settings.py'
-            u = urllib2.urlopen(request)
-        
-            # Parse result
-            data = u.read()
-            json_result = json.loads(data)
             
-            # Add entities to result
-            result.update(json_result['entities'])
-        
-            i = i + max_items_per_request
+            json_result = requests.get('https://www.wikidata.org/w/api.php', params=params, headers=headers).json()
+            
+            if 'entities' in json_result:
+                result.update(json_result['entities'])
+            
+            if 'continue' not in json_result: break
+            
+            last_continue = json_result['continue']
         
         return result
     
@@ -166,36 +166,24 @@ class Command(BaseCommand):
         wikidata_combined = []
         
         if result['wikipedia']:
-            wikipedia_links = {}
             for wikipedia in result['wikipedia'].split(';'):
                 if ':' in wikipedia:
                     language_code = wikipedia.split(':')[-2]
                     link = wikipedia.split(':')[-1]
-                    if not language_code in wikipedia_links:
-                        wikipedia_links[language_code] = []
-                    if not link in wikipedia_links[language_code]:
-                        wikipedia_links[language_code].append(link)
-            
-            if wikipedia_links:
-                for language_code, links in wikipedia_links.iteritems():
-                    entities = self.request_wikidata_with_wikipedia_links(language_code, links)
-                    for wikidata_code, entity in entities.iteritems():
-                        wikipedia = self.get_wikipedia(entity, language_code)
-                        if wikipedia:
-                            for wikipedia_link in result['wikipedia'].split(';'):
-                                if (language_code + u':' + wikipedia) in wikipedia_link:
-                                    wikidata_link = wikipedia_link.split(language_code + u':' + wikipedia)[0] + wikidata_code
-                                    if not wikidata_link in wikidata_combined:
-                                        wikidata_combined.append(wikidata_link)
-                if len(wikidata_combined) != len(links):
-                    self.errors = self.errors + 1
-                    admin_command_error = AdminCommandError(admin_command=self.admin_command, type=_('wikipedia page not found'))
-                    admin_command_error.description = _("A wikipedia page of an OpenStreetMap element could not be found.")
-                    admin_command_error.target_object_class = "OpenStreetMapElement"
-                    admin_command_error.target_object_id = overpass_element.id
+                    if language_code in self.wikidata_codes and link in self.wikidata_codes[language_code]:
+                        wikidata_code = self.wikidata_codes[language_code][link]
+                        wikidata_link = wikipedia.split(language_code + u':' + link)[0] + wikidata_code
+                        if not wikidata_link in wikidata_combined:
+                            wikidata_combined.append(wikidata_link)
+                    else:
+                        self.errors = self.errors + 1
+                        admin_command_error = AdminCommandError(admin_command=self.admin_command, type=_('wikipedia page not found'))
+                        admin_command_error.description = _("A wikipedia page of an OpenStreetMap element could not be found.")
+                        admin_command_error.target_object_class = "OpenStreetMapElement"
+                        admin_command_error.target_object_id = overpass_element.id
 
-                    admin_command_error.full_clean()
-                    admin_command_error.save()
+                        admin_command_error.full_clean()
+                        admin_command_error.save()
         
         if result['wikidata']:
             for wikidata_link in result['wikidata'].split(';'):
@@ -315,27 +303,51 @@ class Command(BaseCommand):
         # Download data from OSM
         result = self.download_data(self.bounding_box)
         
+        wikipedia_to_fetch = {}
+        self.wikidata_codes = {}
+        for element_type in [result.nodes, result.ways, result.relations]:
+            for element in element_type:
+                wikipedias = self.get_wiki_values(element, 'wikipedia')
+                for wikipedia in wikipedias.split(';'):
+                    if ':' in wikipedia:
+                        language_code = wikipedia.split(':')[-2]
+                        link = wikipedia.split(':')[-1]
+                        if not language_code in wikipedia_to_fetch:
+                            wikipedia_to_fetch[language_code] = []
+                        if not link in wikipedia_to_fetch[language_code]:
+                            wikipedia_to_fetch[language_code].append(link)
+        total = 0
+        for language, wikipedia_links in wikipedia_to_fetch.iteritems():
+            total += len(wikipedia_links)
+        count = 0
+        max_count_per_request = 25
+        for language_code, wikipedia_links in wikipedia_to_fetch.iteritems():
+            self.wikidata_codes[language_code] = {}
+            wikipedia_links = list(set(wikipedia_links))
+            for wikipedia_links_chunk in [wikipedia_links[i:i+max_count_per_request] for i in range(0,len(wikipedia_links),max_count_per_request)]:
+                print str(count) + u'/' + str(total)
+                count += len(wikipedia_links_chunk)
+                
+                entities = self.request_wikidata_with_wikipedia_links(language_code, wikipedia_links_chunk)
+                for wikidata_code, entity in entities.iteritems():
+                    wikipedia = self.get_wikipedia(entity, language_code)
+                    self.wikidata_codes[language_code][wikipedia] = wikidata_code
+        print str(count) + u'/' + str(total)
+        
         # Handle downloaded elements
         fetched_ids = []
-        count = len(result.nodes) + len(result.ways) + len(result.relations)
         for element in result.nodes:
             if self.element_accepted(element):
-                print str(count) + u'-' + none_to_blank(element.tags.get('name'))
                 fetched_ids.append(element.id)
                 self.handle_element(element, {'x': element.lat, 'y': element.lon})
-            count -= 1
         for element in result.ways:
             if self.element_accepted(element):
-                print str(count) + u'-' + none_to_blank(element.tags.get('name'))
                 fetched_ids.append(element.id)
                 self.handle_way(element)
-            count -= 1
         for element in result.relations:
             if self.element_accepted(element):
-                print str(count) + u'-' + none_to_blank(element.tags.get('name'))
                 fetched_ids.append(element.id)
                 self.handle_relation(element)
-            count -= 1
         
         # Delete pending creations if element was deleted in OSM
         for pendingModification in PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action=PendingModification.CREATE):

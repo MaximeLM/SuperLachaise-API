@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, os, re, sys, traceback, urllib2
+import json, os, re, requests, sys, traceback, urllib2
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
@@ -28,42 +28,48 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
+def chunks(l, n):
+    """ Yield successive n-sized chunks from l.
+    """
+    for i in xrange(0, len(l), n):
+        yield l[i:i+n]
+
 class Command(BaseCommand):
     
     def request_wikimedia_commons_files(self, wikimedia_commons_files):
-        max_items_per_request = 10
-        
         result = {}
-        i = 0
-        while i < len(wikimedia_commons_files):
-            rawcontinue = '&rawcontinue'
+        last_continue = {
+            'continue': '',
+        }
+        titles = '|'.join(wikimedia_commons_files).encode('utf8')
+        
+        while True:
+            # Request properties
+            params = {
+                'action': 'query',
+                'prop': 'imageinfo',
+                'iiprop': 'url',
+                'iiprop': 'url',
+                'format': 'json',
+                'iiurlwidth': self.thumbnail_width,
+                'titles': titles,
+            }
+            params.update(last_continue)
             
-            wikimedia_commons_files_page = wikimedia_commons_files[i : min(len(wikimedia_commons_files), i + max_items_per_request)]
+            if settings.USER_AGENT:
+                headers = {"User-Agent" : settings.USER_AGENT}
+            else:
+                raise 'no USER_AGENT defined in settings.py'
             
-            while rawcontinue:
-                # Request properties
-                url = "https://commons.wikimedia.org/w/api.php?action=query&titles={titles}&prop=imageinfo&iiprop=url&iiurlwidth={thumbnail_size}{rawcontinue}&format=json"\
-                    .format(titles=urllib2.quote('|'.join(wikimedia_commons_files_page).encode('utf8'), '|'), rawcontinue=rawcontinue, thumbnail_size=self.thumbnail_width)
-                
-                if settings.USER_AGENT:
-                    request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
-                else:
-                    raise 'no USER_AGENT defined in settings.py'
-                u = urllib2.urlopen(request)
-                
-                # Parse result
-                data = u.read()
-                json_result = json.loads(data)
-                
+            json_result = requests.get('https://commons.wikimedia.org/w/api.php', params=params, headers=headers).json()
+            
+            if 'pages' in json_result['query']:
                 for page_id, page in json_result['query']['pages'].iteritems():
                     result[page['title']] = page
             
-                if 'query-continue' in json_result and 'pages' in json_result['query-continue']:
-                    rawcontinue = '&rawcontinue=%s' % (json_result['query-continue']['continue']['rawcontinue'])
-                else:
-                    rawcontinue = u''
+            if 'continue' not in json_result: break
             
-            i = i + max_items_per_request
+            last_continue = json_result['continue']
         
         return result
     
@@ -135,44 +141,46 @@ class Command(BaseCommand):
     
     def sync_wikimedia_commons_files(self):
         # Get wikimedia commons files
+        files_to_fetch = []
         fetched_files = []
-        count = WikimediaCommonsCategory.objects.count()
-        for wikimedia_commons_category in WikimediaCommonsCategory.objects.all():
-            print str(count) + u'-' + unicode(wikimedia_commons_category)
-            count -= 1
-            wikimedia_commons_files = []
-            if wikimedia_commons_category.main_image:
-                if not wikimedia_commons_category.main_image in wikimedia_commons_files:
-                    wikimedia_commons_files.append(wikimedia_commons_category.main_image)
-            if not self.sync_only_main_image and self.wikimedia_commons_category.files:
-                for link in wikimedia_commons_category.files.split(';'):
-                    if not link in wikimedia_commons_files:
-                        wikimedia_commons_files.append(link)
+        
+        files_to_fetch = WikimediaCommonsCategory.objects.exclude(main_image__exact='').values_list('main_image', flat=True)
+        
+        if not self.sync_only_main_image:
+            files_list = WikimediaCommonsCategory.objects.exclude(files__exact='').values_list('files', flat=True)
+            for files in files_list:
+                files_to_fetch = files_to_fetch.extend(files.split(';'))
+        
+        files_to_fetch = list(set(files_to_fetch))
+        total = len(files_to_fetch)
+        count = 0
+        max_count_per_request = 25
+        for files in [files_to_fetch[i:i+max_count_per_request] for i in range(0,len(files_to_fetch),max_count_per_request)]:
+            print str(count) + u'/' + str(total)
+            count += len(files)
             
-            files_result = self.request_wikimedia_commons_files(wikimedia_commons_files)
+            files_result = self.request_wikimedia_commons_files(files)
+            fetched_files.extend(files_result.keys())
             for title, wikimedia_commons_file in files_result.iteritems():
-                fetched_files.append(title)
                 self.handle_wikimedia_commons_file(title, wikimedia_commons_file)
+        print str(count) + u'/' + str(total)
         
         # Delete pending creations if element was not downloaded
-        for pendingModification in PendingModification.objects.filter(target_object_class="WikimediaCommonsFile", action=PendingModification.CREATE):
-            if not pendingModification.target_object_id in fetched_files:
-                pendingModification.delete()
+        PendingModification.objects.filter(target_object_class="WikimediaCommonsFile", action=PendingModification.CREATE).exclude(target_object_id__in=fetched_files).delete()
         
         # Look for deleted elements
-        for wikimedia_commons_file in WikimediaCommonsFile.objects.all():
-            if not wikimedia_commons_file.id in fetched_files:
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsFile", target_object_id=wikimedia_commons_file.id)
-                
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
-                
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.deleted_objects = self.deleted_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+        for wikimedia_commons_file in WikimediaCommonsFile.objects.exclude(id__in=fetched_files):
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsFile", target_object_id=wikimedia_commons_file.id)
+            
+            pendingModification.action = PendingModification.DELETE
+            pendingModification.modified_fields = u''
+            
+            pendingModification.full_clean()
+            pendingModification.save()
+            self.deleted_objects = self.deleted_objects + 1
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)

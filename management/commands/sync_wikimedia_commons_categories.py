@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, os, re, sys, traceback, urllib2
+import json, os, re, requests, sys, traceback, urllib2
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
@@ -34,30 +34,41 @@ class Command(BaseCommand):
         category_members = []
         pages = {}
         
-        should_continue = True
-        cmcontinue = ''
+        last_continue = {
+            'continue': '',
+        }
         
-        while should_continue:
+        category = 'Category:%s' % wikimedia_commons_category.encode('utf8')
+        
+        while True:
             # Request properties
-            url = "https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtype=file&rawcontinue&format=json&cmtitle=Category:{category}{cmcontinue}&prop=revisions&titles=Category:{category}&rvprop=content"\
-                .format(category=urllib2.quote(wikimedia_commons_category.encode('utf8')), cmcontinue=cmcontinue)
+            params = {
+                'action': 'query',
+                'prop': 'revisions',
+                'list': 'categorymembers',
+                'cmtype': 'file',
+                'rvprop': 'content',
+                'format': 'json',
+                'cmtitle': category,
+                'titles': category,
+            }
+            params.update(last_continue)
+            
             if settings.USER_AGENT:
-                request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+                headers = {"User-Agent" : settings.USER_AGENT}
             else:
                 raise 'no USER_AGENT defined in settings.py'
-            u = urllib2.urlopen(request)
             
-            # Parse result
-            data = u.read()
-            json_result = json.loads(data)
+            json_result = requests.get('https://commons.wikimedia.org/w/api.php', params=params, headers=headers).json()
             
-            category_members.extend(json_result['query']['categorymembers'])
-            pages.update(json_result['query']['pages'])
+            if 'categorymembers' in json_result['query']:
+                category_members.extend(json_result['query']['categorymembers'])
+            if 'pages' in json_result['query']:
+                pages.update(json_result['query']['pages'])
             
-            if 'query-continue' in json_result:
-                cmcontinue = '&cmcontinue=%s' % (json_result['query-continue']['categorymembers']['cmcontinue'])
-            else:
-                should_continue = False
+            if 'continue' not in json_result: break
+            
+            last_continue = json_result['continue']
         
         return (category_members, pages)
     

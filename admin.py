@@ -149,7 +149,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.target_object_class.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.target_object().id,))
+            url = reverse(reverse_path, args=(obj.target_object().id,)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
     target_object_link.allow_tags = True
     target_object_link.short_description = _('target object')
