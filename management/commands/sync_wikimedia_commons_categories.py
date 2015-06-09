@@ -178,9 +178,7 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Delete previous modification if any
-                pending_modification = PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", target_object_id=id).first()
-                if pending_modification:
-                    pending_modification.delete()
+                pending_modification = PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", target_object_id=id).delete()
     
     def sync_wikimedia_commons_categories(self, param_wikimedia_commons_categories):
         # Get wikimedia commons categories
@@ -207,6 +205,7 @@ class Command(BaseCommand):
                 if not link in wikimedia_commons_categories:
                     wikimedia_commons_categories.append(link)
         
+        print 'Requesting Wikimedia Commons...'
         wikimedia_commons_categories = list(set(wikimedia_commons_categories))
         total = len(wikimedia_commons_categories)
         count = 0
@@ -222,24 +221,21 @@ class Command(BaseCommand):
         
         if not param_wikimedia_commons_categories:
             # Delete pending creations if element was not downloaded
-            for pendingModification in PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", action=PendingModification.CREATE):
-                if not pendingModification.target_object_id in wikimedia_commons_categories:
-                    pendingModification.delete()
+            PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", action=PendingModification.CREATE).exclude(target_object_id__in=wikimedia_commons_categories).delete()
         
             # Look for deleted elements
-            for wikimedia_commons_category in WikimediaCommonsCategory.objects.all():
-                if not wikimedia_commons_category.id in wikimedia_commons_categories:
-                    pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=wikimedia_commons_category.id)
-                
-                    pendingModification.action = PendingModification.DELETE
-                    pendingModification.modified_fields = u''
-                
-                    pendingModification.full_clean()
-                    pendingModification.save()
-                    self.deleted_objects = self.deleted_objects + 1
-                
-                    if self.auto_apply:
-                        pendingModification.apply_modification()
+            for wikimedia_commons_category in WikimediaCommonsCategory.objects.exclude(id__in=wikimedia_commons_categories):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=wikimedia_commons_category.id)
+            
+                pendingModification.action = PendingModification.DELETE
+                pendingModification.modified_fields = u''
+            
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.deleted_objects = self.deleted_objects + 1
+            
+                if self.auto_apply:
+                    pendingModification.apply_modification()
     
     def add_arguments(self, parser):
         parser.add_argument('--wikimedia_commons_categories',

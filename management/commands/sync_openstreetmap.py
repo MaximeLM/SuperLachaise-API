@@ -241,14 +241,7 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Delete the previous modification if any
-                pendingModification = PendingModification.objects.filter(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id)).first()
-                if pendingModification:
-                    modified_fields = json.loads(pendingModification.modified_fields) if pendingModification.modified_fields else {}
-                    for key in values_dict:
-                        modified_fields.pop(key, None)
-                    if not modified_fields:
-                        pendingModification.delete()
-                
+                PendingModification.objects.filter(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id)).delete()
     
     def handle_way(self, overpass_way):
         # Get way centroid
@@ -301,6 +294,7 @@ class Command(BaseCommand):
     
     def sync_openstreetmap(self):
         # Download data from OSM
+        print 'Requesting Overpass API...'
         result = self.download_data(self.bounding_box)
         
         wikipedia_to_fetch = {}
@@ -316,6 +310,7 @@ class Command(BaseCommand):
                             wikipedia_to_fetch[language_code] = []
                         if not link in wikipedia_to_fetch[language_code]:
                             wikipedia_to_fetch[language_code].append(link)
+        print 'Requesting Wikidata...'
         total = 0
         for language, wikipedia_links in wikipedia_to_fetch.iteritems():
             total += len(wikipedia_links)
@@ -324,11 +319,11 @@ class Command(BaseCommand):
         for language_code, wikipedia_links in wikipedia_to_fetch.iteritems():
             self.wikidata_codes[language_code] = {}
             wikipedia_links = list(set(wikipedia_links))
-            for wikipedia_links_chunk in [wikipedia_links[i:i+max_count_per_request] for i in range(0,len(wikipedia_links),max_count_per_request)]:
+            for chunk in [wikipedia_links[i:i+max_count_per_request] for i in range(0,len(wikipedia_links),max_count_per_request)]:
                 print str(count) + u'/' + str(total)
-                count += len(wikipedia_links_chunk)
+                count += len(chunk)
                 
-                entities = self.request_wikidata_with_wikipedia_links(language_code, wikipedia_links_chunk)
+                entities = self.request_wikidata_with_wikipedia_links(language_code, chunk)
                 for wikidata_code, entity in entities.iteritems():
                     wikipedia = self.get_wikipedia(entity, language_code)
                     self.wikidata_codes[language_code][wikipedia] = wikidata_code
@@ -338,36 +333,33 @@ class Command(BaseCommand):
         fetched_ids = []
         for element in result.nodes:
             if self.element_accepted(element):
-                fetched_ids.append(element.id)
+                fetched_ids.append(str(element.id))
                 self.handle_element(element, {'x': element.lat, 'y': element.lon})
         for element in result.ways:
             if self.element_accepted(element):
-                fetched_ids.append(element.id)
+                fetched_ids.append(str(element.id))
                 self.handle_way(element)
         for element in result.relations:
             if self.element_accepted(element):
-                fetched_ids.append(element.id)
+                fetched_ids.append(str(element.id))
                 self.handle_relation(element)
         
         # Delete pending creations if element was deleted in OSM
-        for pendingModification in PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action=PendingModification.CREATE):
-            if not long(pendingModification.target_object_id) in fetched_ids:
-                pendingModification.delete()
+        PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action=PendingModification.CREATE).exclude(target_object_id__in=fetched_ids).delete()
         
         # Look for deleted elements
-        for openStreetMap_element in OpenStreetMapElement.objects.all():
-            if not long(openStreetMap_element.id) in fetched_ids:
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=openStreetMap_element.id)
-                
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
-                
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.deleted_objects = self.deleted_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+        for openStreetMap_element in OpenStreetMapElement.objects.exclude(id__in=fetched_ids):
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=openStreetMap_element.id)
+            
+            pendingModification.action = PendingModification.DELETE
+            pendingModification.modified_fields = u''
+            
+            pendingModification.full_clean()
+            pendingModification.save()
+            self.deleted_objects = self.deleted_objects + 1
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)

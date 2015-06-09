@@ -135,9 +135,7 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Delete previous modification if any
-                pending_modification = PendingModification.objects.filter(target_object_class="WikimediaCommonsFile", target_object_id=id).first()
-                if pending_modification:
-                    pending_modification.delete()
+                PendingModification.objects.filter(target_object_class="WikimediaCommonsFile", target_object_id=id).delete()
     
     def sync_wikimedia_commons_files(self):
         # Get wikimedia commons files
@@ -151,15 +149,16 @@ class Command(BaseCommand):
             for files in files_list:
                 files_to_fetch = files_to_fetch.extend(files.split(';'))
         
+        print 'Requesting Wikimedia Commons...'
         files_to_fetch = list(set(files_to_fetch))
         total = len(files_to_fetch)
         count = 0
         max_count_per_request = 25
-        for files in [files_to_fetch[i:i+max_count_per_request] for i in range(0,len(files_to_fetch),max_count_per_request)]:
+        for chunk in [files_to_fetch[i:i+max_count_per_request] for i in range(0,len(files_to_fetch),max_count_per_request)]:
             print str(count) + u'/' + str(total)
-            count += len(files)
+            count += len(chunk)
             
-            files_result = self.request_wikimedia_commons_files(files)
+            files_result = self.request_wikimedia_commons_files(chunk)
             fetched_files.extend(files_result.keys())
             for title, wikimedia_commons_file in files_result.iteritems():
                 self.handle_wikimedia_commons_file(title, wikimedia_commons_file)

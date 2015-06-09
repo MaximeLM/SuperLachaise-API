@@ -81,11 +81,7 @@ class Command(BaseCommand):
                         wikimedia_commons_categories.append(wikimedia_commons)
         
         if len(wikimedia_commons_categories) == 1:
-            wikimedia_commons_category = WikimediaCommonsCategory.objects.filter(id=wikimedia_commons_categories[0]).first()
-            if wikimedia_commons_category:
-                return wikimedia_commons_category
-            else:
-                return None
+            return WikimediaCommonsCategory.objects.filter(id=wikimedia_commons_categories[0]).first()
         else:
             return None
     
@@ -98,15 +94,7 @@ class Command(BaseCommand):
         else:
             return None
     
-    def get_superlachaise_poi_wikidata_entries(self, superlachaise_poi):
-        result = []
-        for wikidata_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
-            result.append(wikidata_relation.relation_type + u':' + str(wikidata_relation.wikidata_entry_id))
-        
-        result.sort()
-        return result
-    
-    def get_categories(self, openstreetmap_element, wikidata_fetched_entries):
+    def get_superlachaise_categories(self, openstreetmap_element, wikidata_fetched_entries):
         properties = {}
         
         if openstreetmap_element.nature:
@@ -135,27 +123,31 @@ class Command(BaseCommand):
         
         result = []
         for type, values in properties.iteritems():
-            categories = []
+            superlachaise_categories = []
             for value in values:
-                for category in SuperLachaiseCategory.objects.filter(type=type):
-                    if value in category.values.split(';') and not category.code in categories:
-                        categories.append(category.code)
-                for category in SuperLachaiseCategory.objects.filter(type=type, occupations__id=value):
-                    if not category.code in categories:
-                        categories.append(category.code)
-            if not categories and type == SuperLachaiseCategory.OCCUPATION:
-                categories = [u'other']
-            result.extend(categories)
+                for superlachaise_category in SuperLachaiseCategory.objects.filter(type=type).exclude(code__in=superlachaise_categories, values__exact=''):
+                    if value in superlachaise_category.values.split(';'):
+                        superlachaise_categories.append(superlachaise_category.code)
+                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, occupations__id=value).exclude(code__in=superlachaise_categories).values_list('code', flat=True))
+            if not superlachaise_categories and type == SuperLachaiseCategory.OCCUPATION:
+                superlachaise_categories = [u'other']
+            result.extend(superlachaise_categories)
         
         result.sort()
         return result
     
-    def get_superlachaise_poi_categories(self, superlachaise_poi):
+    def get_existing_wikidata_entries(self, superlachaise_poi):
         result = []
-        for category in superlachaise_poi.categories.all():
-            if not category.code in result:
-                result.append(category.code)
+        for wikidata_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
+            result.append(wikidata_relation.relation_type + u':' + str(wikidata_relation.wikidata_entry_id))
         
+        result.sort()
+        return result
+    
+    def get_existing_superlachaise_categories(self, superlachaise_poi):
+        result = superlachaise_poi.categories.all().values_list('code', flat=True)
+        
+        result = list(set(result))
         result.sort()
         return result
     
@@ -163,7 +155,7 @@ class Command(BaseCommand):
         wikidata_entries = self.get_wikidata_entries(openstreetmap_element)
         wikimedia_commons_category = self.get_wikimedia_commons_category(openstreetmap_element, wikidata_entries)
         main_image = self.get_main_image(wikimedia_commons_category)
-        categories = self.get_categories(openstreetmap_element, wikidata_entries)
+        categories = self.get_superlachaise_categories(openstreetmap_element, wikidata_entries)
         
         result = {
             'wikidata_entries': wikidata_entries,
@@ -334,11 +326,11 @@ class Command(BaseCommand):
             values_dict, localized_values_dicts = self.get_values_for_openstreetmap_element(openstreetmap_element)
             for field, value in values_dict.iteritems():
                 if field == 'wikidata_entries':
-                    superlachaise_poi_wikidata_entries = self.get_superlachaise_poi_wikidata_entries(superlachaise_poi)
+                    superlachaise_poi_wikidata_entries = self.get_existing_wikidata_entries(superlachaise_poi)
                     if value != superlachaise_poi_wikidata_entries:
                         modified_values[field] = value
                 elif field == 'categories':
-                    superlachaise_poi_categories = self.get_superlachaise_poi_categories(superlachaise_poi)
+                    superlachaise_poi_categories = self.get_existing_superlachaise_categories(superlachaise_poi)
                     if value != superlachaise_poi_categories:
                         modified_values[field] = value
                 else:
@@ -364,18 +356,16 @@ class Command(BaseCommand):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=openstreetmap_element_id)
                 pendingModification.modified_fields = json.dumps(modified_values)
                 pendingModification.action = PendingModification.MODIFY
-            
+                
                 pendingModification.full_clean()
                 pendingModification.save()
                 self.modified_objects = self.modified_objects + 1
-            
+                
                 if self.auto_apply:
                     pendingModification.apply_modification()
             else:
                 # Delete the previous modification if any
-                pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaisePOI", target_object_id=openstreetmap_element_id).first()
-                if pendingModification:
-                    pendingModification.delete()
+                pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaisePOI", target_object_id=openstreetmap_element_id).delete()
     
     def sync_superlachaise_pois(self, param_openstreetmap_element_ids):
         # Get OpenStreetMap elements
@@ -386,29 +376,35 @@ class Command(BaseCommand):
             for openstreetmap_element in OpenStreetMapElement.objects.all():
                 openstreetmap_element_ids.append(openstreetmap_element.id)
         
-        for openstreetmap_element_id in openstreetmap_element_ids:
-            self.sync_superlachaise_poi(openstreetmap_element_id)
+        print 'Preparing objects...'
+        total = len(openstreetmap_element_ids)
+        count = 0
+        max_count_per_request = 25
+        for chunk in [openstreetmap_element_ids[i:i+max_count_per_request] for i in range(0,len(openstreetmap_element_ids),max_count_per_request)]:
+            print str(count) + u'/' + str(total)
+            count += len(chunk)
+            
+            for openstreetmap_element_id in chunk:
+                self.sync_superlachaise_poi(openstreetmap_element_id)
+        print str(count) + u'/' + str(total)
         
         if not param_openstreetmap_element_ids:
             # Delete pending creations if element was not fetched
-            for pendingModification in PendingModification.objects.filter(target_object_class="SuperLachaisePOI", action=PendingModification.CREATE):
-                if not pendingModification.target_object_id in openstreetmap_element_ids:
-                    pendingModification.delete()
-        
+            PendingModification.objects.filter(target_object_class="SuperLachaisePOI", action=PendingModification.CREATE).exclude(target_object_id__in=openstreetmap_element_ids).delete()
+            
             # Look for deleted elements
-            for superlachaise_poi in SuperLachaisePOI.objects.all():
-                if not superlachaise_poi.openstreetmap_element.id in openstreetmap_element_ids:
-                    pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=uperlachaise_poi.openstreetmap_element.id)
+            for superlachaise_poi in SuperLachaisePOI.objects.exclude(openstreetmap_element_id__in=openstreetmap_element_ids):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=superlachaise_poi.openstreetmap_element.id)
                 
-                    pendingModification.action = PendingModification.DELETE
-                    pendingModification.modified_fields = u''
+                pendingModification.action = PendingModification.DELETE
+                pendingModification.modified_fields = u''
                 
-                    pendingModification.full_clean()
-                    pendingModification.save()
-                    self.deleted_objects = self.deleted_objects + 1
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.deleted_objects = self.deleted_objects + 1
                 
-                    if self.auto_apply:
-                        pendingModification.apply_modification()
+                if self.auto_apply:
+                    pendingModification.apply_modification()
     
     def add_arguments(self, parser):
         parser.add_argument('--openstreetmap_element_ids',

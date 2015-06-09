@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import datetime, json, os, sys, time, traceback, urllib2
+import datetime, json, os, requests, sys, time, traceback, urllib2
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
@@ -31,61 +31,70 @@ from superlachaise_api.models import *
 class Command(BaseCommand):
     
     def request_wikidata(self, wikidata_codes):
-        # List languages to request
-        languages = []
-        for language in Language.objects.all():
-            languages.append(language.code)
-        
-        # List props to request
-        props = ['labels']
-        
-        max_items_per_request = 25
-        
         result = {}
-        i = 0
-        while i < len(wikidata_codes):
-            wikidata_codes_page = wikidata_codes[i : min(len(wikidata_codes), i + max_items_per_request)]
-            
+        last_continue = {
+            'continue': '',
+        }
+        languages = Language.objects.all().values_list('code', flat=True)
+        ids = '|'.join(wikidata_codes).encode('utf8')
+        
+        while True:
             # Request properties
-            url = "https://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&ids={ids}&props={props}&format=json"\
-                .format(languages='|'.join(languages), ids='|'.join(wikidata_codes_page), props='|'.join(props))
+            params = {
+                'languages': languages,
+                'action': 'wbgetentities',
+                'props': 'labels',
+                'format': 'json',
+                'ids': ids,
+            }
+            params.update(last_continue)
+            
             if settings.USER_AGENT:
-                request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+                headers = {"User-Agent" : settings.USER_AGENT}
             else:
                 raise 'no USER_AGENT defined in settings.py'
-            u = urllib2.urlopen(request)
             
-            # Parse result
-            data = u.read()
-            json_result = json.loads(data)
+            json_result = requests.get('https://www.wikidata.org/w/api.php', params=params, headers=headers).json()
             
-            # Add entities to result
-            result.update(json_result['entities'])
+            if 'entities' in json_result:
+                result.update(json_result['entities'])
             
-            i = i + max_items_per_request
+            if 'continue' not in json_result: break
+            
+            last_continue = json_result['continue']
         
         return result
     
     def sync_superlachaise_occupations(self):
         # Sync objects
-        for wikidata_entry in WikidataEntry.objects.all():
-            if wikidata_entry.occupations:
-                for occupation in wikidata_entry.occupations.split(';'):
-                    superlachaise_occupation, created = SuperLachaiseOccupation.objects.get_or_create(id=occupation)
-                    if created:
-                        self.created_objects += 1
-                    superlachaise_occupation.save()
-                    if not superlachaise_occupation in wikidata_entry.superlachaise_occupations.all():
-                        wikidata_entry.superlachaise_occupations.add(superlachaise_occupation.id)
-                for superlachaise_occupation in wikidata_entry.superlachaise_occupations.all():
-                    if not superlachaise_occupation.id in wikidata_entry.occupations.split(';'):
-                        wikidata_entry.superlachaise_occupations.remove(superlachaise_occupation.id)
+        for wikidata_entry in WikidataEntry.objects.exclude(occupations__exact=''):
+            for occupation in wikidata_entry.occupations.split(';'):
+                superlachaise_occupation, created = SuperLachaiseOccupation.objects.get_or_create(id=occupation)
+                if created:
+                    self.created_objects += 1
+                superlachaise_occupation.save()
+                if not superlachaise_occupation in wikidata_entry.superlachaise_occupations.all():
+                    wikidata_entry.superlachaise_occupations.add(superlachaise_occupation.id)
+            for superlachaise_occupation in wikidata_entry.superlachaise_occupations.all():
+                if not superlachaise_occupation.id in wikidata_entry.occupations.split(';'):
+                    wikidata_entry.superlachaise_occupations.remove(superlachaise_occupation.id)
         
         # Sync names from Wikidata
-        wikidata_codes = []
-        for superlachaise_occupation in SuperLachaiseOccupation.objects.all():
-            wikidata_codes.append(superlachaise_occupation.id)
-        wikidata_entities = self.request_wikidata(wikidata_codes)
+        wikidata_codes = SuperLachaiseOccupation.objects.all().values_list('id', flat=True)
+        
+        print 'Requesting Wikidata...'
+        wikidata_entities = {}
+        total = len(wikidata_codes)
+        count = 0
+        max_count_per_request = 25
+        wikidata_codes = list(set(wikidata_codes))
+        for chunk in [wikidata_codes[i:i+max_count_per_request] for i in range(0,len(wikidata_codes),max_count_per_request)]:
+            print str(count) + u'/' + str(total)
+            count += len(chunk)
+            
+            wikidata_entities.update(self.request_wikidata(chunk))
+        print str(count) + u'/' + str(total)
+        
         for superlachaise_occupation in SuperLachaiseOccupation.objects.all():
             wikidata_entity = wikidata_entities[superlachaise_occupation.id]
             names = {}
@@ -106,7 +115,6 @@ class Command(BaseCommand):
             else:
                 superlachaise_occupation.name = u''
             superlachaise_occupation.save()
-        
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
