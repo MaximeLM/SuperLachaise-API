@@ -252,9 +252,9 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     extra = 0
     
     fieldsets = [
-        (None, {'fields': ['language', 'name', 'wikipedia', 'wikipedia_link', 'description', 'intro', 'intro_html']}),
+        (None, {'fields': ['language', 'name', 'wikipedia', 'wikipedia_link', 'description']}),
     ]
-    readonly_fields = ('wikipedia_link', 'intro_html',)
+    readonly_fields = ('wikipedia_link',)
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
@@ -263,12 +263,6 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
-    
-    def intro_html(self, obj):
-        return obj.intro
-    intro_html.allow_tags = True
-    intro_html.short_description = _('intro')
-    intro_html.admin_order_field = 'intro'
 
 @admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):

@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import datetime, dateutil.parser, json
+import datetime, json
 from decimal import Decimal
 from django.core.exceptions import SuspiciousOperation
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
@@ -28,6 +28,7 @@ from django.core.urlresolvers import reverse
 from django.db.models.query import QuerySet
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
+from django.utils import encoding, timezone, dateparse
 
 from superlachaise_api.models import *
 
@@ -81,14 +82,22 @@ class SuperLachaiseEncoder(object):
         if page.has_previous():
             params = self.request.GET.copy()
             params['page'] = page.previous_page_number()
-            page_url = '{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
-            result['previous'] = page_url
+            page_path = '{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
+            
+            result.update({
+                'previous': params['page'],
+                'previous_path': page_url,
+            })
         
         if page.has_next():
             params = self.request.GET.copy()
             params['page'] = page.next_page_number()
             page_url = '{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
-            result['next'] = page_url
+            
+            result.update({
+                'next': params['page'],
+                'next_path': page_url,
+            })
         
         return result
     
@@ -154,7 +163,7 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=unicode(openstreetmap_element.id)),
+                'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=encoding.escape_uri_path(openstreetmap_element.id)),
                 'name': openstreetmap_element.name,
                 'nature': openstreetmap_element.nature,
                 'wikipedia': openstreetmap_element.wikipedia,
@@ -181,7 +190,7 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://www.wikidata.org/wiki/{name}'.format(name=unicode(wikidata_entry.id)),
+                'url': u'https://www.wikidata.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikidata_entry.id)),
                 'instance_of': wikidata_entry.instance_of.split(';'),
                 'wikimedia_commons_category': wikidata_entry.wikimedia_commons_category,
             })
@@ -226,7 +235,7 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=wikidata_localized_entry.language.code, name=unicode(wikidata_localized_entry.wikipedia)),
+                'url': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=wikidata_localized_entry.language.code, name=encoding.escape_uri_path(wikidata_localized_entry.wikipedia)),
             })
         
         return result
@@ -239,8 +248,8 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(wikimedia_commons_category.id)),
-                'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(wikimedia_commons_category.main_image)),
+                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.id)),
+                'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.main_image)),
             })
         
         return result
@@ -252,7 +261,7 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(wikimedia_commons_file.id)),
+                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_file.id)),
             })
         
         return result
@@ -270,10 +279,15 @@ def get_modified_since(request):
     try:
         modified_since = request.GET.get('modified_since', None)
         if modified_since:
-            modified_since = dateutil.parser.parse(modified_since).date()
+            # Parse date
+            modified_since = dateparse.parse_date(modified_since)
+            
+            # Convert to datetime with 00:00 for server time zone
+            modified_since = datetime.datetime.combine(modified_since, datetime.time()).replace(tzinfo=timezone.get_current_timezone())
     
         return modified_since
     except:
+        traceback.print_exc()
         raise SuspiciousOperation('Invalid parameter : modified_since')
 
 def get_restrict_fields(request):
@@ -459,7 +473,7 @@ def superlachaise_poi_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
-    
+    print modified_since
     if modified_since:
         superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=modified_since).order_by('openstreetmap_element_id')
     else:
@@ -510,10 +524,10 @@ def superlachaise_poi(request, id):
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
 @require_http_methods(["GET"])
-def modified_objects(request):
+def objects(request):
     modified_since = get_modified_since(request)
     
-    modified_objects = {}
+    objects = {}
     
     for model, view in [
         (OpenStreetMapElement, openstreetmap_element_list),
@@ -524,18 +538,21 @@ def modified_objects(request):
     ]:
         if modified_since:
             count = model.objects.filter(modified__gt=modified_since).count()
-            url = reverse(view) + '?modified_since=%s' % modified_since
         else:
-            count = 0
-            url = reverse(view)
+            count = model.objects.all().count()
         
-        modified_objects[model.__name__] = {
+        if request.GET:
+            path = '?'.join([reverse(view), '&'.join('%s=%s' % (key, value) for key, value in request.GET.iteritems())])
+        else:
+            path = reverse(view)
+        
+        objects[model.__name__] = {
             'count': count,
-            'url': url,
+            'path': path,
         }
     
     obj_to_encode = {
-        'modified_objects': modified_objects,
+        'objects': objects,
     }
     
     content = SuperLachaiseEncoder(request).encode(obj_to_encode)

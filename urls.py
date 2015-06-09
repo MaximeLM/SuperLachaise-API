@@ -40,5 +40,5 @@ urlpatterns = patterns('',
     url(r'^superlachaise_poi/$', views.superlachaise_poi_list),
     url(r'^superlachaise_poi/(?P<id>[0-9]*)/$', views.superlachaise_poi),
     
-    url(r'^modified_objects/$', views.modified_objects),
+    url(r'^$', views.objects),
 )
