@@ -48,7 +48,7 @@ class AdminCommand(SuperLachaiseModel):
     
     name = models.CharField(primary_key=True, max_length=255, verbose_name=_('name'))
     dependency_order = models.IntegerField(null=True, verbose_name=_('dependency order'))
-    last_executed = models.DateTimeField(null=True, verbose_name=_('last executed'))
+    last_executed = models.DateTimeField(blank=True, null=True, verbose_name=_('last executed'))
     last_result = models.TextField(blank=True, null=True, verbose_name=_('last result'))
     
     def __unicode__(self):
@@ -152,6 +152,7 @@ class PendingModification(SuperLachaiseModel):
     target_object_class_choices = (
         ('OpenStreetMapElement', _('openstreetmap element')),
         ('WikidataEntry', _('wikidata entry')),
+        ('WikipediaPage', _('wikipedia page')),
         ('WikimediaCommonsCategory', _('wikimedia commons category')),
         ('WikimediaCommonsFile', _('wikimedia commons file')),
         ('SuperLachaisePOI', _('superlachaise POI')),
@@ -208,7 +209,14 @@ class PendingModification(SuperLachaiseModel):
                         target_object = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
                     else:
                         target_object = target_model(id=self.target_object_id)
-            
+                    if self.target_object_class == 'WikipediaPage':
+                        language = Language.objects.get(code=self.target_object_id.split(':')[0])
+                        wikidata_entry = WikidataEntry.objects.get(id=self.target_object_id.split(':')[1])
+                        wikidata_localized_entry = wikidata_entry.localizations.get(language=language)
+                        
+                        WikipediaPage.objects.filter(wikidata_localized_entry=wikidata_localized_entry).delete()
+                        target_object.wikidata_localized_entry = wikidata_localized_entry
+                
                 localized_fields = []
                 wikidata_entries = None
                 categories = None
@@ -244,7 +252,7 @@ class PendingModification(SuperLachaiseModel):
                     else:
                         value = original_value
                     setattr(object, field, value)
-            
+                
                 # Save
                 target_object.full_clean()
                 target_object.save()
@@ -442,6 +450,27 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         # Touch Wikidata entry
         self.wikidata_entry.save()
         
+class WikipediaPage(SuperLachaiseModel):
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
+    intro = models.TextField(blank=True, verbose_name=_('intro'))
+    
+    def __unicode__(self):
+        return unicode(self.wikidata_localized_entry)
+    
+    class Meta:
+        ordering = ['wikidata_localized_entry']
+        verbose_name = _('wikipedia page')
+        verbose_name_plural = _('wikipedia pages')
+    
+    def save(self, *args, **kwargs):
+        # Delete \r added by textfield
+        self.intro = self.intro.replace('\r','')
+        super(WikipediaPage, self).save(*args, **kwargs)
+        
+        # Touch Wikidata localized entry
+        self.wikidata_localized_entry.save()
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
     

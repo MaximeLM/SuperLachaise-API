@@ -32,11 +32,6 @@ from superlachaise_api.models import *
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
-def none_to_blank(s):
-    if s is None:
-        return u''
-    return unicode(s)
-
 class WikipediaIntroHTMLParser(HTMLParser):
     
     def __init__(self, language_code):
@@ -520,7 +515,7 @@ class Command(BaseCommand):
     def sync_wikidata(self, wikidata_ids):
         self.wikidata_codes = []
         
-        # List wikidata codes and/or wikipedia titles in openstreetmap objects
+        # List wikidata codes
         if wikidata_ids:
             self.wikidata_codes = wikidata_ids.split('|')
         else:

@@ -41,7 +41,7 @@ class AdminCommandAdmin(admin.ModelAdmin):
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'dependency_order', 'last_executed', 'last_result']}),
     ]
-    readonly_fields = ('last_executed', 'last_result', 'created', 'modified')
+    readonly_fields = ('created', 'modified')
     
     def perform_commands(self, request, queryset):
         for admin_command in queryset.order_by('dependency_order'):
@@ -479,6 +479,67 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
     sync_entry.short_description = _('Sync selected localized wikidata entries')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions = [delete_notes, sync_entry]
+
+@admin.register(WikipediaPage)
+class WikipediaPageAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'wikidata_localized_entry_link', 'wikipedia_link', 'intro_html', 'notes')
+    list_filter = ('wikidata_localized_entry__language',)
+    search_fields = ('wikidata_localized_entry__name', 'wikidata_localized_entry__wikipedia', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['wikidata_localized_entry', 'wikipedia_link', 'intro', 'intro_html']}),
+    ]
+    readonly_fields = ('wikidata_localized_entry_link', 'wikipedia_link', 'intro_html', 'created', 'modified')
+    
+    def wikidata_localized_entry_link(self, obj):
+        if obj.wikidata_localized_entry:
+            app_name = obj._meta.app_label
+            reverse_name = obj.wikidata_localized_entry.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(obj.wikidata_localized_entry.id,))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_localized_entry)))
+    wikidata_localized_entry_link.allow_tags = True
+    wikidata_localized_entry_link.short_description = _('wikidata localized entry')
+    wikidata_localized_entry_link.admin_order_field = 'wikidata_localized_entry'
+    
+    def wikipedia_link(self, obj):
+        if obj.wikidata_localized_entry.wikipedia:
+            url = u'https://{language}.wikipedia.org/wiki/{name}'.format(language=obj.wikidata_localized_entry.language.code, name=unicode(obj.wikidata_localized_entry.wikipedia)).replace("'","%27")
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_localized_entry.wikipedia)))
+    wikipedia_link.allow_tags = True
+    wikipedia_link.short_description = _('wikipedia')
+    wikipedia_link.admin_order_field = 'wikipedia'
+    
+    def intro_html(self, obj):
+        return obj.intro
+    intro_html.allow_tags = True
+    intro_html.short_description = _('intro')
+    intro_html.admin_order_field = 'intro'
+    
+    def sync_entry(self, request, queryset):
+        wikidata_localized_entry_ids = queryset.values_list('wikidata_localized_entry_id', flat=True)
+        wikidata_localized_entry_ids = [str(value) for value in wikidata_localized_entry_ids]
+        sync_start = timezone.now()
+        call_command('sync_wikipedia', wikidata_localized_entry_ids='|'.join(wikidata_localized_entry_ids))
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+        
+        if pending_modifications:
+            # Open modification page with filter
+            app_name = PendingModification._meta.app_label
+            reverse_name = PendingModification.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+            url = '/'.join(split_url[0:len(split_url) - 1])
+            return HttpResponseRedirect(url)
+    sync_entry.short_description = _('Sync selected wikipedia pages')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
