@@ -431,7 +431,6 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
-    intro = models.TextField(blank=True, verbose_name=_('intro'))
     
     def __unicode__(self):
         return unicode(self.language) + u':' + self.name
@@ -443,8 +442,6 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         unique_together = ('wikidata_entry', 'language',)
     
     def save(self, *args, **kwargs):
-        # Delete \r added by textfield
-        self.intro = self.intro.replace('\r','')
         super(WikidataLocalizedEntry, self).save(*args, **kwargs)
         
         # Touch Wikidata entry

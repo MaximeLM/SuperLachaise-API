@@ -220,6 +220,7 @@ class Command(BaseCommand):
             wikidata_localized_entries = WikidataLocalizedEntry.objects.filter(id__in=wikidata_localized_entry_ids.split('|')).exclude(wikipedia__exact='')
         else:
             wikidata_localized_entries = WikidataLocalizedEntry.objects.exclude(wikipedia__exact='')
+        print 'Requesting Wikipedia...'
         total = len(wikidata_localized_entries)
         count = 0
         fetched_ids = []

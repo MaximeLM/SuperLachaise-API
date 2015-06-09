@@ -20,218 +20,52 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import datetime, json, os, sys, time, traceback, urllib2
+import datetime, json, os, requests, sys, time, traceback
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
-from HTMLParser import HTMLParser
 
 from superlachaise_api.models import *
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
-class WikipediaIntroHTMLParser(HTMLParser):
-    
-    def __init__(self, language_code):
-        self.reset()
-        
-        self.language_code = language_code
-        self.result = []
-        self.opened_tags = [{'tag': 'root', 'attrs': [], 'data': False, 'content': self.result}]
-        self.current_content = self.result
-        self.data = False
-    
-    def can_read_data(self):
-        if len(self.opened_tags) > 1 and self.opened_tags[1]['tag'] == 'div':
-            return False
-        
-        for opened_tag in self.opened_tags:
-            if opened_tag['tag'] == 'table':
-                return False
-            if opened_tag['tag'] == 'ref':
-                return False
-            if opened_tag['tag'] == 'ol':
-                for attr in opened_tag['attrs']:
-                    if attr[0] in ['id', 'class']:
-                        return False
-            if opened_tag['tag'] == 'ul':
-                for attr in opened_tag['attrs']:
-                    if attr[0] in ['id', 'class']:
-                        return False
-            if opened_tag['tag'] == 'strong':
-                for attr in opened_tag['attrs']:
-                    if attr[0] == 'class' and 'error' in attr[1]:
-                        return False
-            if opened_tag['tag'] == 'sup':
-                for attr in opened_tag['attrs']:
-                    if attr[0] in ['id', 'class']:
-                        return False
-            if opened_tag['tag'] == 'span':
-                for attr in opened_tag['attrs']:
-                    if attr[0] == 'id' or (attr[0] == 'class' and attr[1] in ['noprint', 'unicode haudio']):
-                        return False
-            if opened_tag['tag'] == 'small':
-                for attr in opened_tag['attrs']:
-                    if attr[0] == 'id' or (attr[0] == 'class' and 'metadata' in attr[1]):
-                        return False
-            if opened_tag['tag'] == 'li':
-                for attr in opened_tag['attrs']:
-                    if attr[0] in ['id', 'class']:
-                        return False
-        
-        return True
-    
-    def handle_data(self, data):
-        if self.can_read_data():
-            self.current_content.append(data)
-            self.opened_tags[-1]['data'] = True
-    
-    def handle_entityref(self, name):
-        if self.can_read_data():
-            self.current_content.append('&'+name+';')
-            self.opened_tags[-1]['data'] = True
-    
-    def handle_charref(self, name):
-        if self.can_read_data():
-            self.current_content.append('&#'+name+';')
-            self.opened_tags[-1]['data'] = True
-    
-    def handle_starttag(self, tag, attrs):
-        self.current_content = []
-        self.opened_tags.append({'tag': tag, 'attrs': attrs, 'data': False, 'content': self.current_content})
-        
-        if self.can_read_data():
-            self.current_content.append('<%s' % tag)
-            
-            if tag == 'a':
-                for attr in attrs:
-                    if attr[0] == 'href':
-                        if attr[1].startswith('/wiki/') or attr[1].startswith('/w/'):
-                            self.current_content.append(' href="https://{language_code}.wikipedia.org{link}"'.format(language_code=self.language_code, link=attr[1]))
-                        elif attr[1].startswith('//'):
-                            self.current_content.append(' href="http:{link}"'.format(link=attr[1]))
-            
-            self.current_content.append('>')
-    
-    def handle_endtag(self, tag):
-        if self.can_read_data():
-            self.current_content.append('</%s>' % tag)
-        
-        if self.can_read_data() and (self.opened_tags[-1]['data'] or self.opened_tags[-1]['tag'] == 'a'):
-            self.opened_tags[-2]['content'].append(''.join(self.current_content))
-            self.opened_tags[-2]['data'] = True
-        else:
-            # Delete last whitespace if any
-            content = self.opened_tags[-2]['content']
-            while isinstance(content, list):
-                if len(content) > 0:
-                    if not isinstance(content[-1], list) and content[-1] in [u' ', u'&nbsp;']:
-                        del content[-1]
-                        if len(content) < 2:
-                            self.opened_tags[-2]['data'] = False
-                        break
-                    content = content[-1]
-                else:
-                    content = None
-        self.opened_tags = self.opened_tags[:-1]
-        self.current_content = self.opened_tags[-1]['content']
-    
-    def get_data(self):
-        return ''.join(self.result).strip()
-
 class Command(BaseCommand):
     
-    def request_wikipedia_infos(self, wikipedia_links):
-        max_items_per_request = 25
-        
-        result = {}
-        for language, links in wikipedia_links.iteritems():
-            i = 0
-            result_for_language = {}
-            while i < len(links):
-                links_page = links[i : min(len(links), i + max_items_per_request)]
-                
-                # Request properties
-                url = "https://{language_code}.wikipedia.org/w/api.php?action=query&prop=info&format=json&titles={titles}"\
-                    .format(language_code=language.code, titles=urllib2.quote('|'.join(links_page).encode('utf8'), '|'))
-                if settings.USER_AGENT:
-                    request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
-                else:
-                    raise 'no USER_AGENT defined in settings.py'
-                u = urllib2.urlopen(request)
-                
-                # Parse result
-                data = u.read()
-                json_result = json.loads(data)
-                
-                result_for_language.update(json_result['query']['pages'])
-                
-                i = i + max_items_per_request
-            result[language] = result_for_language
-        
-        return result
-    
-    def request_wikipedia_pre_section(self, language_code, title):
-        # Request properties
-        url = "https://{language_code}.wikipedia.org/w/api.php?action=parse&page={title}&format=json&prop=text&section=0"\
-            .format(language_code=language_code, title=urllib2.quote(title.encode('utf8')))
-        if settings.USER_AGENT:
-            request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
-        else:
-            raise 'no USER_AGENT defined in settings.py'
-        u = urllib2.urlopen(request)
-        
-        # Parse result
-        data = u.read()
-        json_result = json.loads(data)
-        
-        return json_result['parse']['text']['*']
-    
-    def get_wikipedia_intro(self, language_code, title):
-        # Get wikipedia pre-section (intro)
-        pre_section = self.request_wikipedia_pre_section(language_code, title)
-        
-        # Process HTML
-        parser = WikipediaIntroHTMLParser(language_code)
-        parser.feed(pre_section)
-        
-        return parser.get_data()
-    
     def request_wikidata(self, wikidata_codes):
-        # List languages to request
-        languages = []
-        for language in Language.objects.all():
-            languages.append(language.code)
-        
-        # List props to request
-        props = ['labels', 'descriptions', 'claims', 'sitelinks']
-        
-        max_items_per_request = 25
-        
         result = {}
-        i = 0
-        while i < len(wikidata_codes):
-            wikidata_codes_page = wikidata_codes[i : min(len(wikidata_codes), i + max_items_per_request)]
-            
+        last_continue = {
+            'continue': '',
+        }
+        languages = '|'.join(Language.objects.all().values_list('code', flat=True))
+        ids = '|'.join(wikidata_codes).encode('utf8')
+        props = '|'.join(['labels', 'descriptions', 'claims', 'sitelinks'])
+        
+        while True:
             # Request properties
-            url = "https://www.wikidata.org/w/api.php?languages={languages}&action=wbgetentities&ids={ids}&props={props}&format=json"\
-                .format(languages='|'.join(languages), ids='|'.join(wikidata_codes_page), props='|'.join(props))
+            params = {
+                'languages': languages,
+                'action': 'wbgetentities',
+                'props': props,
+                'format': 'json',
+                'ids': ids,
+            }
+            params.update(last_continue)
+            
             if settings.USER_AGENT:
-                request = urllib2.Request(url, headers={"User-Agent" : settings.USER_AGENT})
+                headers = {"User-Agent" : settings.USER_AGENT}
             else:
                 raise 'no USER_AGENT defined in settings.py'
-            u = urllib2.urlopen(request)
             
-            # Parse result
-            data = u.read()
-            json_result = json.loads(data)
+            json_result = requests.get('https://www.wikidata.org/w/api.php', params=params, headers=headers).json()
             
-            # Add entities to result
-            result.update(json_result['entities'])
+            if 'entities' in json_result:
+                result.update(json_result['entities'])
             
-            i = i + max_items_per_request
+            if 'continue' not in json_result: break
+            
+            last_continue = json_result['continue']
         
         return result
     
@@ -438,8 +272,6 @@ class Command(BaseCommand):
             language_code + ':wikipedia': wikipedia,
             language_code + ':description': self.get_description(entity, language_code),
         }
-        if wikipedia:
-            result[language_code + ':intro'] = self.get_wikipedia_intro(language_code, wikipedia)
         
         for key, value in result.iteritems():
             if value != u'' and not value is None:
@@ -508,9 +340,7 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Delete the previous modification if any
-                pendingModification = PendingModification.objects.filter(target_object_class="WikidataEntry", target_object_id=code).first()
-                if pendingModification:
-                    pendingModification.delete()
+                PendingModification.objects.filter(target_object_class="WikidataEntry", target_object_id=code).delete()
     
     def sync_wikidata(self, wikidata_ids):
         self.wikidata_codes = []
@@ -519,62 +349,67 @@ class Command(BaseCommand):
         if wikidata_ids:
             self.wikidata_codes = wikidata_ids.split('|')
         else:
-            for openstreetmap_element in OpenStreetMapElement.objects.all():
-                if openstreetmap_element.wikidata_combined:
-                    for wikidata in openstreetmap_element.wikidata_combined.split(';'):
-                        link = wikidata.split(':')[-1]
-                        if not link in self.wikidata_codes:
-                            self.wikidata_codes.append(link)
-            for wikidata_entry in WikidataEntry.objects.all():
-                if wikidata_entry.grave_of_wikidata:
-                    for link in wikidata_entry.grave_of_wikidata.split(';'):
-                        if not link in self.wikidata_codes:
-                            self.wikidata_codes.append(link)
+            for openstreetmap_element in OpenStreetMapElement.objects.exclude(wikidata_combined__exact=''):
+                for wikidata in openstreetmap_element.wikidata_combined.split(';'):
+                    link = wikidata.split(':')[-1]
+                    if not link in self.wikidata_codes:
+                        self.wikidata_codes.append(link)
+            for wikidata_entry in WikidataEntry.objects.exclude(grave_of_wikidata__exact=''):
+                for link in wikidata_entry.grave_of_wikidata.split(';'):
+                    if not link in self.wikidata_codes:
+                        self.wikidata_codes.append(link)
         
-        # Request wikidata entities
-        entities = {}
-        if self.wikidata_codes:
-            entities.update(self.request_wikidata(self.wikidata_codes))
-        
-        count = len(entities)
         self.grave_of_wikidata_codes = []
-        for code, entity in entities.iteritems():
-            print str(count) + u'-' + code
-            count -= 1
-            self.handle_entity(code, entity)
         
-        # Request grave of entities
-        grave_of_entities = {}
+        print 'Requesting Wikidata codes from OpenStreetMap elements...'
+        self.wikidata_codes = list(set(self.wikidata_codes))
+        fetched_entities = []
+        total = len(self.wikidata_codes)
+        count = 0
+        max_count_per_request = 25
+        for chunk in [self.wikidata_codes[i:i+max_count_per_request] for i in range(0,len(self.wikidata_codes),max_count_per_request)]:
+            print str(count) + u'/' + str(total)
+            count += len(chunk)
+            
+            entities = self.request_wikidata(chunk)
+            for wikidata_code, entity in entities.iteritems():
+                self.handle_entity(wikidata_code, entity)
+            fetched_entities.extend(entities.keys())
+        print str(count) + u'/' + str(total)
+        
         if self.grave_of_wikidata_codes:
-            grave_of_entities.update(self.request_wikidata(self.grave_of_wikidata_codes))
-            entities.update(grave_of_entities)
-        
-        count = len(grave_of_entities)
-        for code, entity in grave_of_entities.iteritems():
-            print u'grave-' + str(count) + u'-' + code
-            count -= 1
-            self.handle_entity(code, entity)
+            print 'Requesting new Wikidata codes from grave_of...'
+            self.grave_of_wikidata_codes = list(set(self.grave_of_wikidata_codes))
+            total = len(self.grave_of_wikidata_codes)
+            count = 0
+            max_count_per_request = 25
+            for chunk in [self.grave_of_wikidata_codes[i:i+max_count_per_request] for i in range(0,len(self.grave_of_wikidata_codes),max_count_per_request)]:
+                print str(count) + u'/' + str(total)
+                count += len(chunk)
+            
+                entities = self.request_wikidata(chunk)
+                for wikidata_code, entity in entities.iteritems():
+                    self.handle_entity(wikidata_code, entity)
+                fetched_entities.extend(entities.keys())
+            print str(count) + u'/' + str(total)
         
         if not wikidata_ids:
-            # Delete pending creations if element was deleted in Wikidata
-            for pendingModification in PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.CREATE):
-                if not pendingModification.target_object_id in entities:
-                    pendingModification.delete()
+            # Delete pending creations if element was not fetched
+            PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.CREATE).exclude(target_object_id__in=fetched_entities).delete()
         
             # Look for deleted elements
-            for wikidata_entry in WikidataEntry.objects.all():
-                if not wikidata_entry.id in entities:
-                    pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=wikidata_entry.id)
-                
-                    pendingModification.action = PendingModification.DELETE
-                    pendingModification.modified_fields = u''
-                
-                    pendingModification.full_clean()
-                    pendingModification.save()
-                    self.deleted_objects = self.deleted_objects + 1
-                
-                    if self.auto_apply:
-                        pendingModification.apply_modification()
+            for wikidata_entry in WikidataEntry.objects.exclude(id__in=fetched_entities):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=wikidata_entry.id)
+            
+                pendingModification.action = PendingModification.DELETE
+                pendingModification.modified_fields = u''
+            
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.deleted_objects = self.deleted_objects + 1
+            
+                if self.auto_apply:
+                    pendingModification.apply_modification()
     
     def add_arguments(self, parser):
         parser.add_argument('--wikidata_ids',

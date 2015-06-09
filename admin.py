@@ -417,15 +417,15 @@ class WikidataEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikidataLocalizedEntry)
 class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'language', 'wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'description', 'intro_html', 'notes')
+    list_display = ('name', 'language', 'wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'description', 'notes')
     list_filter = ('language',)
     search_fields = ('name', 'wikidata_entry__id', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'wikidata_entry', 'name', 'wikipedia', 'description', 'intro', 'intro_html']}),
+        (None, {'fields': ['language', 'wikidata_entry', 'name', 'wikipedia', 'description']}),
     ]
-    readonly_fields = ('wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'intro_html', 'created', 'modified')
+    readonly_fields = ('wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'created', 'modified')
     
     def wikidata_entry_link(self, obj):
         if obj.wikidata_entry:
@@ -454,12 +454,6 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
-    
-    def intro_html(self, obj):
-        return obj.intro
-    intro_html.allow_tags = True
-    intro_html.short_description = _('intro')
-    intro_html.admin_order_field = 'intro'
     
     def sync_entry(self, request, queryset):
         wikidata_ids = []

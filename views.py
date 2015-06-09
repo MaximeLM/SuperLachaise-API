@@ -194,13 +194,33 @@ class SuperLachaiseEncoder(object):
             for language in self.languages:
                 wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                 if wikidata_localized_entry:
-                    result[language.code] = {
+                    localized_result = {
                         'name': wikidata_localized_entry.name,
-                        'wikipedia': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=language.code, name=unicode(wikidata_localized_entry.wikipedia)),
-                        'intro': wikidata_localized_entry.intro,
+                        'description': wikidata_localized_entry.description,
+                        'wikipedia': self.wikipedia_page_dict(wikidata_localized_entry),
                     }
+                    
+                    result[language.code] = localized_result
                 else:
                     result[language.code] = None
+        
+        return result
+    
+    def wikipedia_page_dict(self, wikidata_localized_entry):
+        result = {
+            'title': wikidata_localized_entry.wikipedia,
+        }
+        
+        wikipedia_page = WikipediaPage.objects.filter(wikidata_localized_entry=wikidata_localized_entry).first()
+        if wikipedia_page:
+            result['intro'] = wikipedia_page.intro
+        else:
+            result['intro'] = None
+        
+        if not self.restrict_fields:
+            result.update({
+                'url': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=wikidata_localized_entry.language.code, name=unicode(wikidata_localized_entry.wikipedia)),
+            })
         
         return result
     
