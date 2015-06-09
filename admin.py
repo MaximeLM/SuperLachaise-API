@@ -626,16 +626,16 @@ class SuperLachaiseCategoryRelationInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'modified', 'notes')
-    list_filter = ('categories',)
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'superlachaise_categories_link', 'modified', 'notes')
+    list_filter = ('superlachaise_categories',)
     search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'categories_link']}),
+        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'superlachaise_categories_link']}),
     ]
-    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'categories_link', 'created', 'modified')
-    filter_horizontal = ('categories',)
+    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'superlachaise_categories_link', 'created', 'modified')
+    filter_horizontal = ('superlachaise_categories',)
     
     inlines = [
         SuperLachaiseLocalizedPOIInline,
@@ -691,18 +691,18 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
     
-    def categories_link(self, obj):
+    def superlachaise_categories_link(self, obj):
         result = []
-        for category in obj.categories.all():
+        for superlachaise_category in obj.superlachaise_categories.all():
             app_name = obj._meta.app_label
-            reverse_name = category.__class__.__name__.lower()
+            reverse_name = superlachaise_category.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(category.code,))
-            result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(category))))
+            url = reverse(reverse_path, args=(superlachaise_category.code,))
+            result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(superlachaise_category))))
         return ';'.join(result)
-    categories_link.allow_tags = True
-    categories_link.short_description = _('categories')
-    categories_link.admin_order_field = 'categories'
+    superlachaise_categories_link.allow_tags = True
+    superlachaise_categories_link.short_description = _('superlachaise categories')
+    superlachaise_categories_link.admin_order_field = 'superlachaise_categories'
     
     def sync_page(self, request, queryset):
         openstreetmap_element_ids = []

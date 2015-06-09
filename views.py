@@ -107,14 +107,12 @@ class SuperLachaiseEncoder(object):
                 wikidata_entries[wikidata_entry_relation.relation_type] = []
             wikidata_entries[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry_id)
         
-        categories = []
-        for category in superlachaise_poi.categories.all():
-            categories.append(category.code)
+        superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
         
         result.update({
             'openstreetmap_element': self.openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
             'wikidata_entries': wikidata_entries,
-            'categories': categories,
+            'superlachaise_categories': superlachaise_categories,
             'wikimedia_commons_category': self.wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category),
         })
         

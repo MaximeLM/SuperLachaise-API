@@ -145,7 +145,7 @@ class Command(BaseCommand):
         return result
     
     def get_existing_superlachaise_categories(self, superlachaise_poi):
-        result = superlachaise_poi.categories.all().values_list('code', flat=True)
+        result = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
         
         result = list(set(result))
         result.sort()
@@ -155,13 +155,13 @@ class Command(BaseCommand):
         wikidata_entries = self.get_wikidata_entries(openstreetmap_element)
         wikimedia_commons_category = self.get_wikimedia_commons_category(openstreetmap_element, wikidata_entries)
         main_image = self.get_main_image(wikimedia_commons_category)
-        categories = self.get_superlachaise_categories(openstreetmap_element, wikidata_entries)
+        superlachaise_categories = self.get_superlachaise_categories(openstreetmap_element, wikidata_entries)
         
         result = {
             'wikidata_entries': wikidata_entries,
             'wikimedia_commons_category_id': wikimedia_commons_category.id if wikimedia_commons_category else None,
             'main_image_id': main_image.id if main_image else None,
-            'categories': categories,
+            'superlachaise_categories': superlachaise_categories,
         }
         
         localized_results = {}
@@ -326,12 +326,12 @@ class Command(BaseCommand):
             values_dict, localized_values_dicts = self.get_values_for_openstreetmap_element(openstreetmap_element)
             for field, value in values_dict.iteritems():
                 if field == 'wikidata_entries':
-                    superlachaise_poi_wikidata_entries = self.get_existing_wikidata_entries(superlachaise_poi)
-                    if value != superlachaise_poi_wikidata_entries:
+                    wikidata_entries = self.get_existing_wikidata_entries(superlachaise_poi)
+                    if value != wikidata_entries:
                         modified_values[field] = value
-                elif field == 'categories':
-                    superlachaise_poi_categories = self.get_existing_superlachaise_categories(superlachaise_poi)
-                    if value != superlachaise_poi_categories:
+                elif field == 'superlachaise_categories':
+                    superlachaise_categories = self.get_existing_superlachaise_categories(superlachaise_poi)
+                    if value != superlachaise_categories:
                         modified_values[field] = value
                 else:
                     if value != getattr(superlachaise_poi, field):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-09 03:07+0200\n"
+"POT-Creation-Date: 2015-06-09 16:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -151,9 +151,9 @@ msgstr "élément OpenStreetMap"
 msgid "wikidata entries"
 msgstr "entrées wikidata"
 
-#: admin.py:704 models.py:480
-msgid "categories"
-msgstr "catégorie"
+#: admin.py:704 models.py:480 models.py:555
+msgid "superlachaise categories"
+msgstr "catégories SuperLachaise"
 
 #: admin.py:724
 msgid "Sync selected superlachaise POIs"
@@ -191,49 +191,49 @@ msgstr "page wikipédia non trouvée"
 msgid "A wikipedia page of an OpenStreetMap element could not be found."
 msgstr "Une page Wikipédia d'un élément OpenStreetMap n'a pas été trouvée"
 
-#: management/commands/sync_openstreetmap.py:283
+#: management/commands/sync_openstreetmap.py:276
 msgid "no outer way for relation found"
 msgstr "Aucun chemin extérieur trouvé pour la relation"
 
-#: management/commands/sync_openstreetmap.py:390
-#: management/commands/sync_superlachaise_occupations.py:121
-#: management/commands/sync_superlachaise_pois.py:434
+#: management/commands/sync_openstreetmap.py:382
+#: management/commands/sync_superlachaise_occupations.py:129
+#: management/commands/sync_superlachaise_pois.py:430
 #: management/commands/sync_wikidata.py:604
-#: management/commands/sync_wikimedia_commons_categories.py:264
-#: management/commands/sync_wikimedia_commons_files.py:201
+#: management/commands/sync_wikimedia_commons_categories.py:260
+#: management/commands/sync_wikimedia_commons_files.py:200
 #, python-brace-format
 msgid "{nb} object(s) created"
 msgstr "{nb} objet(s) créé(s)"
 
-#: management/commands/sync_openstreetmap.py:392
-#: management/commands/sync_superlachaise_pois.py:436
+#: management/commands/sync_openstreetmap.py:384
+#: management/commands/sync_superlachaise_pois.py:432
 #: management/commands/sync_wikidata.py:606
-#: management/commands/sync_wikimedia_commons_categories.py:266
-#: management/commands/sync_wikimedia_commons_files.py:203
+#: management/commands/sync_wikimedia_commons_categories.py:262
+#: management/commands/sync_wikimedia_commons_files.py:202
 #, python-brace-format
 msgid "{nb} object(s) modified"
 msgstr "{nb} objet(s) modifié(s)"
 
-#: management/commands/sync_openstreetmap.py:394
-#: management/commands/sync_superlachaise_pois.py:438
+#: management/commands/sync_openstreetmap.py:386
+#: management/commands/sync_superlachaise_pois.py:434
 #: management/commands/sync_wikidata.py:608
-#: management/commands/sync_wikimedia_commons_categories.py:268
-#: management/commands/sync_wikimedia_commons_files.py:205
+#: management/commands/sync_wikimedia_commons_categories.py:264
+#: management/commands/sync_wikimedia_commons_files.py:204
 #, python-brace-format
 msgid "{nb} object(s) deleted"
 msgstr "{nb} objet(s) supprimé(s)"
 
-#: management/commands/sync_openstreetmap.py:396
+#: management/commands/sync_openstreetmap.py:388
 #, python-brace-format
 msgid "{nb} error(s)"
 msgstr "{nb} erreur(s)"
 
-#: management/commands/sync_openstreetmap.py:401
-#: management/commands/sync_superlachaise_occupations.py:126
-#: management/commands/sync_superlachaise_pois.py:443
+#: management/commands/sync_openstreetmap.py:393
+#: management/commands/sync_superlachaise_occupations.py:134
+#: management/commands/sync_superlachaise_pois.py:439
 #: management/commands/sync_wikidata.py:613
-#: management/commands/sync_wikimedia_commons_categories.py:273
-#: management/commands/sync_wikimedia_commons_files.py:210
+#: management/commands/sync_wikimedia_commons_categories.py:269
+#: management/commands/sync_wikimedia_commons_files.py:209
 msgid "No modifications"
 msgstr "Aucune modification"
 
@@ -444,10 +444,6 @@ msgstr "codes"
 #: models.py:554 models.py:561 models.py:604
 msgid "superlachaise category"
 msgstr "catégorie SuperLachaise"
-
-#: models.py:555
-msgid "superlachaise categories"
-msgstr "catégories SuperLachaise"
 
 #: models.py:569
 msgid "superlachaise localized category"
