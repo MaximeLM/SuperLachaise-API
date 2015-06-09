@@ -116,7 +116,6 @@ class SuperLachaiseEncoder(object):
             'wikidata_entries': wikidata_entries,
             'categories': categories,
             'wikimedia_commons_category': self.wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category),
-            'main_image': None,
         })
         
         return result
@@ -210,13 +209,25 @@ class SuperLachaiseEncoder(object):
     def wikimedia_commons_category_dict(self, wikimedia_commons_category):
         result = {
             'id': wikimedia_commons_category.id,
-            'files': wikimedia_commons_category.files.split(';'),
-            'main_file': wikimedia_commons_category.main_image,
+            'main_image': wikimedia_commons_category.main_image,
         }
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(wikimedia_commons_category.id)),
+                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(wikimedia_commons_category.id)),
+                'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(wikimedia_commons_category.main_image)),
+            })
+        
+        return result
+    
+    def wikimedia_commons_file_dict(self, wikimedia_commons_file):
+        result = {
+            'id': wikimedia_commons_file.id,
+        }
+        
+        if not self.restrict_fields:
+            result.update({
+                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(wikimedia_commons_file.id)),
             })
         
         return result

@@ -488,32 +488,21 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsCategory)
 class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'wikimedia_commons_link', 'files_link', 'main_image_link', 'notes')
-    search_fields = ('id', 'files', 'notes',)
+    list_display = ('id', 'wikimedia_commons_link', 'main_image_link', 'notes')
+    search_fields = ('id', 'main_image', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikimedia_commons_link', 'files', 'main_image', 'main_image_link', 'files_link']}),
+        (None, {'fields': ['id', 'wikimedia_commons_link', 'main_image', 'main_image_link']}),
     ]
-    readonly_fields = ('wikimedia_commons_link', 'files_link', 'main_image_link', 'created', 'modified')
+    readonly_fields = ('wikimedia_commons_link', 'main_image_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = u'https://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.id)).replace("'","%27")
+        url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.id)).replace("'","%27")
         return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons category')
     wikimedia_commons_link.admin_order_field = 'id'
-    
-    def files_link(self, obj):
-        if obj.files:
-            result = []
-            for link in obj.files.split(';'):
-                url = u'https://commons.wikimedia.org/wiki/{file}'.format(file=unicode(link).replace("'","%27"))
-                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return ';'.join(result)
-    files_link.allow_tags = True
-    files_link.short_description = _('files')
-    files_link.admin_order_field = 'files'
     
     def main_image_link(self, obj):
         if obj.main_image:
@@ -526,7 +515,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     def sync_page(self, request, queryset):
         wikimedia_commons_categories = []
         for wikimedia_commons_category in queryset:
-            wikimedia_commons_categories.append(wikimedia_commons_category.id)
+            wikimedia_commons_categories.append('Category:' + wikimedia_commons_category.id)
         sync_start = timezone.now()
         call_command('sync_wikimedia_commons_categories', wikimedia_commons_categories='|'.join(wikimedia_commons_categories))
         pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
@@ -540,7 +529,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
-    sync_page.short_description = _('Sync selected wikipedia pages')
+    sync_page.short_description = _('Sync selected wikimedia commons categories')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')

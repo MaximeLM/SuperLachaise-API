@@ -446,7 +446,6 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
 class WikimediaCommonsCategory(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    files = models.TextField(blank=True, verbose_name=_('files'))
     main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
     
     def __unicode__(self):
@@ -476,8 +475,8 @@ class SuperLachaisePOI(SuperLachaiseModel):
     
     openstreetmap_element = models.OneToOneField('OpenStreetMapElement', unique=True, related_name='superlachaise_poi', verbose_name=_('openstreetmap element'))
     wikidata_entries = models.ManyToManyField('WikidataEntry', related_name='superlachaise_pois', through='SuperLachaiseWikidataRelation', verbose_name=_('wikidata entries'))
-    wikimedia_commons_category = models.ForeignKey('WikimediaCommonsCategory', null=True, blank=True, related_name='superlachaise_pois', verbose_name=_('wikimedia commons category'))
-    main_image = models.ForeignKey('WikimediaCommonsFile', null=True, blank=True, related_name='superlachaise_pois', verbose_name=_('main image'))
+    wikimedia_commons_category = models.ForeignKey('WikimediaCommonsCategory', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('wikimedia commons category'))
+    main_image = models.ForeignKey('WikimediaCommonsFile', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('main image'))
     categories = models.ManyToManyField('SuperLachaiseCategory', blank=True, related_name='members', through='SuperLachaiseCategoryRelation', verbose_name=_('categories'))
     
     def __unicode__(self):
@@ -505,7 +504,7 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
         verbose_name_plural = _('superlachaise localized POIs')
     
     def save(self, *args, **kwargs):
-        super(SuperLachaiseLocalizedCategory, self).save(*args, **kwargs)
+        super(SuperLachaiseLocalizedPOI, self).save(*args, **kwargs)
         
         # Touch SuperLachaise POIs
         self.superlachaise_poi.save()

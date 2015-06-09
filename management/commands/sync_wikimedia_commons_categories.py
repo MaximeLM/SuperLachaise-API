@@ -30,6 +30,42 @@ from superlachaise_api.models import *
 
 class Command(BaseCommand):
     
+    def request_wikimedia_commons_categories(self, wikimedia_commons_categories):
+        pages = {}
+        
+        last_continue = {
+            'continue': '',
+        }
+        
+        categories = '|'.join(wikimedia_commons_categories).encode('utf8')
+        
+        while True:
+            # Request properties
+            params = {
+                'action': 'query',
+                'prop': 'title|revisions',
+                'rvprop': 'content',
+                'format': 'json',
+                'titles': categories,
+            }
+            params.update(last_continue)
+            
+            if settings.USER_AGENT:
+                headers = {"User-Agent" : settings.USER_AGENT}
+            else:
+                raise 'no USER_AGENT defined in settings.py'
+            
+            json_result = requests.get('https://commons.wikimedia.org/w/api.php', params=params, headers=headers).json()
+            
+            if 'pages' in json_result['query']:
+                pages.update(json_result['query']['pages'])
+            
+            if 'continue' not in json_result: break
+            
+            last_continue = json_result['continue']
+        
+        return pages
+    
     def request_image_list(self, wikimedia_commons_category):
         category_members = []
         pages = {}
@@ -79,15 +115,11 @@ class Command(BaseCommand):
         
         return result
     
-    def get_main_image(self, pages):
+    def get_main_image(self, page):
         try:
-            if len(pages) != 1:
+            if len(page['revisions']) != 1:
                 raise BaseException
-            
-            for id, page in pages.iteritems():
-                if len(page['revisions']) != 1:
-                    raise BaseException
-                wikitext = page['revisions'][0]['*']
+            wikitext = page['revisions'][0]['*']
             
             main_image = u''
             for line in wikitext.split('\n'):
@@ -104,12 +136,11 @@ class Command(BaseCommand):
             traceback.print_exc()
             return u''
     
-    def handle_wikimedia_commons_category(self, id):
+    def handle_wikimedia_commons_category(self, page):
         # Get values
-        category_members, pages = self.request_image_list(id)
+        id = page['title']
         values_dict = {
-            'files': ';'.join(self.get_files(category_members)),
-            'main_image': self.get_main_image(pages),
+            'main_image': self.get_main_image(page),
         }
         
         # Get element in database if it exists
@@ -157,32 +188,37 @@ class Command(BaseCommand):
         if param_wikimedia_commons_categories:
             wikimedia_commons_categories = param_wikimedia_commons_categories.split('|')
         else:
-            for openstreetmap_element in OpenStreetMapElement.objects.all():
-                if openstreetmap_element.wikimedia_commons and openstreetmap_element.wikimedia_commons.startswith('Category:'):
-                    link = openstreetmap_element.wikimedia_commons.split('Category:')[1]
+            for openstreetmap_element in OpenStreetMapElement.objects.filter(wikimedia_commons__startswith='Category:'):
+                link = openstreetmap_element.wikimedia_commons
+                if not link in wikimedia_commons_categories:
+                    wikimedia_commons_categories.append(link)
+            for wikidata_entry in WikidataEntry.objects.exclude(wikimedia_commons_category__exact=''):
+                sync_category = False
+                for instance_of in wikidata_entry.instance_of.split(';'):
+                    if instance_of in self.synced_instance_of:
+                        sync_category = True
+                        break
+                if sync_category:
+                    link = 'Category:' + wikidata_entry.wikimedia_commons_category
                     if not link in wikimedia_commons_categories:
                         wikimedia_commons_categories.append(link)
-            for wikidata_entry in WikidataEntry.objects.all():
-                if wikidata_entry.wikimedia_commons_category:
-                    sync_category = False
-                    for instance_of in wikidata_entry.instance_of.split(';'):
-                        if instance_of in self.synced_instance_of:
-                            sync_category = True
-                            break
-                    if sync_category:
-                        link = wikidata_entry.wikimedia_commons_category
-                        if not link in wikimedia_commons_categories:
-                            wikimedia_commons_categories.append(link)
-                if wikidata_entry.wikimedia_commons_grave_category:
-                    link = wikidata_entry.wikimedia_commons_grave_category
-                    if not link in wikimedia_commons_categories:
-                        wikimedia_commons_categories.append(link)
+            for wikidata_entry in WikidataEntry.objects.exclude(wikimedia_commons_grave_category=''):
+                link = 'Category:' + wikidata_entry.wikimedia_commons_grave_category
+                if not link in wikimedia_commons_categories:
+                    wikimedia_commons_categories.append(link)
         
-        count = len(wikimedia_commons_categories)
-        for wikimedia_commons_category in wikimedia_commons_categories:
-            print str(count) + u'-' + wikimedia_commons_category
-            count = count - 1
-            self.handle_wikimedia_commons_category(wikimedia_commons_category)
+        wikimedia_commons_categories = list(set(wikimedia_commons_categories))
+        total = len(wikimedia_commons_categories)
+        count = 0
+        max_count_per_request = 25
+        for chunk in [wikimedia_commons_categories[i:i+max_count_per_request] for i in range(0,len(wikimedia_commons_categories),max_count_per_request)]:
+            print str(count) + u'/' + str(total)
+            count += len(chunk)
+            
+            pages = self.request_wikimedia_commons_categories(chunk)
+            for page in pages.values():
+                self.handle_wikimedia_commons_category(page)
+        print str(count) + u'/' + str(total)
         
         if not param_wikimedia_commons_categories:
             # Delete pending creations if element was not downloaded

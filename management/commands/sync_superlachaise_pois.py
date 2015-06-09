@@ -59,15 +59,24 @@ class Command(BaseCommand):
     def get_wikimedia_commons_category(self, openstreetmap_element, wikidata_fetched_entries):
         wikimedia_commons_categories = []
         if openstreetmap_element.wikimedia_commons:
-            wikimedia_commons = openstreetmap_element.wikimedia_commons.split('Category:')[-1]
+            wikimedia_commons = openstreetmap_element.wikimedia_commons
             if not wikimedia_commons in wikimedia_commons_categories:
                 wikimedia_commons_categories.append(wikimedia_commons)
         for wikidata_fetched_entry in wikidata_fetched_entries:
             wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
-            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON and wikidata_entry.wikimedia_commons_grave_category:
                 # Person relation
-                wikimedia_commons = wikidata_entry.wikimedia_commons_grave_category
-                if wikimedia_commons:
+                wikimedia_commons = 'Category:' + wikidata_entry.wikimedia_commons_grave_category
+                if not wikimedia_commons in wikimedia_commons_categories:
+                    wikimedia_commons_categories.append(wikimedia_commons)
+            if wikidata_entry.wikimedia_commons_category:
+                sync_category = False
+                for instance_of in wikidata_entry.instance_of.split(';'):
+                    if instance_of in self.synced_instance_of:
+                        sync_category = True
+                        break
+                if sync_category:
+                    wikimedia_commons = 'Category:' + wikidata_entry.wikimedia_commons_category
                     if not wikimedia_commons in wikimedia_commons_categories:
                         wikimedia_commons_categories.append(wikimedia_commons)
         
@@ -412,6 +421,7 @@ class Command(BaseCommand):
         try:
             self.auto_apply = (Setting.objects.get(key=u'superlachaise_poi:auto_apply_modifications').value == 'true')
             self.openstreetmap_name_tag_language = Setting.objects.get(key=u'openstreetmap:name_tag_language').value
+            self.synced_instance_of = json.loads(Setting.objects.get(key=u'wikimedia_commons:synced_instance_of').value)
             
             self.created_objects = 0
             self.modified_objects = 0
