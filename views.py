@@ -33,7 +33,8 @@ from superlachaise_api.models import *
 
 class SuperLachaiseEncoder(object):
     
-    def __init__(self, languages=None, restrict_fields=True):
+    def __init__(self, request, languages=None, restrict_fields=True):
+        self.request = request
         self.languages = languages
         self.restrict_fields = restrict_fields
     
@@ -78,10 +79,16 @@ class SuperLachaiseEncoder(object):
         }
         
         if page.has_previous():
-            result['previous'] = page.previous_page_number()
+            params = self.request.GET.copy()
+            params['page'] = page.previous_page_number()
+            page_url = '{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
+            result['previous'] = page_url
         
         if page.has_next():
-            result['next'] = page.next_page_number()
+            params = self.request.GET.copy()
+            params['page'] = page.next_page_number()
+            page_url = '{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
+            result['next'] = page_url
         
         return result
     
@@ -307,7 +314,7 @@ def openstreetmap_element_list(request):
         'page': page_content,
     }
     
-    content = SuperLachaiseEncoder(restrict_fields=restrict_fields).encode(obj_to_encode)
+    content = SuperLachaiseEncoder(request, restrict_fields=restrict_fields).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -317,7 +324,7 @@ def openstreetmap_element(request, id):
     
     openstreetmap_element = OpenStreetMapElement.objects.get(id=id)
     
-    content = SuperLachaiseEncoder(restrict_fields=restrict_fields).encode({'openstreetmap_element': openstreetmap_element})
+    content = SuperLachaiseEncoder(request, restrict_fields=restrict_fields).encode({'openstreetmap_element': openstreetmap_element})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -348,7 +355,7 @@ def wikidata_entry_list(request):
         'page': page_content,
     }
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -359,7 +366,7 @@ def wikidata_entry(request, id):
     
     wikidata_entry = WikidataEntry.objects.get(id=id)
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode({'wikidata_entry': wikidata_entry})
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'wikidata_entry': wikidata_entry})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -390,7 +397,7 @@ def wikimedia_commons_category_list(request):
         'page': page_content,
     }
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -401,7 +408,7 @@ def wikimedia_commons_category(request, id):
     
     wikimedia_commons_category = WikimediaCommonsCategory.objects.get(id=id)
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode({'wikimedia_commons_category': wikimedia_commons_category})
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'wikimedia_commons_category': wikimedia_commons_category})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -432,7 +439,7 @@ def superlachaise_category_list(request):
         'page': page_content,
     }
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -443,7 +450,7 @@ def superlachaise_category(request, id):
     
     superlachaise_category = SuperLachaiseCategory.objects.get(code=id)
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode({'superlachaise_category': superlachaise_category})
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'superlachaise_category': superlachaise_category})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -479,7 +486,7 @@ def superlachaise_poi_list(request):
         'page': page_content,
     }
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -498,7 +505,7 @@ def superlachaise_poi(request, id):
         'superlachaise_categories': superlachaise_categories,
     }
     
-    content = SuperLachaiseEncoder(languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -531,6 +538,6 @@ def modified_objects(request):
         'modified_objects': modified_objects,
     }
     
-    content = SuperLachaiseEncoder().encode(obj_to_encode)
+    content = SuperLachaiseEncoder(request).encode(obj_to_encode)
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
