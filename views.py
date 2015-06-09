@@ -25,6 +25,7 @@ from decimal import Decimal
 from django.core.exceptions import SuspiciousOperation
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
@@ -75,28 +76,30 @@ class SuperLachaiseEncoder(object):
     
     def page_dict(self, page):
         result = {
-            'current': page.number,
-            'num_pages': page.paginator.num_pages,
+            'current_page': page.number,
+            'results_on_page': len(page.object_list),
+            'total_pages': page.paginator.num_pages,
+            'total_results': page.paginator.count,
         }
         
         if page.has_previous():
             params = self.request.GET.copy()
             params['page'] = page.previous_page_number()
-            page_path = '{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
+            page_path = u'{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
             
             result.update({
-                'previous': params['page'],
-                'previous_path': page_url,
+                'previous_page': params['page'],
+                'previous_page_path': page_url,
             })
         
         if page.has_next():
             params = self.request.GET.copy()
             params['page'] = page.next_page_number()
-            page_url = '{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
+            page_url = u'{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
             
             result.update({
-                'next': params['page'],
-                'next_path': page_url,
+                'next_page': params['page'],
+                'next_page_path': page_url,
             })
         
         return result
@@ -128,7 +131,7 @@ class SuperLachaiseEncoder(object):
         result.update({
             'openstreetmap_element': self.openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
             'wikidata_entries': wikidata_entries,
-            'superlachaise_categories': superlachaise_categories,
+            'superlachaise_categories': self.obj_dict(superlachaise_categories),
             'wikimedia_commons_category': self.wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category),
         })
         
@@ -211,7 +214,7 @@ class SuperLachaiseEncoder(object):
                 wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                 if wikidata_localized_entry:
                     localized_result = {
-                        'name': wikidata_localized_entry.name,
+                        'name': wikidata_localized_entry.wikipedia,
                         'description': wikidata_localized_entry.description,
                         'wikipedia': self.wikipedia_page_dict(wikidata_localized_entry),
                     }
@@ -223,20 +226,19 @@ class SuperLachaiseEncoder(object):
         return result
     
     def wikipedia_page_dict(self, wikidata_localized_entry):
-        result = {
-            'title': wikidata_localized_entry.wikipedia,
-        }
-        
         wikipedia_page = WikipediaPage.objects.filter(wikidata_localized_entry=wikidata_localized_entry).first()
         if wikipedia_page:
-            result['intro'] = wikipedia_page.intro
+            result = {
+                'title': wikidata_localized_entry.wikipedia,
+                'intro': wikipedia_page.intro,
+            }
+            
+            if not self.restrict_fields:
+                result.update({
+                    'url': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=wikidata_localized_entry.language.code, name=encoding.escape_uri_path(wikidata_localized_entry.wikipedia)),
+                })
         else:
-            result['intro'] = None
-        
-        if not self.restrict_fields:
-            result.update({
-                'url': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=wikidata_localized_entry.language.code, name=encoding.escape_uri_path(wikidata_localized_entry.wikipedia)),
-            })
+            result = None
         
         return result
     
@@ -302,15 +304,31 @@ def get_restrict_fields(request):
     
     return restrict_fields
 
+def get_search(request):
+    search = request.GET.get('search', [])
+    
+    if search:
+        search = search.split()
+    
+    return search
+
 @require_http_methods(["GET"])
 def openstreetmap_element_list(request):
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
+    search_terms = get_search(request)
     
     if modified_since:
-        openstreetmap_elements = OpenStreetMapElement.objects.filter(modified__gt=modified_since).order_by('sorting_name')
+        openstreetmap_elements = OpenStreetMapElement.objects.filter(modified__gt=modified_since)
     else:
-        openstreetmap_elements = OpenStreetMapElement.objects.all().order_by('sorting_name')
+        openstreetmap_elements = OpenStreetMapElement.objects.all()
+    
+    for search_term in search_terms:
+        openstreetmap_elements = openstreetmap_elements.filter( \
+            Q(name__icontains=search_term) \
+        )
+    
+    openstreetmap_elements = openstreetmap_elements.order_by('sorting_name').distinct('sorting_name')
     
     paginator = Paginator(openstreetmap_elements, 25)
     page = request.GET.get('page')
@@ -347,11 +365,21 @@ def wikidata_entry_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
+    search_terms = get_search(request)
     
     if modified_since:
-        wikidata_entries = WikidataEntry.objects.filter(modified__gt=modified_since).order_by('id')
+        wikidata_entries = WikidataEntry.objects.filter(modified__gt=modified_since)
     else:
-        wikidata_entries = WikidataEntry.objects.all().order_by('id')
+        wikidata_entries = WikidataEntry.objects.all()
+    
+    for search_term in search_terms:
+        wikidata_entries = wikidata_entries.filter( \
+            Q(localizations__name__icontains=search_term) \
+            | Q(localizations__description__icontains=search_term) \
+            | Q(localizations__wikipedia__icontains=search_term) \
+        )
+    
+    wikidata_entries = wikidata_entries.order_by('id').distinct('id')
     
     paginator = Paginator(wikidata_entries, 25)
     page = request.GET.get('page')
@@ -389,11 +417,20 @@ def wikimedia_commons_category_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
+    search_terms = get_search(request)
     
     if modified_since:
-        wikimedia_commons_categories = WikimediaCommonsCategory.objects.filter(modified__gt=modified_since).order_by('id')
+        wikimedia_commons_categories = WikimediaCommonsCategory.objects.filter(modified__gt=modified_since)
     else:
-        wikimedia_commons_categories = WikimediaCommonsCategory.objects.all().order_by('id')
+        wikimedia_commons_categories = WikimediaCommonsCategory.objects.all()
+    
+    for search_term in search_terms:
+        wikimedia_commons_categories = wikimedia_commons_categories.filter( \
+            Q(id__icontains=search_term) \
+            | Q(main_image__icontains=search_term) \
+        )
+    
+    wikimedia_commons_categories = wikimedia_commons_categories.order_by('id').distinct('id')
     
     paginator = Paginator(wikimedia_commons_categories, 25)
     page = request.GET.get('page')
@@ -431,11 +468,22 @@ def superlachaise_category_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
+    search_terms = get_search(request)
     
     if modified_since:
-        superlachaise_categories = SuperLachaiseCategory.objects.filter(modified__gt=modified_since).order_by('code')
+        superlachaise_categories = SuperLachaiseCategory.objects.filter(modified__gt=modified_since)
     else:
-        superlachaise_categories = SuperLachaiseCategory.objects.all().order_by('code')
+        superlachaise_categories = SuperLachaiseCategory.objects.all()
+    
+    for search_term in search_terms:
+        superlachaise_categories = superlachaise_categories.filter( \
+            Q(code__icontains=search_term) \
+            | Q(type__icontains=search_term) \
+            | Q(values__icontains=search_term) \
+            | Q(localizations__name__icontains=search_term) \
+        )
+    
+    superlachaise_categories = superlachaise_categories.order_by('code').distinct('code')
     
     paginator = Paginator(superlachaise_categories, 25)
     page = request.GET.get('page')
@@ -473,11 +521,24 @@ def superlachaise_poi_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
-    print modified_since
+    search_terms = get_search(request)
+    
     if modified_since:
-        superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=modified_since).order_by('openstreetmap_element_id')
+        superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=modified_since)
     else:
-        superlachaise_pois = SuperLachaisePOI.objects.all().order_by('openstreetmap_element_id')
+        superlachaise_pois = SuperLachaisePOI.objects.all()
+    
+    for search_term in search_terms:
+        superlachaise_pois = superlachaise_pois.filter( \
+            Q(localizations__name__icontains=search_term) \
+            | Q(localizations__description__icontains=search_term) \
+            | Q(superlachaise_categories__localizations__name__icontains=search_term) \
+            | Q(wikidata_entries__localizations__name__icontains=search_term) \
+            | Q(wikidata_entries__localizations__description__icontains=search_term) \
+            | Q(wikidata_entries__localizations__wikipedia__icontains=search_term) \
+        )
+    
+    superlachaise_pois = superlachaise_pois.order_by('openstreetmap_element_id').distinct('openstreetmap_element_id')
     
     paginator = Paginator(superlachaise_pois, 10)
     page = request.GET.get('page')
@@ -490,15 +551,20 @@ def superlachaise_poi_list(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         page_content = paginator.page(paginator.num_pages)
     
-    wikidata_entries = WikidataEntry.objects.filter(superlachaisewikidatarelation__superlachaise_poi__in=page_content.object_list).distinct()
-    superlachaise_categories = SuperLachaiseCategory.objects.filter(superlachaisecategoryrelation__superlachaise_poi__in=page_content.object_list).distinct()
+    wikidata_entries = superlachaise_categories = []
+    if page_content.object_list:
+        wikidata_entries = WikidataEntry.objects.filter(superlachaisewikidatarelation__superlachaise_poi__in=page_content.object_list).distinct()
+        superlachaise_categories = SuperLachaiseCategory.objects.filter(superlachaisecategoryrelation__superlachaise_poi__in=page_content.object_list).distinct()
     
     obj_to_encode = {
         'superlachaise_pois': page_content.object_list,
-        'wikidata_entries': wikidata_entries,
-        'superlachaise_categories': superlachaise_categories,
         'page': page_content,
     }
+    
+    if wikidata_entries:
+        obj_to_encode['wikidata_entries'] = wikidata_entries
+    if superlachaise_categories:
+        obj_to_encode['superlachaise_categories'] = superlachaise_categories
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
