@@ -123,7 +123,7 @@ class Command(BaseCommand):
             
             main_image = u''
             for line in wikitext.split('\n'):
-                match_obj = re.search( r'^.*[iI]mage.*\=[\s]*(.*)[\s]*$', line)
+                match_obj = re.search(r'^.*[iI]mage.*\=[\s]*(.*)[\s]*$', line)
                 if match_obj:
                     main_image = match_obj.group(1).strip()
                     break
@@ -133,7 +133,6 @@ class Command(BaseCommand):
             
             return main_image
         except:
-            traceback.print_exc()
             return u''
     
     def handle_wikimedia_commons_category(self, page):

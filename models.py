@@ -451,13 +451,14 @@ class WikipediaPage(SuperLachaiseModel):
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
+    default_sort = models.CharField(max_length=255, blank=True, verbose_name=_('default sort'))
     intro = models.TextField(blank=True, verbose_name=_('intro'))
     
     def __unicode__(self):
         return unicode(self.wikidata_localized_entry)
     
     class Meta:
-        ordering = ['wikidata_localized_entry']
+        ordering = ['default_sort', 'wikidata_localized_entry']
         verbose_name = _('wikipedia page')
         verbose_name_plural = _('wikipedia pages')
     
@@ -519,6 +520,7 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
     language = models.ForeignKey('Language', verbose_name=_('language'))
     superlachaise_poi = models.ForeignKey('SuperLachaisePOI', related_name='localizations', verbose_name=_('superlachaise poi'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
+    sorting_name = models.CharField(max_length=255, verbose_name=_('sorting name'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     
     def __unicode__(self):

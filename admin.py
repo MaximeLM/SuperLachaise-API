@@ -476,13 +476,13 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikipediaPage)
 class WikipediaPageAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'wikidata_localized_entry_link', 'wikipedia_link', 'intro_html', 'notes')
+    list_display = ('__unicode__', 'wikidata_localized_entry_link', 'wikipedia_link', 'default_sort', 'intro_html', 'notes')
     list_filter = ('wikidata_localized_entry__language',)
     search_fields = ('wikidata_localized_entry__name', 'wikidata_localized_entry__wikipedia', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['wikidata_localized_entry', 'wikipedia_link', 'intro', 'intro_html']}),
+        (None, {'fields': ['wikidata_localized_entry', 'wikipedia_link', 'default_sort', 'intro', 'intro_html']}),
     ]
     readonly_fields = ('wikidata_localized_entry_link', 'wikipedia_link', 'intro_html', 'created', 'modified')
     
@@ -658,7 +658,7 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
     extra = 0
     
     fieldsets = [
-        (None, {'fields': ['language', 'name', 'description', 'modified']}),
+        (None, {'fields': ['language', 'name', 'sorting_name', 'description', 'modified']}),
     ]
     readonly_fields = ('created', 'modified')
 
@@ -780,13 +780,13 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
 
 @admin.register(SuperLachaiseLocalizedPOI)
 class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
-    list_display = ('language', 'name', 'superlachaise_poi_link', 'description', 'modified', 'notes')
+    list_display = ('language', 'name', 'sorting_name', 'superlachaise_poi_link', 'description', 'modified', 'notes')
     list_filter = ('language',)
     search_fields = ('name', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'name', 'superlachaise_poi', 'description']}),
+        (None, {'fields': ['language', 'name', 'sorting_name', 'superlachaise_poi', 'description']}),
     ]
     readonly_fields = ('superlachaise_poi_link', 'created', 'modified')
     

@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, os, requests, sys, traceback
+import json, os, re, requests, sys, traceback
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
@@ -140,6 +140,43 @@ class WikipediaIntroHTMLParser(HTMLParser):
 
 class Command(BaseCommand):
     
+    def request_wikipedia_pages(self, language_code, wikipedia_titles):
+        pages = {}
+        
+        last_continue = {
+            'continue': '',
+        }
+        
+        titles = '|'.join(wikipedia_titles).encode('utf8')
+        
+        while True:
+            # Request properties
+            params = {
+                'action': 'query',
+                'prop': 'revisions',
+                'rvprop': 'content',
+                'format': 'json',
+                'titles': titles,
+            }
+            params.update(last_continue)
+            
+            if settings.USER_AGENT:
+                headers = {"User-Agent" : settings.USER_AGENT}
+            else:
+                raise 'no USER_AGENT defined in settings.py'
+            
+            json_result = requests.get('https://%s.wikipedia.org/w/api.php' % (language_code), params=params, headers=headers).json()
+            
+            if 'pages' in json_result['query']:
+                for page in json_result['query']['pages'].values():
+                    pages[page['title']] = page
+            
+            if 'continue' not in json_result: break
+            
+            last_continue = json_result['continue']
+        
+        return pages
+    
     def request_wikipedia_pre_section(self, language_code, title):
         # Request properties
         params = {
@@ -169,11 +206,37 @@ class Command(BaseCommand):
         
         return parser.get_data()
     
+    def get_default_sort(self, page):
+        try:
+            if len(page['revisions']) != 1:
+                raise BaseException
+            wikitext = page['revisions'][0]['*']
+            
+            default_sort = u''
+            for line in wikitext.split('\n'):
+                match_obj = re.search(r'^{{DEFAULTSORT:(.*)}}$', line)
+                if match_obj:
+                    default_sort = match_obj.group(1).strip()
+                    break
+                match_obj = re.search(r'^{{CLEDETRI:(.*)}}$', line)
+                if match_obj:
+                    default_sort = match_obj.group(1).strip()
+                    break
+            
+            return default_sort
+        except:
+            return u''
+    
     def hande_wikidata_localized_entry(self, wikidata_localized_entry):
         id = wikidata_localized_entry.language.code + u':' + wikidata_localized_entry.wikidata_entry_id
         values_dict = {
             'intro': self.get_wikipedia_intro(wikidata_localized_entry.language.code, wikidata_localized_entry.wikipedia),
         }
+        
+        if wikidata_localized_entry.language.code in self.default_sort and wikidata_localized_entry.wikipedia in self.default_sort[wikidata_localized_entry.language.code]:
+            values_dict['default_sort'] = self.default_sort[wikidata_localized_entry.language.code][wikidata_localized_entry.wikipedia]
+        else:
+            values_dict['default_sort'] = u''
         
         # Get element in database if it exists
         wikipedia_page = WikipediaPage.objects.filter(id=id).first()
@@ -220,7 +283,25 @@ class Command(BaseCommand):
             wikidata_localized_entries = WikidataLocalizedEntry.objects.filter(id__in=wikidata_localized_entry_ids.split('|')).exclude(wikipedia__exact='')
         else:
             wikidata_localized_entries = WikidataLocalizedEntry.objects.exclude(wikipedia__exact='')
-        print 'Requesting Wikipedia...'
+        
+        print 'Requesting Wikipedia revisions...'
+        self.default_sort = {}
+        total = len(wikidata_localized_entries)
+        count = 0
+        max_count_per_request = 25
+        for language in Language.objects.all():
+            self.default_sort[language.code] = {}
+            wikipedia_titles = wikidata_localized_entries.filter(language=language).values_list('wikipedia', flat=True)
+            for chunk in [wikipedia_titles[i:i+max_count_per_request] for i in range(0,len(wikipedia_titles),max_count_per_request)]:
+                print str(count) + u'/' + str(total)
+                count += len(chunk)
+            
+                pages_result = self.request_wikipedia_pages(language.code, chunk)
+                for title, page in pages_result.iteritems():
+                    self.default_sort[language.code][title] = self.get_default_sort(page)
+        print str(count) + u'/' + str(total)
+        
+        print 'Requesting Wikipedia page content...'
         total = len(wikidata_localized_entries)
         count = 0
         fetched_ids = []
