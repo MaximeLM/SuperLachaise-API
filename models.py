@@ -520,14 +520,14 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
     language = models.ForeignKey('Language', verbose_name=_('language'))
     superlachaise_poi = models.ForeignKey('SuperLachaisePOI', related_name='localizations', verbose_name=_('superlachaise poi'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
-    sorting_name = models.CharField(max_length=255, verbose_name=_('sorting name'))
+    sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
         return self.name
     
     class Meta:
-        ordering = ['language', 'name']
+        ordering = ['language', 'sorting_name', 'name']
         verbose_name = _('superlachaise localized POI')
         verbose_name_plural = _('superlachaise localized POIs')
     

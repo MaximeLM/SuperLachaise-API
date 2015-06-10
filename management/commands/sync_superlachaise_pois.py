@@ -187,7 +187,10 @@ class Command(BaseCommand):
             if unique_wikidata_entry:
                 wikidata_localized_entry = unique_wikidata_entry.localizations.filter(language=language).first()
                 if wikidata_localized_entry:
-                    result = wikidata_localized_entry.name
+                    if hasattr(wikidata_localized_entry, 'wikipedia_page'):
+                        result = wikidata_localized_entry.wikipedia
+                    else:
+                        result = wikidata_localized_entry.name
         
         # Use none-type localized wikidata entry if unique
         if not result:
@@ -202,7 +205,10 @@ class Command(BaseCommand):
             if unique_wikidata_entry:
                 wikidata_localized_entry = unique_wikidata_entry.localizations.filter(language=language).first()
                 if wikidata_localized_entry:
-                    result = wikidata_localized_entry.name
+                    if hasattr(wikidata_localized_entry, 'wikipedia_page'):
+                        result = wikidata_localized_entry.wikipedia
+                    else:
+                        result = wikidata_localized_entry.name
         
         # Use OpenStreetMap if language match
         if not result and language.code == self.openstreetmap_name_tag_language:
@@ -211,25 +217,103 @@ class Command(BaseCommand):
         # Concatenate names of person wikidata entries
         if not result:
             error = False
-            person_localized_names = []
+            person_localized_entries = []
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                     wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
                     wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
-                    if wikidata_localized_entry and wikidata_localized_entry.name:
-                        person_localized_names.append(wikidata_localized_entry.name)
+                    if wikidata_localized_entry and (wikidata_localized_entry.name or wikidata_localized_entry.wikipedia):
+                        person_localized_entries.append(wikidata_localized_entry)
                     else:
                         # No localization or no name for this entry
                         error = True
                         break
-            if person_localized_names:
-                last_part = language.last_enumeration_separator.join(person_localized_names[-2:])
-                person_localized_names[-2:] = [last_part]
-                result = language.enumeration_separator.join(person_localized_names)
+            if person_localized_entries:
+                sorted_list = sorted(person_localized_entries, key=lambda wikidata_localized_entry: wikidata_localized_entry.wikipedia_page.default_sort if hasattr(wikidata_localized_entry, 'wikipedia_page') and wikidata_localized_entry.wikipedia_page.default_sort else (wikidata_localized_entry.wikipedia if wikidata_localized_entry.wikipedia else wikidata_localized_entry.name))
+                
+                sorted_list_names = [entry.wikipedia if entry.wikipedia else entry.name for entry in sorted_list]
+                last_part = language.last_enumeration_separator.join(sorted_list_names[-2:])
+                sorted_list_names[-2:] = [last_part]
+                result = language.enumeration_separator.join(sorted_list_names)
         
         # Use OpenStreetMap
         if not result:
             result = openstreetmap_element.name
+        
+        return result
+    
+    def get_sorting_name(self, language, name, openstreetmap_element, wikidata_fetched_entries):
+        result = u''
+        
+        # Use person localized wikidata entry if unique
+        if not result:
+            unique_wikidata_entry = None
+            for wikidata_fetched_entry in wikidata_fetched_entries:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                    if not unique_wikidata_entry:
+                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                    else:
+                        unique_wikidata_entry = None
+                        break
+            if unique_wikidata_entry:
+                wikidata_localized_entry = unique_wikidata_entry.localizations.filter(language=language).first()
+                if wikidata_localized_entry:
+                    if hasattr(wikidata_localized_entry, 'wikipedia_page'):
+                        result = wikidata_localized_entry.wikipedia_page.default_sort
+        
+        if not result.split(',')[0] in name:
+            result = u''
+        
+        # Use none-type localized wikidata entry if unique
+        if not result:
+            unique_wikidata_entry = None
+            for wikidata_fetched_entry in wikidata_fetched_entries:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NONE:
+                    if not unique_wikidata_entry:
+                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                    else:
+                        unique_wikidata_entry = None
+                        break
+            if unique_wikidata_entry:
+                wikidata_localized_entry = unique_wikidata_entry.localizations.filter(language=language).first()
+                if wikidata_localized_entry:
+                    if hasattr(wikidata_localized_entry, 'wikipedia_page'):
+                        result = wikidata_localized_entry.wikipedia_page.default_sort
+        
+        if not result.split(',')[0] in name:
+            result = u''
+        
+        # Use first default_sort of list of person contained in name
+        if not result:
+            error = False
+            person_wikipedia_pages = []
+            for wikidata_fetched_entry in wikidata_fetched_entries:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                    wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                    wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
+                    if wikidata_localized_entry and hasattr(wikidata_localized_entry, 'wikipedia_page') and wikidata_localized_entry.wikipedia_page.default_sort:
+                        person_wikipedia_pages.append(wikidata_localized_entry.wikipedia_page)
+                    else:
+                        # No localization or no name for this entry
+                        error = True
+                        break
+            if person_wikipedia_pages:
+                sorted_list = sorted(person_wikipedia_pages, key=lambda wikipedia_page: wikipedia_page.default_sort)
+                
+                for wikipedia_page in sorted_list:
+                    if wikipedia_page.default_sort.split(',')[0] in name:
+                        result = wikipedia_page.default_sort
+                        break
+        
+        if not result.split(',')[0] in name:
+            result = u''
+        
+        # Use OpenStreetMap
+        if not result:
+            result = openstreetmap_element.sorting_name
+        
+        if not result.split(',')[0] in name:
+            result = u''
         
         return result
     
@@ -284,8 +368,10 @@ class Command(BaseCommand):
         return result
     
     def get_localized_values_for_openstreetmap_element(self, language, openstreetmap_element, wikidata_entries):
+        name = self.get_name(language, openstreetmap_element, wikidata_entries)
         result = {
-            language.code + ':name': self.get_name(language, openstreetmap_element, wikidata_entries),
+            language.code + ':name': name,
+            language.code + ':sorting_name': self.get_sorting_name(language, name, openstreetmap_element, wikidata_entries),
             language.code + ':description': self.get_description(language, openstreetmap_element, wikidata_entries),
         }
         

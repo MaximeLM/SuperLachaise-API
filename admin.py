@@ -755,8 +755,8 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     
     def sync_page(self, request, queryset):
         openstreetmap_element_ids = []
-        for superlachaise_id in queryset:
-            openstreetmap_element_ids.append(superlachaise_id.openstreetmap_element_id)
+        for superlachaise_poi in queryset:
+            openstreetmap_element_ids.append(superlachaise_poi.openstreetmap_element_id)
         sync_start = timezone.now()
         call_command('sync_superlachaise_pois', openstreetmap_element_ids='|'.join(openstreetmap_element_ids))
         pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
@@ -804,7 +804,26 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete notes')
     
-    actions = [delete_notes]
+    def sync_page(self, request, queryset):
+        openstreetmap_element_ids = []
+        for superlachaise_localized_poi in queryset:
+            openstreetmap_element_ids.append(superlachaise_localized_poi.superlachaise_poi.openstreetmap_element_id)
+        sync_start = timezone.now()
+        call_command('sync_superlachaise_pois', openstreetmap_element_ids='|'.join(openstreetmap_element_ids))
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+        
+        if pending_modifications:
+            # Open modification page with filter
+            app_name = PendingModification._meta.app_label
+            reverse_name = PendingModification.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+            url = '/'.join(split_url[0:len(split_url) - 1])
+            return HttpResponseRedirect(url)
+    sync_page.short_description = _('Sync selected superlachaise localized POIs')
+    
+    actions = [delete_notes, sync_page]
 
 class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
     model = SuperLachaiseLocalizedCategory
