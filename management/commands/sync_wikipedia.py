@@ -163,8 +163,8 @@ class Command(BaseCommand):
             }
             params.update(last_continue)
             
-            if settings.USER_AGENT:
-                headers = {"User-Agent" : settings.USER_AGENT}
+            if settings.MEDIAWIKI_USER_AGENT:
+                headers = {"User-Agent" : settings.MEDIAWIKI_USER_AGENT}
             else:
                 raise 'no USER_AGENT defined in settings.py'
             
@@ -190,8 +190,8 @@ class Command(BaseCommand):
             'page': title.encode('utf8'),
         }
         
-        if settings.USER_AGENT:
-            headers = {"User-Agent" : settings.USER_AGENT}
+        if settings.MEDIAWIKI_USER_AGENT:
+            headers = {"User-Agent" : settings.MEDIAWIKI_USER_AGENT}
         else:
             raise 'no USER_AGENT defined in settings.py'
         
