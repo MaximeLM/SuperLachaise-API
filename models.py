@@ -337,7 +337,7 @@ class PendingModification(SuperLachaiseModel):
                 if categories:
                     for category_name in categories:
                         category = SuperLachaiseCategory.objects.get(code=category_name)
-                        if not category in target_object.categories.all():
+                        if not category in target_object.superlachaise_categories.all():
                             # Create relation
                             category_relation = SuperLachaiseCategoryRelation(superlachaise_poi=target_object, category=category)
                             category_relation.full_clean()

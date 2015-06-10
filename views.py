@@ -77,9 +77,9 @@ class SuperLachaiseEncoder(object):
     def page_dict(self, page):
         result = {
             'current_page': page.number,
-            'results_on_page': len(page.object_list),
-            'total_pages': page.paginator.num_pages,
-            'total_results': page.paginator.count,
+            'number_of_results_on_page': len(page.object_list),
+            'number_of_pages': page.paginator.num_pages,
+            'number_of_results': page.paginator.count,
         }
         
         if page.has_previous():
@@ -631,7 +631,7 @@ def superlachaise_poi(request, id):
     
     superlachaise_poi = SuperLachaisePOI.objects.get(openstreetmap_element_id=id)
     wikidata_entries = superlachaise_poi.wikidata_entries.all()
-    superlachaise_categories = superlachaise_poi.categories.all()
+    superlachaise_categories = superlachaise_poi.superlachaise_categories.all()
     
     obj_to_encode = {
         'superlachaise_poi': superlachaise_poi,
