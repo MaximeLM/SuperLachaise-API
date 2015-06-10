@@ -28,6 +28,9 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
+def print_unicode(str):
+    print str.encode('utf-8')
+
 class Command(BaseCommand):
     
     def get_wikidata_entries(self, openstreetmap_element):
@@ -88,8 +91,6 @@ class Command(BaseCommand):
     def get_main_image(self, wikimedia_commons_category):
         if wikimedia_commons_category and wikimedia_commons_category.main_image:
             result =  WikimediaCommonsFile.objects.filter(id=wikimedia_commons_category.main_image).first()
-            if not result:
-                print wikimedia_commons_category.main_image
             return result
         else:
             return None
@@ -462,17 +463,17 @@ class Command(BaseCommand):
             for openstreetmap_element in OpenStreetMapElement.objects.all():
                 openstreetmap_element_ids.append(openstreetmap_element.id)
         
-        print 'Preparing objects...'
+        print_unicode(_('Preparing objects...'))
         total = len(openstreetmap_element_ids)
         count = 0
         max_count_per_request = 25
         for chunk in [openstreetmap_element_ids[i:i+max_count_per_request] for i in range(0,len(openstreetmap_element_ids),max_count_per_request)]:
-            print str(count) + u'/' + str(total)
+            print_unicode(str(count) + u'/' + str(total))
             count += len(chunk)
             
             for openstreetmap_element_id in chunk:
                 self.sync_superlachaise_poi(openstreetmap_element_id)
-        print str(count) + u'/' + str(total)
+        print_unicode(str(count) + u'/' + str(total))
         
         if not param_openstreetmap_element_ids:
             # Delete pending creations if element was not fetched
@@ -501,6 +502,8 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
+            print_unicode(_('== Start %s ==') % admin_command.name)
+            
             self.auto_apply = (Setting.objects.get(key=u'superlachaise_poi:auto_apply_modifications').value == 'true')
             self.openstreetmap_name_tag_language = Setting.objects.get(key=u'openstreetmap:name_tag_language').value
             self.synced_instance_of = json.loads(Setting.objects.get(key=u'wikimedia_commons:synced_instance_of').value)
@@ -522,10 +525,12 @@ class Command(BaseCommand):
             if result_list:
                 admin_command.last_result = ', '.join(result_list)
             else:
-                admin_command.last_result = _("No modifications")
+                admin_command.last_result = AdminCommand.NO_MODIFICATIONS
         except:
             exception = sys.exc_info()[0]
             admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+        
+        print_unicode(_('== End %s ==') % admin_command.name)
         
         admin_command.last_executed = timezone.now()
         admin_command.save()

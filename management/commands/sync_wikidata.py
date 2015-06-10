@@ -28,6 +28,9 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
+def print_unicode(str):
+    print str.encode('utf-8')
+
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
@@ -361,37 +364,37 @@ class Command(BaseCommand):
         
         self.grave_of_wikidata_codes = []
         
-        print 'Requesting Wikidata codes from OpenStreetMap elements...'
+        print_unicode(_('Requesting Wikidata codes from OpenStreetMap elements...'))
         self.wikidata_codes = list(set(self.wikidata_codes))
         fetched_entities = []
         total = len(self.wikidata_codes)
         count = 0
         max_count_per_request = 25
         for chunk in [self.wikidata_codes[i:i+max_count_per_request] for i in range(0,len(self.wikidata_codes),max_count_per_request)]:
-            print str(count) + u'/' + str(total)
+            print_unicode(str(count) + u'/' + str(total))
             count += len(chunk)
             
             entities = self.request_wikidata(chunk)
             for wikidata_code, entity in entities.iteritems():
                 self.handle_entity(wikidata_code, entity)
             fetched_entities.extend(entities.keys())
-        print str(count) + u'/' + str(total)
+        print_unicode(str(count) + u'/' + str(total))
         
         if self.grave_of_wikidata_codes:
-            print 'Requesting new Wikidata codes from grave_of...'
+            print_unicode(_('Requesting new Wikidata codes from grave_of...'))
             self.grave_of_wikidata_codes = list(set(self.grave_of_wikidata_codes))
             total = len(self.grave_of_wikidata_codes)
             count = 0
             max_count_per_request = 25
             for chunk in [self.grave_of_wikidata_codes[i:i+max_count_per_request] for i in range(0,len(self.grave_of_wikidata_codes),max_count_per_request)]:
-                print str(count) + u'/' + str(total)
+                print_unicode(str(count) + u'/' + str(total))
                 count += len(chunk)
             
                 entities = self.request_wikidata(chunk)
                 for wikidata_code, entity in entities.iteritems():
                     self.handle_entity(wikidata_code, entity)
                 fetched_entities.extend(entities.keys())
-            print str(count) + u'/' + str(total)
+            print_unicode(str(count) + u'/' + str(total))
         
         if not wikidata_ids:
             # Delete pending creations if element was not fetched
@@ -420,6 +423,8 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
+            print_unicode(_('== Start %s ==') % admin_command.name)
+            
             self.accepted_locations_of_burial = json.loads(Setting.objects.get(key=u'wikidata:accepted_locations_of_burial').value)
             self.auto_apply = (Setting.objects.get(key=u'wikidata:auto_apply_modifications').value == 'true')
             
@@ -440,10 +445,12 @@ class Command(BaseCommand):
             if result_list:
                 admin_command.last_result = ', '.join(result_list)
             else:
-                admin_command.last_result = _("No modifications")
+                admin_command.last_result = AdminCommand.NO_MODIFICATIONS
         except:
             exception = sys.exc_info()[0]
             admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+        
+        print_unicode(_('== End %s ==') % admin_command.name)
         
         admin_command.last_executed = timezone.now()
         admin_command.save()

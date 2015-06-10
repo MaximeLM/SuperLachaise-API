@@ -46,8 +46,10 @@ class SuperLachaiseModel(models.Model):
 class AdminCommand(SuperLachaiseModel):
     """ An admin command that can be monitored """
     
+    NO_MODIFICATIONS = _("No modifications")
+    
     name = models.CharField(primary_key=True, max_length=255, verbose_name=_('name'))
-    dependency_order = models.IntegerField(null=True, verbose_name=_('dependency order'))
+    dependency_order = models.IntegerField(null=True, blank=True, verbose_name=_('dependency order'))
     last_executed = models.DateTimeField(blank=True, null=True, verbose_name=_('last executed'))
     last_result = models.TextField(blank=True, null=True, verbose_name=_('last result'))
     

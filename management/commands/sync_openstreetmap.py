@@ -29,6 +29,9 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
+def print_unicode(str):
+    print str.encode('utf-8')
+
 def decimal_handler(obj):
     return str(obj) if isinstance(obj, Decimal) else obj
 
@@ -294,7 +297,7 @@ class Command(BaseCommand):
     
     def sync_openstreetmap(self):
         # Download data from OSM
-        print 'Requesting Overpass API...'
+        print_unicode(_('Requesting Overpass API...'))
         result = self.download_data(self.bounding_box)
         
         wikipedia_to_fetch = {}
@@ -310,7 +313,7 @@ class Command(BaseCommand):
                             wikipedia_to_fetch[language_code] = []
                         if not link in wikipedia_to_fetch[language_code]:
                             wikipedia_to_fetch[language_code].append(link)
-        print 'Requesting Wikidata...'
+        print_unicode(_('Requesting Wikidata...'))
         total = 0
         for language, wikipedia_links in wikipedia_to_fetch.iteritems():
             total += len(wikipedia_links)
@@ -320,14 +323,14 @@ class Command(BaseCommand):
             self.wikidata_codes[language_code] = {}
             wikipedia_links = list(set(wikipedia_links))
             for chunk in [wikipedia_links[i:i+max_count_per_request] for i in range(0,len(wikipedia_links),max_count_per_request)]:
-                print str(count) + u'/' + str(total)
+                print_unicode(str(count) + u'/' + str(total))
                 count += len(chunk)
                 
                 entities = self.request_wikidata_with_wikipedia_links(language_code, chunk)
                 for wikidata_code, entity in entities.iteritems():
                     wikipedia = self.get_wikipedia(entity, language_code)
                     self.wikidata_codes[language_code][wikipedia] = wikidata_code
-        print str(count) + u'/' + str(total)
+        print_unicode(str(count) + u'/' + str(total))
         
         # Handle downloaded elements
         fetched_ids = []
@@ -365,6 +368,8 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
+            print_unicode(_('== Start %s ==') % self.admin_command.name)
+            
             self.auto_apply = (Setting.objects.get(key=u'openstreetmap:auto_apply_modifications').value == 'true')
             self.bounding_box = Setting.objects.get(key=u'openstreetmap:bounding_box').value
             self.exclude_ids = json.loads(Setting.objects.get(key=u'openstreetmap:exclude_ids').value)
@@ -390,10 +395,12 @@ class Command(BaseCommand):
             if result_list:
                 self.admin_command.last_result = ', '.join(result_list)
             else:
-                self.admin_command.last_result = _("No modifications")
+                self.admin_command.last_result = AdminCommand.NO_MODIFICATIONS
         except:
             exception = sys.exc_info()[0]
             self.admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+        
+        print_unicode(_('== End %s ==') % self.admin_command.name)
         
         self.admin_command.last_executed = timezone.now()
         self.admin_command.save()

@@ -28,6 +28,9 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
+def print_unicode(str):
+    print str.encode('utf-8')
+
 class Command(BaseCommand):
     
     def request_wikidata(self, wikidata_codes):
@@ -82,18 +85,18 @@ class Command(BaseCommand):
         # Sync names from Wikidata
         wikidata_codes = SuperLachaiseOccupation.objects.all().values_list('id', flat=True)
         
-        print 'Requesting Wikidata...'
+        print_unicode(_('Requesting Wikidata...'))
         wikidata_entities = {}
         total = len(wikidata_codes)
         count = 0
         max_count_per_request = 25
         wikidata_codes = list(set(wikidata_codes))
         for chunk in [wikidata_codes[i:i+max_count_per_request] for i in range(0,len(wikidata_codes),max_count_per_request)]:
-            print str(count) + u'/' + str(total)
+            print_unicode(str(count) + u'/' + str(total))
             count += len(chunk)
             
             wikidata_entities.update(self.request_wikidata(chunk))
-        print str(count) + u'/' + str(total)
+        print_unicode(str(count) + u'/' + str(total))
         
         for superlachaise_occupation in SuperLachaiseOccupation.objects.all():
             wikidata_entity = wikidata_entities[superlachaise_occupation.id]
@@ -120,6 +123,8 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
+            print_unicode(_('== Start %s ==') % admin_command.name)
+            
             self.created_objects = 0
             
             self.sync_superlachaise_occupations()
@@ -131,10 +136,12 @@ class Command(BaseCommand):
             if result_list:
                 admin_command.last_result = ', '.join(result_list)
             else:
-                admin_command.last_result = _("No modifications")
+                admin_command.last_result = AdminCommand.NO_MODIFICATIONS
         except:
             exception = sys.exc_info()[0]
             admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+        
+        print_unicode(_('== End %s ==') % admin_command.name)
         
         admin_command.last_executed = timezone.now()
         admin_command.save()

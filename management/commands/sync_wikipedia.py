@@ -29,6 +29,9 @@ from HTMLParser import HTMLParser
 
 from superlachaise_api.models import *
 
+def print_unicode(str):
+    print str.encode('utf-8')
+
 class WikipediaIntroHTMLParser(HTMLParser):
     
     def __init__(self, language_code):
@@ -284,7 +287,7 @@ class Command(BaseCommand):
         else:
             wikidata_localized_entries = WikidataLocalizedEntry.objects.exclude(wikipedia__exact='')
         
-        print 'Requesting Wikipedia revisions...'
+        print_unicode(_('Requesting Wikipedia revisions...'))
         self.default_sort = {}
         total = len(wikidata_localized_entries)
         count = 0
@@ -293,24 +296,27 @@ class Command(BaseCommand):
             self.default_sort[language.code] = {}
             wikipedia_titles = wikidata_localized_entries.filter(language=language).values_list('wikipedia', flat=True)
             for chunk in [wikipedia_titles[i:i+max_count_per_request] for i in range(0,len(wikipedia_titles),max_count_per_request)]:
-                print str(count) + u'/' + str(total)
+                print_unicode(str(count) + u'/' + str(total))
                 count += len(chunk)
             
                 pages_result = self.request_wikipedia_pages(language.code, chunk)
                 for title, page in pages_result.iteritems():
                     self.default_sort[language.code][title] = self.get_default_sort(page)
-        print str(count) + u'/' + str(total)
+        print_unicode(str(count) + u'/' + str(total))
         
-        print 'Requesting Wikipedia page content...'
+        print_unicode(_('Requesting Wikipedia page content...'))
         total = len(wikidata_localized_entries)
         count = 0
+        max_count_per_request = 25
         fetched_ids = []
-        for wikidata_localized_entry in wikidata_localized_entries:
-            print str(count) + u'/' + str(total)
-            count += 1
-            fetched_ids.append(wikidata_localized_entry.language.code + u':' + wikidata_localized_entry.wikidata_entry_id)
-            self.hande_wikidata_localized_entry(wikidata_localized_entry)
-        print str(count) + u'/' + str(total)
+        for chunk in [wikidata_localized_entries[i:i+max_count_per_request] for i in range(0,len(wikidata_localized_entries),max_count_per_request)]:
+            print_unicode(str(count) + u'/' + str(total))
+            count += len(chunk)
+            
+            for wikidata_localized_entry in chunk:
+                fetched_ids.append(wikidata_localized_entry.language.code + u':' + wikidata_localized_entry.wikidata_entry_id)
+                self.hande_wikidata_localized_entry(wikidata_localized_entry)
+        print_unicode(str(count) + u'/' + str(total))
         
         if not wikidata_localized_entry_ids:
             # Delete pending creations if element was not fetched
@@ -339,6 +345,8 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
         try:
+            print_unicode(_('== Start %s ==') % admin_command.name)
+            
             self.auto_apply = (Setting.objects.get(key=u'wikipedia:auto_apply_modifications').value == 'true')
             
             self.created_objects = 0
@@ -358,10 +366,12 @@ class Command(BaseCommand):
             if result_list:
                 admin_command.last_result = ', '.join(result_list)
             else:
-                admin_command.last_result = _("No modifications")
+                admin_command.last_result = AdminCommand.NO_MODIFICATIONS
         except:
             exception = sys.exc_info()[0]
             admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+        
+        print_unicode(_('== End %s ==') % admin_command.name)
         
         admin_command.last_executed = timezone.now()
         admin_command.save()

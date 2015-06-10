@@ -22,6 +22,7 @@ limitations under the License.
 
 import datetime, json
 from decimal import Decimal
+from django.contrib.sites.models import Site
 from django.core.exceptions import SuspiciousOperation
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
@@ -41,7 +42,7 @@ class SuperLachaiseEncoder(object):
         self.restrict_fields = restrict_fields
     
     def encode(self, obj):
-        obj['licence'] = self.request.build_absolute_uri(reverse(licence))
+        obj['licence'] = '{domain}{path}'.format(domain=Site.objects.get_current().domain, path=reverse(licence))
         return json.dumps(self.obj_dict(obj), ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True, default=self.default)
     
     def default(self, obj):
@@ -355,7 +356,7 @@ def get_died_before(request):
 
 @require_http_methods(["GET"])
 def licence(request):
-    content = [request.build_absolute_uri(reverse(licence)) + '\n']
+    content = ['{domain}{path}\n'.format(domain=Site.objects.get_current().domain, path=reverse(licence))]
     
     with open('LICENCE_DATABASE.txt', 'r') as content_file:
         content.append(content_file.read())
