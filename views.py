@@ -89,17 +89,17 @@ class SuperLachaiseEncoder(object):
             
             result.update({
                 'previous_page': params['page'],
-                'previous_page_path': page_url,
+                'previous_page_path': page_path.replace(' ', '+'),
             })
         
         if page.has_next():
             params = self.request.GET.copy()
             params['page'] = page.next_page_number()
-            page_url = u'{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
+            page_path = u'{path}?{params}'.format(path=self.request.path, params='&'.join(['%s=%s' % (key, value) for key, value in params.iteritems()]))
             
             result.update({
                 'next_page': params['page'],
-                'next_page_path': page_url,
+                'next_page_path': page_path.replace(' ', '+'),
             })
         
         return result
@@ -243,16 +243,19 @@ class SuperLachaiseEncoder(object):
         return result
     
     def wikimedia_commons_category_dict(self, wikimedia_commons_category):
-        result = {
-            'id': wikimedia_commons_category.id,
-            'main_image': wikimedia_commons_category.main_image,
-        }
+        if wikimedia_commons_category:
+            result = {
+                'id': wikimedia_commons_category.id,
+                'main_image': wikimedia_commons_category.main_image,
+            }
         
-        if not self.restrict_fields:
-            result.update({
-                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.id)),
-                'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.main_image)),
-            })
+            if not self.restrict_fields:
+                result.update({
+                    'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.id)),
+                    'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.main_image)),
+                })
+        else:
+            result = None
         
         return result
     
@@ -289,7 +292,6 @@ def get_modified_since(request):
     
         return modified_since
     except:
-        traceback.print_exc()
         raise SuspiciousOperation('Invalid parameter : modified_since')
 
 def get_restrict_fields(request):
@@ -305,25 +307,61 @@ def get_restrict_fields(request):
     return restrict_fields
 
 def get_search(request):
-    search = request.GET.get('search', [])
-    
-    if search:
-        search = search.split()
+    search = request.GET.get('search', u'')
     
     return search
+
+def get_categories(request):
+    categories = request.GET.getlist('category', [])
+    
+    return categories
+
+def get_sector(request):
+    sector = request.GET.get('sector', u'')
+    
+    return sector
+
+def get_born_after(request):
+    try:
+        born_after = request.GET.get('born_after', None)
+        if born_after:
+            # Parse date
+            born_after = datetime.date(int(born_after), 1, 1)
+            
+            # Convert to datetime with 00:00 for server time zone
+            born_after = datetime.datetime.combine(born_after, datetime.time()).replace(tzinfo=timezone.get_current_timezone())
+    
+        return born_after
+    except:
+        traceback.print_exc()
+        raise SuspiciousOperation('Invalid parameter : born_after')
+
+def get_died_before(request):
+    try:
+        died_before = request.GET.get('died_before', None)
+        if died_before:
+            # Parse date
+            died_before = datetime.date(int(died_before), 12, 31)
+            
+            # Convert to datetime with 00:00 for server time zone
+            died_before = datetime.datetime.combine(died_before, datetime.time()).replace(tzinfo=timezone.get_current_timezone())
+    
+        return died_before
+    except:
+        raise SuspiciousOperation('Invalid parameter : died_before')
 
 @require_http_methods(["GET"])
 def openstreetmap_element_list(request):
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
-    search_terms = get_search(request)
+    search = get_search(request)
     
     if modified_since:
         openstreetmap_elements = OpenStreetMapElement.objects.filter(modified__gt=modified_since)
     else:
         openstreetmap_elements = OpenStreetMapElement.objects.all()
     
-    for search_term in search_terms:
+    for search_term in search.split():
         openstreetmap_elements = openstreetmap_elements.filter( \
             Q(name__icontains=search_term) \
         )
@@ -365,14 +403,14 @@ def wikidata_entry_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
-    search_terms = get_search(request)
+    search = get_search(request)
     
     if modified_since:
         wikidata_entries = WikidataEntry.objects.filter(modified__gt=modified_since)
     else:
         wikidata_entries = WikidataEntry.objects.all()
     
-    for search_term in search_terms:
+    for search_term in search.split():
         wikidata_entries = wikidata_entries.filter( \
             Q(localizations__name__icontains=search_term) \
             | Q(localizations__description__icontains=search_term) \
@@ -417,14 +455,14 @@ def wikimedia_commons_category_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
-    search_terms = get_search(request)
+    search = get_search(request)
     
     if modified_since:
         wikimedia_commons_categories = WikimediaCommonsCategory.objects.filter(modified__gt=modified_since)
     else:
         wikimedia_commons_categories = WikimediaCommonsCategory.objects.all()
     
-    for search_term in search_terms:
+    for search_term in search.split():
         wikimedia_commons_categories = wikimedia_commons_categories.filter( \
             Q(id__icontains=search_term) \
             | Q(main_image__icontains=search_term) \
@@ -468,14 +506,14 @@ def superlachaise_category_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
-    search_terms = get_search(request)
+    search = get_search(request)
     
     if modified_since:
         superlachaise_categories = SuperLachaiseCategory.objects.filter(modified__gt=modified_since)
     else:
         superlachaise_categories = SuperLachaiseCategory.objects.all()
     
-    for search_term in search_terms:
+    for search_term in search.split():
         superlachaise_categories = superlachaise_categories.filter( \
             Q(code__icontains=search_term) \
             | Q(type__icontains=search_term) \
@@ -521,22 +559,38 @@ def superlachaise_poi_list(request):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
-    search_terms = get_search(request)
+    search = get_search(request)
+    categories = get_categories(request)
+    sector = get_sector(request)
+    born_after = get_born_after(request)
+    died_before = get_died_before(request)
     
     if modified_since:
         superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=modified_since)
     else:
         superlachaise_pois = SuperLachaisePOI.objects.all()
     
-    for search_term in search_terms:
+    for search_term in search.split():
         superlachaise_pois = superlachaise_pois.filter( \
             Q(localizations__name__icontains=search_term) \
             | Q(localizations__description__icontains=search_term) \
-            | Q(superlachaise_categories__localizations__name__icontains=search_term) \
             | Q(wikidata_entries__localizations__name__icontains=search_term) \
             | Q(wikidata_entries__localizations__description__icontains=search_term) \
             | Q(wikidata_entries__localizations__wikipedia__icontains=search_term) \
         )
+    
+    # Apply AND to multiple 'category' keys in query ex. 'category=cinema&category=women'
+    for category in categories:
+        # Apply OR to multiple categories in value ex. 'category=cinema+theatre'
+        superlachaise_pois = superlachaise_pois.filter(superlachaise_categories__code__in=category.split())
+    
+    if sector:
+        superlachaise_pois = superlachaise_pois.filter(wikidata_entries__burial_plot_reference__in=sector.split())
+    
+    if born_after:
+        superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_birth__gte=born_after)
+    if died_before:
+        superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_birth__lte=died_before)
     
     superlachaise_pois = superlachaise_pois.order_by('openstreetmap_element_id').distinct('openstreetmap_element_id')
     
@@ -614,7 +668,7 @@ def objects(request):
         
         objects[model.__name__] = {
             'count': count,
-            'path': path,
+            'path': path.replace(' ', '+'),
         }
     
     obj_to_encode = {
