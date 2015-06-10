@@ -835,7 +835,7 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('code', 'type', 'values', 'members_count', 'occupations_count', 'notes')
+    list_display = ('code', 'type', 'values', 'members_count', 'wikidata_occupations_count', 'notes')
     list_filter = ('type',)
     search_fields = ('code', 'type', 'values', 'notes',)
     
@@ -843,7 +843,7 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['code', 'type', 'values']}),
     ]
-    readonly_fields = ('code', 'members_count', 'occupations_count', 'created', 'modified')
+    readonly_fields = ('code', 'members_count', 'wikidata_occupations_count', 'created', 'modified')
     inlines = [
         SuperLachaiseLocalizedCategoryInline,
     ]
@@ -852,9 +852,9 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
         return obj.members.count()
     members_count.short_description = _('members count')
     
-    def occupations_count(self, obj):
-        return obj.occupations.count()
-    occupations_count.short_description = _('occupations count')
+    def wikidata_occupations_count(self, obj):
+        return obj.wikidata_occupations.count()
+    wikidata_occupations_count.short_description = _('wikidata occupations count')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
@@ -862,8 +862,8 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
-@admin.register(SuperLachaiseOccupation)
-class SuperLachaiseOccupationAdmin(admin.ModelAdmin):
+@admin.register(WikidataOccupation)
+class WikidataOccupationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in_link', 'notes')
     list_filter = ('superlachaise_category',)
     list_editable = ('superlachaise_category',)

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-sync_wikidata.py
+sync_wikidata_occupations.py
 superlachaise_api
 
-Created by Maxime Le Moine on 28/05/2015.
+Created by Maxime Le Moine on 11/06/2015.
 Copyright (c) 2015 Maxime Le Moine.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,22 +68,22 @@ class Command(BaseCommand):
         
         return result
     
-    def sync_superlachaise_occupations(self):
+    def sync_wikidata_occupations(self):
         # Sync objects
         for wikidata_entry in WikidataEntry.objects.exclude(occupations__exact=''):
             for occupation in wikidata_entry.occupations.split(';'):
-                superlachaise_occupation, created = SuperLachaiseOccupation.objects.get_or_create(id=occupation)
+                wikidata_occupation, created = WikidataOccupation.objects.get_or_create(id=occupation)
                 if created:
                     self.created_objects += 1
-                superlachaise_occupation.save()
-                if not superlachaise_occupation in wikidata_entry.superlachaise_occupations.all():
-                    wikidata_entry.superlachaise_occupations.add(superlachaise_occupation.id)
-            for superlachaise_occupation in wikidata_entry.superlachaise_occupations.all():
-                if not superlachaise_occupation.id in wikidata_entry.occupations.split(';'):
-                    wikidata_entry.superlachaise_occupations.remove(superlachaise_occupation.id)
+                wikidata_occupation.save()
+                if not wikidata_occupation in wikidata_entry.wikidata_occupations.all():
+                    wikidata_entry.wikidata_occupations.add(wikidata_occupation.id)
+            for wikidata_occupation in wikidata_entry.wikidata_occupations.all():
+                if not wikidata_occupation.id in wikidata_entry.occupations.split(';'):
+                    wikidata_entry.wikidata_occupations.remove(wikidata_occupation.id)
         
         # Sync names from Wikidata
-        wikidata_codes = SuperLachaiseOccupation.objects.all().values_list('id', flat=True)
+        wikidata_codes = WikidataOccupation.objects.all().values_list('id', flat=True)
         
         print_unicode(_('Requesting Wikidata...'))
         wikidata_entities = {}
@@ -98,8 +98,8 @@ class Command(BaseCommand):
             wikidata_entities.update(self.request_wikidata(chunk))
         print_unicode(str(count) + u'/' + str(total))
         
-        for superlachaise_occupation in SuperLachaiseOccupation.objects.all():
-            wikidata_entity = wikidata_entities[superlachaise_occupation.id]
+        for wikidata_occupation in WikidataOccupation.objects.all():
+            wikidata_entity = wikidata_entities[wikidata_occupation.id]
             names = {}
             for language in Language.objects.all():
                 try:
@@ -114,10 +114,10 @@ class Command(BaseCommand):
                 result = []
                 for name, languages in names.iteritems():
                     result.append('(%s)%s' % (','.join(languages), name))
-                superlachaise_occupation.name = '; '.join(result)
+                wikidata_occupation.name = '; '.join(result)
             else:
-                superlachaise_occupation.name = u''
-            superlachaise_occupation.save()
+                wikidata_occupation.name = u''
+            wikidata_occupation.save()
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
@@ -127,7 +127,7 @@ class Command(BaseCommand):
             
             self.created_objects = 0
             
-            self.sync_superlachaise_occupations()
+            self.sync_wikidata_occupations()
             
             result_list = []
             if self.created_objects > 0:

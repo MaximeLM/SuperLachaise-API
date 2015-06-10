@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-10 21:09+0200\n"
+"POT-Creation-Date: 2015-06-11 01:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -181,8 +181,8 @@ msgid "members count"
 msgstr "nombre de membres"
 
 #: admin.py:857
-msgid "occupations count"
-msgstr "nombre d'occupations"
+msgid "wikidata occupations count"
+msgstr "nombre d'occupations wikidata"
 
 #: admin.py:890
 msgid "used in count"
@@ -196,31 +196,31 @@ msgstr "utilisé dans"
 msgid "SuperLachaise API"
 msgstr "API SuperLachaise"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:49
+#: management/commands/sync_all_and_send_mail_to_managers.py:52
 #, python-brace-format
 msgid "{name}: not executed"
 msgstr "{name} : non exécuté"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:52
+#: management/commands/sync_all_and_send_mail_to_managers.py:55
 #, python-brace-format
 msgid "{name}: executed on {date} at {time}"
 msgstr "{name} : exécuté le {date} à {time}"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:53
+#: management/commands/sync_all_and_send_mail_to_managers.py:56
 #, python-brace-format
 msgid "Result: {result}"
 msgstr "Résultat : {result}"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:63
+#: management/commands/sync_all_and_send_mail_to_managers.py:66
 #, python-brace-format
 msgid "Administration: {domain}{path}"
 msgstr "Administration : {domain}{path}"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:75
+#: management/commands/sync_all_and_send_mail_to_managers.py:79
 #: management/commands/sync_openstreetmap.py:371
-#: management/commands/sync_superlachaise_occupations.py:126
 #: management/commands/sync_superlachaise_pois.py:505
 #: management/commands/sync_wikidata.py:426
+#: management/commands/sync_wikidata_occupations.py:126
 #: management/commands/sync_wikimedia_commons_categories.py:251
 #: management/commands/sync_wikimedia_commons_files.py:185
 #: management/commands/sync_wikipedia.py:348
@@ -228,20 +228,28 @@ msgstr "Administration : {domain}{path}"
 msgid "== Start %s =="
 msgstr "== Début %s =="
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:88
+#: management/commands/sync_all_and_send_mail_to_managers.py:93
+msgid "Mail not sent"
+msgstr "Mail non envoyé"
+
+#: management/commands/sync_all_and_send_mail_to_managers.py:95
 msgid "Mail sent"
 msgstr "Mail envoyé"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:89
+#: management/commands/sync_all_and_send_mail_to_managers.py:97
+msgid "Mail sending failure"
+msgstr "Échec de l'envoi du mail"
+
+#: management/commands/sync_all_and_send_mail_to_managers.py:99
 #, python-brace-format
 msgid "Duration: {minutes} minute(s) and {seconds} second(s)"
 msgstr "Durée du traitement: {minutes} minute(s) et {seconds} seconde(s)"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:95
+#: management/commands/sync_all_and_send_mail_to_managers.py:106
 #: management/commands/sync_openstreetmap.py:403
-#: management/commands/sync_superlachaise_occupations.py:144
 #: management/commands/sync_superlachaise_pois.py:533
 #: management/commands/sync_wikidata.py:453
+#: management/commands/sync_wikidata_occupations.py:144
 #: management/commands/sync_wikimedia_commons_categories.py:278
 #: management/commands/sync_wikimedia_commons_files.py:213
 #: management/commands/sync_wikipedia.py:374
@@ -266,14 +274,14 @@ msgid "Requesting Overpass API..."
 msgstr "Requête de l'API Overpass..."
 
 #: management/commands/sync_openstreetmap.py:316
-#: management/commands/sync_superlachaise_occupations.py:88
+#: management/commands/sync_wikidata_occupations.py:88
 msgid "Requesting Wikidata..."
 msgstr "Requête de Wikidata..."
 
 #: management/commands/sync_openstreetmap.py:387
-#: management/commands/sync_superlachaise_occupations.py:134
 #: management/commands/sync_superlachaise_pois.py:519
 #: management/commands/sync_wikidata.py:439
+#: management/commands/sync_wikidata_occupations.py:134
 #: management/commands/sync_wikimedia_commons_categories.py:264
 #: management/commands/sync_wikimedia_commons_files.py:199
 #: management/commands/sync_wikipedia.py:360
@@ -573,9 +581,10 @@ msgid "superlachaisepoi-superlachaisecategory relationships"
 msgstr "relations superlachaisepoi-superlachaisecategory"
 
 #: models.py:642
-msgid "superlachaise occupation"
-msgstr "occupation superlachaise"
+msgid "wikidata occupation"
+msgstr "occupations wikidata"
 
 #: models.py:643
-msgid "superlachaise occupations"
-msgstr "occupations superlachaise"
+#| msgid "occupations"
+msgid "wikidata occupations"
+msgstr "occupations wikidata"

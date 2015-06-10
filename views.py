@@ -156,6 +156,11 @@ class SuperLachaiseEncoder(object):
                 else:
                     result[language.code] = None
         
+        if not self.restrict_fields:
+            result.update({
+                'wikidata_occupations': [wikidata_occupation.id for wikidata_occupation in superlachaise_category.wikidata_occupations.all()],
+            })
+        
         return result
     
     def openstreetmap_element_dict(self, openstreetmap_element):

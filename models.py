@@ -626,18 +626,18 @@ class SuperLachaiseCategoryRelation(SuperLachaiseModel):
         # Touch SuperLachaise POIs
         self.superlachaise_poi.save()
 
-class SuperLachaiseOccupation(SuperLachaiseModel):
+class WikidataOccupation(SuperLachaiseModel):
     """ Associate a person's occupation to a category """
     
     id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
-    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'type': SuperLachaiseCategory.OCCUPATION}, related_name='occupations', verbose_name=_('superlachaise category'))
-    used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='superlachaise_occupations', verbose_name=_('used in'))
+    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'type': SuperLachaiseCategory.OCCUPATION}, related_name='wikidata_occupations', verbose_name=_('superlachaise category'))
+    used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='wikidata_occupations', verbose_name=_('used in'))
     
     def __unicode__(self):
         return self.id
     
     class Meta:
         ordering = ['id']
-        verbose_name = _('superlachaise occupation')
-        verbose_name_plural = _('superlachaise occupations')
+        verbose_name = _('wikidata occupation')
+        verbose_name_plural = _('wikidata occupations')

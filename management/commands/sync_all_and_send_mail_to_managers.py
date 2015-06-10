@@ -35,6 +35,9 @@ from superlachaise_api.models import *
 def print_unicode(str):
     print str.encode('utf-8')
 
+class MailSendingStatus:
+    MAIL_SENT, MAIL_NOT_SENT, FAILURE = range(3)
+
 class Command(BaseCommand):
     
     def sync_all(self):
@@ -64,9 +67,10 @@ class Command(BaseCommand):
             
             try:
                 mail_managers(u'Résultat des commandes admin', '\n'.join(mail_content), fail_silently=False)
-                self.mail_sent = True
+                self.mail_sending_status = MailSendingStatus.MAIL_SENT
             except:
-                pass
+                print_unicode(traceback.format_exc())
+                self.mail_sending_status = MailSendingStatus.FAILURE
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
@@ -75,8 +79,8 @@ class Command(BaseCommand):
             print_unicode(_('== Start %s ==') % self.admin_command.name)
             
             self.start_date = timezone.now()
-            self.mail_sent = False
-            #self.sync_all()
+            self.mail_sending_status = MailSendingStatus.MAIL_NOT_SENT
+            self.sync_all()
             self.send_mail_to_managers()
             
             end_date = timezone.now()
@@ -84,9 +88,16 @@ class Command(BaseCommand):
             (minutes, seconds) = divmod(duration.days * 86400 + duration.seconds, 60)
             
             last_result = []
-            if self.mail_sent:
+            
+            if self.mail_sending_status == MailSendingStatus.MAIL_NOT_SENT:
+                last_result.append(_('Mail not sent'))
+            elif self.mail_sending_status == MailSendingStatus.MAIL_SENT:
                 last_result.append(_('Mail sent'))
+            elif self.mail_sending_status == MailSendingStatus.FAILURE:
+                last_result.append(_('Mail sending failure'))
+            
             last_result.append(_('Duration: {minutes} minute(s) and {seconds} second(s)').format(minutes=minutes, seconds=seconds))
+            
             self.admin_command.last_result = ' ; '.join(last_result)
         except:
             exception = sys.exc_info()[0]
