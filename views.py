@@ -169,9 +169,9 @@ class SuperLachaiseEncoder(object):
                 'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=encoding.escape_uri_path(openstreetmap_element.id)),
                 'name': openstreetmap_element.name,
                 'nature': openstreetmap_element.nature,
-                'wikipedia': openstreetmap_element.wikipedia,
-                'wikidata': openstreetmap_element.wikidata,
-                'wikidata_combined': openstreetmap_element.wikidata_combined,
+                'wikipedia': openstreetmap_element.wikipedia.split(';'),
+                'wikidata': openstreetmap_element.wikidata.split(';'),
+                'wikidata_combined': openstreetmap_element.wikidata_combined.split(';'),
                 'wikimedia_commons': openstreetmap_element.wikimedia_commons,
             })
         
@@ -206,7 +206,7 @@ class SuperLachaiseEncoder(object):
                 })
             else:
                 result.update({
-                    'grave_of': wikidata_entry.grave_of_wikidata,
+                    'grave_of': wikidata_entry.grave_of_wikidata.split(';'),
                 })
         
         if self.languages:
