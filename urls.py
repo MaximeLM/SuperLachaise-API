@@ -25,6 +25,8 @@ from django.conf.urls import patterns, url
 from superlachaise_api import views
 
 urlpatterns = patterns('',
+    url(r'^licence/$', views.licence),
+    
     url(r'^openstreetmap_element/$', views.openstreetmap_element_list),
     url(r'^openstreetmap_element/(?P<id>[0-9]*)/$', views.openstreetmap_element),
     

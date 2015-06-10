@@ -41,6 +41,7 @@ class SuperLachaiseEncoder(object):
         self.restrict_fields = restrict_fields
     
     def encode(self, obj):
+        obj['licence'] = self.request.build_absolute_uri(reverse(licence))
         return json.dumps(self.obj_dict(obj), ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True, default=self.default)
     
     def default(self, obj):
@@ -115,6 +116,7 @@ class SuperLachaiseEncoder(object):
                 if superlachaise_localized_poi:
                     result[language.code] = {
                         'name': superlachaise_localized_poi.name,
+                        'sorting_name': superlachaise_localized_poi.sorting_name,
                         'description': superlachaise_localized_poi.description,
                     }
                 else:
@@ -159,7 +161,6 @@ class SuperLachaiseEncoder(object):
         result = {
             'id': openstreetmap_element.id,
             'type': openstreetmap_element.type,
-            'sorting_name': openstreetmap_element.sorting_name,
             'latitude': openstreetmap_element.latitude,
             'longitude': openstreetmap_element.longitude,
         }
@@ -168,6 +169,7 @@ class SuperLachaiseEncoder(object):
             result.update({
                 'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=encoding.escape_uri_path(openstreetmap_element.id)),
                 'name': openstreetmap_element.name,
+                'sorting_name': openstreetmap_element.sorting_name,
                 'nature': openstreetmap_element.nature,
                 'wikipedia': openstreetmap_element.wikipedia.split(';'),
                 'wikidata': openstreetmap_element.wikidata.split(';'),
@@ -235,6 +237,7 @@ class SuperLachaiseEncoder(object):
             
             if not self.restrict_fields:
                 result.update({
+                    'default_sort': wikidata_localized_entry.wikipedia_page.default_sort,
                     'url': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=wikidata_localized_entry.language.code, name=encoding.escape_uri_path(wikidata_localized_entry.wikipedia)),
                 })
         else:
@@ -349,6 +352,15 @@ def get_died_before(request):
         return died_before
     except:
         raise SuspiciousOperation('Invalid parameter : died_before')
+
+@require_http_methods(["GET"])
+def licence(request):
+    content = [request.build_absolute_uri(reverse(licence)) + '\n']
+    
+    with open('LICENCE_DATABASE.txt', 'r') as content_file:
+        content.append(content_file.read())
+    
+    return HttpResponse('\n'.join(content), content_type='text/plain; charset=utf-8')
 
 @require_http_methods(["GET"])
 def openstreetmap_element_list(request):
@@ -615,10 +627,13 @@ def superlachaise_poi_list(request):
         'page': page_content,
     }
     
-    if wikidata_entries:
-        obj_to_encode['wikidata_entries'] = wikidata_entries
-    if superlachaise_categories:
-        obj_to_encode['superlachaise_categories'] = superlachaise_categories
+    if wikidata_entries or superlachaise_categories:
+        related_objects = {}
+        if wikidata_entries:
+            related_objects['wikidata_entries'] = wikidata_entries
+        if superlachaise_categories:
+            related_objects['superlachaise_categories'] = superlachaise_categories
+        obj_to_encode['related_objects'] = related_objects
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
