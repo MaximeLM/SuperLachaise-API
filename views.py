@@ -337,7 +337,7 @@ def get_born_after(request):
             born_after = datetime.date(int(born_after), 1, 1)
             
             # Convert to datetime with 00:00 for server time zone
-            born_after = datetime.datetime.combine(born_after, datetime.time()).replace(tzinfo=timezone.get_current_timezone())
+            born_after = datetime.datetime.combine(born_after, datetime.time()).replace(tzinfo=timezone.get_current_timezone()).date()
     
         return born_after
     except:
@@ -352,7 +352,7 @@ def get_died_before(request):
             died_before = datetime.date(int(died_before), 12, 31)
             
             # Convert to datetime with 00:00 for server time zone
-            died_before = datetime.datetime.combine(died_before, datetime.time()).replace(tzinfo=timezone.get_current_timezone())
+            died_before = datetime.datetime.combine(died_before, datetime.time()).replace(tzinfo=timezone.get_current_timezone()).date()
     
         return died_before
     except:
@@ -607,7 +607,7 @@ def superlachaise_poi_list(request):
     if born_after:
         superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_birth__gte=born_after)
     if died_before:
-        superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_birth__lte=died_before)
+        superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_death__lte=died_before)
     
     superlachaise_pois = superlachaise_pois.order_by('openstreetmap_element_id').distinct('openstreetmap_element_id')
     
@@ -655,9 +655,15 @@ def superlachaise_poi(request, id):
     
     obj_to_encode = {
         'superlachaise_poi': superlachaise_poi,
-        'wikidata_entries': wikidata_entries,
-        'superlachaise_categories': superlachaise_categories,
     }
+    
+    if wikidata_entries or superlachaise_categories:
+        related_objects = {}
+        if wikidata_entries:
+            related_objects['wikidata_entries'] = wikidata_entries
+        if superlachaise_categories:
+            related_objects['superlachaise_categories'] = superlachaise_categories
+        obj_to_encode['related_objects'] = related_objects
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
