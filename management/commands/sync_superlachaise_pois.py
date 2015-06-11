@@ -129,7 +129,7 @@ class Command(BaseCommand):
                 for superlachaise_category in SuperLachaiseCategory.objects.filter(type=type).exclude(code__in=superlachaise_categories, values__exact=''):
                     if value in superlachaise_category.values.split(';'):
                         superlachaise_categories.append(superlachaise_category.code)
-                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, occupations__id=value).exclude(code__in=superlachaise_categories).values_list('code', flat=True))
+                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, wikidata_occupations__id=value).exclude(code__in=superlachaise_categories).values_list('code', flat=True))
             if not superlachaise_categories and type == SuperLachaiseCategory.OCCUPATION:
                 superlachaise_categories = [u'other']
             result.extend(superlachaise_categories)
