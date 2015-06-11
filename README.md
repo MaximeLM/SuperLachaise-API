@@ -88,6 +88,18 @@ MANAGERS = (
 '''
 ```
 
+Edit the URLs file *<project_name>/urls.py* and include the application URLs in *urlpatterns* :
+
+```
+from django.conf.urls import patterns, include, url
+from django.contrib import admin
+
+urlpatterns = patterns('',
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^api/', include('superlachaise_api.urls')),
+)
+```
+
 ### Initialize data
 
 Create the database structure, configuration objects, and super user :
@@ -108,16 +120,19 @@ cd <project_path>
 python manage.py runserver
 ```
 
-Open the admin interface in a browser (http://yoursite.com/admin or [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)) and log in with the user created before.
+Open the admin interface in a browser (http://yoursite.com/admin/ or [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)) and log in with the user created before.
 
 Edit the default **Site** entry :
 
  * Click the **Sites** link on the admin home page
- * Click on the default entry *http://example.com* to edit it
+ * Click on the default entry *example.com* to edit it
  * Replace the domain name by the URL of your django application ('http://127.0.0.1:8000' for localhost)
  * Click the *save* button
 
-Go to the **Admin commands** and **Settings** screens to begin synchronising data.
+The application is now ready to synchronize data and serve requests.
+
+ * Go to the **Admin commands** and **Settings** screens to begin synchronising data.
+ * The API is located at http://yoursite.com/api/
 
 ## Administration
 
