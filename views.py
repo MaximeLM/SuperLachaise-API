@@ -41,7 +41,7 @@ class SuperLachaiseEncoder(object):
         self.restrict_fields = restrict_fields
     
     def encode(self, obj):
-        obj['licence'] = self.request.build_absolute_uri(reverse(licence))
+        obj['licence_url'] = self.request.build_absolute_uri(reverse(licence))
         return json.dumps(self.obj_dict(obj), ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True, default=self.default)
     
     def default(self, obj):
@@ -90,7 +90,7 @@ class SuperLachaiseEncoder(object):
             
             result.update({
                 'previous_page': params['page'],
-                'previous_page_path': page_path.replace(' ', '+'),
+                'previous_page_url': self.request.build_absolute_uri(page_path.replace(' ', '+')),
             })
         
         if page.has_next():
@@ -100,7 +100,7 @@ class SuperLachaiseEncoder(object):
             
             result.update({
                 'next_page': params['page'],
-                'next_page_path': page_path.replace(' ', '+'),
+                'next_page_url': self.request.build_absolute_uri(page_path.replace(' ', '+')),
             })
         
         return result
@@ -688,7 +688,7 @@ def objects(request):
         
         objects[model.__name__] = {
             'count': count,
-            'path': path.replace(' ', '+'),
+            'url': request.build_absolute_uri(path.replace(' ', '+')),
         }
     
     obj_to_encode = {
