@@ -26,24 +26,28 @@ Recommended :
 
 Open a directory in a terminal window and create a new django project (don't call it *superlachaise_api*) :
 
-```django-admin startproject <project_name>
+```
+django-admin startproject <project_name>
 ```
 
 Move into the directory that was created and use git to clone the application :
 
-```cd <project_name>
+```
+cd <project_name>
 git clone https://github.com/MaximeLM/superlachaise_api.git
 ```
 
 (optional) Create and activate a new virtual environment ([documentation](https://virtualenv.pypa.io/en/latest/userguide.html)) :
 
-```virtualenv <env_name>
+```
+virtualenv <env_name>
 . <env_name>/bin/activate
 ```
 
 Install Python dependencies :
 
-```pip install -r superlachaise_api/requirements.txt
+```
+pip install -r superlachaise_api/requirements.txt
 ```
 
 ### Configure the project
@@ -93,7 +97,8 @@ python manage.py createsuperuser
 
 Start the developement server :
 
-```cd <project_path>
+```
+cd <project_path>
 python manage.py runserver
 ```
 
