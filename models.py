@@ -235,7 +235,7 @@ class PendingModification(SuperLachaiseModel):
                         wikidata_entries = original_value
                         continue
                     
-                    if field == 'categories' and self.target_object_class == 'SuperLachaisePOI':
+                    if field == 'superlachaise_categories' and self.target_object_class == 'SuperLachaisePOI':
                         categories = original_value
                         continue
                 
