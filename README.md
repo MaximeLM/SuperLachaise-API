@@ -59,7 +59,8 @@ Edit the settings file *&lt;project\_name>/settings.py* :
  * Set **LANGUAGE\_CODE** and **TIME\_ZONE** to your locale e.g. *'fr-FR'* and *'Europe/Paris'*
  * Copy, paste and edit the following settings :
 
-<code>&#35; User agent header added to mediawiki requests ; see https://meta.wikimedia.org/wiki/User-Agent_policy
+```
+&#35; User agent header added to mediawiki requests ; see https://meta.wikimedia.org/wiki/User-Agent_policy
 &#35; Synchronisation may be blocked if this setting is empty
 MEDIAWIKI\_USER\_AGENT = ''  
 &#35; Uncomment and edit to enable email updates about object synchronisation
@@ -81,13 +82,14 @@ MANAGERS = (
 '''  
 &#35; Identifier of the django site
 SITE\_ID = 1
-</code>
+```
 
 ### Initialize data
 
 Create the database structure, configuration objects, and super user :
 
-```cd <project_path>
+```
+cd <project_path>
 python manage.py migrate
 ./superlachaise_api/configuration/load_configuration.sh
 python manage.py createsuperuser
