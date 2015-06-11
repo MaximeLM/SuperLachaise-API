@@ -54,7 +54,7 @@ pip install -r superlachaise_api/requirements.txt
 
 Edit the settings file *<project_name>/settings.py* :
 
- * Add *'django.contrib.sites',* and *'superlachaise_api',* to **INSTALLED_APPS**
+ * Add *'superlachaise_api',* to **INSTALLED_APPS**
  * Configure **DATABASES** with your database info ([documentation](https://docs.djangoproject.com/en/1.8/ref/settings/#databases))
  * Set **LANGUAGE_CODE** and **TIME_ZONE** to your locale e.g. *'fr-FR'* and *'Europe/Paris'*
  * Copy, paste and edit the following settings :
@@ -63,9 +63,6 @@ Edit the settings file *<project_name>/settings.py* :
 # User agent header added to mediawiki requests ; see https://meta.wikimedia.org/wiki/User-Agent_policy
 # Synchronisation may be blocked if this setting is empty
 MEDIAWIKI_USER_AGENT = ''
-
-# Identifier of the django site
-SITE_ID = 1
 
 # Uncomment and edit to enable email updates about object synchronisation
 '''
@@ -121,13 +118,6 @@ python manage.py runserver
 ```
 
 Open the admin interface in a browser (http://yoursite.com/admin/ or [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)) and log in with the user created before.
-
-Edit the default **Site** entry :
-
- * Click the **Sites** link on the admin home page
- * Click on the default entry *example.com* to edit it
- * Replace the domain name by the URL of your django application ('http://127.0.0.1:8000' for localhost)
- * Click the *save* button
 
 The application is now ready to synchronize data and serve requests.
 
