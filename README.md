@@ -62,7 +62,11 @@ Edit the settings file *<project_name>/settings.py* :
 ```python
 # User agent header added to mediawiki requests ; see https://meta.wikimedia.org/wiki/User-Agent_policy
 # Synchronisation may be blocked if this setting is empty
-MEDIAWIKI_USER_AGENT = ''  
+MEDIAWIKI_USER_AGENT = ''
+
+# Identifier of the django site
+SITE_ID = 1
+
 # Uncomment and edit to enable email updates about object synchronisation
 '''
 # SMTP
@@ -71,17 +75,17 @@ EMAIL_HOST_USER = 'user@example.com'
 EMAIL_HOST_PASSWORD = 'password'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False &#35; TLS and SSL are mutually exclusive
-EMAIL_PORT = 587      &#35; or something else  
+EMAIL_PORT = 587      &#35; or something else
+
 EMAIL_SUBJECT_PREFIX = '[SuperLachaise API] '
-SERVER_EMAIL = 'from@example.com'  
+SERVER_EMAIL = 'from@example.com'
+
 # The list of managers who should receive object synchronisation updates
 MANAGERS = (
     ('Manager 1', 'manager1@example.com',),
     ('Manager 2', 'manager2@example.com',),
 )
-'''  
-# Identifier of the django site
-SITE_ID = 1
+'''
 ```
 
 ### Initialize data
