@@ -54,7 +54,7 @@ pip install -r superlachaise_api/requirements.txt
 
 Edit the settings file *<project_name>/settings.py* :
 
- * Add *'django.contrib.sites',* to **INSTALLED_APPS**
+ * Add *'django.contrib.sites',* and *'superlachaise_api',* to **INSTALLED_APPS**
  * Configure **DATABASES** with your database info ([documentation](https://docs.djangoproject.com/en/1.8/ref/settings/#databases))
  * Set **LANGUAGE_CODE** and **TIME_ZONE** to your locale e.g. *'fr-FR'* and *'Europe/Paris'*
  * Copy, paste and edit the following settings :

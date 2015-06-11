@@ -28,8 +28,6 @@ from django.core.management import call_command
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from superlachaise_api.utils import *
-
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
