@@ -363,7 +363,7 @@ def get_died_before(request):
 def licence(request):
     content = ['{domain}{path}\n'.format(domain=Site.objects.get_current().domain, path=reverse(licence))]
     
-    with open(os.path.dirname(__file__) + '/LICENCE_DATABASE.txt', 'r') as content_file:
+    with open(os.path.dirname(__file__) + '/LICENSE_DATABASE.txt', 'r') as content_file:
         content.append(content_file.read())
     
     return HttpResponse('\n'.join(content), content_type='text/plain; charset=utf-8')
