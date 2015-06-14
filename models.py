@@ -596,6 +596,7 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
         ordering = ['language', 'name']
         verbose_name = _('superlachaise localized category')
         verbose_name_plural = _('superlachaise localized categories')
+        unique_together = ('superlachaise_category', 'language',)
     
     def save(self, *args, **kwargs):
         super(SuperLachaiseLocalizedCategory, self).save(*args, **kwargs)

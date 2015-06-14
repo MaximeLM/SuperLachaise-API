@@ -1,1 +1,1112 @@
-[{"fields": {"created": "2015-06-10T15:21:06.719Z", "last_executed": null, "notes": "", "modified": "2015-06-10T15:21:06.719Z", "last_result": "", "dependency_order": null}, "model": "superlachaise_api.admincommand", "pk": "sync_all_and_send_mail_to_managers"}, {"fields": {"created": "2015-06-05T15:24:28.189Z", "last_executed": null, "notes": "", "modified": "2015-06-09T14:37:08.994Z", "last_result": "", "dependency_order": 1}, "model": "superlachaise_api.admincommand", "pk": "sync_openstreetmap"}, {"fields": {"created": "2015-06-05T15:24:28.212Z", "last_executed": null, "notes": "", "modified": "2015-06-10T15:19:05.034Z", "last_result": "", "dependency_order": 7}, "model": "superlachaise_api.admincommand", "pk": "sync_superlachaise_pois"}, {"fields": {"created": "2015-06-05T15:24:28.194Z", "last_executed": null, "notes": "", "modified": "2015-06-10T15:18:49.739Z", "last_result": "", "dependency_order": 2}, "model": "superlachaise_api.admincommand", "pk": "sync_wikidata"}, {"fields": {"created": "2015-06-10T23:14:51.672Z", "last_executed": null, "notes": "", "modified": "2015-06-10T23:14:51.672Z", "last_result": "", "dependency_order": 6}, "model": "superlachaise_api.admincommand", "pk": "sync_wikidata_occupations"}, {"fields": {"created": "2015-06-05T15:24:28.198Z", "last_executed": null, "notes": "", "modified": "2015-06-09T14:37:23.849Z", "last_result": "", "dependency_order": 4}, "model": "superlachaise_api.admincommand", "pk": "sync_wikimedia_commons_categories"}, {"fields": {"created": "2015-06-05T15:24:28.203Z", "last_executed": null, "notes": "", "modified": "2015-06-09T14:37:33.271Z", "last_result": "", "dependency_order": 5}, "model": "superlachaise_api.admincommand", "pk": "sync_wikimedia_commons_files"}, {"fields": {"created": "2015-06-09T14:35:36.681Z", "last_executed": null, "notes": "", "modified": "2015-06-10T15:18:57.875Z", "last_result": "", "dependency_order": 3}, "model": "superlachaise_api.admincommand", "pk": "sync_wikipedia"}, {"fields": {"last_enumeration_separator": " and ", "description": "English", "created": "2015-06-05T15:24:28.223Z", "notes": "", "modified": "2015-06-05T18:06:38.258Z", "enumeration_separator": ", ", "artist_prefix": "Artist: "}, "model": "superlachaise_api.language", "pk": "en"}, {"fields": {"last_enumeration_separator": " et ", "description": "French", "created": "2015-06-05T15:24:28.218Z", "notes": "", "modified": "2015-06-05T18:06:45.516Z", "enumeration_separator": ", ", "artist_prefix": "Artiste : "}, "model": "superlachaise_api.language", "pk": "fr"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.229Z", "value": "false", "created": "2015-06-05T15:24:28.228Z"}, "model": "superlachaise_api.setting", "pk": "openstreetmap:auto_apply_modifications"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.234Z", "value": "48.8575,2.3877,48.8649,2.4006", "created": "2015-06-05T15:24:28.233Z"}, "model": "superlachaise_api.setting", "pk": "openstreetmap:bounding_box"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.239Z", "value": "[{\"type\": \"node\", \"id\": 1688357881}]", "created": "2015-06-05T15:24:28.238Z"}, "model": "superlachaise_api.setting", "pk": "openstreetmap:exclude_ids"}, {"fields": {"notes": "", "modified": "2015-06-05T17:20:07.629Z", "value": "fr", "created": "2015-06-05T17:20:07.629Z"}, "model": "superlachaise_api.setting", "pk": "openstreetmap:name_tag_language"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.243Z", "value": "[\"historic=tomb\", \"historic=memorial\"]", "created": "2015-06-05T15:24:28.242Z"}, "model": "superlachaise_api.setting", "pk": "openstreetmap:synced_tags"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.276Z", "value": "false", "created": "2015-06-05T15:24:28.275Z"}, "model": "superlachaise_api.setting", "pk": "superlachaise_poi:auto_apply_modifications"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.248Z", "value": "[\"Q311\", \"Q3006253\"]", "created": "2015-06-05T15:24:28.246Z"}, "model": "superlachaise_api.setting", "pk": "wikidata:accepted_locations_of_burial"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.252Z", "value": "false", "created": "2015-06-05T15:24:28.251Z"}, "model": "superlachaise_api.setting", "pk": "wikidata:auto_apply_modifications"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.258Z", "value": "false", "created": "2015-06-05T15:24:28.256Z"}, "model": "superlachaise_api.setting", "pk": "wikimedia_commons:auto_apply_modifications"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.267Z", "value": "true", "created": "2015-06-05T15:24:28.265Z"}, "model": "superlachaise_api.setting", "pk": "wikimedia_commons:sync_only_main_image"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.262Z", "value": "[\"Q173387\", \"Q16423655\", \"Q575759\", \"Q860861\", \"Q42948\"]", "created": "2015-06-05T15:24:28.261Z"}, "model": "superlachaise_api.setting", "pk": "wikimedia_commons:synced_instance_of"}, {"fields": {"notes": "", "modified": "2015-06-05T15:24:28.271Z", "value": "350", "created": "2015-06-05T15:24:28.270Z"}, "model": "superlachaise_api.setting", "pk": "wikimedia_commons:thumbnail_width"}, {"fields": {"notes": "", "modified": "2015-06-09T14:40:11.919Z", "value": "false", "created": "2015-06-09T14:40:11.919Z"}, "model": "superlachaise_api.setting", "pk": "wikipedia:auto_apply_modifications"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T15:59:35.207Z", "created": "2015-06-05T14:52:46.862Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "art"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:00:00.436Z", "created": "2015-06-05T15:03:41.570Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "cinema"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:00:13.057Z", "created": "2015-06-05T15:04:18.576Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "literature"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:00:57.749Z", "created": "2015-06-05T15:06:17.686Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "medias"}, {"fields": {"values": "memorial", "notes": "", "type": "element_nature", "modified": "2015-06-05T15:59:47.840Z", "created": "2015-06-05T14:51:43.414Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "memorial"}, {"fields": {"values": "Q6581097", "notes": "", "type": "sex_or_gender", "modified": "2015-06-05T16:06:09.258Z", "created": "2015-06-05T14:51:43.430Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "men"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-08T17:43:34.660Z", "created": "2015-06-05T15:04:42.346Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "military"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:01:48.410Z", "created": "2015-06-05T15:04:26.962Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "music"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:01:59.988Z", "created": "2015-06-05T15:49:36.371Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "other"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:02:24.970Z", "created": "2015-06-05T15:51:13.035Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "performing_arts"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:02:39.398Z", "created": "2015-06-05T15:05:20.538Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "philosophy"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:02:52.242Z", "created": "2015-06-05T15:04:51.077Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "politics"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:04:26.453Z", "created": "2015-06-05T15:03:58.480Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "research"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:04:39.423Z", "created": "2015-06-05T15:04:58.824Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "theatre"}, {"fields": {"values": "tomb", "notes": "", "type": "element_nature", "modified": "2015-06-05T15:59:41.410Z", "created": "2015-06-05T14:51:43.398Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "tomb"}, {"fields": {"values": "", "notes": "", "type": "occupation", "modified": "2015-06-05T16:05:46.038Z", "created": "2015-06-05T15:04:35.494Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "urbanism"}, {"fields": {"values": "Q6581072", "notes": "", "type": "sex_or_gender", "modified": "2015-06-05T16:05:58.733Z", "created": "2015-06-05T14:51:43.445Z"}, "model": "superlachaise_api.superlachaisecategory", "pk": "women"}, {"fields": {"superlachaise_category": "memorial", "name": "Memorials", "language": "en", "created": "2015-06-05T15:59:12.294Z", "notes": "", "modified": "2015-06-05T15:59:47.842Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 1}, {"fields": {"superlachaise_category": "memorial", "name": "M\u00e9moriaux", "language": "fr", "created": "2015-06-05T15:59:12.295Z", "notes": "", "modified": "2015-06-05T15:59:47.844Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 2}, {"fields": {"superlachaise_category": "tomb", "name": "Tombs", "language": "en", "created": "2015-06-05T15:59:24.205Z", "notes": "", "modified": "2015-06-05T15:59:41.413Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 3}, {"fields": {"superlachaise_category": "tomb", "name": "Tombes", "language": "fr", "created": "2015-06-05T15:59:24.207Z", "notes": "", "modified": "2015-06-05T15:59:41.415Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 4}, {"fields": {"superlachaise_category": "art", "name": "Art", "language": "en", "created": "2015-06-05T15:59:35.209Z", "notes": "", "modified": "2015-06-05T15:59:35.209Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 5}, {"fields": {"superlachaise_category": "art", "name": "Art", "language": "fr", "created": "2015-06-05T15:59:35.210Z", "notes": "", "modified": "2015-06-05T15:59:35.210Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 6}, {"fields": {"superlachaise_category": "cinema", "name": "Cinema", "language": "en", "created": "2015-06-05T16:00:00.438Z", "notes": "", "modified": "2015-06-05T16:00:00.438Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 7}, {"fields": {"superlachaise_category": "cinema", "name": "Cin\u00e9ma", "language": "fr", "created": "2015-06-05T16:00:00.440Z", "notes": "", "modified": "2015-06-05T16:00:00.440Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 8}, {"fields": {"superlachaise_category": "literature", "name": "Literature", "language": "en", "created": "2015-06-05T16:00:13.060Z", "notes": "", "modified": "2015-06-05T16:00:13.061Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 9}, {"fields": {"superlachaise_category": "literature", "name": "Litt\u00e9rature", "language": "fr", "created": "2015-06-05T16:00:13.062Z", "notes": "", "modified": "2015-06-05T16:00:13.062Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 10}, {"fields": {"superlachaise_category": "medias", "name": "M\u00e9dias", "language": "fr", "created": "2015-06-05T16:00:57.751Z", "notes": "", "modified": "2015-06-05T16:00:57.751Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 11}, {"fields": {"superlachaise_category": "medias", "name": "Medias", "language": "en", "created": "2015-06-05T16:00:57.752Z", "notes": "", "modified": "2015-06-05T16:00:57.752Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 12}, {"fields": {"superlachaise_category": "military", "name": "Military", "language": "en", "created": "2015-06-05T16:01:35.627Z", "notes": "", "modified": "2015-06-05T16:01:35.627Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 13}, {"fields": {"superlachaise_category": "military", "name": "Arm\u00e9e", "language": "fr", "created": "2015-06-05T16:01:35.628Z", "notes": "", "modified": "2015-06-05T16:01:35.628Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 14}, {"fields": {"superlachaise_category": "music", "name": "Music", "language": "en", "created": "2015-06-05T16:01:48.412Z", "notes": "", "modified": "2015-06-05T16:01:48.412Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 15}, {"fields": {"superlachaise_category": "music", "name": "Musique", "language": "fr", "created": "2015-06-05T16:01:48.413Z", "notes": "", "modified": "2015-06-05T16:01:48.413Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 16}, {"fields": {"superlachaise_category": "other", "name": "Other", "language": "en", "created": "2015-06-05T16:01:59.991Z", "notes": "", "modified": "2015-06-05T16:01:59.991Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 17}, {"fields": {"superlachaise_category": "other", "name": "Autre", "language": "fr", "created": "2015-06-05T16:01:59.992Z", "notes": "", "modified": "2015-06-05T16:01:59.992Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 18}, {"fields": {"superlachaise_category": "performing_arts", "name": "Performing arts", "language": "en", "created": "2015-06-05T16:02:24.972Z", "notes": "", "modified": "2015-06-05T16:02:24.972Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 19}, {"fields": {"superlachaise_category": "performing_arts", "name": "Spectacle vivant", "language": "fr", "created": "2015-06-05T16:02:24.974Z", "notes": "", "modified": "2015-06-05T16:02:24.974Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 20}, {"fields": {"superlachaise_category": "philosophy", "name": "Philosophy", "language": "en", "created": "2015-06-05T16:02:39.400Z", "notes": "", "modified": "2015-06-05T16:02:39.400Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 21}, {"fields": {"superlachaise_category": "philosophy", "name": "Philosophie", "language": "fr", "created": "2015-06-05T16:02:39.401Z", "notes": "", "modified": "2015-06-05T16:02:39.401Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 22}, {"fields": {"superlachaise_category": "politics", "name": "Politics", "language": "en", "created": "2015-06-05T16:02:52.245Z", "notes": "", "modified": "2015-06-05T16:02:52.245Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 23}, {"fields": {"superlachaise_category": "politics", "name": "Politique", "language": "fr", "created": "2015-06-05T16:02:52.246Z", "notes": "", "modified": "2015-06-05T16:02:52.246Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 24}, {"fields": {"superlachaise_category": "research", "name": "Recherche scientifique", "language": "fr", "created": "2015-06-05T16:04:26.455Z", "notes": "", "modified": "2015-06-05T16:04:26.455Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 25}, {"fields": {"superlachaise_category": "research", "name": "Research", "language": "en", "created": "2015-06-05T16:04:26.456Z", "notes": "", "modified": "2015-06-05T16:04:26.457Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 26}, {"fields": {"superlachaise_category": "theatre", "name": "Theatre", "language": "en", "created": "2015-06-05T16:04:39.427Z", "notes": "", "modified": "2015-06-05T16:04:39.427Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 27}, {"fields": {"superlachaise_category": "theatre", "name": "Th\u00e9\u00e2tre", "language": "fr", "created": "2015-06-05T16:04:39.431Z", "notes": "", "modified": "2015-06-05T16:04:39.431Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 28}, {"fields": {"superlachaise_category": "urbanism", "name": "Urban planning", "language": "en", "created": "2015-06-05T16:05:46.040Z", "notes": "", "modified": "2015-06-05T16:05:46.040Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 29}, {"fields": {"superlachaise_category": "urbanism", "name": "Urbanisme", "language": "fr", "created": "2015-06-05T16:05:46.042Z", "notes": "", "modified": "2015-06-05T16:05:46.042Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 30}, {"fields": {"superlachaise_category": "women", "name": "Women", "language": "en", "created": "2015-06-05T16:05:58.736Z", "notes": "", "modified": "2015-06-05T16:05:58.736Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 31}, {"fields": {"superlachaise_category": "women", "name": "Femmes", "language": "fr", "created": "2015-06-05T16:05:58.738Z", "notes": "", "modified": "2015-06-05T16:05:58.738Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 32}, {"fields": {"superlachaise_category": "men", "name": "Men", "language": "en", "created": "2015-06-05T16:06:09.261Z", "notes": "", "modified": "2015-06-05T16:06:09.261Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 33}, {"fields": {"superlachaise_category": "men", "name": "Hommes", "language": "fr", "created": "2015-06-05T16:06:09.262Z", "notes": "", "modified": "2015-06-05T16:06:09.262Z"}, "model": "superlachaise_api.superlachaiselocalizedcategory", "pk": 34}, {"fields": {"superlachaise_category": "art", "name": "(fr)peintre", "created": "2015-06-04T23:46:25.316Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.880Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1028181"}, {"fields": {"superlachaise_category": null, "name": "(fr)pharmacien", "created": "2015-06-04T23:46:25.645Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.884Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q105186"}, {"fields": {"superlachaise_category": null, "name": "(fr)collectionneur d'art", "created": "2015-06-04T23:46:25.839Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.886Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q10732476"}, {"fields": {"superlachaise_category": "cinema", "name": "(fr)acteur de films", "created": "2015-06-04T23:46:25.241Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.889Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q10800557"}, {"fields": {"superlachaise_category": "research", "name": "(fr)anatomiste", "created": "2015-06-04T23:46:25.733Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.892Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q10872101"}, {"fields": {"superlachaise_category": "research", "name": "(fr)astronome", "created": "2015-06-04T23:46:25.575Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.894Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q11063"}, {"fields": {"superlachaise_category": "medias", "name": "(fr)dessinateur de presse", "created": "2015-06-04T23:46:26.686Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.898Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1114448"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)essayiste", "created": "2015-06-04T23:46:25.621Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.900Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q11774202"}, {"fields": {"superlachaise_category": null, "name": "", "created": "2015-06-04T23:46:25.633Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.903Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q12020057"}, {"fields": {"superlachaise_category": null, "name": "(fr)typographe", "created": "2015-06-04T23:46:25.684Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.906Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1229025"}, {"fields": {"superlachaise_category": null, "name": "(fr)th\u00e9ologien", "created": "2015-06-05T01:26:17.609Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.909Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1234713"}, {"fields": {"superlachaise_category": "music", "name": "(fr)violoniste", "created": "2015-06-04T23:46:27.290Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.912Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1259917"}, {"fields": {"superlachaise_category": "music", "name": "(fr)saxophoniste", "created": "2015-06-04T23:46:26.659Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.915Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q12800682"}, {"fields": {"superlachaise_category": "art", "name": "(fr)sculpteur", "created": "2015-06-04T23:46:25.320Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.919Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1281618"}, {"fields": {"superlachaise_category": null, "name": "(fr)entrepreneur", "created": "2015-06-04T23:46:25.292Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.922Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q131524"}, {"fields": {"superlachaise_category": null, "name": "(fr)rabbin", "created": "2015-06-05T01:26:17.474Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.926Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q133485"}, {"fields": {"superlachaise_category": "music", "name": "(fr)chansonnier", "created": "2015-06-04T23:46:25.253Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.929Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q13391399"}, {"fields": {"superlachaise_category": "research", "name": "(fr)min\u00e9ralogiste", "created": "2015-06-04T23:46:26.906Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.932Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q13416354"}, {"fields": {"superlachaise_category": null, "name": "(fr)philologue", "created": "2015-06-04T23:46:25.908Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.935Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q13418253"}, {"fields": {"superlachaise_category": null, "name": "(fr)philanthrope", "created": "2015-06-04T23:46:25.954Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.938Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q13472585"}, {"fields": {"superlachaise_category": "research", "name": "(fr)\u00e9gyptologue", "created": "2015-06-04T23:46:26.165Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.941Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1350189"}, {"fields": {"superlachaise_category": "urbanism", "name": "(fr)ing\u00e9nieur civil", "created": "2015-06-04T23:46:25.806Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.944Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q13582652"}, {"fields": {"superlachaise_category": "research", "name": "(fr)ethnologue", "created": "2015-06-04T23:46:26.484Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.948Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1371378"}, {"fields": {"superlachaise_category": null, "name": "(fr)joueur de rugby \u00e0 XV", "created": "2015-06-05T01:26:16.958Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.950Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q14089670"}, {"fields": {"superlachaise_category": null, "name": "(fr)magnat des m\u00e9dias", "created": "2015-06-04T23:46:25.357Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.953Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1420621"}, {"fields": {"superlachaise_category": "research", "name": "(fr)linguiste", "created": "2015-06-04T23:46:25.915Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.956Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q14467526"}, {"fields": {"superlachaise_category": "research", "name": "(fr)logicien", "created": "2015-06-04T23:46:26.882Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.959Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q14565331"}, {"fields": {"superlachaise_category": null, "name": "(fr)dessinateur en b\u00e2timent", "created": "2015-06-04T23:46:25.817Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.961Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q14623005"}, {"fields": {"superlachaise_category": null, "name": "(fr)magicien", "created": "2015-06-04T23:46:25.541Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.964Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q148401"}, {"fields": {"superlachaise_category": "music", "name": "(fr)musicologue", "created": "2015-06-04T23:46:25.984Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.968Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q14915627"}, {"fields": {"superlachaise_category": "art", "name": "(fr)dessinateur", "created": "2015-06-04T23:46:26.593Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.970Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15296811"}, {"fields": {"superlachaise_category": "research", "name": "(fr)\u00e9pist\u00e9mologue", "created": "2015-06-04T23:46:25.920Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.974Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15632482"}, {"fields": {"superlachaise_category": null, "name": "(fr)\u00e9pigraphiste", "created": "2015-06-04T23:46:26.187Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.977Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15632632"}, {"fields": {"superlachaise_category": "cinema", "name": "(fr)critique de films", "created": "2015-06-04T23:46:27.076Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.980Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15809665"}, {"fields": {"superlachaise_category": "music", "name": "(fr)chef d'orchestre", "created": "2015-06-04T23:46:25.460Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.982Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q158852"}, {"fields": {"superlachaise_category": null, "name": "(fr)ing\u00e9nieur en a\u00e9rospatiale", "created": "2015-06-04T23:46:27.365Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.985Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15895020"}, {"fields": {"superlachaise_category": "research", "name": "(fr)ornithologue", "created": "2015-06-04T23:46:25.754Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.988Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15921002"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)nouvelliste", "created": "2015-06-04T23:46:26.389Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.992Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15949613"}, {"fields": {"superlachaise_category": null, "name": "", "created": "2015-06-04T23:46:25.927Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.994Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15962340"}, {"fields": {"superlachaise_category": null, "name": "(fr)graveur", "created": "2015-06-04T23:46:26.105Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:26.997Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15966904"}, {"fields": {"superlachaise_category": "medias", "name": "(fr)satiriste", "created": "2015-06-04T23:46:27.183Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q15978391"}, {"fields": {"superlachaise_category": null, "name": "(fr)th\u00e9oricien de la musique", "created": "2015-06-04T23:46:25.992Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.002Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q16031530"}, {"fields": {"superlachaise_category": "medias", "name": "(fr)\u00e9diteur", "created": "2015-06-04T23:46:25.275Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.006Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1607826"}, {"fields": {"superlachaise_category": "music", "name": "(fr)professeur de musique", "created": "2015-06-04T23:46:25.375Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.009Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q16145150"}, {"fields": {"superlachaise_category": null, "name": "(fr)professeur d'universit\u00e9", "created": "2015-06-04T23:46:26.171Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.012Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1622272"}, {"fields": {"superlachaise_category": "research", "name": "(fr)pal\u00e9ontologue", "created": "2015-06-04T23:46:25.737Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.016Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1662561"}, {"fields": {"superlachaise_category": "research", "name": "(fr)physicien", "created": "2015-06-04T23:46:25.557Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.019Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q169470"}, {"fields": {"superlachaise_category": null, "name": "(fr)lithographe", "created": "2015-06-04T23:46:25.829Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.022Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q16947657"}, {"fields": {"superlachaise_category": "research", "name": "(fr)math\u00e9maticien", "created": "2015-06-04T23:46:25.580Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.026Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q170790"}, {"fields": {"superlachaise_category": null, "name": "(fr)m\u00e9dailleur", "created": "2015-06-04T23:46:25.999Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.030Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1708232"}, {"fields": {"superlachaise_category": "music", "name": "(fr)trompettiste", "created": "2015-06-04T23:46:26.652Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.033Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q17093672"}, {"fields": {"superlachaise_category": null, "name": "(fr)imprimeur", "created": "2015-06-04T23:46:27.433Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.037Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q175151"}, {"fields": {"superlachaise_category": "music", "name": "(fr)chanteur", "created": "2015-06-04T23:46:25.258Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.040Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q177220"}, {"fields": {"superlachaise_category": null, "name": "(fr)historien de l'art", "created": "2015-06-04T23:46:26.951Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.044Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1792450"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)litt\u00e9raire", "created": "2015-06-04T23:46:25.775Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.047Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q18195617"}, {"fields": {"superlachaise_category": null, "name": "(fr)biblioth\u00e9caire", "created": "2015-06-04T23:46:25.650Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.050Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q182436"}, {"fields": {"superlachaise_category": null, "name": "(fr)juriste", "created": "2015-06-04T23:46:26.300Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.053Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q185351"}, {"fields": {"superlachaise_category": "research", "name": "(fr)\u00e9conomiste", "created": "2015-06-04T23:46:26.475Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.057Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q188094"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)autobiographe", "created": "2015-06-04T23:46:25.851Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.060Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q18814623"}, {"fields": {"superlachaise_category": "military", "name": "(fr)officier", "created": "2015-06-04T23:46:26.377Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.062Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q189290"}, {"fields": {"superlachaise_category": "medias", "name": "(fr)journaliste", "created": "2015-06-04T23:46:25.330Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.065Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1930187"}, {"fields": {"superlachaise_category": "politics", "name": "(fr)diplomate", "created": "2015-06-04T23:46:25.403Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.069Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q193391"}, {"fields": {"superlachaise_category": null, "name": "(fr)fondeur", "created": "2015-06-04T23:46:27.312Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.072Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q19435686"}, {"fields": {"superlachaise_category": null, "name": "(fr)financier", "created": "2015-06-04T23:46:27.225Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.075Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q1979607"}, {"fields": {"superlachaise_category": "research", "name": "(fr)historien", "created": "2015-06-04T23:46:26.429Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.078Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q201788"}, {"fields": {"superlachaise_category": "research", "name": "(fr)inventeur", "created": "2015-06-04T23:46:26.155Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.081Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q205375"}, {"fields": {"superlachaise_category": null, "name": "(fr)orf\u00e8vre", "created": "2015-06-04T23:46:27.393Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.084Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q211423"}, {"fields": {"superlachaise_category": null, "name": "", "created": "2015-06-04T23:46:25.638Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.087Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2114605"}, {"fields": {"superlachaise_category": null, "name": "(fr)psychologue", "created": "2015-06-04T23:46:26.008Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.090Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q212980"}, {"fields": {"superlachaise_category": "theatre", "name": "(fr)dramaturge", "created": "2015-06-04T23:46:25.767Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.094Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q214917"}, {"fields": {"superlachaise_category": "theatre", "name": "(fr)acteur de th\u00e9\u00e2tre", "created": "2015-06-04T23:46:27.176Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.097Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2259451"}, {"fields": {"superlachaise_category": "research", "name": "(fr)sociologue", "created": "2015-06-04T23:46:25.382Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.100Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2306091"}, {"fields": {"superlachaise_category": "research", "name": "(fr)m\u00e9t\u00e9orologue", "created": "2015-06-04T23:46:27.370Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.103Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2310145"}, {"fields": {"superlachaise_category": null, "name": "(fr)attach\u00e9 de presse", "created": "2015-06-04T23:46:27.065Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.106Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2358549"}, {"fields": {"superlachaise_category": "research", "name": "(fr)botaniste", "created": "2015-06-04T23:46:26.725Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.109Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2374149"}, {"fields": {"superlachaise_category": "theatre", "name": "(fr)humoriste", "created": "2015-06-04T23:46:26.069Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.112Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q245068"}, {"fields": {"superlachaise_category": "performing_arts", "name": "(fr)chor\u00e9graphe", "created": "2015-06-04T23:46:25.879Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.114Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2490358"}, {"fields": {"superlachaise_category": null, "name": "(fr)\u00e9diteur", "created": "2015-06-04T23:46:25.280Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.118Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2516866"}, {"fields": {"superlachaise_category": "cinema", "name": "(fr)r\u00e9alisateur", "created": "2015-06-04T23:46:25.536Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.121Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2526255"}, {"fields": {"superlachaise_category": null, "name": "(fr)animateur", "created": "2015-06-04T23:46:25.546Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.123Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q266569"}, {"fields": {"superlachaise_category": "medias", "name": "(fr)animateur de radio", "created": "2015-06-04T23:46:25.431Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.126Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2722764"}, {"fields": {"superlachaise_category": "cinema", "name": "(fr)sc\u00e9nariste", "created": "2015-06-04T23:46:26.766Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.129Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q28389"}, {"fields": {"superlachaise_category": "music", "name": "(fr)artiste lyrique", "created": "2015-06-04T23:46:25.712Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.132Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2865819"}, {"fields": {"superlachaise_category": "cinema", "name": "(fr)chef d\u00e9corateur", "created": "2015-06-04T23:46:26.625Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.134Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q2962070"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)fabuliste", "created": "2015-06-04T23:46:26.995Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.137Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3064032"}, {"fields": {"superlachaise_category": null, "name": "(fr)Facteur de pianos", "created": "2015-06-04T23:46:26.463Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.140Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3064175"}, {"fields": {"superlachaise_category": null, "name": "(fr)salonni\u00e8re", "created": "2015-06-04T23:46:25.843Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.143Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3068305"}, {"fields": {"superlachaise_category": null, "name": "(fr)haut fonctionnaire", "created": "2015-06-04T23:46:25.932Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.146Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3128486"}, {"fields": {"superlachaise_category": null, "name": "(fr)jurisconsulte", "created": "2015-06-04T23:46:26.351Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.149Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3190200"}, {"fields": {"superlachaise_category": null, "name": "(fr)liste des premiers pr\u00e9sidents de la Cour de cassation", "created": "2015-06-04T23:46:25.467Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.151Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3253361"}, {"fields": {"superlachaise_category": "cinema", "name": "(fr)producteur de cin\u00e9ma", "created": "2015-06-04T23:46:25.300Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.154Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3282637"}, {"fields": {"superlachaise_category": null, "name": "(fr)graveur", "created": "2015-06-04T23:46:26.598Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.158Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q329439"}, {"fields": {"superlachaise_category": null, "name": "(fr)photographe", "created": "2015-06-04T23:46:26.556Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.160Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q33231"}, {"fields": {"superlachaise_category": null, "name": "(fr)traducteur", "created": "2015-06-04T23:46:26.493Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.163Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q333634"}, {"fields": {"superlachaise_category": "theatre", "name": "(fr)metteur en sc\u00e8ne", "created": "2015-06-04T23:46:26.761Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.166Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3387717"}, {"fields": {"superlachaise_category": null, "name": "(fr)acteur", "created": "2015-06-04T23:46:25.248Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.169Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q33999"}, {"fields": {"superlachaise_category": null, "name": "(fr)professeur", "created": "2015-06-04T23:46:27.042Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.172Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3406814"}, {"fields": {"superlachaise_category": null, "name": "(fr)clerc de notaire", "created": "2015-06-04T23:46:26.852Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.175Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3488528"}, {"fields": {"superlachaise_category": null, "name": "(fr)chef cuisinier", "created": "2015-06-04T23:46:26.454Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.178Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3499072"}, {"fields": {"superlachaise_category": "research", "name": "(fr)zoologue", "created": "2015-06-04T23:46:25.749Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.180Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q350979"}, {"fields": {"superlachaise_category": null, "name": "(fr)forain", "created": "2015-06-04T23:46:26.647Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.184Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q355242"}, {"fields": {"superlachaise_category": null, "name": "(fr)\u00e9crivain voyageur", "created": "2015-06-04T23:46:26.962Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.187Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3579035"}, {"fields": {"superlachaise_category": "music", "name": "(fr)\u00c9diteur de musique", "created": "2015-06-04T23:46:26.468Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.190Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3579159"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)\u00e9crivain", "created": "2015-06-04T23:46:25.267Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.193Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q36180"}, {"fields": {"superlachaise_category": "research", "name": "(fr)arch\u00e9ologue", "created": "2015-06-04T23:46:26.179Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.196Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3621491"}, {"fields": {"superlachaise_category": "medias", "name": "(fr)caricaturiste", "created": "2015-06-04T23:46:25.821Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.200Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q3658608"}, {"fields": {"superlachaise_category": "music", "name": "(fr)compositeur", "created": "2015-06-04T23:46:25.366Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.203Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q36834"}, {"fields": {"superlachaise_category": null, "name": "(fr)instituteur", "created": "2015-06-04T23:46:26.132Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.206Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q37226"}, {"fields": {"superlachaise_category": "research", "name": "(fr)m\u00e9decin", "created": "2015-06-04T23:46:25.629Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.208Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q39631"}, {"fields": {"superlachaise_category": null, "name": "(fr)avocat", "created": "2015-06-04T23:46:25.325Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.211Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q40348"}, {"fields": {"superlachaise_category": "music", "name": "(fr)compositeur", "created": "2015-06-04T23:46:26.459Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.215Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q4108101"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)critique litt\u00e9raire", "created": "2015-06-04T23:46:25.495Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.218Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q4263842"}, {"fields": {"superlachaise_category": "urbanism", "name": "(fr)architecte", "created": "2015-06-04T23:46:25.891Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.221Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q42973"}, {"fields": {"superlachaise_category": null, "name": "(fr)personnalit\u00e9 du monde des affaires", "created": "2015-06-04T23:46:27.209Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.224Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q43845"}, {"fields": {"superlachaise_category": "research", "name": "(fr)anthropologue", "created": "2015-06-04T23:46:25.613Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.228Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q4773904"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)auteur", "created": "2015-06-04T23:46:25.285Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.231Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q482980"}, {"fields": {"superlachaise_category": "art", "name": "(fr)artiste", "created": "2015-06-04T23:46:25.456Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.234Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q483501"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)auteur de litt\u00e9rature d'enfance et de jeunesse", "created": "2015-06-04T23:46:26.396Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.236Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q4853732"}, {"fields": {"superlachaise_category": "music", "name": "(fr)pianiste", "created": "2015-06-04T23:46:25.371Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.239Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q486748"}, {"fields": {"superlachaise_category": "music", "name": "(fr)auteur-compositeur-interpr\u00e8te", "created": "2015-06-04T23:46:25.411Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.242Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q488205"}, {"fields": {"superlachaise_category": "philosophy", "name": "(fr)philosophe", "created": "2015-06-04T23:46:25.341Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.245Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q4964182"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)po\u00e8te", "created": "2015-06-04T23:46:25.389Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.248Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q49757"}, {"fields": {"superlachaise_category": "military", "name": "(fr)soldat", "created": "2015-06-04T23:46:25.397Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.251Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q4991371"}, {"fields": {"superlachaise_category": "research", "name": "(fr)g\u00e9ologue", "created": "2015-06-04T23:46:25.729Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.253Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q520549"}, {"fields": {"superlachaise_category": "performing_arts", "name": "(fr)danseur", "created": "2015-06-04T23:46:26.975Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.256Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q5716684"}, {"fields": {"superlachaise_category": "medias", "name": "(fr)producteur de t\u00e9l\u00e9vision", "created": "2015-06-04T23:46:25.361Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.259Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q578109"}, {"fields": {"superlachaise_category": "research", "name": "(fr)chimiste", "created": "2015-06-04T23:46:25.562Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.263Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q593644"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)n\u00e8gre litt\u00e9raire", "created": "2015-06-04T23:46:26.056Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.267Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q623386"}, {"fields": {"superlachaise_category": null, "name": "(fr)archiviste", "created": "2015-06-04T23:46:26.437Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.270Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q635734"}, {"fields": {"superlachaise_category": "music", "name": "(fr)musicien", "created": "2015-06-04T23:46:25.883Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.273Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q639669"}, {"fields": {"superlachaise_category": null, "name": "(fr)Corps des ponts et chauss\u00e9es", "created": "2015-06-04T23:46:26.816Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.277Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q650012"}, {"fields": {"superlachaise_category": "literature", "name": "(fr)romancier", "created": "2015-06-04T23:46:25.779Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.280Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q6625963"}, {"fields": {"superlachaise_category": "performing_arts", "name": "(fr)mime", "created": "2015-06-04T23:46:25.655Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.283Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q674067"}, {"fields": {"superlachaise_category": null, "name": "(fr)contrema\u00eetre", "created": "2015-06-04T23:46:26.857Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.286Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q691522"}, {"fields": {"superlachaise_category": "politics", "name": "(fr)socialisme", "created": "2015-06-04T23:46:27.336Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.289Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q7272"}, {"fields": {"superlachaise_category": null, "name": "(fr)a\u00e9ronaute", "created": "2015-06-04T23:46:26.827Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.292Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q728425"}, {"fields": {"superlachaise_category": null, "name": "(fr)clown", "created": "2015-06-04T23:46:25.662Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.295Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q7358"}, {"fields": {"superlachaise_category": "music", "name": "(fr)auteur-compositeur", "created": "2015-06-05T13:21:10.616Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.298Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q753110"}, {"fields": {"superlachaise_category": "performing_arts", "name": "(fr)artiste de rue", "created": "2015-06-04T23:46:25.718Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.302Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q7622988"}, {"fields": {"superlachaise_category": null, "name": "(fr)banquier", "created": "2015-06-04T23:46:26.248Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.306Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q806798"}, {"fields": {"superlachaise_category": null, "name": "(fr)secr\u00e9taire", "created": "2015-06-04T23:46:26.036Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.309Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q80687"}, {"fields": {"superlachaise_category": null, "name": "(fr)ing\u00e9nieur", "created": "2015-06-04T23:46:25.570Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.312Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q81096"}, {"fields": {"superlachaise_category": "politics", "name": "(fr)personnalit\u00e9 politique", "created": "2015-06-04T23:46:25.305Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.316Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q82955"}, {"fields": {"superlachaise_category": "music", "name": "(fr)guitariste", "created": "2015-06-04T23:46:25.418Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.320Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q855091"}, {"fields": {"superlachaise_category": null, "name": "(fr)esp\u00e9rantiste", "created": "2015-06-04T23:46:25.795Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.323Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q860918"}, {"fields": {"superlachaise_category": "research", "name": "(fr)biologiste", "created": "2015-06-04T23:46:25.896Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.326Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q864503"}, {"fields": {"superlachaise_category": "research", "name": "(fr)scientifique", "created": "2015-06-04T23:46:25.591Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.328Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q901"}, {"fields": {"superlachaise_category": "military", "name": "(fr)espion", "created": "2015-06-05T13:15:12.842Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.332Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q9352089"}, {"fields": {"superlachaise_category": "medias", "name": "(fr)animateur de t\u00e9l\u00e9vision", "created": "2015-06-04T23:46:26.538Z", "notes": "", "used_in": [], "modified": "2015-06-09T14:00:27.334Z"}, "model": "superlachaise_api.wikidataoccupation", "pk": "Q947873"}]
+{
+    "superlachaise_api.models.AdminCommand": [
+        {
+            "dependency_order": 1,
+            "name": "sync_openstreetmap"
+        },
+        {
+            "dependency_order": 2,
+            "name": "sync_wikidata"
+        },
+        {
+            "dependency_order": 3,
+            "name": "sync_wikipedia"
+        },
+        {
+            "dependency_order": 4,
+            "name": "sync_wikimedia_commons_categories"
+        },
+        {
+            "dependency_order": 5,
+            "name": "sync_wikimedia_commons_files"
+        },
+        {
+            "dependency_order": 6,
+            "name": "sync_wikidata_occupations"
+        },
+        {
+            "dependency_order": 7,
+            "name": "sync_superlachaise_pois"
+        },
+        {
+            "dependency_order": null,
+            "name": "sync_all_and_send_mail_to_managers"
+        }
+    ],
+    "superlachaise_api.models.Language": [
+        {
+            "artist_prefix": "Artist: ",
+            "code": "en",
+            "description": "English",
+            "enumeration_separator": ", ",
+            "last_enumeration_separator": " and "
+        },
+        {
+            "artist_prefix": "Artiste : ",
+            "code": "fr",
+            "description": "French",
+            "enumeration_separator": ", ",
+            "last_enumeration_separator": " et "
+        }
+    ],
+    "superlachaise_api.models.Setting": [
+        {
+            "key": "openstreetmap:auto_apply_modifications",
+            "value": "false"
+        },
+        {
+            "key": "openstreetmap:bounding_box",
+            "value": "48.8575,2.3877,48.8649,2.4006"
+        },
+        {
+            "key": "openstreetmap:exclude_ids",
+            "value": "[{\"type\": \"node\", \"id\": 1688357881}]"
+        },
+        {
+            "key": "openstreetmap:name_tag_language",
+            "value": "fr"
+        },
+        {
+            "key": "openstreetmap:synced_tags",
+            "value": "[\"historic=tomb\", \"historic=memorial\"]"
+        },
+        {
+            "key": "superlachaise_poi:auto_apply_modifications",
+            "value": "false"
+        },
+        {
+            "key": "wikidata:accepted_locations_of_burial",
+            "value": "[\"Q311\", \"Q3006253\"]"
+        },
+        {
+            "key": "wikidata:auto_apply_modifications",
+            "value": "false"
+        },
+        {
+            "key": "wikimedia_commons:auto_apply_modifications",
+            "value": "false"
+        },
+        {
+            "key": "wikimedia_commons:sync_only_main_image",
+            "value": "true"
+        },
+        {
+            "key": "wikimedia_commons:synced_instance_of",
+            "value": "[\"Q173387\", \"Q16423655\", \"Q575759\", \"Q860861\", \"Q42948\"]"
+        },
+        {
+            "key": "wikimedia_commons:thumbnail_width",
+            "value": "350"
+        },
+        {
+            "key": "wikipedia:auto_apply_modifications",
+            "value": "false"
+        }
+    ],
+    "superlachaise_api.models.SuperLachaiseCategory": [
+        {
+            "code": "memorial",
+            "type": "element_nature",
+            "values": "memorial"
+        },
+        {
+            "code": "tomb",
+            "type": "element_nature",
+            "values": "tomb"
+        },
+        {
+            "code": "art",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "cinema",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "literature",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "medias",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "military",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "music",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "other",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "performing_arts",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "philosophy",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "politics",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "research",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "theatre",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "urbanism",
+            "type": "occupation",
+            "values": ""
+        },
+        {
+            "code": "men",
+            "type": "sex_or_gender",
+            "values": "Q6581097"
+        },
+        {
+            "code": "women",
+            "type": "sex_or_gender",
+            "values": "Q6581072"
+        }
+    ],
+    "superlachaise_api.models.SuperLachaiseLocalizedCategory": [
+        {
+            "language_id": "en",
+            "name": "Art",
+            "superlachaise_category_id": "art"
+        },
+        {
+            "language_id": "en",
+            "name": "Cinema",
+            "superlachaise_category_id": "cinema"
+        },
+        {
+            "language_id": "en",
+            "name": "Literature",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "language_id": "en",
+            "name": "Medias",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "language_id": "en",
+            "name": "Memorials",
+            "superlachaise_category_id": "memorial"
+        },
+        {
+            "language_id": "en",
+            "name": "Men",
+            "superlachaise_category_id": "men"
+        },
+        {
+            "language_id": "en",
+            "name": "Military",
+            "superlachaise_category_id": "military"
+        },
+        {
+            "language_id": "en",
+            "name": "Music",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "language_id": "en",
+            "name": "Other",
+            "superlachaise_category_id": "other"
+        },
+        {
+            "language_id": "en",
+            "name": "Performing arts",
+            "superlachaise_category_id": "performing_arts"
+        },
+        {
+            "language_id": "en",
+            "name": "Philosophy",
+            "superlachaise_category_id": "philosophy"
+        },
+        {
+            "language_id": "en",
+            "name": "Politics",
+            "superlachaise_category_id": "politics"
+        },
+        {
+            "language_id": "en",
+            "name": "Research",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "language_id": "en",
+            "name": "Theatre",
+            "superlachaise_category_id": "theatre"
+        },
+        {
+            "language_id": "en",
+            "name": "Tombs",
+            "superlachaise_category_id": "tomb"
+        },
+        {
+            "language_id": "en",
+            "name": "Urban planning",
+            "superlachaise_category_id": "urbanism"
+        },
+        {
+            "language_id": "en",
+            "name": "Women",
+            "superlachaise_category_id": "women"
+        },
+        {
+            "language_id": "fr",
+            "name": "Armée",
+            "superlachaise_category_id": "military"
+        },
+        {
+            "language_id": "fr",
+            "name": "Art",
+            "superlachaise_category_id": "art"
+        },
+        {
+            "language_id": "fr",
+            "name": "Autre",
+            "superlachaise_category_id": "other"
+        },
+        {
+            "language_id": "fr",
+            "name": "Cinéma",
+            "superlachaise_category_id": "cinema"
+        },
+        {
+            "language_id": "fr",
+            "name": "Femmes",
+            "superlachaise_category_id": "women"
+        },
+        {
+            "language_id": "fr",
+            "name": "Hommes",
+            "superlachaise_category_id": "men"
+        },
+        {
+            "language_id": "fr",
+            "name": "Littérature",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "language_id": "fr",
+            "name": "Musique",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "language_id": "fr",
+            "name": "Médias",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "language_id": "fr",
+            "name": "Mémoriaux",
+            "superlachaise_category_id": "memorial"
+        },
+        {
+            "language_id": "fr",
+            "name": "Philosophie",
+            "superlachaise_category_id": "philosophy"
+        },
+        {
+            "language_id": "fr",
+            "name": "Politique",
+            "superlachaise_category_id": "politics"
+        },
+        {
+            "language_id": "fr",
+            "name": "Recherche scientifique",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "language_id": "fr",
+            "name": "Spectacle vivant",
+            "superlachaise_category_id": "performing_arts"
+        },
+        {
+            "language_id": "fr",
+            "name": "Théâtre",
+            "superlachaise_category_id": "theatre"
+        },
+        {
+            "language_id": "fr",
+            "name": "Tombes",
+            "superlachaise_category_id": "tomb"
+        },
+        {
+            "language_id": "fr",
+            "name": "Urbanisme",
+            "superlachaise_category_id": "urbanism"
+        }
+    ],
+    "superlachaise_api.models.WikidataOccupation": [
+        {
+            "id": "Q1028181",
+            "name": "(fr)peintre",
+            "superlachaise_category_id": "art"
+        },
+        {
+            "id": "Q105186",
+            "name": "(fr)pharmacien",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q10732476",
+            "name": "(fr)collectionneur d'art",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q10800557",
+            "name": "(fr)acteur de films",
+            "superlachaise_category_id": "cinema"
+        },
+        {
+            "id": "Q10872101",
+            "name": "(fr)anatomiste",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q11063",
+            "name": "(fr)astronome",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q1114448",
+            "name": "(fr)dessinateur de presse",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "id": "Q11774202",
+            "name": "(fr)essayiste",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q12020057",
+            "name": "",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q1229025",
+            "name": "(fr)typographe",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q1234713",
+            "name": "(fr)théologien",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q1259917",
+            "name": "(fr)violoniste",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q12800682",
+            "name": "(fr)saxophoniste",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q1281618",
+            "name": "(fr)sculpteur",
+            "superlachaise_category_id": "art"
+        },
+        {
+            "id": "Q131524",
+            "name": "(fr)entrepreneur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q133485",
+            "name": "(fr)rabbin",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q13391399",
+            "name": "(fr)chansonnier",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q13416354",
+            "name": "(fr)minéralogiste",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q13418253",
+            "name": "(fr)philologue",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q13472585",
+            "name": "(fr)philanthrope",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q1350189",
+            "name": "(fr)égyptologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q13582652",
+            "name": "(fr)ingénieur civil",
+            "superlachaise_category_id": "urbanism"
+        },
+        {
+            "id": "Q1371378",
+            "name": "(fr)ethnologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q14089670",
+            "name": "(fr)joueur de rugby à XV",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q1420621",
+            "name": "(fr)magnat des médias",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q14467526",
+            "name": "(fr)linguiste",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q14565331",
+            "name": "(fr)logicien",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q14623005",
+            "name": "(fr)dessinateur en bâtiment",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q148401",
+            "name": "(fr)magicien",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q14915627",
+            "name": "(fr)musicologue",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q15296811",
+            "name": "(fr)dessinateur",
+            "superlachaise_category_id": "art"
+        },
+        {
+            "id": "Q15632482",
+            "name": "(fr)épistémologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q15632632",
+            "name": "(fr)épigraphiste",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q15809665",
+            "name": "(fr)critique de films",
+            "superlachaise_category_id": "cinema"
+        },
+        {
+            "id": "Q158852",
+            "name": "(fr)chef d'orchestre",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q15895020",
+            "name": "(fr)ingénieur en aérospatiale",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q15921002",
+            "name": "(fr)ornithologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q15949613",
+            "name": "(fr)nouvelliste",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q15962340",
+            "name": "",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q15966904",
+            "name": "(fr)graveur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q15978391",
+            "name": "(fr)satiriste",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "id": "Q16031530",
+            "name": "(fr)théoricien de la musique",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q1607826",
+            "name": "(fr)éditeur",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "id": "Q16145150",
+            "name": "(fr)professeur de musique",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q1622272",
+            "name": "(fr)professeur d'université",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q1662561",
+            "name": "(fr)paléontologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q169470",
+            "name": "(fr)physicien",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q16947657",
+            "name": "(fr)lithographe",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q170790",
+            "name": "(fr)mathématicien",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q1708232",
+            "name": "(fr)médailleur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q17093672",
+            "name": "(fr)trompettiste",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q175151",
+            "name": "(fr)imprimeur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q177220",
+            "name": "(fr)chanteur",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q1792450",
+            "name": "(fr)historien de l'art",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q18195617",
+            "name": "(fr)littéraire",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q182436",
+            "name": "(fr)bibliothécaire",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q185351",
+            "name": "(fr)juriste",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q188094",
+            "name": "(fr)économiste",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q18814623",
+            "name": "(fr)autobiographe",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q189290",
+            "name": "(fr)officier",
+            "superlachaise_category_id": "military"
+        },
+        {
+            "id": "Q1930187",
+            "name": "(fr)journaliste",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "id": "Q193391",
+            "name": "(fr)diplomate",
+            "superlachaise_category_id": "politics"
+        },
+        {
+            "id": "Q19435686",
+            "name": "(fr)fondeur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q1979607",
+            "name": "(fr)financier",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q201788",
+            "name": "(fr)historien",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q205375",
+            "name": "(fr)inventeur",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q211423",
+            "name": "(fr)orfèvre",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q2114605",
+            "name": "",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q212980",
+            "name": "(fr)psychologue",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q214917",
+            "name": "(fr)dramaturge",
+            "superlachaise_category_id": "theatre"
+        },
+        {
+            "id": "Q2259451",
+            "name": "(fr)acteur de théâtre",
+            "superlachaise_category_id": "theatre"
+        },
+        {
+            "id": "Q2306091",
+            "name": "(fr)sociologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q2310145",
+            "name": "(fr)météorologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q2358549",
+            "name": "(fr)attaché de presse",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q2374149",
+            "name": "(fr)botaniste",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q245068",
+            "name": "(fr)humoriste",
+            "superlachaise_category_id": "theatre"
+        },
+        {
+            "id": "Q2490358",
+            "name": "(fr)chorégraphe",
+            "superlachaise_category_id": "performing_arts"
+        },
+        {
+            "id": "Q2516866",
+            "name": "(fr)éditeur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q2526255",
+            "name": "(fr)réalisateur",
+            "superlachaise_category_id": "cinema"
+        },
+        {
+            "id": "Q266569",
+            "name": "(fr)animateur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q2722764",
+            "name": "(fr)animateur de radio",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "id": "Q28389",
+            "name": "(fr)scénariste",
+            "superlachaise_category_id": "cinema"
+        },
+        {
+            "id": "Q2865819",
+            "name": "(fr)artiste lyrique",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q2962070",
+            "name": "(fr)chef décorateur",
+            "superlachaise_category_id": "cinema"
+        },
+        {
+            "id": "Q3064032",
+            "name": "(fr)fabuliste",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q3064175",
+            "name": "(fr)Facteur de pianos",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3068305",
+            "name": "(fr)salonnière",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3128486",
+            "name": "(fr)haut fonctionnaire",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3190200",
+            "name": "(fr)jurisconsulte",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3253361",
+            "name": "(fr)liste des premiers présidents de la Cour de cassation",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3282637",
+            "name": "(fr)producteur de cinéma",
+            "superlachaise_category_id": "cinema"
+        },
+        {
+            "id": "Q329439",
+            "name": "(fr)graveur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q33231",
+            "name": "(fr)photographe",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q333634",
+            "name": "(fr)traducteur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3387717",
+            "name": "(fr)metteur en scène",
+            "superlachaise_category_id": "theatre"
+        },
+        {
+            "id": "Q33999",
+            "name": "(fr)acteur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3406814",
+            "name": "(fr)professeur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3488528",
+            "name": "(fr)clerc de notaire",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3499072",
+            "name": "(fr)chef cuisinier",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q350979",
+            "name": "(fr)zoologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q355242",
+            "name": "(fr)forain",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3579035",
+            "name": "(fr)écrivain voyageur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q3579159",
+            "name": "(fr)Éditeur de musique",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q36180",
+            "name": "(fr)écrivain",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q3621491",
+            "name": "(fr)archéologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q3658608",
+            "name": "(fr)caricaturiste",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "id": "Q36834",
+            "name": "(fr)compositeur",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q37226",
+            "name": "(fr)instituteur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q39631",
+            "name": "(fr)médecin",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q40348",
+            "name": "(fr)avocat",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q4108101",
+            "name": "(fr)compositeur",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q4263842",
+            "name": "(fr)critique littéraire",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q42973",
+            "name": "(fr)architecte",
+            "superlachaise_category_id": "urbanism"
+        },
+        {
+            "id": "Q43845",
+            "name": "(fr)personnalité du monde des affaires",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q4773904",
+            "name": "(fr)anthropologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q482980",
+            "name": "(fr)auteur",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q483501",
+            "name": "(fr)artiste",
+            "superlachaise_category_id": "art"
+        },
+        {
+            "id": "Q4853732",
+            "name": "(fr)auteur de littérature d'enfance et de jeunesse",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q486748",
+            "name": "(fr)pianiste",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q488205",
+            "name": "(fr)auteur-compositeur-interprète",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q4964182",
+            "name": "(fr)philosophe",
+            "superlachaise_category_id": "philosophy"
+        },
+        {
+            "id": "Q49757",
+            "name": "(fr)poète",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q4991371",
+            "name": "(fr)soldat",
+            "superlachaise_category_id": "military"
+        },
+        {
+            "id": "Q520549",
+            "name": "(fr)géologue",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q5716684",
+            "name": "(fr)danseur",
+            "superlachaise_category_id": "performing_arts"
+        },
+        {
+            "id": "Q578109",
+            "name": "(fr)producteur de télévision",
+            "superlachaise_category_id": "medias"
+        },
+        {
+            "id": "Q593644",
+            "name": "(fr)chimiste",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q623386",
+            "name": "(fr)nègre littéraire",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q635734",
+            "name": "(fr)archiviste",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q639669",
+            "name": "(fr)musicien",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q650012",
+            "name": "(fr)Corps des ponts et chaussées",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q6625963",
+            "name": "(fr)romancier",
+            "superlachaise_category_id": "literature"
+        },
+        {
+            "id": "Q674067",
+            "name": "(fr)mime",
+            "superlachaise_category_id": "performing_arts"
+        },
+        {
+            "id": "Q691522",
+            "name": "(fr)contremaître",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q7272",
+            "name": "(fr)socialisme",
+            "superlachaise_category_id": "politics"
+        },
+        {
+            "id": "Q728425",
+            "name": "(fr)aéronaute",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q7358",
+            "name": "(fr)clown",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q753110",
+            "name": "(fr)auteur-compositeur",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q7622988",
+            "name": "(fr)artiste de rue",
+            "superlachaise_category_id": "performing_arts"
+        },
+        {
+            "id": "Q806798",
+            "name": "(fr)banquier",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q80687",
+            "name": "(fr)secrétaire",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q81096",
+            "name": "(fr)ingénieur",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q82955",
+            "name": "(fr)personnalité politique",
+            "superlachaise_category_id": "politics"
+        },
+        {
+            "id": "Q855091",
+            "name": "(fr)guitariste",
+            "superlachaise_category_id": "music"
+        },
+        {
+            "id": "Q860918",
+            "name": "(fr)espérantiste",
+            "superlachaise_category_id": null
+        },
+        {
+            "id": "Q864503",
+            "name": "(fr)biologiste",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q901",
+            "name": "(fr)scientifique",
+            "superlachaise_category_id": "research"
+        },
+        {
+            "id": "Q9352089",
+            "name": "(fr)espion",
+            "superlachaise_category_id": "military"
+        },
+        {
+            "id": "Q947873",
+            "name": "(fr)animateur de télévision",
+            "superlachaise_category_id": "medias"
+        }
+    ]
+}
