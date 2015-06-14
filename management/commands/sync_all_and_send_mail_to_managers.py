@@ -22,7 +22,6 @@ limitations under the License.
 
 import datetime, os, sys, traceback
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.mail import mail_managers
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
@@ -57,16 +56,8 @@ class Command(BaseCommand):
                 mail_content.append('')
         
         if mail_content:
-            app_name = AdminCommand._meta.app_label
-            reverse_name = AdminCommand.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_path = reverse(reverse_path, args=(self.admin_command.name,)).split('/')
-            path = '/'.join(split_path[:-2])
-            
-            mail_content.append(_('Administration: {domain}{path}').format(domain=Site.objects.get_current().domain, path=path))
-            
             try:
-                mail_managers(u'Résultat des commandes admin', '\n'.join(mail_content), fail_silently=False)
+                mail_managers(_('Admin commands results'), '\n'.join(mail_content), fail_silently=False)
                 self.mail_sending_status = MailSendingStatus.MAIL_SENT
             except:
                 print_unicode(traceback.format_exc())
