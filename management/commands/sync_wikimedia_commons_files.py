@@ -141,11 +141,6 @@ class Command(BaseCommand):
         
         files_to_fetch = WikimediaCommonsCategory.objects.exclude(main_image__exact='').values_list('main_image', flat=True)
         
-        if not self.sync_only_main_image:
-            files_list = WikimediaCommonsCategory.objects.exclude(files__exact='').values_list('files', flat=True)
-            for files in files_list:
-                files_to_fetch = files_to_fetch.extend(files.split(';'))
-        
         print_unicode(_('Requesting Wikimedia Commons...'))
         files_to_fetch = list(set(files_to_fetch))
         total = len(files_to_fetch)
@@ -185,7 +180,6 @@ class Command(BaseCommand):
             print_unicode(_('== Start %s ==') % admin_command.name)
             
             self.auto_apply = (Setting.objects.get(key=u'wikimedia_commons:auto_apply_modifications').value == 'true')
-            self.sync_only_main_image = (Setting.objects.get(key=u'wikimedia_commons:sync_only_main_image').value == 'true')
             self.thumbnail_width = int(Setting.objects.get(key=u'wikimedia_commons:thumbnail_width').value)
             
             self.created_objects = 0
