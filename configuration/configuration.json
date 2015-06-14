@@ -49,8 +49,210 @@
             "last_enumeration_separator": " et "
         }
     ],
-    "superlachaise_api.models.LocalizedAdminCommand": [],
-    "superlachaise_api.models.LocalizedSetting": [],
+    "superlachaise_api.models.LocalizedAdminCommand": [
+        {
+            "admin_command_id": "sync_openstreetmap",
+            "description": "Synchronize OpenStreetMap elements by querying Overpass API for the geographic boundary and tags defined in the settings. Build the \"wikidata combined\" field by querying Wikidata API for the values of the field \"wikipedia\" on OpenStreetMap elements.",
+            "language_id": "en"
+        },
+        {
+            "admin_command_id": "sync_wikidata",
+            "description": "Synchronize Wikidata entries by querying Wikidata API for the Wikidata codes in the field \"wikidata combined\" on OpenStreetMap elements and the field \"grave_of:wikidata\" on Wikidata entries.",
+            "language_id": "en"
+        },
+        {
+            "admin_command_id": "sync_wikipedia",
+            "description": "Synchronize Wikipedia pages by querying Wikipedia API for the Wikipedia pages referenced on localized Wikidata entries.",
+            "language_id": "en"
+        },
+        {
+            "admin_command_id": "sync_wikimedia_commons_categories",
+            "description": "Synchronize Wikimedia Commons categories by querying Wikimedia Commons API for the Wikimedia Commons categories referenced on OpenStreetMap elements and Wikidata entries.",
+            "language_id": "en"
+        },
+        {
+            "admin_command_id": "sync_wikimedia_commons_files",
+            "description": "Synchronize Wikimedia Commons files by querying Wikimedia Commons API for the Wikimedia Commons files referenced on Wikimedia Commons categories.",
+            "language_id": "en"
+        },
+        {
+            "admin_command_id": "sync_wikidata_occupations",
+            "description": "Synchronize Wikidata occupations by querying Wikidata API for the codes in the \"occupations\" field on Wikidata entries.",
+            "language_id": "en"
+        },
+        {
+            "admin_command_id": "sync_superlachaise_pois",
+            "description": "Synchronize SuperLachaise POIs by rebuilding links between OpenStreetMap elements, Wikidata entries, Wikimedia Commons categories and files.",
+            "language_id": "en"
+        },
+        {
+            "admin_command_id": "sync_all_and_send_mail_to_managers",
+            "description": "Execute all synchronizations in dependency order and send a mail to the managers if modifications or errors occur.",
+            "language_id": "en"
+        },
+        {
+            "admin_command_id": "sync_openstreetmap",
+            "description": "Synchronise les éléments OpenStreetMap en requêtant l'API Overpass pour la zone géographique et les types de tags paramétrés. Construit le champ \"wikidata combiné\" en requêtant l'API Wikidata pour les valeurs du champ \"wikipédia\" des éléments OpenStreetMap.",
+            "language_id": "fr"
+        },
+        {
+            "admin_command_id": "sync_wikidata",
+            "description": "Synchronise les entrées Wikidata en requêtant l'API Wikidata pour les codes Wikidata présents dans le champ \"wikidata combiné\" des éléments OpenStreetMap et le champ \"grave_of:wikidata\" des entrées Wikidata.",
+            "language_id": "fr"
+        },
+        {
+            "admin_command_id": "sync_wikipedia",
+            "description": "Synchronise les pages Wikipédia en requêtant l'API Wikipédia pour les pages Wikipédia référencées par les entrées Wikidata localisées.",
+            "language_id": "fr"
+        },
+        {
+            "admin_command_id": "sync_wikimedia_commons_categories",
+            "description": "Synchronise les catégories Wikimedia Commons en requêtant l'API Wikimedia Commons pour les catégories Wikimedia Commons des éléments OpenStreetMap et des entrées Wikidata.",
+            "language_id": "fr"
+        },
+        {
+            "admin_command_id": "sync_wikimedia_commons_files",
+            "description": "Synchronise les fichiers Wikimedia Commons en requêtant l'API Wikimedia Commons pour les fichiers Wikimedia Commons référencés dans les catégories Wikimedia Commons.",
+            "language_id": "fr"
+        },
+        {
+            "admin_command_id": "sync_wikidata_occupations",
+            "description": "Synchronise les occupations Wikidata en requêtant l'API Wikidata pour les valeurs du champ \"occupations\" des entrées Wikidata.",
+            "language_id": "fr"
+        },
+        {
+            "admin_command_id": "sync_superlachaise_pois",
+            "description": "Synchronise les POIs SuperLachaise en reconstituant les liens entre les éléments OpenStreetMap, les entrées Wikidata, les catégories et fichiers Wikimedia Commons.",
+            "language_id": "fr"
+        },
+        {
+            "admin_command_id": "sync_all_and_send_mail_to_managers",
+            "description": "Exécute toutes les synchronisations dans leur ordre de dépendance et envoie un mail aux managers si des modifications ou erreurs ont été rencontrées.",
+            "language_id": "fr"
+        }
+    ],
+    "superlachaise_api.models.LocalizedSetting": [
+        {
+            "description": "If set to \"true\", auto-apply new modifications after synchronizing OpenStreetMap elements. Else, create pending modifications that must be manually applied.",
+            "language_id": "en",
+            "setting_id": "openstreetmap:auto_apply_modifications"
+        },
+        {
+            "description": "The geographical region where OpenStreetMap are synchronized.",
+            "language_id": "en",
+            "setting_id": "openstreetmap:bounding_box"
+        },
+        {
+            "description": "The list of OpenStreetMap elements to explicitly exclude from synchronization.",
+            "language_id": "en",
+            "setting_id": "openstreetmap:exclude_ids"
+        },
+        {
+            "description": "The default language of \"name\" tags on OpenStreetMap elements for the synchronized region.",
+            "language_id": "en",
+            "setting_id": "openstreetmap:name_tag_language"
+        },
+        {
+            "description": "The list of OpenStreetMap tags to synchronize.",
+            "language_id": "en",
+            "setting_id": "openstreetmap:synced_tags"
+        },
+        {
+            "description": "If set to \"true\", auto-apply new modifications after synchronizing SuperLachaise POIs. Else, create pending modifications that must be manually applied.",
+            "language_id": "en",
+            "setting_id": "superlachaise_poi:auto_apply_modifications"
+        },
+        {
+            "description": "The list of Wikidata codes corresponding to burial places to synchronize. Used to solve multiple burial places in the P119 property of Wikidata.",
+            "language_id": "en",
+            "setting_id": "wikidata:accepted_locations_of_burial"
+        },
+        {
+            "description": "If set to \"true\", auto-apply new modifications after synchronizing Wikidata entries. Else, create pending modifications that must be manually applied.",
+            "language_id": "en",
+            "setting_id": "wikidata:auto_apply_modifications"
+        },
+        {
+            "description": "If set to \"true\", auto-apply new modifications after synchronizing Wikimedia Commons categories and files. Else, create pending modifications that must be manually applied.",
+            "language_id": "en",
+            "setting_id": "wikimedia_commons:auto_apply_modifications"
+        },
+        {
+            "description": "Wikimedia Commons categories are always synchronized for the values in the field \"wikimedia commons tomb category\" on Wikidata entries. But the values in the field \"wikimedia commons category\" will be synchronized only if the value in the field \"instance of\" of the Wikidata entry contains one of the values in this list. ",
+            "language_id": "en",
+            "setting_id": "wikimedia_commons:synced_instance_of"
+        },
+        {
+            "description": "The thumbnail size of the synchronized Wikimedia Commons file. Used to get the thumbnail URL.",
+            "language_id": "en",
+            "setting_id": "wikimedia_commons:thumbnail_width"
+        },
+        {
+            "description": "If set to \"true\", auto-apply new modifications after synchronizing Wikipedia pages. Else, create pending modifications that must be manually applied.",
+            "language_id": "en",
+            "setting_id": "wikipedia:auto_apply_modifications"
+        },
+        {
+            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des éléments OpenStreetMap. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
+            "language_id": "fr",
+            "setting_id": "openstreetmap:auto_apply_modifications"
+        },
+        {
+            "description": "La région géographique où seront requêtés les éléments OpenStreetMap pour la synchronisation.",
+            "language_id": "fr",
+            "setting_id": "openstreetmap:bounding_box"
+        },
+        {
+            "description": "La liste des éléments OpenStreetMap à exclure explicitement de la synchronisation.",
+            "language_id": "fr",
+            "setting_id": "openstreetmap:exclude_ids"
+        },
+        {
+            "description": "Le langage par défaut des tags \"name\" sur les éléments OpenStreetMap de la région synchronisée.",
+            "language_id": "fr",
+            "setting_id": "openstreetmap:name_tag_language"
+        },
+        {
+            "description": "La liste des tags d'éléments OpenStreetMap à synchroniser.",
+            "language_id": "fr",
+            "setting_id": "openstreetmap:synced_tags"
+        },
+        {
+            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des POIs SuperLachaise. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
+            "language_id": "fr",
+            "setting_id": "superlachaise_poi:auto_apply_modifications"
+        },
+        {
+            "description": "La liste des codes Wikidata correspondant aux lieux d'enterrement à synchroniser. Permet de résoudre les lieux d'enterrement multiples dans la propriété P119 de Wikidata.",
+            "language_id": "fr",
+            "setting_id": "wikidata:accepted_locations_of_burial"
+        },
+        {
+            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des entrées Wikidata. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
+            "language_id": "fr",
+            "setting_id": "wikidata:auto_apply_modifications"
+        },
+        {
+            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des catégories et fichiers Wikimedia Commons. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
+            "language_id": "fr",
+            "setting_id": "wikimedia_commons:auto_apply_modifications"
+        },
+        {
+            "description": "Les catégories Wikimedia Commons sont toujours synchronisées pour les valeurs du champ \"catégorie tombe Wikimedia Commons\" des entrées Wikidata. Par contre, les valeurs du champ \"catégorie Wikimedia Commons\" ne donneront lieu à une synchronisation que si la valeur du champ \"nature\" de l'entrée Wikidata contient une des valeurs de cette liste.",
+            "language_id": "fr",
+            "setting_id": "wikimedia_commons:synced_instance_of"
+        },
+        {
+            "description": "La taille de la miniature du fichier Wikimedia Commons synchronisée. Utilisé pour récupérer l'URL de la miniature.",
+            "language_id": "fr",
+            "setting_id": "wikimedia_commons:thumbnail_width"
+        },
+        {
+            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des pages Wikipédia. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
+            "language_id": "fr",
+            "setting_id": "wikipedia:auto_apply_modifications"
+        }
+    ],
     "superlachaise_api.models.Setting": [
         {
             "key": "openstreetmap:auto_apply_modifications",
