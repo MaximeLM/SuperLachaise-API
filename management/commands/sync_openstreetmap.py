@@ -122,6 +122,9 @@ class Command(BaseCommand):
         query_string_list.append(');\n(._;>;);out body;')
         query_string = "".join(query_string_list)
         
+        # Kill any other query
+        requests.get('http://overpass-api.de/api/kill_my_queries')
+        
         api = overpy.Overpass()
         result = api.query(query_string)
         
