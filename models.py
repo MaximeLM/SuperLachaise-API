@@ -62,6 +62,22 @@ class AdminCommand(SuperLachaiseModel):
         verbose_name = _('admin command')
         verbose_name_plural = _('admin commands')
 
+class LocalizedAdminCommand(SuperLachaiseModel):
+    """ The part of an Admin Command specific to a language """
+    
+    language = models.ForeignKey('Language', verbose_name=_('language'))
+    admin_command = models.ForeignKey('AdminCommand', related_name='localizations', verbose_name=_('admin command'))
+    description = models.TextField(blank=True, verbose_name=_('description'))
+    
+    def __unicode__(self):
+        return unicode(self.language) + u':' + unicode(self.admin_command)
+    
+    class Meta:
+        ordering = ['language', 'admin_command']
+        verbose_name = _('localized admin command')
+        verbose_name_plural = _('localized admin commands')
+        unique_together = ('admin_command', 'language',)
+
 class AdminCommandError(SuperLachaiseModel):
     """ An error that occured during an admin command """
     
@@ -135,6 +151,22 @@ class Setting(SuperLachaiseModel):
         ordering = ['key']
         verbose_name = _('setting')
         verbose_name_plural = _('settings')
+
+class LocalizedSetting(SuperLachaiseModel):
+    """ The part of a Setting specific to a language """
+    
+    language = models.ForeignKey('Language', verbose_name=_('language'))
+    setting = models.ForeignKey('Setting', related_name='localizations', verbose_name=_('setting'))
+    description = models.TextField(blank=True, verbose_name=_('description'))
+    
+    def __unicode__(self):
+        return unicode(self.language) + u':' + unicode(self.setting)
+    
+    class Meta:
+        ordering = ['language', 'setting']
+        verbose_name = _('localized setting')
+        verbose_name_plural = _('localized settings')
+        unique_together = ('setting', 'language',)
 
 class PendingModification(SuperLachaiseModel):
     """ A modification to an object that is not yet applied """
@@ -530,6 +562,7 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
         ordering = ['language', 'sorting_name', 'name']
         verbose_name = _('superlachaise localized POI')
         verbose_name_plural = _('superlachaise localized POIs')
+        unique_together = ('superlachaise_poi', 'language',)
     
     def save(self, *args, **kwargs):
         super(SuperLachaiseLocalizedPOI, self).save(*args, **kwargs)

@@ -33,6 +33,11 @@ class Command(BaseCommand):
                 'name',
                 'dependency_order',
             ],
+            LocalizedAdminCommand: [
+                'language_id',
+                'admin_command_id',
+                'description',
+            ],
             Language: [
                 'code',
                 'description',
@@ -43,6 +48,11 @@ class Command(BaseCommand):
             Setting: [
                 'key',
                 'value',
+            ],
+            LocalizedSetting: [
+                'language_id',
+                'setting_id',
+                'description',
             ],
             SuperLachaiseCategory: [
                 'code',

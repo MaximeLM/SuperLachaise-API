@@ -32,16 +32,40 @@ from django.utils.translation import ugettext as _
 
 from superlachaise_api.models import *
 
+class LocalizedAdminCommandInline(admin.StackedInline):
+    model = LocalizedAdminCommand
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['language', 'description', 'created', 'modified']}),
+    ]
+    readonly_fields = ('created', 'modified')
+
 @admin.register(AdminCommand)
 class AdminCommandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dependency_order', 'last_executed', 'last_result', 'notes')
+    list_display = ('name', 'dependency_order', 'last_executed', 'last_result', 'description', 'notes')
     search_fields = ('name', 'last_result', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'dependency_order', 'last_executed', 'last_result']}),
     ]
-    readonly_fields = ('created', 'modified')
+    readonly_fields = ('description', 'created', 'modified')
+    
+    inlines = [
+        LocalizedAdminCommandInline,
+    ]
+    
+    def description(self, obj):
+        language = Language.objects.filter(code=translation.get_language().split("-", 1)[0]).first()
+        if language:
+            localized_admin_command = obj.localizations.filter(language=language).first()
+        if not localized_admin_command:
+            localized_admin_command = obj.localizations.all().first()
+        
+        if localized_admin_command:
+            return localized_admin_command.description
+    description.short_description = _('description')
     
     def perform_commands(self, request, queryset):
         for admin_command in queryset.order_by('dependency_order'):
@@ -114,16 +138,40 @@ class LanguageAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
+class LocalizedSettingInline(admin.StackedInline):
+    model = LocalizedSetting
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['language', 'description', 'created', 'modified']}),
+    ]
+    readonly_fields = ('created', 'modified')
+
 @admin.register(Setting)
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('key', 'value', 'notes')
+    list_display = ('key', 'value', 'description', 'notes')
     search_fields = ('key', 'value', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['key', 'value']}),
     ]
-    readonly_fields = ('created', 'modified')
+    readonly_fields = ('description', 'created', 'modified')
+    
+    inlines = [
+        LocalizedSettingInline,
+    ]
+    
+    def description(self, obj):
+        language = Language.objects.filter(code=translation.get_language().split("-", 1)[0]).first()
+        if language:
+            localized_setting = obj.localizations.filter(language=language).first()
+        if not localized_setting:
+            localized_setting = obj.localizations.all().first()
+        
+        if localized_setting:
+            return localized_setting.description
+    description.short_description = _('description')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
@@ -658,7 +706,7 @@ class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
     extra = 0
     
     fieldsets = [
-        (None, {'fields': ['language', 'name', 'sorting_name', 'description', 'modified']}),
+        (None, {'fields': ['language', 'name', 'sorting_name', 'description', 'created', 'modified']}),
     ]
     readonly_fields = ('created', 'modified')
 

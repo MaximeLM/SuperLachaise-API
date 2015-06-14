@@ -49,6 +49,8 @@
             "last_enumeration_separator": " et "
         }
     ],
+    "superlachaise_api.models.LocalizedAdminCommand": [],
+    "superlachaise_api.models.LocalizedSetting": [],
     "superlachaise_api.models.Setting": [
         {
             "key": "openstreetmap:auto_apply_modifications",

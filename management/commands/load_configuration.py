@@ -32,19 +32,33 @@ class Command(BaseCommand):
         with open(os.path.dirname(__file__) + '/../../configuration/configuration.json', 'r') as configuration_file:
             configuration = json.load(configuration_file)
             
-            for model_full_name, objects in configuration.iteritems():
-                module = importlib.import_module('.'.join(model_full_name.split('.')[:-1]))
-                model = getattr(module, model_full_name.split('.')[-1])
+            models = [
+                AdminCommand,
+                LocalizedAdminCommand,
+                Language,
+                Setting,
+                LocalizedSetting,
+                SuperLachaiseCategory,
+                SuperLachaiseLocalizedCategory,
+                WikidataOccupation,
+            ]
+            
+            for model in models:
+                objects = configuration[model.__module__ + '.' + model.__name__]
                 
                 synced_objects = []
                 
                 for object_fields in objects:
                     if model == AdminCommand:
                         object, created = model.objects.get_or_create(name=object_fields['name'])
+                    elif model == LocalizedAdminCommand:
+                        object, created = model.objects.get_or_create(language_id=object_fields['language_id'], admin_command_id=object_fields['admin_command_id'])
                     elif model == Language:
                         object, created = model.objects.get_or_create(code=object_fields['code'])
                     elif model == Setting:
                         object, created = model.objects.get_or_create(key=object_fields['key'])
+                    elif model == LocalizedSetting:
+                        object, created = model.objects.get_or_create(language_id=object_fields['language_id'], setting_id=object_fields['setting_id'])
                     elif model == SuperLachaiseCategory:
                         object, created = model.objects.get_or_create(code=object_fields['code'])
                     elif model == SuperLachaiseLocalizedCategory:
