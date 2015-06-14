@@ -104,7 +104,6 @@ Create the database structure, configuration objects, and super user :
 ```sh
 cd <project_path>
 python manage.py migrate
-./superlachaise_api/configuration/load_configuration.sh
 python manage.py createsuperuser
 ```
 
