@@ -157,7 +157,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.target_object_class.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.target_object().id,)).replace("'","%27")
+            url = reverse(reverse_path, args=(obj.target_object().pk,)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
     target_object_link.allow_tags = True
     target_object_link.short_description = _('target object')
@@ -180,11 +180,11 @@ class PendingModificationAdmin(admin.ModelAdmin):
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
     list_display = ('sorted_name', 'openstreetmap_link', 'type', 'nature', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
     list_filter = ('type', 'nature',)
-    search_fields = ('name', 'id', 'wikidata', 'wikipedia', 'wikimedia_commons', 'notes',)
+    search_fields = ('name', 'openstreetmap_id', 'wikidata', 'wikipedia', 'wikimedia_commons', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['name', 'sorting_name', 'id', 'type', 'nature', 'latitude', 'longitude', 'wikipedia', 'wikipedia_link', 'wikidata', 'wikidata_link', 'wikidata_combined', 'wikidata_combined_link', 'wikimedia_commons', 'wikimedia_commons_link']}),
+        (None, {'fields': ['name', 'sorting_name', 'openstreetmap_id', 'type', 'nature', 'latitude', 'longitude', 'wikipedia', 'wikipedia_link', 'wikidata', 'wikidata_link', 'wikidata_combined', 'wikidata_combined_link', 'wikimedia_commons', 'wikimedia_commons_link']}),
     ]
     readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link')
     
@@ -194,11 +194,11 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     sorted_name.admin_order_field = 'sorting_name'
     
     def openstreetmap_link(self, obj):
-        url = u'https://www.openstreetmap.org/{type}/{id}'.format(type=obj.type, id=unicode(obj.id))
-        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
+        url = u'https://www.openstreetmap.org/{type}/{id}'.format(type=obj.type, id=unicode(obj.openstreetmap_id))
+        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.openstreetmap_id)))
     openstreetmap_link.allow_tags = True
     openstreetmap_link.short_description = _('OpenStreetMap')
-    openstreetmap_link.admin_order_field = 'id'
+    openstreetmap_link.admin_order_field = 'openstreetmap_id'
     
     def wikipedia_link(self, obj):
         if obj.wikipedia:
@@ -275,11 +275,11 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
 @admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):
     list_display = ('name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
-    search_fields = ('localizations__name', 'id', 'instance_of', 'sex_or_gender', 'occupations', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
+    search_fields = ('localizations__name', 'wikidata_id', 'instance_of', 'sex_or_gender', 'occupations', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikidata_link', 'instance_of', 'instance_of_link', 'sex_or_gender', 'sex_or_gender_link', 'occupations', 'occupations_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+        (None, {'fields': ['wikidata_id', 'wikidata_link', 'instance_of', 'instance_of_link', 'sex_or_gender', 'sex_or_gender_link', 'occupations', 'occupations_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
     readonly_fields = ('name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
     
@@ -300,17 +300,17 @@ class WikidataEntryAdmin(admin.ModelAdmin):
                 result.append('(%s)%s' % (','.join(languages), name))
             return '; '.join(result)
         
-        return obj.id
+        return obj.wikidata_id
     name.short_description = _('name')
     
     def wikidata_link(self, obj):
-        if obj.id:
+        if obj.wikidata_id:
             language = translation.get_language().split("-", 1)[0]
-            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.id), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
+            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_id), language=language)
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_id)))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
-    wikidata_link.admin_order_field = 'id'
+    wikidata_link.admin_order_field = 'wikidata_id'
     
     def instance_of_link(self, obj):
         if obj.instance_of:
@@ -394,7 +394,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     def sync_entry(self, request, queryset):
         wikidata_ids = []
         for wikidata_entry in queryset:
-            wikidata_ids.append(str(wikidata_entry.id))
+            wikidata_ids.append(str(wikidata_entry.wikidata_id))
         sync_start = timezone.now()
         call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
         pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
@@ -404,7 +404,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
             app_name = PendingModification._meta.app_label
             reverse_name = PendingModification.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
@@ -434,7 +434,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.wikidata_entry.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.wikidata_entry.id,))
+            url = reverse(reverse_path, args=(obj.wikidata_entry.pk,))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry)))
     wikidata_entry_link.allow_tags = True
     wikidata_entry_link.short_description = _('wikidata entry')
@@ -443,8 +443,8 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     def wikidata_link(self, obj):
         if obj.wikidata_entry:
             language = translation.get_language().split("-", 1)[0]
-            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_entry.id), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry.id)))
+            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_entry.wikidata_id), language=language)
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry.wikidata_id)))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata_entry'
@@ -460,7 +460,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     def sync_entry(self, request, queryset):
         wikidata_ids = []
         for wikidata_localized_entry in queryset:
-            wikidata_ids.append(str(wikidata_localized_entry.wikidata_entry.id))
+            wikidata_ids.append(str(wikidata_localized_entry.wikidata_entry.wikidata_id))
         sync_start = timezone.now()
         call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
         pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
@@ -470,7 +470,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
             app_name = PendingModification._meta.app_label
             reverse_name = PendingModification.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
@@ -499,7 +499,7 @@ class WikipediaPageAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.wikidata_localized_entry.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.wikidata_localized_entry.id,))
+            url = reverse(reverse_path, args=(obj.wikidata_localized_entry.pk,))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_localized_entry)))
     wikidata_localized_entry_link.allow_tags = True
     wikidata_localized_entry_link.short_description = _('wikidata localized entry')
@@ -531,7 +531,7 @@ class WikipediaPageAdmin(admin.ModelAdmin):
             app_name = PendingModification._meta.app_label
             reverse_name = PendingModification.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
@@ -545,21 +545,21 @@ class WikipediaPageAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsCategory)
 class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'wikimedia_commons_link', 'main_image_link', 'notes')
-    search_fields = ('id', 'main_image', 'notes',)
+    list_display = ('wikimedia_commons_id', 'wikimedia_commons_link', 'main_image_link', 'notes')
+    search_fields = ('wikimedia_commons_id', 'main_image', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikimedia_commons_link', 'main_image', 'main_image_link']}),
+        (None, {'fields': ['wikimedia_commons_id', 'wikimedia_commons_link', 'main_image', 'main_image_link']}),
     ]
     readonly_fields = ('wikimedia_commons_link', 'main_image_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.id)).replace("'","%27")
-        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
+        url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons_id)).replace("'","%27")
+        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_id)))
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons category')
-    wikimedia_commons_link.admin_order_field = 'id'
+    wikimedia_commons_link.admin_order_field = 'wikimedia_commons_id'
     
     def main_image_link(self, obj):
         if obj.main_image:
@@ -572,7 +572,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     def sync_page(self, request, queryset):
         wikimedia_commons_categories = []
         for wikimedia_commons_category in queryset:
-            wikimedia_commons_categories.append('Category:' + wikimedia_commons_category.id)
+            wikimedia_commons_categories.append(wikimedia_commons_category.wikimedia_commons_id)
         sync_start = timezone.now()
         call_command('sync_wikimedia_commons_categories', wikimedia_commons_categories='|'.join(wikimedia_commons_categories))
         pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
@@ -582,7 +582,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
             app_name = PendingModification._meta.app_label
             reverse_name = PendingModification.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
@@ -597,20 +597,20 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
 @admin.register(WikimediaCommonsFile)
 class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'notes')
-    search_fields = ('id', 'notes',)
+    search_fields = ('wikimedia_commons_id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'wikimedia_commons_link', 'original_url', 'original_url_link', 'thumbnail_url', 'thumbnail_url_link']}),
+        (None, {'fields': ['wikimedia_commons_id', 'wikimedia_commons_link', 'original_url', 'original_url_link', 'thumbnail_url', 'thumbnail_url_link']}),
     ]
     readonly_fields = ('wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.id)).replace("'","%27")
-        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
+        url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons_id)).replace("'","%27")
+        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_id)))
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons file')
-    wikimedia_commons_link.admin_order_field = 'id'
+    wikimedia_commons_link.admin_order_field = 'wikimedia_commons_id'
     
     def original_url_link(self, obj):
         if obj.original_url:
@@ -655,7 +655,7 @@ class SuperLachaiseWikidataRelationInline(admin.StackedInline):
                 result.append('(%s)%s' % (','.join(languages), name))
             return '; '.join(result)
         
-        return obj.wikidata_entry.id
+        return obj.wikidata_entry.wikidata_id
     name.short_description = _('name')
     
     verbose_name = "wikidata entry"
@@ -705,7 +705,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.openstreetmap_element.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.openstreetmap_element.id,))
+            url = reverse(reverse_path, args=(obj.openstreetmap_element.pk,))
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.openstreetmap_element)))
     openstreetmap_element_link.allow_tags = True
     openstreetmap_element_link.short_description = _('openstreetmap element')
@@ -730,7 +730,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.wikimedia_commons_category.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.wikimedia_commons_category.id,)).replace("'","%27")
+            url = reverse(reverse_path, args=(obj.wikimedia_commons_category.pk,)).replace("'","%27")
             return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
@@ -741,7 +741,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = obj.main_image.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.main_image.id,)).replace("'","%27")
+            url = reverse(reverse_path, args=(obj.main_image.pk,)).replace("'","%27")
             result = u'<div style="background: url({image_url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(image_url=obj.main_image.thumbnail_url, url=url)
             return mark_safe(result)
     main_image_link.allow_tags = True
@@ -774,7 +774,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             app_name = PendingModification._meta.app_label
             reverse_name = PendingModification.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
@@ -802,7 +802,7 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
         app_name = obj._meta.app_label
         reverse_name = obj.superlachaise_poi.__class__.__name__.lower()
         reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-        url = reverse(reverse_path, args=(obj.superlachaise_poi.id,))
+        url = reverse(reverse_path, args=(obj.superlachaise_poi.pk,))
         return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.superlachaise_poi)))
     superlachaise_poi_link.allow_tags = True
     superlachaise_poi_link.short_description = _('superlachaise poi')
@@ -825,7 +825,7 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
             app_name = PendingModification._meta.app_label
             reverse_name = PendingModification.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().id,)).split('/')
+            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
@@ -872,26 +872,26 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(WikidataOccupation)
 class WikidataOccupationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in_link', 'notes')
+    list_display = ('wikidata_id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in_link', 'notes')
     list_filter = ('superlachaise_category',)
     list_editable = ('superlachaise_category',)
-    search_fields = ('id', 'name', 'used_in__id', 'used_in__localizations__name', 'notes',)
+    search_fields = ('wikidata_id', 'name', 'used_in__id', 'used_in__localizations__name', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in']}),
+        (None, {'fields': ['wikidata_id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in']}),
     ]
     filter_horizontal = ('used_in',)
     readonly_fields = ('wikidata_link', 'used_in_link', 'created', 'modified')
     
     def wikidata_link(self, obj):
-        if obj.id:
+        if obj.wikidata_id:
             language = translation.get_language().split("-", 1)[0]
-            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.id), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.id)))
+            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_id), language=language)
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_id)))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
-    wikidata_link.admin_order_field = 'id'
+    wikidata_link.admin_order_field = 'wikidata_id'
     
     def used_in_count(self, obj):
         return obj.used_in.count()
@@ -903,7 +903,7 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
             app_name = obj._meta.app_label
             reverse_name = wikidata_entry.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(wikidata_entry.id,))
+            url = reverse(reverse_path, args=(wikidata_entry.pk,))
             result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(wikidata_entry))))
         return ';'.join(result)
     used_in_link.allow_tags = True

@@ -29,7 +29,7 @@ from superlachaise_api.models import *
 class AdminCommandTestCase(TestCase):
     
     def test_name_is_unique(self):
-        name = u"name"
+        name = "name"
         AdminCommand(name=name).save()
         
         try:
@@ -42,7 +42,9 @@ class LocalizedAdminCommandTestCase(TestCase):
     
     def test_admin_command_and_language_are_unique(self):
         admin_command = AdminCommand(name="name")
+        admin_command.save()
         language = Language(code="code")
+        language.save()
         LocalizedAdminCommand(admin_command=admin_command, language=language).save()
         
         try:
@@ -54,7 +56,7 @@ class LocalizedAdminCommandTestCase(TestCase):
 class LanguageTestCase(TestCase):
     
     def test_code_is_unique(self):
-        code = u"code"
+        code = "code"
         Language(code=code).save()
         
         try:
@@ -66,7 +68,7 @@ class LanguageTestCase(TestCase):
 class SettingTestCase(TestCase):
     
     def test_key_is_unique(self):
-        key = u"key"
+        key = "key"
         Setting(key=key).save()
         
         try:
@@ -79,7 +81,9 @@ class LocalizedSettingTestCase(TestCase):
     
     def test_setting_and_language_are_unique(self):
         setting = Setting(key="key")
+        setting.save()
         language = Language(code="code")
+        language.save()
         LocalizedSetting(setting=setting, language=language).save()
         
         try:
@@ -90,51 +94,53 @@ class LocalizedSettingTestCase(TestCase):
 
 class OpenStreetMapElementTestCase(TestCase):
     
-    def test_id_is_unique(self):
-        id = u"id"
-        OpenStreetMapElement(id=id, type="type1", name="name1", latitude=0, longitude=0).save()
+    def test_openstreetmap_id_is_unique(self):
+        openstreetmap_id = "openstreetmap_id"
+        OpenStreetMapElement(openstreetmap_id=openstreetmap_id).save()
         
         try:
-            OpenStreetMapElement(id=id, type="type2", name="name2", latitude=1, longitude=2).save()
+            OpenStreetMapElement(openstreetmap_id=openstreetmap_id).save()
             self.fail()
         except IntegrityError:
             pass
     
     def test_get_object_query_for_id_returns_valid_query(self):
-        id = u"id"
-        openstreetmap_element = OpenStreetMapElement(id=id, type="type", name="name", latitude=0, longitude=0)
+        openstreetmap_id = "openstreetmap_id"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id)
         openstreetmap_element.save()
         
-        query = OpenStreetMapElement.get_object_query_for_id(id)
+        query = OpenStreetMapElement.get_object_query_for_id(openstreetmap_id)
         
-        self.assertEqual(openstreetmap_element.id, OpenStreetMapElement.objects.get(query).id)
+        self.assertEqual(openstreetmap_element.pk, OpenStreetMapElement.objects.get(query).pk)
 
 class WikidataEntryTestCase(TestCase):
     
-    def test_id_is_unique(self):
-        id = u"id"
-        WikidataEntry(id=id).save()
+    def test_wikidata_id_is_unique(self):
+        wikidata_id = "wikidata_id"
+        WikidataEntry(wikidata_id=wikidata_id).save()
         
         try:
-            WikidataEntry(id=id).save()
+            WikidataEntry(wikidata_id=wikidata_id).save()
             self.fail()
         except IntegrityError:
             pass
     
     def test_get_object_query_for_id_returns_valid_query(self):
-        id = u"id"
-        wikidata_entry = WikidataEntry(id=id)
+        wikidata_id = "wikidata_id"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id)
         wikidata_entry.save()
         
-        query = WikidataEntry.get_object_query_for_id(id)
+        query = WikidataEntry.get_object_query_for_id(wikidata_id)
         
-        self.assertEqual(wikidata_entry.id, WikidataEntry.objects.get(query).id)
+        self.assertEqual(wikidata_entry.pk, WikidataEntry.objects.get(query).pk)
 
 class WikidataLocalizedEntryTestCase(TestCase):
     
     def test_wikidata_entry_and_language_are_unique(self):
-        wikidata_entry = WikidataEntry(id="id")
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
         language = Language(code="code")
+        language.save()
         WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language).save()
         
         try:
@@ -144,10 +150,12 @@ class WikidataLocalizedEntryTestCase(TestCase):
             pass
     
     def test_get_object_query_for_id_returns_valid_query(self):
-        wikidata_entry_id = "id"
+        wikidata_entry_id = "wikidata_entry_id"
         language_code = "code"
-        wikidata_entry = WikidataEntry(id=wikidata_entry_id)
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
+        wikidata_entry.save()
         language = Language(code=language_code)
+        language.save()
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
         wikidata_localized_entry.save()
         
@@ -156,9 +164,10 @@ class WikidataLocalizedEntryTestCase(TestCase):
         self.assertEqual(wikidata_localized_entry.pk, WikidataLocalizedEntry.objects.get(query).pk)
     
     def test_save_updates_wikidata_entry_modified(self):
-        wikidata_entry = WikidataEntry(id="id")
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
         wikidata_entry.save()
         language = Language(code="code")
+        language.save()
         now = timezone.now()
         
         WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language).save()
@@ -168,8 +177,10 @@ class WikidataLocalizedEntryTestCase(TestCase):
 class WikipediaPageTestCase(TestCase):
     
     def test_wikidata_localized_entry_is_unique(self):
-        wikidata_entry = WikidataEntry(id="id")
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
         language = Language(code="code")
+        language.save()
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
         wikidata_localized_entry.save()
         WikipediaPage(wikidata_localized_entry=wikidata_localized_entry).save()
@@ -181,10 +192,12 @@ class WikipediaPageTestCase(TestCase):
             pass
     
     def test_get_object_query_for_id_returns_valid_query(self):
-        wikidata_entry_id = "id"
+        wikidata_entry_id = "wikidata_id"
         language_code = "code"
-        wikidata_entry = WikidataEntry(id=wikidata_entry_id)
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
+        wikidata_entry.save()
         language = Language(code=language_code)
+        language.save()
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
         wikidata_localized_entry.save()
         wikipedia_page = WikipediaPage(wikidata_localized_entry=wikidata_localized_entry)
@@ -195,8 +208,10 @@ class WikipediaPageTestCase(TestCase):
         self.assertEqual(wikipedia_page.pk, WikipediaPage.objects.get(query).pk)
     
     def test_save_updates_wikidata_localized_entry_modified(self):
-        wikidata_entry = WikidataEntry(id="id")
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
         language = Language(code="code")
+        language.save()
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
         wikidata_localized_entry.save()
         now = timezone.now()
@@ -206,8 +221,10 @@ class WikipediaPageTestCase(TestCase):
         self.assertTrue(wikidata_localized_entry.modified > now)
     
     def test_save_deletes_carriage_returns_in_intro(self):
-        wikidata_entry = WikidataEntry(id="id")
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
         language = Language(code="code")
+        language.save()
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
         wikidata_localized_entry.save()
         wikipedia_page = WikipediaPage(wikidata_localized_entry=wikidata_localized_entry, intro="intro\r\nnext\n")
@@ -218,50 +235,51 @@ class WikipediaPageTestCase(TestCase):
 
 class WikimediaCommonsCategoryTestCase(TestCase):
     
-    def test_id_is_unique(self):
-        id = u"id"
-        WikimediaCommonsCategory(id=id).save()
+    def test_wikimedia_commons_id_is_unique(self):
+        wikimedia_commons_id = "wikimedia_commons_id"
+        WikimediaCommonsCategory(wikimedia_commons_id=wikimedia_commons_id).save()
         
         try:
-            WikimediaCommonsCategory(id=id).save()
+            WikimediaCommonsCategory(wikimedia_commons_id=wikimedia_commons_id).save()
             self.fail()
         except IntegrityError:
             pass
     
     def test_get_object_query_for_id_returns_valid_query(self):
-        id = u"id"
-        wikimedia_commons_category = WikimediaCommonsCategory(id=id)
+        wikimedia_commons_id = "wikimedia_commons_id"
+        wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id=wikimedia_commons_id)
         wikimedia_commons_category.save()
         
-        query = WikimediaCommonsCategory.get_object_query_for_id(id)
+        query = WikimediaCommonsCategory.get_object_query_for_id(wikimedia_commons_id)
         
-        self.assertEqual(wikimedia_commons_category.id, WikimediaCommonsCategory.objects.get(query).id)
+        self.assertEqual(wikimedia_commons_category.pk, WikimediaCommonsCategory.objects.get(query).pk)
 
 class WikimediaCommonsFileTestCase(TestCase):
     
-    def test_id_is_unique(self):
-        id = u"id"
-        WikimediaCommonsFile(id=id).save()
+    def test_wikimedia_commons_id_is_unique(self):
+        wikimedia_commons_id = "wikimedia_commons_id"
+        WikimediaCommonsFile(wikimedia_commons_id=wikimedia_commons_id).save()
         
         try:
-            WikimediaCommonsFile(id=id).save()
+            WikimediaCommonsFile(wikimedia_commons_id=wikimedia_commons_id).save()
             self.fail()
         except IntegrityError:
             pass
     
     def test_get_object_query_for_id_returns_valid_query(self):
-        id = u"id"
-        wikimedia_commons_file = WikimediaCommonsFile(id=id)
+        wikimedia_commons_id = "wikimedia_commons_id"
+        wikimedia_commons_file = WikimediaCommonsFile(wikimedia_commons_id=wikimedia_commons_id)
         wikimedia_commons_file.save()
         
-        query = WikimediaCommonsFile.get_object_query_for_id(id)
+        query = WikimediaCommonsFile.get_object_query_for_id(wikimedia_commons_id)
         
-        self.assertEqual(wikimedia_commons_file.id, WikimediaCommonsFile.objects.get(query).id)
+        self.assertEqual(wikimedia_commons_file.pk, WikimediaCommonsFile.objects.get(query).pk)
 
 class SuperLachaisePOITestCase(TestCase):
     
     def test_openstreetmap_element_is_unique(self):
-        openstreetmap_element = OpenStreetMapElement(id="id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element.save()
         SuperLachaisePOI(openstreetmap_element=openstreetmap_element).save()
         
         try:
@@ -272,7 +290,8 @@ class SuperLachaisePOITestCase(TestCase):
     
     def test_get_object_query_for_id_returns_valid_query(self):
         openstreetmap_element_id = "openstreetmap_element_id"
-        openstreetmap_element = OpenStreetMapElement(id=openstreetmap_element_id)
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_element_id)
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
         
@@ -283,10 +302,12 @@ class SuperLachaisePOITestCase(TestCase):
 class SuperLachaiseLocalizedPOITestCase(TestCase):
     
     def test_superlachaise_poi_and_language_are_unique(self):
-        openstreetmap_element = OpenStreetMapElement(id="id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
         language = Language(code="code")
+        language.save()
         SuperLachaiseLocalizedPOI(superlachaise_poi=superlachaise_poi, language=language).save()
         
         try:
@@ -298,8 +319,10 @@ class SuperLachaiseLocalizedPOITestCase(TestCase):
     def test_get_object_query_for_id_returns_valid_query(self):
         openstreetmap_element_id = "openstreetmap_element_id"
         language_code = "code"
-        openstreetmap_element = OpenStreetMapElement(id=openstreetmap_element_id)
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_element_id)
+        openstreetmap_element.save()
         language = Language(code=language_code)
+        language.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
         superlaise_localized_poi = SuperLachaiseLocalizedPOI(superlachaise_poi=superlachaise_poi, language=language)
@@ -310,10 +333,12 @@ class SuperLachaiseLocalizedPOITestCase(TestCase):
         self.assertEqual(superlaise_localized_poi.pk, SuperLachaiseLocalizedPOI.objects.get(query).pk)
     
     def test_save_updates_superlachaise_poi_modified(self):
-        openstreetmap_element = OpenStreetMapElement(id="id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
         language = Language(code="code")
+        language.save()
         now = timezone.now()
         
         SuperLachaiseLocalizedPOI(superlachaise_poi=superlachaise_poi, language=language).save()
@@ -323,11 +348,12 @@ class SuperLachaiseLocalizedPOITestCase(TestCase):
 class SuperLachaiseWikidataRelationTestCase(TestCase):
     
     def test_superlachaise_poi_wikidata_entry_and_relation_type_are_unique(self):
-        openstreetmap_element = OpenStreetMapElement(id="id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
-        language = Language(code="code")
-        wikidata_entry = WikidataEntry(id="id")
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
         relation_type = "relation_type"
         SuperLachaiseWikidataRelation(superlachaise_poi=superlachaise_poi, wikidata_entry=wikidata_entry, relation_type=relation_type).save()
         
@@ -341,10 +367,12 @@ class SuperLachaiseWikidataRelationTestCase(TestCase):
         openstreetmap_element_id = "openstreetmap_element_id"
         relation_type = "relation_type"
         wikidata_entry_id = "wikidata_entry_id"
-        openstreetmap_element = OpenStreetMapElement(id=openstreetmap_element_id)
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_element_id)
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
-        wikidata_entry = WikidataEntry(id=wikidata_entry_id)
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
+        wikidata_entry.save()
         superlaise_wikidata_relation = SuperLachaiseWikidataRelation(superlachaise_poi=superlachaise_poi, wikidata_entry=wikidata_entry, relation_type=relation_type)
         superlaise_wikidata_relation.save()
         
@@ -353,11 +381,12 @@ class SuperLachaiseWikidataRelationTestCase(TestCase):
         self.assertEqual(superlaise_wikidata_relation.pk, SuperLachaiseWikidataRelation.objects.get(query).pk)
     
     def test_save_updates_superlachaise_poi_modified(self):
-        openstreetmap_element = OpenStreetMapElement(id="id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
-        language = Language(code="code")
-        wikidata_entry = WikidataEntry(id="id")
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
         relation_type = "relation_type"
         now = timezone.now()
         
@@ -368,7 +397,7 @@ class SuperLachaiseWikidataRelationTestCase(TestCase):
 class SuperLachaiseCategoryTestCase(TestCase):
     
     def test_code_is_unique(self):
-        code = u"code"
+        code = "code"
         SuperLachaiseCategory(code=code).save()
         
         try:
@@ -378,7 +407,7 @@ class SuperLachaiseCategoryTestCase(TestCase):
             pass
     
     def test_get_object_query_for_id_returns_valid_query(self):
-        code = u"code"
+        code = "code"
         superlachaise_category = SuperLachaiseCategory(code=code)
         superlachaise_category.save()
         
@@ -390,7 +419,9 @@ class SuperLachaiseLocalizedCategoryTestCase(TestCase):
     
     def test_superlachaise_category_and_language_are_unique(self):
         superlachaise_category = SuperLachaiseCategory(code="code")
+        superlachaise_category.save()
         language = Language(code="code")
+        language.save()
         SuperLachaiseLocalizedCategory(superlachaise_category=superlachaise_category, language=language).save()
         
         try:
@@ -403,7 +434,9 @@ class SuperLachaiseLocalizedCategoryTestCase(TestCase):
         superlachaise_category_code = "superlachaise_category_code"
         language_code = "language_code"
         superlachaise_category = SuperLachaiseCategory(code=superlachaise_category_code)
+        superlachaise_category.save()
         language = Language(code=language_code)
+        language.save()
         superlaise_localized_category = SuperLachaiseLocalizedCategory(superlachaise_category=superlachaise_category, language=language)
         superlaise_localized_category.save()
         
@@ -413,7 +446,9 @@ class SuperLachaiseLocalizedCategoryTestCase(TestCase):
     
     def test_save_updates_superlachaise_category_modified(self):
         superlachaise_category = SuperLachaiseCategory(code="code")
+        superlachaise_category.save()
         language = Language(code="code")
+        language.save()
         superlachaise_category.save()
         now = timezone.now()
         
@@ -424,10 +459,12 @@ class SuperLachaiseLocalizedCategoryTestCase(TestCase):
 class SuperLachaiseCategoryRelationTestCase(TestCase):
     
     def test_superlachaise_poi_and_superlachaise_category_are_unique(self):
-        openstreetmap_element = OpenStreetMapElement(id="id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
         superlachaise_category = SuperLachaiseCategory(code="code")
+        superlachaise_category.save()
         SuperLachaiseCategoryRelation(superlachaise_poi=superlachaise_poi, superlachaise_category=superlachaise_category).save()
         
         try:
@@ -439,10 +476,12 @@ class SuperLachaiseCategoryRelationTestCase(TestCase):
     def test_get_object_query_for_id_returns_valid_query(self):
         openstreetmap_element_id = "openstreetmap_element_id"
         superlachaise_category_code = "superlachaise_category_code"
-        openstreetmap_element = OpenStreetMapElement(id=openstreetmap_element_id)
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_element_id)
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
         superlachaise_category = SuperLachaiseCategory(code=superlachaise_category_code)
+        superlachaise_category.save()
         superlaise_category_relation = SuperLachaiseCategoryRelation(superlachaise_poi=superlachaise_poi, superlachaise_category=superlachaise_category)
         superlaise_category_relation.save()
         
@@ -451,10 +490,12 @@ class SuperLachaiseCategoryRelationTestCase(TestCase):
         self.assertEqual(superlaise_category_relation.pk, SuperLachaiseCategoryRelation.objects.get(query).pk)
     
     def test_save_updates_superlachaise_poi_modified(self):
-        openstreetmap_element = OpenStreetMapElement(id="id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
         superlachaise_category = SuperLachaiseCategory(code="code")
+        superlachaise_category.save()
         now = timezone.now()
         
         SuperLachaiseCategoryRelation(superlachaise_poi=superlachaise_poi, superlachaise_category=superlachaise_category).save()
@@ -464,20 +505,57 @@ class SuperLachaiseCategoryRelationTestCase(TestCase):
 class WikidataOccupationTestCase(TestCase):
     
     def test_id_is_unique(self):
-        id = u"id"
-        WikidataOccupation(id=id).save()
+        wikidata_id = "wikidata_id"
+        WikidataOccupation(wikidata_id=wikidata_id).save()
         
         try:
-            WikidataOccupation(id=id).save()
+            WikidataOccupation(wikidata_id=wikidata_id).save()
             self.fail()
         except IntegrityError:
             pass
     
     def test_get_object_query_for_id_returns_valid_query(self):
-        id = u"id"
-        wikidata_occupation = WikidataOccupation(id=id)
+        wikidata_id = "wikidata_id"
+        wikidata_occupation = WikidataOccupation(wikidata_id=wikidata_id)
         wikidata_occupation.save()
         
-        query = WikidataOccupation.get_object_query_for_id(id)
+        query = WikidataOccupation.get_object_query_for_id(wikidata_id)
         
-        self.assertEqual(wikidata_occupation.id, WikidataOccupation.objects.get(query).id)
+        self.assertEqual(wikidata_occupation.pk, WikidataOccupation.objects.get(query).pk)
+
+class PendingModificationTestCase(TestCase):
+    
+    def test_target_object_class_and_target_object_id_are_unique(self):
+        target_object_class = "target_object_class"
+        target_object_id = "target_object_id"
+        PendingModification(target_object_class=target_object_class, target_object_id=target_object_id).save()
+        
+        try:
+            PendingModification(target_object_class=target_object_class, target_object_id=target_object_id).save()
+            self.fail()
+        except IntegrityError:
+            pass
+    
+    def test_target_object_model_returns_valid_class(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = "target_object_id"
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
+        
+        self.assertEqual(OpenStreetMapElement, pending_modification.target_object_model())
+    
+    def test_target_object_returns_target_object_if_target_object_exists(self):
+        language_code = "language_code"
+        language = Language(code=language_code)
+        language.save()
+        wikidata_entry_id = "wikidata_entry_id"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
+        wikidata_entry.save()
+        wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
+        wikidata_localized_entry.save()
+        target_object_class = "WikidataLocalizedEntry"
+        target_object_id = "%s:%s" % (wikidata_entry_id, language_code)
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
+        
+        self.assertEqual(wikidata_localized_entry.pk, pending_modification.target_object().pk)

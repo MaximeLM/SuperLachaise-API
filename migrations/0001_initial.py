@@ -14,10 +14,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AdminCommand',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('name', models.CharField(max_length=255, serialize=False, verbose_name='name', primary_key=True)),
+                ('name', models.CharField(unique=True, max_length=255, verbose_name='name', db_index=True)),
                 ('dependency_order', models.IntegerField(null=True, verbose_name='dependency order', blank=True)),
                 ('last_executed', models.DateTimeField(null=True, verbose_name='last executed', blank=True)),
                 ('last_result', models.TextField(null=True, verbose_name='last result', blank=True)),
@@ -29,31 +30,13 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='AdminCommandError',
+            name='Language',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('type', models.CharField(max_length=255, verbose_name='type', blank=True)),
-                ('description', models.TextField(verbose_name='description', blank=True)),
-                ('target_object_class', models.CharField(blank=True, max_length=255, verbose_name='target object class', choices=[(b'OpenStreetMapElement', 'openstreetmap element'), (b'WikidataEntry', 'wikidata entry'), (b'WikidataLocalizedEntry', 'wikidata localized entry')])),
-                ('target_object_id', models.CharField(max_length=255, verbose_name='target object id', blank=True)),
-                ('admin_command', models.ForeignKey(verbose_name='admin command', to='superlachaise_api.AdminCommand')),
-            ],
-            options={
-                'ordering': ['admin_command', 'type', 'target_object_class', 'target_object_id'],
-                'verbose_name': 'admin command error',
-                'verbose_name_plural': 'admin command errors',
-            },
-        ),
-        migrations.CreateModel(
-            name='Language',
-            fields=[
-                ('notes', models.TextField(verbose_name='notes', blank=True)),
-                ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('code', models.CharField(max_length=10, unique=True, serialize=False, verbose_name='code', primary_key=True)),
+                ('code', models.CharField(unique=True, max_length=255, verbose_name='code', db_index=True)),
                 ('description', models.CharField(max_length=255, verbose_name='description', blank=True)),
                 ('enumeration_separator', models.CharField(max_length=255, verbose_name='enumeration separator')),
                 ('last_enumeration_separator', models.CharField(max_length=255, verbose_name='last enumeration separator')),
@@ -101,23 +84,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='OpenStreetMapElement',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('id', models.CharField(max_length=255, serialize=False, verbose_name='id', primary_key=True)),
-                ('type', models.CharField(max_length=255, verbose_name='type', choices=[(b'node', b'node'), (b'way', b'way'), (b'relation', b'relation')])),
-                ('name', models.CharField(max_length=255, verbose_name='name')),
+                ('openstreetmap_id', models.CharField(unique=True, max_length=255, verbose_name='id', db_index=True)),
+                ('type', models.CharField(blank=True, max_length=255, verbose_name='type', choices=[(b'node', b'node'), (b'way', b'way'), (b'relation', b'relation')])),
+                ('name', models.CharField(max_length=255, verbose_name='name', blank=True)),
                 ('sorting_name', models.CharField(max_length=255, verbose_name='sorting name', blank=True)),
                 ('nature', models.CharField(max_length=255, verbose_name='nature', blank=True)),
-                ('latitude', models.DecimalField(verbose_name='latitude', max_digits=10, decimal_places=7)),
-                ('longitude', models.DecimalField(verbose_name='longitude', max_digits=10, decimal_places=7)),
+                ('latitude', models.DecimalField(null=True, verbose_name='latitude', max_digits=10, decimal_places=7)),
+                ('longitude', models.DecimalField(null=True, verbose_name='longitude', max_digits=10, decimal_places=7)),
                 ('wikipedia', models.CharField(max_length=255, verbose_name='wikipedia', blank=True)),
                 ('wikidata', models.CharField(max_length=255, verbose_name='wikidata', blank=True)),
                 ('wikidata_combined', models.CharField(max_length=255, verbose_name='wikidata combined', blank=True)),
                 ('wikimedia_commons', models.CharField(max_length=255, verbose_name='wikimedia commons', blank=True)),
             ],
             options={
-                'ordering': ['sorting_name', 'id'],
+                'ordering': ['sorting_name', 'openstreetmap_id'],
                 'verbose_name': 'openstreetmap element',
                 'verbose_name_plural': 'openstreetmap elements',
             },
@@ -143,10 +127,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Setting',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('key', models.CharField(max_length=255, serialize=False, verbose_name='key', primary_key=True)),
+                ('key', models.CharField(unique=True, max_length=255, verbose_name='key', db_index=True)),
                 ('value', models.CharField(max_length=255, verbose_name='value', blank=True)),
             ],
             options={
@@ -158,10 +143,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SuperLachaiseCategory',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('code', models.CharField(max_length=255, unique=True, serialize=False, verbose_name='code', primary_key=True)),
+                ('code', models.CharField(unique=True, max_length=255, verbose_name='code', db_index=True)),
                 ('type', models.CharField(max_length=255, verbose_name='type')),
                 ('values', models.CharField(max_length=255, verbose_name='codes', blank=True)),
             ],
@@ -178,10 +164,10 @@ class Migration(migrations.Migration):
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('category', models.ForeignKey(verbose_name='category', to='superlachaise_api.SuperLachaiseCategory')),
+                ('superlachaise_category', models.ForeignKey(verbose_name='superlachaise category', to='superlachaise_api.SuperLachaiseCategory')),
             ],
             options={
-                'ordering': ['superlachaise_poi', 'category'],
+                'ordering': ['superlachaise_poi', 'superlachaise_category'],
                 'verbose_name': 'superlachaisepoi-superlachaisecategory relationship',
                 'verbose_name_plural': 'superlachaisepoi-superlachaisecategory relationships',
             },
@@ -254,10 +240,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='WikidataEntry',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('id', models.CharField(max_length=255, serialize=False, verbose_name='id', primary_key=True)),
+                ('wikidata_id', models.CharField(unique=True, max_length=255, verbose_name='id', db_index=True)),
                 ('instance_of', models.CharField(max_length=255, verbose_name='instance of', blank=True)),
                 ('sex_or_gender', models.CharField(max_length=255, verbose_name='sex or gender', blank=True)),
                 ('occupations', models.CharField(max_length=255, verbose_name='occupations', blank=True)),
@@ -271,7 +258,7 @@ class Migration(migrations.Migration):
                 ('burial_plot_reference', models.CharField(max_length=255, verbose_name='burial plot reference', blank=True)),
             ],
             options={
-                'ordering': ['id'],
+                'ordering': ['wikidata_id'],
                 'verbose_name': 'wikidata entry',
                 'verbose_name_plural': 'wikidata entries',
             },
@@ -298,16 +285,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='WikidataOccupation',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('id', models.CharField(max_length=255, serialize=False, verbose_name='id', primary_key=True)),
+                ('wikidata_id', models.CharField(unique=True, max_length=255, verbose_name='id', db_index=True)),
                 ('name', models.CharField(max_length=255, verbose_name='name', blank=True)),
                 ('superlachaise_category', models.ForeignKey(related_name='wikidata_occupations', verbose_name='superlachaise category', blank=True, to='superlachaise_api.SuperLachaiseCategory', null=True)),
                 ('used_in', models.ManyToManyField(related_name='wikidata_occupations', verbose_name='used in', to='superlachaise_api.WikidataEntry', blank=True)),
             ],
             options={
-                'ordering': ['id'],
+                'ordering': ['wikidata_id'],
                 'verbose_name': 'wikidata occupation',
                 'verbose_name_plural': 'wikidata occupations',
             },
@@ -315,14 +303,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='WikimediaCommonsCategory',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('id', models.CharField(max_length=255, serialize=False, verbose_name='id', primary_key=True)),
+                ('wikimedia_commons_id', models.CharField(unique=True, max_length=255, verbose_name='id', db_index=True)),
                 ('main_image', models.CharField(max_length=255, verbose_name='main image', blank=True)),
             ],
             options={
-                'ordering': ['id'],
+                'ordering': ['wikimedia_commons_id'],
                 'verbose_name': 'wikimedia commons category',
                 'verbose_name_plural': 'wikimedia commons categories',
             },
@@ -330,15 +319,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='WikimediaCommonsFile',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('id', models.CharField(max_length=255, serialize=False, verbose_name='id', primary_key=True)),
+                ('wikimedia_commons_id', models.CharField(unique=True, max_length=255, verbose_name='id', db_index=True)),
                 ('original_url', models.CharField(max_length=500, verbose_name='original url', blank=True)),
                 ('thumbnail_url', models.CharField(max_length=500, verbose_name='thumbnail url', blank=True)),
             ],
             options={
-                'ordering': ['id'],
+                'ordering': ['wikimedia_commons_id'],
                 'verbose_name': 'wikimedia commons file',
                 'verbose_name_plural': 'wikimedia commons files',
             },
@@ -346,10 +336,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='WikipediaPage',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('id', models.CharField(max_length=255, serialize=False, verbose_name='id', primary_key=True)),
                 ('default_sort', models.CharField(max_length=255, verbose_name='default sort', blank=True)),
                 ('intro', models.TextField(verbose_name='intro', blank=True)),
                 ('wikidata_localized_entry', models.OneToOneField(related_name='wikipedia_page', verbose_name='wikidata localized entry', to='superlachaise_api.WikidataLocalizedEntry')),
@@ -427,7 +417,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='superlachaisecategoryrelation',
-            unique_together=set([('superlachaise_poi', 'category')]),
+            unique_together=set([('superlachaise_poi', 'superlachaise_category')]),
         ),
         migrations.AlterUniqueTogether(
             name='localizedsetting',
