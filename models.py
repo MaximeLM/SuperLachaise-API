@@ -29,8 +29,6 @@ from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 
-from superlachaise_api.errors import *
-
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
@@ -159,10 +157,6 @@ class OpenStreetMapElement(SuperLachaiseModel):
         ordering = ['sorting_name', 'openstreetmap_id']
         verbose_name = _('openstreetmap element')
         verbose_name_plural = _('openstreetmap elements')
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        return Q(openstreetmap_id=id)
 
 class WikidataEntry(SuperLachaiseModel):
     
@@ -196,16 +190,12 @@ class WikidataEntry(SuperLachaiseModel):
         ordering = ['wikidata_id']
         verbose_name = _('wikidata entry')
         verbose_name_plural = _('wikidata entries')
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        return Q(wikidata_id=id)
 
 class WikidataLocalizedEntry(SuperLachaiseModel):
     """ The part of a wikidata entry specific to a language """
     
-    wikidata_entry = models.ForeignKey('WikidataEntry', related_name='localizations', verbose_name=_('wikidata entry'))
-    language = models.ForeignKey('Language', verbose_name=_('language'))
+    wikidata_entry = models.ForeignKey('WikidataEntry', to_field='wikidata_id', related_name='localizations', verbose_name=_('wikidata entry'))
+    language = models.ForeignKey('Language', to_field='code', verbose_name=_('language'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
@@ -224,14 +214,7 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         
         # Touch Wikidata entry
         self.wikidata_entry.save()
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        if len(id.split(':')) == 2:
-            return Q(wikidata_entry__wikidata_id=id.split(':')[0], language__code=id.split(':')[1])
-        else:
-            raise SuperLachaiseInvalidIdException(id)
-        
+
 class WikipediaPage(SuperLachaiseModel):
     
     wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
@@ -253,13 +236,6 @@ class WikipediaPage(SuperLachaiseModel):
         
         # Touch Wikidata localized entry
         self.wikidata_localized_entry.save()
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        if len(id.split(':')) == 2:
-            return Q(wikidata_localized_entry__wikidata_entry__wikidata_id=id.split(':')[0], wikidata_localized_entry__language__code=id.split(':')[1])
-        else:
-            raise SuperLachaiseInvalidIdException(id)
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
     
@@ -273,10 +249,6 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
         ordering = ['wikimedia_commons_id']
         verbose_name = _('wikimedia commons category')
         verbose_name_plural = _('wikimedia commons categories')
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        return Q(wikimedia_commons_id=id)
 
 class WikimediaCommonsFile(SuperLachaiseModel):
     
@@ -291,10 +263,6 @@ class WikimediaCommonsFile(SuperLachaiseModel):
         ordering = ['wikimedia_commons_id']
         verbose_name = _('wikimedia commons file')
         verbose_name_plural = _('wikimedia commons files')
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        return Q(wikimedia_commons_id=id)
 
 class SuperLachaisePOI(SuperLachaiseModel):
     """ An object linking multiple data sources for representing a single Point Of Interest """
@@ -312,10 +280,6 @@ class SuperLachaisePOI(SuperLachaiseModel):
         ordering = ['openstreetmap_element']
         verbose_name = _('superlachaise POI')
         verbose_name_plural = _('superlachaise POIs')
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        return Q(openstreetmap_element__openstreetmap_id=id)
 
 class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
     """ The part of a SuperLachaise POI specific to a language """
@@ -340,13 +304,6 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
         
         # Touch SuperLachaise POIs
         self.superlachaise_poi.save()
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        if len(id.split(':')) == 2:
-            return Q(superlachaise_poi__openstreetmap_element__openstreetmap_id=id.split(':')[0], language__code=id.split(':')[1])
-        else:
-            raise SuperLachaiseInvalidIdException(id)
 
 class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a Wikidata entry """
@@ -373,13 +330,6 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
         
         # Touch SuperLachaise POIs
         self.superlachaise_poi.save()
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        if len(id.split(':')) == 3:
-            return Q(superlachaise_poi__openstreetmap_element__openstreetmap_id=id.split(':')[0], relation_type=id.split(':')[1], wikidata_entry__wikidata_id=id.split(':')[2])
-        else:
-            raise SuperLachaiseInvalidIdException(id)
 
 class SuperLachaiseCategory(SuperLachaiseModel):
     """ A category for Super Lachaise POIs """
@@ -399,10 +349,6 @@ class SuperLachaiseCategory(SuperLachaiseModel):
         ordering = ['type', 'code']
         verbose_name = _('superlachaise category')
         verbose_name_plural = _('superlachaise categories')
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        return Q(code=id)
 
 class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
     """ The part of a SuperLachaise category specific to a language """
@@ -425,13 +371,6 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
         
         # Touch SuperLachaise categories
         self.superlachaise_category.save()
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        if len(id.split(':')) == 2:
-            return Q(superlachaise_category__code=id.split(':')[0], language__code=id.split(':')[1])
-        else:
-            raise SuperLachaiseInvalidIdException(id)
 
 class SuperLachaiseCategoryRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a SuperLachaise category """
@@ -453,13 +392,6 @@ class SuperLachaiseCategoryRelation(SuperLachaiseModel):
         
         # Touch SuperLachaise POIs
         self.superlachaise_poi.save()
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        if len(id.split(':')) == 2:
-            return Q(superlachaise_poi__openstreetmap_element__openstreetmap_id=id.split(':')[0], superlachaise_category__code=id.split(':')[1])
-        else:
-            raise SuperLachaiseInvalidIdException(id)
 
 class WikidataOccupation(SuperLachaiseModel):
     """ Associate a person's occupation to a category """
@@ -476,31 +408,28 @@ class WikidataOccupation(SuperLachaiseModel):
         ordering = ['wikidata_id']
         verbose_name = _('wikidata occupation')
         verbose_name_plural = _('wikidata occupations')
-    
-    @staticmethod
-    def get_object_query_for_id(id):
-        return Q(wikidata_id=id)
 
 class PendingModification(SuperLachaiseModel):
     """ A modification to an object that is not yet applied """
     
-    CREATE = 'create'
-    MODIFY = 'modify'
+    CREATE_OR_UPDATE = 'create_or_update'
     DELETE = 'delete'
     
     action_choices = (
-        (CREATE, CREATE),
-        (MODIFY, MODIFY),
+        (CREATE_OR_UPDATE, CREATE_OR_UPDATE),
         (DELETE, DELETE),
     )
     
     target_object_class_choices = (
-        ('OpenStreetMapElement', _('openstreetmap element')),
-        ('WikidataEntry', _('wikidata entry')),
-        ('WikipediaPage', _('wikipedia page')),
-        ('WikimediaCommonsCategory', _('wikimedia commons category')),
-        ('WikimediaCommonsFile', _('wikimedia commons file')),
-        ('SuperLachaisePOI', _('superlachaise POI')),
+        (OpenStreetMapElement.__name__, OpenStreetMapElement._meta.verbose_name),
+        (WikidataEntry.__name__, WikidataEntry._meta.verbose_name),
+        (WikidataLocalizedEntry.__name__, WikidataLocalizedEntry._meta.verbose_name),
+        (WikipediaPage.__name__, WikipediaPage._meta.verbose_name),
+        (WikimediaCommonsCategory.__name__, WikimediaCommonsCategory._meta.verbose_name),
+        (WikimediaCommonsFile.__name__, WikimediaCommonsFile._meta.verbose_name),
+        (SuperLachaisePOI.__name__, SuperLachaisePOI._meta.verbose_name),
+        (SuperLachaiseWikidataRelation.__name__, SuperLachaiseWikidataRelation._meta.verbose_name),
+        (SuperLachaiseCategoryRelation.__name__, SuperLachaiseCategoryRelation._meta.verbose_name),
     )
     
     target_object_class = models.CharField(max_length=255, choices=target_object_class_choices, verbose_name=_('target object class'))
@@ -510,24 +439,35 @@ class PendingModification(SuperLachaiseModel):
     
     def target_object_model(self):
         """ Returns the model class of the target object """
-        try:
-            return apps.get_model(self._meta.app_label, self.target_object_class)
-        except LookupError:
-            pass
+        return apps.get_model(self._meta.app_label, self.target_object_class)
     
     def target_object(self):
         """ Returns the target object """
-        target_object_model = self.target_object_model()
-        if target_object_model:
-            query = target_object_model.get_object_query_for_id(self.target_object_id)
-            return target_object_model.objects.filter(query).first()
+        target_object_id_dict = json.loads(self.target_object_id)
+        return self.target_object_model().objects.filter(**target_object_id_dict).first()
+    
+    def clean(self):
+        if self.target_object_id:
+            try:
+                target_object_id_dict = json.loads(self.target_object_id) 
+            except ValueError as error:
+                raise ValidationError({'target_object_id': _('The value must be a JSON dictionary.')})
+        
+            if not isinstance(target_object_id_dict, dict):
+                raise ValidationError({'target_object_id': _('The value must be a JSON dictionary.')})
+        
+            invalid_fields = [field for field in target_object_id_dict if field not in self.target_object_model()._meta.get_all_field_names()]
+            if invalid_fields:
+                raise ValidationError({'target_object_id': _('The following fields are not fields of the target object model: %s.') % ', '.join(invalid_fields)})
     
     def __unicode__(self):
-        target_object = self.target_object()
-        if target_object:
-            return self.action + u': ' + unicode(self.target_object())
-        else:
-            return self.action
+        try:
+            target_object = self.target_object()
+            if target_object:
+                return self.action + u': ' + unicode(self.target_object())
+        except:
+            pass
+        return self.action
     
     class Meta:
         ordering = ['action', 'target_object_class', 'target_object_id']
@@ -537,9 +477,32 @@ class PendingModification(SuperLachaiseModel):
     
     def apply_modification(self):
         """ Apply the modification and delete self """
+        self.full_clean()
+        if self.action == PendingModification.CREATE_OR_UPDATE:
+            # Get or create target object
+            target_object_id_dict = json.loads(self.target_object_id)
+            target_object, created = self.target_object_model().objects.get_or_create(**target_object_id_dict)
+            
+            target_object.save()
+        elif self.action == PendingModification.DELETE:
+            # Delete target object
+            self.target_object().delete()
         
+        # Delete pending modification
+        self.delete()
+        """
         try:
-            if self.action in [self.CREATE, self.MODIFY]:
+            if self.action == PendingModification.CREATE_OR_UPDATE:
+                # Get or create target object
+                target_object_id_dict = json.loads(self.target_object_id)
+                target_object, created = self.target_object_model().objects.get_or_create(**target_object_id_dict)
+                
+                target_object.save()
+            elif self.action == PendingModification.DELETE:
+                # Delete target object
+                self.target_object().delete()
+            
+            if self.action == PendingModification.CREATE_OR_UPDATE:
                 # Get or create target object
                 target_object_model = self.target_object_model()
                 target_object = self.target_object()
@@ -695,5 +658,6 @@ class PendingModification(SuperLachaiseModel):
                 raise BaseException
             
             self.delete()
+            
         except:
-            traceback.print_exc()
+            traceback.print_exc()"""

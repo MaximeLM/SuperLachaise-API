@@ -153,12 +153,15 @@ class PendingModificationAdmin(admin.ModelAdmin):
     readonly_fields = ('target_object_link', 'created', 'modified')
    
     def target_object_link(self, obj):
-        if obj.target_object():
-            app_name = obj._meta.app_label
-            reverse_name = obj.target_object_class.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.target_object().pk,)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
+        try:
+            if obj.target_object():
+                app_name = obj._meta.app_label
+                reverse_name = obj.target_object_class.lower()
+                reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+                url = reverse(reverse_path, args=(obj.target_object().pk,)).replace("'","%27")
+                return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
+        except:
+            pass
     target_object_link.allow_tags = True
     target_object_link.short_description = _('target object')
     

@@ -20,12 +20,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 
 from superlachaise_api.models import *
-from superlachaise_api.errors import *
 
 class AdminCommandTestCase(TestCase):
     
@@ -104,15 +104,6 @@ class OpenStreetMapElementTestCase(TestCase):
             self.fail()
         except IntegrityError:
             pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        openstreetmap_id = "openstreetmap_id"
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id)
-        openstreetmap_element.save()
-        
-        query = OpenStreetMapElement.get_object_query_for_id(openstreetmap_id)
-        
-        self.assertEqual(openstreetmap_element.pk, OpenStreetMapElement.objects.get(query).pk)
 
 class WikidataEntryTestCase(TestCase):
     
@@ -125,15 +116,6 @@ class WikidataEntryTestCase(TestCase):
             self.fail()
         except IntegrityError:
             pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        wikidata_id = "wikidata_id"
-        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id)
-        wikidata_entry.save()
-        
-        query = WikidataEntry.get_object_query_for_id(wikidata_id)
-        
-        self.assertEqual(wikidata_entry.pk, WikidataEntry.objects.get(query).pk)
 
 class WikidataLocalizedEntryTestCase(TestCase):
     
@@ -148,27 +130,6 @@ class WikidataLocalizedEntryTestCase(TestCase):
             WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language).save()
             self.fail()
         except IntegrityError:
-            pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        wikidata_entry_id = "wikidata_entry_id"
-        language_code = "code"
-        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
-        wikidata_entry.save()
-        language = Language(code=language_code)
-        language.save()
-        wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
-        wikidata_localized_entry.save()
-        
-        query = WikidataLocalizedEntry.get_object_query_for_id("%s:%s" % (wikidata_entry_id, language_code))
-        
-        self.assertEqual(wikidata_localized_entry.pk, WikidataLocalizedEntry.objects.get(query).pk)
-    
-    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
-        try:
-            WikidataLocalizedEntry.get_object_query_for_id("id")
-            self.fail()
-        except SuperLachaiseInvalidIdException:
             pass
     
     def test_save_updates_wikidata_entry_modified(self):
@@ -197,29 +158,6 @@ class WikipediaPageTestCase(TestCase):
             WikipediaPage(wikidata_localized_entry=wikidata_localized_entry).save()
             self.fail()
         except IntegrityError:
-            pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        wikidata_entry_id = "wikidata_id"
-        language_code = "code"
-        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
-        wikidata_entry.save()
-        language = Language(code=language_code)
-        language.save()
-        wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
-        wikidata_localized_entry.save()
-        wikipedia_page = WikipediaPage(wikidata_localized_entry=wikidata_localized_entry)
-        wikipedia_page.save()
-        
-        query = WikipediaPage.get_object_query_for_id("%s:%s" % (wikidata_entry_id, language_code))
-        
-        self.assertEqual(wikipedia_page.pk, WikipediaPage.objects.get(query).pk)
-    
-    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
-        try:
-            WikipediaPage.get_object_query_for_id("id")
-            self.fail()
-        except SuperLachaiseInvalidIdException:
             pass
     
     def test_save_updates_wikidata_localized_entry_modified(self):
@@ -259,15 +197,6 @@ class WikimediaCommonsCategoryTestCase(TestCase):
             self.fail()
         except IntegrityError:
             pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        wikimedia_commons_id = "wikimedia_commons_id"
-        wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id=wikimedia_commons_id)
-        wikimedia_commons_category.save()
-        
-        query = WikimediaCommonsCategory.get_object_query_for_id(wikimedia_commons_id)
-        
-        self.assertEqual(wikimedia_commons_category.pk, WikimediaCommonsCategory.objects.get(query).pk)
 
 class WikimediaCommonsFileTestCase(TestCase):
     
@@ -280,15 +209,6 @@ class WikimediaCommonsFileTestCase(TestCase):
             self.fail()
         except IntegrityError:
             pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        wikimedia_commons_id = "wikimedia_commons_id"
-        wikimedia_commons_file = WikimediaCommonsFile(wikimedia_commons_id=wikimedia_commons_id)
-        wikimedia_commons_file.save()
-        
-        query = WikimediaCommonsFile.get_object_query_for_id(wikimedia_commons_id)
-        
-        self.assertEqual(wikimedia_commons_file.pk, WikimediaCommonsFile.objects.get(query).pk)
 
 class SuperLachaisePOITestCase(TestCase):
     
@@ -302,17 +222,6 @@ class SuperLachaisePOITestCase(TestCase):
             self.fail()
         except IntegrityError:
             pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        openstreetmap_element_id = "openstreetmap_element_id"
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_element_id)
-        openstreetmap_element.save()
-        superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
-        superlachaise_poi.save()
-        
-        query = SuperLachaisePOI.get_object_query_for_id(openstreetmap_element_id)
-        
-        self.assertEqual(superlachaise_poi.pk, SuperLachaisePOI.objects.get(query).pk)
 
 class SuperLachaiseLocalizedPOITestCase(TestCase):
     
@@ -329,29 +238,6 @@ class SuperLachaiseLocalizedPOITestCase(TestCase):
             SuperLachaiseLocalizedPOI(superlachaise_poi=superlachaise_poi, language=language).save()
             self.fail()
         except IntegrityError:
-            pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        openstreetmap_element_id = "openstreetmap_element_id"
-        language_code = "code"
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_element_id)
-        openstreetmap_element.save()
-        language = Language(code=language_code)
-        language.save()
-        superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
-        superlachaise_poi.save()
-        superlaise_localized_poi = SuperLachaiseLocalizedPOI(superlachaise_poi=superlachaise_poi, language=language)
-        superlaise_localized_poi.save()
-        
-        query = SuperLachaiseLocalizedPOI.get_object_query_for_id("%s:%s" % (openstreetmap_element_id, language_code))
-        
-        self.assertEqual(superlaise_localized_poi.pk, SuperLachaiseLocalizedPOI.objects.get(query).pk)
-    
-    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
-        try:
-            SuperLachaiseLocalizedPOI.get_object_query_for_id("id")
-            self.fail()
-        except SuperLachaiseInvalidIdException:
             pass
     
     def test_save_updates_superlachaise_poi_modified(self):
@@ -385,30 +271,6 @@ class SuperLachaiseWikidataRelationTestCase(TestCase):
         except IntegrityError:
             pass
     
-    def test_get_object_query_for_id_returns_valid_query(self):
-        openstreetmap_element_id = "openstreetmap_element_id"
-        relation_type = "relation_type"
-        wikidata_entry_id = "wikidata_entry_id"
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_element_id)
-        openstreetmap_element.save()
-        superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
-        superlachaise_poi.save()
-        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
-        wikidata_entry.save()
-        superlaise_wikidata_relation = SuperLachaiseWikidataRelation(superlachaise_poi=superlachaise_poi, wikidata_entry=wikidata_entry, relation_type=relation_type)
-        superlaise_wikidata_relation.save()
-        
-        query = SuperLachaiseWikidataRelation.get_object_query_for_id("%s:%s:%s" % (openstreetmap_element_id, relation_type, wikidata_entry_id))
-        
-        self.assertEqual(superlaise_wikidata_relation.pk, SuperLachaiseWikidataRelation.objects.get(query).pk)
-    
-    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
-        try:
-            SuperLachaiseWikidataRelation.get_object_query_for_id("id")
-            self.fail()
-        except SuperLachaiseInvalidIdException:
-            pass
-    
     def test_save_updates_superlachaise_poi_modified(self):
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
         openstreetmap_element.save()
@@ -434,15 +296,6 @@ class SuperLachaiseCategoryTestCase(TestCase):
             self.fail()
         except IntegrityError:
             pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        code = "code"
-        superlachaise_category = SuperLachaiseCategory(code=code)
-        superlachaise_category.save()
-        
-        query = SuperLachaiseCategory.get_object_query_for_id(code)
-        
-        self.assertEqual(superlachaise_category.code, SuperLachaiseCategory.objects.get(query).code)
 
 class SuperLachaiseLocalizedCategoryTestCase(TestCase):
     
@@ -457,27 +310,6 @@ class SuperLachaiseLocalizedCategoryTestCase(TestCase):
             SuperLachaiseLocalizedCategory(superlachaise_category=superlachaise_category, language=language).save()
             self.fail()
         except IntegrityError:
-            pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        superlachaise_category_code = "superlachaise_category_code"
-        language_code = "language_code"
-        superlachaise_category = SuperLachaiseCategory(code=superlachaise_category_code)
-        superlachaise_category.save()
-        language = Language(code=language_code)
-        language.save()
-        superlaise_localized_category = SuperLachaiseLocalizedCategory(superlachaise_category=superlachaise_category, language=language)
-        superlaise_localized_category.save()
-        
-        query = SuperLachaiseLocalizedCategory.get_object_query_for_id("%s:%s" % (superlachaise_category_code, language_code))
-        
-        self.assertEqual(superlaise_localized_category.pk, SuperLachaiseLocalizedCategory.objects.get(query).pk)
-    
-    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
-        try:
-            SuperLachaiseLocalizedCategory.get_object_query_for_id("id")
-            self.fail()
-        except SuperLachaiseInvalidIdException:
             pass
     
     def test_save_updates_superlachaise_category_modified(self):
@@ -509,29 +341,6 @@ class SuperLachaiseCategoryRelationTestCase(TestCase):
         except IntegrityError:
             pass
     
-    def test_get_object_query_for_id_returns_valid_query(self):
-        openstreetmap_element_id = "openstreetmap_element_id"
-        superlachaise_category_code = "superlachaise_category_code"
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_element_id)
-        openstreetmap_element.save()
-        superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
-        superlachaise_poi.save()
-        superlachaise_category = SuperLachaiseCategory(code=superlachaise_category_code)
-        superlachaise_category.save()
-        superlaise_category_relation = SuperLachaiseCategoryRelation(superlachaise_poi=superlachaise_poi, superlachaise_category=superlachaise_category)
-        superlaise_category_relation.save()
-        
-        query = SuperLachaiseCategoryRelation.get_object_query_for_id("%s:%s" % (openstreetmap_element_id, superlachaise_category_code))
-        
-        self.assertEqual(superlaise_category_relation.pk, SuperLachaiseCategoryRelation.objects.get(query).pk)
-    
-    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
-        try:
-            SuperLachaiseCategoryRelation.get_object_query_for_id("id")
-            self.fail()
-        except SuperLachaiseInvalidIdException:
-            pass
-    
     def test_save_updates_superlachaise_poi_modified(self):
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
         openstreetmap_element.save()
@@ -556,15 +365,6 @@ class WikidataOccupationTestCase(TestCase):
             self.fail()
         except IntegrityError:
             pass
-    
-    def test_get_object_query_for_id_returns_valid_query(self):
-        wikidata_id = "wikidata_id"
-        wikidata_occupation = WikidataOccupation(wikidata_id=wikidata_id)
-        wikidata_occupation.save()
-        
-        query = WikidataOccupation.get_object_query_for_id(wikidata_id)
-        
-        self.assertEqual(wikidata_occupation.pk, WikidataOccupation.objects.get(query).pk)
 
 class PendingModificationTestCase(TestCase):
     
@@ -579,13 +379,61 @@ class PendingModificationTestCase(TestCase):
         except IntegrityError:
             pass
     
-    def test_target_object_model_returns_valid_class(self):
+    def test_validation_fails_if_target_object_id_is_not_json(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = "target_object_id"
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        
+        try:
+            pending_modification.full_clean()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_validation_fails_if_target_object_id_is_not_json_dict(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '["target_object_id"]'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        
+        try:
+            pending_modification.full_clean()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_validation_fails_if_target_object_id_has_field_not_in_target_object_model_fields(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"field":"value"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        
+        try:
+            pending_modification.full_clean()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_target_object_model_returns_model_if_model_exists(self):
         target_object_class = "OpenStreetMapElement"
         target_object_id = "target_object_id"
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
         self.assertEqual(OpenStreetMapElement, pending_modification.target_object_model())
+    
+    def test_target_object_model_raises_lookup_error_if_model_does_not_exist(self):
+        target_object_class = "target_object_class"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
+        
+        try:
+            pending_modification.target_object_model()
+            self.fail()
+        except LookupError:
+            pass
     
     def test_target_object_returns_target_object_if_target_object_exists(self):
         language_code = "language_code"
@@ -597,7 +445,7 @@ class PendingModificationTestCase(TestCase):
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
         wikidata_localized_entry.save()
         target_object_class = "WikidataLocalizedEntry"
-        target_object_id = "%s:%s" % (wikidata_entry_id, language_code)
+        target_object_id = '{"wikidata_entry_id":"%s", "language_id":"%s"}' % (wikidata_entry_id, language_code)
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
@@ -606,9 +454,89 @@ class PendingModificationTestCase(TestCase):
     def test_target_object_returns_none_if_target_object_does_not_exist(self):
         language_code = "language_code"
         wikidata_entry_id = "wikidata_entry_id"
+        language_code = "language_code"
+        language = Language(code=language_code)
+        language.save()
+        wikidata_entry_id = "wikidata_entry_id"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
+        wikidata_entry.save()
         target_object_class = "WikidataLocalizedEntry"
-        target_object_id = "%s:%s" % (wikidata_entry_id, language_code)
+        target_object_id = '{"wikidata_entry_id":"%s", "language_id":"%s"}' % (wikidata_entry_id, language_code)
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
         self.assertEqual(None, pending_modification.target_object())
+    
+    def test_target_object_raises_lookup_error_if_model_does_not_exist(self):
+        target_object_class = "target_object_class"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
+        
+        try:
+            pending_modification.target_object()
+            self.fail()
+        except LookupError:
+            pass
+    
+    def test_apply_modification_raises_validation_error_if_object_is_not_valid(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = 'target_object_id'
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification.save()
+        
+        try:
+            pending_modification.apply_modification()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_apply_modification_creates_target_object_if_action_is_create_or_update_and_target_object_does_not_exist(self):
+        openstreetmap_id = "openstreetmap_id"
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification.save()
+        
+        pending_modification.apply_modification()
+        
+        self.assertIsNotNone(OpenStreetMapElement.objects.filter(openstreetmap_id=openstreetmap_id).first())
+    
+    def test_apply_modification_deletes_target_object_if_action_is_delete_and_target_object_exists(self):
+        openstreetmap_id = "openstreetmap_id"
+        OpenStreetMapElement(openstreetmap_id=openstreetmap_id).save()
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.DELETE)
+        pending_modification.save()
+        
+        pending_modification.apply_modification()
+        
+        self.assertIsNone(OpenStreetMapElement.objects.filter(openstreetmap_id=openstreetmap_id).first())
+    
+    def test_apply_modification_sets_modified_fields_values_if_action_is_create_or_update_and_target_object_does_not_exist(self):
+        openstreetmap_id = "openstreetmap_id"
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        name = "foo"
+        sorting_name = "bar"
+        modified_fields = '{"name":"%s", "sorting_name":"%s"}' % (name, sorting_name)
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification.save()
+        
+        pending_modification.apply_modification()
+        openstreetmap_element = OpenStreetMapElement.objects.get(openstreetmap_id=openstreetmap_id)
+        
+        self.assertEqual(name, openstreetmap_element.name)
+        self.assertEqual(sorting_name, openstreetmap_element.sorting_name)
+    
+    def test_apply_modification_deletes_pending_modification(self):
+        openstreetmap_id = "openstreetmap_id"
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification.save()
+        
+        pending_modification.apply_modification()
+        
+        self.assertIsNone(PendingModification.objects.filter(pk=pending_modification.pk).first())
