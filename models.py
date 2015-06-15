@@ -26,6 +26,7 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 def date_handler(obj):
@@ -40,6 +41,10 @@ class SuperLachaiseModel(models.Model):
     
     class Meta:
         abstract = True
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        return Q(id=id)
 
 class AdminCommand(SuperLachaiseModel):
     """ An admin command that can be monitored """
@@ -81,7 +86,7 @@ class LocalizedAdminCommand(SuperLachaiseModel):
 class Language(SuperLachaiseModel):
     """ A language used in the sync operations """
     
-    code = models.CharField(primary_key=True, max_length=10, unique=True, verbose_name=_('code'))
+    code = models.CharField(primary_key=True, max_length=255, unique=True, verbose_name=_('code'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     enumeration_separator = models.CharField(max_length=255, verbose_name=_('enumeration separator'))
     last_enumeration_separator = models.CharField(max_length=255, verbose_name=_('last enumeration separator'))
@@ -124,6 +129,328 @@ class LocalizedSetting(SuperLachaiseModel):
         verbose_name = _('localized setting')
         verbose_name_plural = _('localized settings')
         unique_together = ('setting', 'language',)
+
+class OpenStreetMapElement(SuperLachaiseModel):
+    
+    NODE = 'node'
+    WAY = 'way'
+    RELATION = 'relation'
+    
+    type_choices = (
+        (NODE, NODE),
+        (WAY, WAY),
+        (RELATION, RELATION),
+    )
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
+    name = models.CharField(max_length=255, verbose_name=_('name'))
+    sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
+    nature = models.CharField(max_length=255, blank=True, verbose_name=_('nature'))
+    latitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('latitude'))
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
+    wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
+    wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
+    wikidata_combined = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata combined'))
+    wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
+    
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['sorting_name', 'id']
+        verbose_name = _('openstreetmap element')
+        verbose_name_plural = _('openstreetmap elements')
+
+class WikidataEntry(SuperLachaiseModel):
+    
+    YEAR = 'Year'
+    MONTH = 'Month'
+    DAY = 'Day'
+    
+    accuracy_choices = (
+        (YEAR, _('Year')),
+        (MONTH, _('Month')),
+        (DAY, _('Day')),
+    )
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
+    sex_or_gender = models.CharField(max_length=255, blank=True, verbose_name=_('sex or gender'))
+    occupations = models.CharField(max_length=255, blank=True, verbose_name=_('occupations'))
+    wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
+    wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
+    grave_of_wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('grave_of:wikidata'))
+    date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
+    date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
+    date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
+    date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
+    burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
+    
+    def __unicode__(self):
+        return self.id
+    
+    class Meta:
+        ordering = ['id']
+        verbose_name = _('wikidata entry')
+        verbose_name_plural = _('wikidata entries')
+
+class WikidataLocalizedEntry(SuperLachaiseModel):
+    """ The part of a wikidata entry specific to a language """
+    
+    wikidata_entry = models.ForeignKey('WikidataEntry', related_name='localizations', verbose_name=_('wikidata entry'))
+    language = models.ForeignKey('Language', verbose_name=_('language'))
+    name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
+    wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
+    description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
+    
+    def __unicode__(self):
+        return unicode(self.language) + u':' + self.name
+    
+    class Meta:
+        ordering = ['language', 'name']
+        verbose_name = _('wikidata localized entry')
+        verbose_name_plural = _('wikidata localized entries')
+        unique_together = ('wikidata_entry', 'language',)
+    
+    def save(self, *args, **kwargs):
+        super(WikidataLocalizedEntry, self).save(*args, **kwargs)
+        
+        # Touch Wikidata entry
+        self.wikidata_entry.save()
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        if len(id.split(':')) == 2:
+            return Q(wikidata_entry_id=id.split(':')[0], language_id=id.split(':')[1])
+        
+class WikipediaPage(SuperLachaiseModel):
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
+    default_sort = models.CharField(max_length=255, blank=True, verbose_name=_('default sort'))
+    intro = models.TextField(blank=True, verbose_name=_('intro'))
+    
+    def __unicode__(self):
+        return unicode(self.wikidata_localized_entry)
+    
+    class Meta:
+        ordering = ['default_sort', 'wikidata_localized_entry']
+        verbose_name = _('wikipedia page')
+        verbose_name_plural = _('wikipedia pages')
+    
+    def save(self, *args, **kwargs):
+        # Delete \r added by textfield
+        self.intro = self.intro.replace('\r','')
+        super(WikipediaPage, self).save(*args, **kwargs)
+        
+        # Touch Wikidata localized entry
+        self.wikidata_localized_entry.save()
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        if len(id.split(':')) == 2:
+            return Q(wikidata_localized_entry__wikidata_entry_id=id.split(':')[0], wikidata_localized_entry__language_id=id.split(':')[1])
+
+class WikimediaCommonsCategory(SuperLachaiseModel):
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
+    
+    def __unicode__(self):
+        return self.id
+    
+    class Meta:
+        ordering = ['id']
+        verbose_name = _('wikimedia commons category')
+        verbose_name_plural = _('wikimedia commons categories')
+
+class WikimediaCommonsFile(SuperLachaiseModel):
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    original_url = models.CharField(max_length=500, blank=True, verbose_name=_('original url'))
+    thumbnail_url = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
+    
+    def __unicode__(self):
+        return self.id
+    
+    class Meta:
+        ordering = ['id']
+        verbose_name = _('wikimedia commons file')
+        verbose_name_plural = _('wikimedia commons files')
+
+class SuperLachaisePOI(SuperLachaiseModel):
+    """ An object linking multiple data sources for representing a single Point Of Interest """
+    
+    openstreetmap_element = models.OneToOneField('OpenStreetMapElement', unique=True, related_name='superlachaise_poi', verbose_name=_('openstreetmap element'))
+    wikidata_entries = models.ManyToManyField('WikidataEntry', related_name='superlachaise_pois', through='SuperLachaiseWikidataRelation', verbose_name=_('wikidata entries'))
+    wikimedia_commons_category = models.ForeignKey('WikimediaCommonsCategory', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('wikimedia commons category'))
+    main_image = models.ForeignKey('WikimediaCommonsFile', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('main image'))
+    superlachaise_categories = models.ManyToManyField('SuperLachaiseCategory', blank=True, related_name='members', through='SuperLachaiseCategoryRelation', verbose_name=_('superlachaise categories'))
+    
+    def __unicode__(self):
+        return unicode(self.openstreetmap_element)
+    
+    class Meta:
+        ordering = ['openstreetmap_element']
+        verbose_name = _('superlachaise POI')
+        verbose_name_plural = _('superlachaise POIs')
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        return Q(openstreetmap_element_id=id)
+
+class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
+    """ The part of a SuperLachaise POI specific to a language """
+    
+    language = models.ForeignKey('Language', verbose_name=_('language'))
+    superlachaise_poi = models.ForeignKey('SuperLachaisePOI', related_name='localizations', verbose_name=_('superlachaise poi'))
+    name = models.CharField(max_length=255, verbose_name=_('name'))
+    sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
+    description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
+    
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['language', 'sorting_name', 'name']
+        verbose_name = _('superlachaise localized POI')
+        verbose_name_plural = _('superlachaise localized POIs')
+        unique_together = ('superlachaise_poi', 'language',)
+    
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseLocalizedPOI, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        if len(id.split(':')) == 2:
+            return Q(superlachaise_poi__openstreetmap_element_id=id.split(':')[0], language_id=id.split(':')[1])
+
+class SuperLachaiseWikidataRelation(SuperLachaiseModel):
+    """ A relation between a Super Lachaise POI and a Wikidata entry """
+    
+    NONE = 'none'
+    PERSON = 'person'
+    ARTIST = 'artist'
+    
+    superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
+    wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
+    relation_type = models.CharField(max_length=255, verbose_name=_('relation type'))
+    
+    def __unicode__(self):
+        return self.relation_type + u': ' + unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
+    
+    class Meta:
+        unique_together = ('superlachaise_poi', 'wikidata_entry', 'relation_type',)
+        ordering = ['superlachaise_poi', 'relation_type', 'wikidata_entry']
+        verbose_name = _('superlachaisepoi-wikidataentry relationship')
+        verbose_name_plural = _('superlachaisepoi-wikidataentry relationships')
+    
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseWikidataRelation, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        if len(id.split(':')) == 3:
+            return Q(superlachaise_poi__openstreetmap_element_id=id.split(':')[0], relation_type=id.split(':')[1], wikidata_entry_id=id.split(':')[2])
+
+class SuperLachaiseCategory(SuperLachaiseModel):
+    """ A category for Super Lachaise POIs """
+    
+    ELEMENT_NATURE = u'element_nature'
+    SEX_OR_GENDER = u'sex_or_gender'
+    OCCUPATION = u'occupation'
+    
+    code = models.CharField(primary_key=True, max_length=255, unique=True, verbose_name=_('code'))
+    type = models.CharField(max_length=255, verbose_name=_('type'))
+    values = models.CharField(max_length=255, blank=True, verbose_name=_('codes'))
+    
+    def __unicode__(self):
+        return self.code
+    
+    class Meta:
+        ordering = ['type', 'code']
+        verbose_name = _('superlachaise category')
+        verbose_name_plural = _('superlachaise categories')
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        return Q(code=id)
+
+class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
+    """ The part of a SuperLachaise category specific to a language """
+    
+    language = models.ForeignKey('Language', verbose_name=_('language'))
+    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', related_name='localizations', verbose_name=_('superlachaise category'))
+    name = models.CharField(max_length=255, verbose_name=_('name'))
+    
+    def __unicode__(self):
+        return unicode(self.language) + u':' + self.name
+    
+    class Meta:
+        ordering = ['language', 'name']
+        verbose_name = _('superlachaise localized category')
+        verbose_name_plural = _('superlachaise localized categories')
+        unique_together = ('superlachaise_category', 'language',)
+    
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseLocalizedCategory, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise categories
+        self.superlachaise_category.save()
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        if len(id.split(':')) == 2:
+            return Q(superlachaise_category_id=id.split(':')[0], language_id=id.split(':')[1])
+
+class SuperLachaiseCategoryRelation(SuperLachaiseModel):
+    """ A relation between a Super Lachaise POI and a SuperLachaise category """
+    
+    superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
+    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', verbose_name=_('superlachaise category'))
+    
+    def __unicode__(self):
+        return unicode(self.superlachaise_poi) + u' - ' + unicode(self.superlachaise_category)
+    
+    class Meta:
+        unique_together = ('superlachaise_poi', 'superlachaise_category',)
+        ordering = ['superlachaise_poi', 'superlachaise_category']
+        verbose_name = _('superlachaisepoi-superlachaisecategory relationship')
+        verbose_name_plural = _('superlachaisepoi-superlachaisecategory relationships')
+    
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseCategoryRelation, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
+    
+    @staticmethod
+    def get_object_query_for_id(id):
+        if len(id.split(':')) == 2:
+            return Q(superlachaise_poi__openstreetmap_element_id=id.split(':')[0], superlachaise_category_id=id.split(':')[1])
+
+class WikidataOccupation(SuperLachaiseModel):
+    """ Associate a person's occupation to a category """
+    
+    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
+    name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
+    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'type': SuperLachaiseCategory.OCCUPATION}, related_name='wikidata_occupations', verbose_name=_('superlachaise category'))
+    used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='wikidata_occupations', verbose_name=_('used in'))
+    
+    def __unicode__(self):
+        return self.id
+    
+    class Meta:
+        ordering = ['id']
+        verbose_name = _('wikidata occupation')
+        verbose_name_plural = _('wikidata occupations')
 
 class PendingModification(SuperLachaiseModel):
     """ A modification to an object that is not yet applied """
@@ -346,287 +673,3 @@ class PendingModification(SuperLachaiseModel):
             self.delete()
         except:
             traceback.print_exc()
-
-class OpenStreetMapElement(SuperLachaiseModel):
-    
-    NODE = 'node'
-    WAY = 'way'
-    RELATION = 'relation'
-    
-    type_choices = (
-        (NODE, NODE),
-        (WAY, WAY),
-        (RELATION, RELATION),
-    )
-    
-    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    type = models.CharField(max_length=255, choices=type_choices, verbose_name=_('type'))
-    name = models.CharField(max_length=255, verbose_name=_('name'))
-    sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
-    nature = models.CharField(max_length=255, blank=True, verbose_name=_('nature'))
-    latitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('latitude'))
-    longitude = models.DecimalField(max_digits=10, decimal_places=7, verbose_name=_('longitude'))
-    wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
-    wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
-    wikidata_combined = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata combined'))
-    wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
-    
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        ordering = ['sorting_name', 'id']
-        verbose_name = _('openstreetmap element')
-        verbose_name_plural = _('openstreetmap elements')
-
-class WikidataEntry(SuperLachaiseModel):
-    
-    YEAR = 'Year'
-    MONTH = 'Month'
-    DAY = 'Day'
-    
-    accuracy_choices = (
-        (YEAR, _('Year')),
-        (MONTH, _('Month')),
-        (DAY, _('Day')),
-    )
-    
-    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
-    sex_or_gender = models.CharField(max_length=255, blank=True, verbose_name=_('sex or gender'))
-    occupations = models.CharField(max_length=255, blank=True, verbose_name=_('occupations'))
-    wikimedia_commons_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons category'))
-    wikimedia_commons_grave_category = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons grave category'))
-    grave_of_wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('grave_of:wikidata'))
-    date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
-    date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
-    date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
-    date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
-    burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
-    
-    def __unicode__(self):
-        return self.id
-    
-    class Meta:
-        ordering = ['id']
-        verbose_name = _('wikidata entry')
-        verbose_name_plural = _('wikidata entries')
-
-class WikidataLocalizedEntry(SuperLachaiseModel):
-    """ The part of a wikidata entry specific to a language """
-    
-    wikidata_entry = models.ForeignKey('WikidataEntry', related_name='localizations', verbose_name=_('wikidata entry'))
-    language = models.ForeignKey('Language', verbose_name=_('language'))
-    name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
-    wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
-    description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
-    
-    def __unicode__(self):
-        return unicode(self.language) + u':' + self.name
-    
-    class Meta:
-        ordering = ['language', 'name']
-        verbose_name = _('wikidata localized entry')
-        verbose_name_plural = _('wikidata localized entries')
-        unique_together = ('wikidata_entry', 'language',)
-    
-    def save(self, *args, **kwargs):
-        super(WikidataLocalizedEntry, self).save(*args, **kwargs)
-        
-        # Touch Wikidata entry
-        self.wikidata_entry.save()
-        
-class WikipediaPage(SuperLachaiseModel):
-    
-    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
-    default_sort = models.CharField(max_length=255, blank=True, verbose_name=_('default sort'))
-    intro = models.TextField(blank=True, verbose_name=_('intro'))
-    
-    def __unicode__(self):
-        return unicode(self.wikidata_localized_entry)
-    
-    class Meta:
-        ordering = ['default_sort', 'wikidata_localized_entry']
-        verbose_name = _('wikipedia page')
-        verbose_name_plural = _('wikipedia pages')
-    
-    def save(self, *args, **kwargs):
-        # Delete \r added by textfield
-        self.intro = self.intro.replace('\r','')
-        super(WikipediaPage, self).save(*args, **kwargs)
-        
-        # Touch Wikidata localized entry
-        self.wikidata_localized_entry.save()
-
-class WikimediaCommonsCategory(SuperLachaiseModel):
-    
-    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
-    
-    def __unicode__(self):
-        return self.id
-    
-    class Meta:
-        ordering = ['id']
-        verbose_name = _('wikimedia commons category')
-        verbose_name_plural = _('wikimedia commons categories')
-
-class WikimediaCommonsFile(SuperLachaiseModel):
-    
-    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    original_url = models.CharField(max_length=500, blank=True, verbose_name=_('original url'))
-    thumbnail_url = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
-    
-    def __unicode__(self):
-        return self.id
-    
-    class Meta:
-        ordering = ['id']
-        verbose_name = _('wikimedia commons file')
-        verbose_name_plural = _('wikimedia commons files')
-
-class SuperLachaisePOI(SuperLachaiseModel):
-    """ An object linking multiple data sources for representing a single Point Of Interest """
-    
-    openstreetmap_element = models.OneToOneField('OpenStreetMapElement', unique=True, related_name='superlachaise_poi', verbose_name=_('openstreetmap element'))
-    wikidata_entries = models.ManyToManyField('WikidataEntry', related_name='superlachaise_pois', through='SuperLachaiseWikidataRelation', verbose_name=_('wikidata entries'))
-    wikimedia_commons_category = models.ForeignKey('WikimediaCommonsCategory', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('wikimedia commons category'))
-    main_image = models.ForeignKey('WikimediaCommonsFile', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('main image'))
-    superlachaise_categories = models.ManyToManyField('SuperLachaiseCategory', blank=True, related_name='members', through='SuperLachaiseCategoryRelation', verbose_name=_('superlachaise categories'))
-    
-    def __unicode__(self):
-        return unicode(self.openstreetmap_element)
-    
-    class Meta:
-        ordering = ['openstreetmap_element']
-        verbose_name = _('superlachaise POI')
-        verbose_name_plural = _('superlachaise POIs')
-
-class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
-    """ The part of a SuperLachaise POI specific to a language """
-    
-    language = models.ForeignKey('Language', verbose_name=_('language'))
-    superlachaise_poi = models.ForeignKey('SuperLachaisePOI', related_name='localizations', verbose_name=_('superlachaise poi'))
-    name = models.CharField(max_length=255, verbose_name=_('name'))
-    sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
-    description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
-    
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        ordering = ['language', 'sorting_name', 'name']
-        verbose_name = _('superlachaise localized POI')
-        verbose_name_plural = _('superlachaise localized POIs')
-        unique_together = ('superlachaise_poi', 'language',)
-    
-    def save(self, *args, **kwargs):
-        super(SuperLachaiseLocalizedPOI, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        self.superlachaise_poi.save()
-
-class SuperLachaiseWikidataRelation(SuperLachaiseModel):
-    """ A relation between a Super Lachaise POI and a Wikidata entry """
-    
-    NONE = 'none'
-    PERSON = 'person'
-    ARTIST = 'artist'
-    
-    superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
-    wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
-    relation_type = models.CharField(max_length=255, verbose_name=_('relation type'))
-    
-    def __unicode__(self):
-        return self.relation_type + u': ' + unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
-    
-    class Meta:
-        unique_together = ('superlachaise_poi', 'wikidata_entry', 'relation_type',)
-        ordering = ['superlachaise_poi', 'relation_type', 'wikidata_entry']
-        verbose_name = _('superlachaisepoi-wikidataentry relationship')
-        verbose_name_plural = _('superlachaisepoi-wikidataentry relationships')
-    
-    def save(self, *args, **kwargs):
-        super(SuperLachaiseWikidataRelation, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        self.superlachaise_poi.save()
-
-class SuperLachaiseCategory(SuperLachaiseModel):
-    """ A category for Super Lachaise POIs """
-    
-    ELEMENT_NATURE = u'element_nature'
-    SEX_OR_GENDER = u'sex_or_gender'
-    OCCUPATION = u'occupation'
-    
-    code = models.CharField(primary_key=True, max_length=255, unique=True, verbose_name=_('code'))
-    type = models.CharField(max_length=255, verbose_name=_('type'))
-    values = models.CharField(max_length=255, blank=True, verbose_name=_('codes'))
-    
-    def __unicode__(self):
-        return self.code
-    
-    class Meta:
-        ordering = ['type', 'code']
-        verbose_name = _('superlachaise category')
-        verbose_name_plural = _('superlachaise categories')
-
-class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
-    """ The part of a SuperLachaise category specific to a language """
-    
-    language = models.ForeignKey('Language', verbose_name=_('language'))
-    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', related_name='localizations', verbose_name=_('superlachaise category'))
-    name = models.CharField(max_length=255, verbose_name=_('name'))
-    
-    def __unicode__(self):
-        return unicode(self.language) + u':' + self.name
-    
-    class Meta:
-        ordering = ['language', 'name']
-        verbose_name = _('superlachaise localized category')
-        verbose_name_plural = _('superlachaise localized categories')
-        unique_together = ('superlachaise_category', 'language',)
-    
-    def save(self, *args, **kwargs):
-        super(SuperLachaiseLocalizedCategory, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise categories
-        self.superlachaise_category.save()
-
-class SuperLachaiseCategoryRelation(SuperLachaiseModel):
-    """ A relation between a Super Lachaise POI and a SuperLachaise category """
-    
-    superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
-    category = models.ForeignKey('SuperLachaiseCategory', verbose_name=_('category'))
-    
-    def __unicode__(self):
-        return unicode(self.superlachaise_poi) + u' - ' + unicode(self.category)
-    
-    class Meta:
-        unique_together = ('superlachaise_poi', 'category',)
-        ordering = ['superlachaise_poi', 'category']
-        verbose_name = _('superlachaisepoi-superlachaisecategory relationship')
-        verbose_name_plural = _('superlachaisepoi-superlachaisecategory relationships')
-    
-    def save(self, *args, **kwargs):
-        super(SuperLachaiseCategoryRelation, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        self.superlachaise_poi.save()
-
-class WikidataOccupation(SuperLachaiseModel):
-    """ Associate a person's occupation to a category """
-    
-    id = models.CharField(primary_key=True, max_length=255, verbose_name=_('id'))
-    name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
-    superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'type': SuperLachaiseCategory.OCCUPATION}, related_name='wikidata_occupations', verbose_name=_('superlachaise category'))
-    used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='wikidata_occupations', verbose_name=_('used in'))
-    
-    def __unicode__(self):
-        return self.id
-    
-    class Meta:
-        ordering = ['id']
-        verbose_name = _('wikidata occupation')
-        verbose_name_plural = _('wikidata occupations')

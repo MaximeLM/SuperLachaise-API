@@ -675,11 +675,11 @@ class SuperLachaiseCategoryRelationInline(admin.StackedInline):
     extra = 0
     
     fieldsets = [
-        (None, {'fields': ['category']}),
+        (None, {'fields': ['superlachaise_category']}),
     ]
     
-    verbose_name = "category"
-    verbose_name_plural = "categories"
+    verbose_name = "superlachaise category"
+    verbose_name_plural = "superlachaise categories"
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
