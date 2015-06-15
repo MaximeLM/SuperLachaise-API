@@ -10,7 +10,7 @@ def load_configuration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('superlachaise_api', '0019_auto_20150614_2135'),
+        ('superlachaise_api', '0001_initial'),
     ]
 
     operations = [

@@ -78,49 +78,6 @@ class LocalizedAdminCommand(SuperLachaiseModel):
         verbose_name_plural = _('localized admin commands')
         unique_together = ('admin_command', 'language',)
 
-class AdminCommandError(SuperLachaiseModel):
-    """ An error that occured during an admin command """
-    
-    target_object_class_choices = (
-        ('OpenStreetMapElement', _('openstreetmap element')),
-        ('WikidataEntry', _('wikidata entry')),
-        ('WikidataLocalizedEntry', _('wikidata localized entry')),
-    )
-    
-    admin_command = models.ForeignKey('AdminCommand', verbose_name=_('admin command'))
-    type = models.CharField(max_length=255, blank=True, verbose_name=_('type'))
-    description =  models.TextField(blank=True, verbose_name=_('description'))
-    target_object_class = models.CharField(max_length=255, blank=True, choices=target_object_class_choices, verbose_name=_('target object class'))
-    target_object_id = models.CharField(max_length=255, blank=True, verbose_name=_('target object id'))
-    
-    def target_model(self):
-        """ Returns the model class of the target object """
-        try:
-            result = apps.get_model(self._meta.app_label, self.target_object_class)
-        except:
-            result = None
-        return result
-    
-    def target_object(self):
-        """ Returns the target object """
-        try:
-            result = self.target_model().objects.get(id=self.target_object_id)
-        except:
-            result = None
-        return result
-    
-    def __unicode__(self):
-        target_object = self.target_object()
-        if target_object:
-            return unicode(self.admin_command) + u' - ' + self.type + ': ' + unicode(self.target_object())
-        else:
-            return unicode(self.admin_command) + u' - ' + self.type
-    
-    class Meta:
-        ordering = ['admin_command', 'type', 'target_object_class', 'target_object_id']
-        verbose_name = _('admin command error')
-        verbose_name_plural = _('admin command errors')
-
 class Language(SuperLachaiseModel):
     """ A language used in the sync operations """
     

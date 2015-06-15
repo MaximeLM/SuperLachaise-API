@@ -182,14 +182,7 @@ class Command(BaseCommand):
                         if not wikidata_link in wikidata_combined:
                             wikidata_combined.append(wikidata_link)
                     else:
-                        self.errors = self.errors + 1
-                        admin_command_error = AdminCommandError(admin_command=self.admin_command, type=_('wikipedia page not found'))
-                        admin_command_error.description = _("A wikipedia page of an OpenStreetMap element could not be found.")
-                        admin_command_error.target_object_class = "OpenStreetMapElement"
-                        admin_command_error.target_object_id = overpass_element.id
-
-                        admin_command_error.full_clean()
-                        admin_command_error.save()
+                        self.errors.append(_('Error: The wikipedia page {language_code}{link} does not exist').format(language_code=language_code, link=link))
         
         if result['wikidata']:
             for wikidata_link in result['wikidata'].split(';'):
@@ -381,7 +374,7 @@ class Command(BaseCommand):
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
-            self.errors = 0
+            self.errors = []
             
             self.sync_openstreetmap()
             
@@ -392,8 +385,8 @@ class Command(BaseCommand):
                 result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
             if self.deleted_objects > 0:
                 result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
-            if self.errors > 0:
-                result_list.append(_('{nb} error(s)').format(nb=self.errors))
+            if self.errors:
+                result_list.extend(self.errors)
             
             if result_list:
                 self.admin_command.last_result = ', '.join(result_list)

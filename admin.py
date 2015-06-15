@@ -81,46 +81,6 @@ class AdminCommandAdmin(admin.ModelAdmin):
     
     actions=[delete_notes, perform_commands]
 
-@admin.register(AdminCommandError)
-class AdminCommandErrorAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'admin_command_link', 'type', 'target_object_link', 'description', 'notes')
-    list_filter = ('admin_command', 'type',)
-    search_fields = ('target_object_class', 'target_object_id', 'description', 'notes',)
-    
-    fieldsets = [
-        (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['admin_command', 'type', 'description']}),
-        (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
-    ]
-    readonly_fields = ('admin_command_link', 'target_object_link', 'created', 'modified')
-    
-    def admin_command_link(self, obj):
-        if obj.admin_command:
-            app_name = obj._meta.app_label
-            reverse_name = obj.admin_command.__class__.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.admin_command.id,))
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.admin_command)))
-    admin_command_link.allow_tags = True
-    admin_command_link.short_description = _('admin command')
-    admin_command_link.admin_order_field = 'admin_command'
-    
-    def target_object_link(self, obj):
-        if obj.target_object():
-            app_name = obj._meta.app_label
-            reverse_name = obj.target_object_class.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.target_object().id,))
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
-    target_object_link.allow_tags = True
-    target_object_link.short_description = _('target object')
-    
-    def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
-    
-    actions=[delete_notes]
-
 @admin.register(Language)
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('code', 'description', 'enumeration_separator', 'last_enumeration_separator', 'artist_prefix', 'notes')
