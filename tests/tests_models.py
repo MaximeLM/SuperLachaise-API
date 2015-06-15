@@ -25,6 +25,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from superlachaise_api.models import *
+from superlachaise_api.errors import *
 
 class AdminCommandTestCase(TestCase):
     
@@ -163,6 +164,13 @@ class WikidataLocalizedEntryTestCase(TestCase):
         
         self.assertEqual(wikidata_localized_entry.pk, WikidataLocalizedEntry.objects.get(query).pk)
     
+    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
+        try:
+            WikidataLocalizedEntry.get_object_query_for_id("id")
+            self.fail()
+        except SuperLachaiseInvalidIdException:
+            pass
+    
     def test_save_updates_wikidata_entry_modified(self):
         wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
         wikidata_entry.save()
@@ -206,6 +214,13 @@ class WikipediaPageTestCase(TestCase):
         query = WikipediaPage.get_object_query_for_id("%s:%s" % (wikidata_entry_id, language_code))
         
         self.assertEqual(wikipedia_page.pk, WikipediaPage.objects.get(query).pk)
+    
+    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
+        try:
+            WikipediaPage.get_object_query_for_id("id")
+            self.fail()
+        except SuperLachaiseInvalidIdException:
+            pass
     
     def test_save_updates_wikidata_localized_entry_modified(self):
         wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
@@ -332,6 +347,13 @@ class SuperLachaiseLocalizedPOITestCase(TestCase):
         
         self.assertEqual(superlaise_localized_poi.pk, SuperLachaiseLocalizedPOI.objects.get(query).pk)
     
+    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
+        try:
+            SuperLachaiseLocalizedPOI.get_object_query_for_id("id")
+            self.fail()
+        except SuperLachaiseInvalidIdException:
+            pass
+    
     def test_save_updates_superlachaise_poi_modified(self):
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
         openstreetmap_element.save()
@@ -379,6 +401,13 @@ class SuperLachaiseWikidataRelationTestCase(TestCase):
         query = SuperLachaiseWikidataRelation.get_object_query_for_id("%s:%s:%s" % (openstreetmap_element_id, relation_type, wikidata_entry_id))
         
         self.assertEqual(superlaise_wikidata_relation.pk, SuperLachaiseWikidataRelation.objects.get(query).pk)
+    
+    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
+        try:
+            SuperLachaiseWikidataRelation.get_object_query_for_id("id")
+            self.fail()
+        except SuperLachaiseInvalidIdException:
+            pass
     
     def test_save_updates_superlachaise_poi_modified(self):
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
@@ -444,6 +473,13 @@ class SuperLachaiseLocalizedCategoryTestCase(TestCase):
         
         self.assertEqual(superlaise_localized_category.pk, SuperLachaiseLocalizedCategory.objects.get(query).pk)
     
+    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
+        try:
+            SuperLachaiseLocalizedCategory.get_object_query_for_id("id")
+            self.fail()
+        except SuperLachaiseInvalidIdException:
+            pass
+    
     def test_save_updates_superlachaise_category_modified(self):
         superlachaise_category = SuperLachaiseCategory(code="code")
         superlachaise_category.save()
@@ -488,6 +524,13 @@ class SuperLachaiseCategoryRelationTestCase(TestCase):
         query = SuperLachaiseCategoryRelation.get_object_query_for_id("%s:%s" % (openstreetmap_element_id, superlachaise_category_code))
         
         self.assertEqual(superlaise_category_relation.pk, SuperLachaiseCategoryRelation.objects.get(query).pk)
+    
+    def test_get_object_query_for_id_raises_invalid_id_exception_if_id_has_no_colon(self):
+        try:
+            SuperLachaiseCategoryRelation.get_object_query_for_id("id")
+            self.fail()
+        except SuperLachaiseInvalidIdException:
+            pass
     
     def test_save_updates_superlachaise_poi_modified(self):
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
@@ -559,3 +602,13 @@ class PendingModificationTestCase(TestCase):
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
         self.assertEqual(wikidata_localized_entry.pk, pending_modification.target_object().pk)
+    
+    def test_target_object_returns_none_if_target_object_does_not_exist(self):
+        language_code = "language_code"
+        wikidata_entry_id = "wikidata_entry_id"
+        target_object_class = "WikidataLocalizedEntry"
+        target_object_id = "%s:%s" % (wikidata_entry_id, language_code)
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
+        
+        self.assertEqual(None, pending_modification.target_object())

@@ -29,6 +29,8 @@ from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 
+from superlachaise_api.errors import *
+
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
@@ -227,6 +229,8 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
     def get_object_query_for_id(id):
         if len(id.split(':')) == 2:
             return Q(wikidata_entry__wikidata_id=id.split(':')[0], language__code=id.split(':')[1])
+        else:
+            raise SuperLachaiseInvalidIdException(id)
         
 class WikipediaPage(SuperLachaiseModel):
     
@@ -254,6 +258,8 @@ class WikipediaPage(SuperLachaiseModel):
     def get_object_query_for_id(id):
         if len(id.split(':')) == 2:
             return Q(wikidata_localized_entry__wikidata_entry__wikidata_id=id.split(':')[0], wikidata_localized_entry__language__code=id.split(':')[1])
+        else:
+            raise SuperLachaiseInvalidIdException(id)
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
     
@@ -339,6 +345,8 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
     def get_object_query_for_id(id):
         if len(id.split(':')) == 2:
             return Q(superlachaise_poi__openstreetmap_element__openstreetmap_id=id.split(':')[0], language__code=id.split(':')[1])
+        else:
+            raise SuperLachaiseInvalidIdException(id)
 
 class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a Wikidata entry """
@@ -370,6 +378,8 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     def get_object_query_for_id(id):
         if len(id.split(':')) == 3:
             return Q(superlachaise_poi__openstreetmap_element__openstreetmap_id=id.split(':')[0], relation_type=id.split(':')[1], wikidata_entry__wikidata_id=id.split(':')[2])
+        else:
+            raise SuperLachaiseInvalidIdException(id)
 
 class SuperLachaiseCategory(SuperLachaiseModel):
     """ A category for Super Lachaise POIs """
@@ -420,6 +430,8 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
     def get_object_query_for_id(id):
         if len(id.split(':')) == 2:
             return Q(superlachaise_category__code=id.split(':')[0], language__code=id.split(':')[1])
+        else:
+            raise SuperLachaiseInvalidIdException(id)
 
 class SuperLachaiseCategoryRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a SuperLachaise category """
@@ -446,6 +458,8 @@ class SuperLachaiseCategoryRelation(SuperLachaiseModel):
     def get_object_query_for_id(id):
         if len(id.split(':')) == 2:
             return Q(superlachaise_poi__openstreetmap_element__openstreetmap_id=id.split(':')[0], superlachaise_category__code=id.split(':')[1])
+        else:
+            raise SuperLachaiseInvalidIdException(id)
 
 class WikidataOccupation(SuperLachaiseModel):
     """ Associate a person's occupation to a category """
@@ -506,8 +520,7 @@ class PendingModification(SuperLachaiseModel):
         target_object_model = self.target_object_model()
         if target_object_model:
             query = target_object_model.get_object_query_for_id(self.target_object_id)
-            if query:
-                return target_object_model.objects.filter(query).first()
+            return target_object_model.objects.filter(query).first()
     
     def __unicode__(self):
         target_object = self.target_object()
