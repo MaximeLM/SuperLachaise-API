@@ -55,8 +55,9 @@ pip install -r superlachaise_api/requirements.txt
 Edit the settings file *<project_name>/settings.py* :
 
  * Add *'superlachaise_api',* to **INSTALLED_APPS**
+ * Make sure that *'django.contrib.admin',* and *'django.contrib.messages',* are listed in **INSTALLED_APPS**
  * Configure **DATABASES** with your database info ([documentation](https://docs.djangoproject.com/en/1.8/ref/settings/#databases))
- * Set **LANGUAGE_CODE** and **TIME_ZONE** to your locale e.g. *'fr-FR'* and *'Europe/Paris'*
+ * Set **LANGUAGE_CODE** and **TIME_ZONE** to your locale e.g. *'fr-FR'* and *'Europe/Paris'*. The admin interface is available in english and french.
  * Copy, paste and edit the following settings :
 
 ```python
