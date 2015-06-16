@@ -150,7 +150,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
     
     def openstreetmap_url(self):
         if self.type:
-            return self.URL_TEMPLATE.format(type=self.type, id=self.openstreetmap_id)
+            return OpenStreetMapElement.URL_TEMPLATE.format(type=self.type, id=self.openstreetmap_id)
     
     def wikidata_urls(self, language_code):
         if self.wikidata:
@@ -256,7 +256,7 @@ class WikipediaPage(SuperLachaiseModel):
         self.wikidata_localized_entry.save()
     
     def __unicode__(self):
-        return unicode(self.wikidata_localized_entry)
+        return self.wikidata_localized_entry.wikipedia + u' (' + unicode(self.wikidata_localized_entry.language) + u')'
     
     class Meta:
         ordering = ['default_sort', 'wikidata_localized_entry']
@@ -269,6 +269,10 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
     
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
+    
+    def wikimedia_commons_url(self, field):
+        if getattr(self, field):
+            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=getattr(self, field))
     
     def __unicode__(self):
         return self.wikimedia_commons_id
@@ -283,6 +287,10 @@ class WikimediaCommonsFile(SuperLachaiseModel):
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     original_url = models.CharField(max_length=500, blank=True, verbose_name=_('original url'))
     thumbnail_url = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
+    
+    def wikimedia_commons_url(self, field):
+        if getattr(self, field):
+            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=getattr(self, field))
     
     def __unicode__(self):
         return self.wikimedia_commons_id

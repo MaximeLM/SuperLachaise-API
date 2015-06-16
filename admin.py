@@ -40,6 +40,23 @@ def change_page_url(obj):
     url = reverse(reverse_path, args=(obj.pk,))
     return url
 
+def execute_sync(command, args, request):
+    try:
+        sync_start = timezone.now()
+        out = StringIO()
+        call_command(command, stdout=out, **args)
+        if out.getvalue():
+            messages.error(request, _('An error occured. See the admin commands screen for more information.'))
+        out.close()
+        
+        # Redirect to pending modifications scren if needed
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+        if pending_modifications:
+            return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
+    except:
+        messages.error(request, sys.exc_info()[1])
+        return
+
 class LocalizedAdminCommandInline(admin.StackedInline):
     model = LocalizedAdminCommand
     extra = 0
@@ -166,7 +183,7 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
         if url:
             return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), unicode(url)))
     openstreetmap_link.allow_tags = True
-    openstreetmap_link.short_description = _('openStreetMap')
+    openstreetmap_link.short_description = _('openstreetmap')
     
     def wikidata_links(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
@@ -315,22 +332,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_ids = [wikidata_entry.wikidata_id for wikidata_entry in queryset]
-        sync_start = timezone.now()
-        
-        try:
-            out = StringIO()
-            call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids), stdout=out)
-            if out.getvalue():
-                messages.error(request, _('An error occured. See the admin commands screen for more information.'))
-            out.close()
-        except:
-            messages.error(request, sys.exc_info()[1])
-            return
-        
-        # Redirect to pending modifications scren if needed
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
-        if pending_modifications:
-            return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
+        return execute_sync('sync_wikidata', {"wikidata_ids": '|'.join(wikidata_ids)}, request)
     sync_entry.short_description = _('Sync selected wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -353,7 +355,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     
     def wikidata_entry_link(self, obj):
         if obj.wikidata_entry:
-            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.wikidata_entry), unicode(obj.wikidata_entry)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.wikidata_entry).replace("'","%27"), unicode(obj.wikidata_entry)))
     wikidata_entry_link.allow_tags = True
     wikidata_entry_link.short_description = _('wikidata entry')
     wikidata_entry_link.admin_order_field = 'wikidata_entry'
@@ -378,22 +380,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_ids = [wikidata_localized_entry.wikidata_entry.wikidata_id for wikidata_localized_entry in queryset]
-        sync_start = timezone.now()
-        
-        try:
-            out = StringIO()
-            call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids), stdout=out)
-            if out.getvalue():
-                messages.error(request, _('An error occured. See the admin commands screen for more information.'))
-            out.close()
-        except:
-            messages.error(request, sys.exc_info()[1])
-            return
-        
-        # Redirect to pending modifications scren if needed
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
-        if pending_modifications:
-            return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
+        return execute_sync('sync_wikidata', {"wikidata_ids": '|'.join(wikidata_ids)}, request)
     sync_entry.short_description = _('Sync selected localized wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -416,19 +403,15 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     
     def wikidata_localized_entry_link(self, obj):
         if obj.wikidata_localized_entry:
-            app_name = obj._meta.app_label
-            reverse_name = obj.wikidata_localized_entry.__class__.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.wikidata_localized_entry.pk,))
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_localized_entry)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.wikidata_localized_entry).replace("'","%27"), unicode(obj.wikidata_localized_entry)))
     wikidata_localized_entry_link.allow_tags = True
     wikidata_localized_entry_link.short_description = _('wikidata localized entry')
     wikidata_localized_entry_link.admin_order_field = 'wikidata_localized_entry'
     
     def wikipedia_link(self, obj):
-        if obj.wikidata_localized_entry.wikipedia:
-            url = u'https://{language}.wikipedia.org/wiki/{name}'.format(language=obj.wikidata_localized_entry.language.code, name=unicode(obj.wikidata_localized_entry.wikipedia)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_localized_entry.wikipedia)))
+        url = obj.wikidata_localized_entry.wikipedia_url()
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikidata_localized_entry.wikipedia))
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
@@ -440,21 +423,8 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     intro_html.admin_order_field = 'intro'
     
     def sync_entry(self, request, queryset):
-        wikidata_localized_entry_ids = queryset.values_list('wikidata_localized_entry_id', flat=True)
-        wikidata_localized_entry_ids = [str(value) for value in wikidata_localized_entry_ids]
-        sync_start = timezone.now()
-        call_command('sync_wikipedia', wikidata_localized_entry_ids='|'.join(wikidata_localized_entry_ids))
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
-        
-        if pending_modifications:
-            # Open modification page with filter
-            app_name = PendingModification._meta.app_label
-            reverse_name = PendingModification.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
-            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
-            url = '/'.join(split_url[0:len(split_url) - 1])
-            return HttpResponseRedirect(url)
+        wikidata_localized_entry_ids = [str(value) for value in queryset.values_list('wikidata_localized_entry_id', flat=True)]
+        return execute_sync('sync_wikipedia', {"wikidata_localized_entry_ids": '|'.join(wikidata_localized_entry_ids)}, request)
     sync_entry.short_description = _('Sync selected wikipedia pages')
     
     def delete_notes(self, request, queryset):
@@ -465,7 +435,7 @@ class WikipediaPageAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsCategory)
 class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
-    list_display = ('wikimedia_commons_id', 'wikimedia_commons_link', 'main_image_link', 'notes')
+    list_display = ('__unicode__', 'wikimedia_commons_link', 'main_image_link', 'notes')
     search_fields = ('wikimedia_commons_id', 'main_image', 'notes',)
     
     fieldsets = [
@@ -475,44 +445,31 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('wikimedia_commons_link', 'main_image_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons_id)).replace("'","%27")
-        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_id)))
+        url = obj.wikimedia_commons_url("wikimedia_commons_id")
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_id))
     wikimedia_commons_link.allow_tags = True
-    wikimedia_commons_link.short_description = _('wikimedia commons category')
+    wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons_id'
     
     def main_image_link(self, obj):
-        if obj.main_image:
-            url = u'https://commons.wikimedia.org/wiki/{file}'.format(file=unicode(obj.main_image).replace("'","%27"))
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.main_image)))
+        url = obj.wikimedia_commons_url("main_image")
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.main_image))
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
     
-    def sync_page(self, request, queryset):
-        wikimedia_commons_categories = []
-        for wikimedia_commons_category in queryset:
-            wikimedia_commons_categories.append(wikimedia_commons_category.wikimedia_commons_id)
-        sync_start = timezone.now()
-        call_command('sync_wikimedia_commons_categories', wikimedia_commons_categories='|'.join(wikimedia_commons_categories))
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
-        
-        if pending_modifications:
-            # Open modification page with filter
-            app_name = PendingModification._meta.app_label
-            reverse_name = PendingModification.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
-            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
-            url = '/'.join(split_url[0:len(split_url) - 1])
-            return HttpResponseRedirect(url)
-    sync_page.short_description = _('Sync selected wikimedia commons categories')
+    def sync_object(self, request, queryset):
+        wikimedia_commons_categories = [wikimedia_commons_category.wikimedia_commons_id for wikimedia_commons_category in queryset]
+        return execute_sync('sync_wikimedia_commons_categories', {"wikimedia_commons_categories": '|'.join(wikimedia_commons_categories)}, request)
+    sync_object.short_description = _('Sync selected wikimedia commons categories')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete notes')
     
-    actions = [delete_notes, sync_page]
+    actions = [delete_notes, sync_object]
 
 @admin.register(WikimediaCommonsFile)
 class WikimediaCommonsFileAdmin(admin.ModelAdmin):
@@ -526,32 +483,37 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     readonly_fields = ('wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons_id)).replace("'","%27")
-        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_id)))
+        url = obj.wikimedia_commons_url("wikimedia_commons_id")
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_id))
     wikimedia_commons_link.allow_tags = True
-    wikimedia_commons_link.short_description = _('wikimedia commons file')
+    wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons_id'
     
     def original_url_link(self, obj):
         if obj.original_url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (obj.original_url, _('original image')))
+            return mark_safe(u"<a href='%s'>%s</a>" % (obj.original_url.replace("'","%27"), _('original image')))
     original_url_link.allow_tags = True
     original_url_link.short_description = _('original url')
     original_url_link.admin_order_field = 'original_url'
     
     def thumbnail_url_link(self, obj):
         if obj.thumbnail_url:
-            result = u'<div style="background: url({url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(url=obj.thumbnail_url)
-            return mark_safe(result)
+            return mark_safe(u'<div style="background: url({url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(url=obj.thumbnail_url.replace("'","%27")))
     thumbnail_url_link.allow_tags = True
     thumbnail_url_link.short_description = _('thumbnail url')
     thumbnail_url_link.admin_order_field = 'thumbnail_url'
+    
+    def sync_object(self, request, queryset):
+        wikimedia_commons_files = [wikimedia_commons_file.wikimedia_commons_id for wikimedia_commons_file in queryset]
+        return execute_sync('sync_wikimedia_commons_files', {"wikimedia_commons_files": '|'.join(wikimedia_commons_files)}, request)
+    sync_object.short_description = _('Sync selected wikimedia commons files')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete notes')
     
-    actions = [delete_notes]
+    actions = [delete_notes, sync_object]
 
 class SuperLachaiseWikidataRelationInline(admin.StackedInline):
     model = SuperLachaisePOI.wikidata_entries.through
@@ -681,7 +643,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     superlachaise_categories_link.short_description = _('superlachaise categories')
     superlachaise_categories_link.admin_order_field = 'superlachaise_categories'
     
-    def sync_page(self, request, queryset):
+    def sync_object(self, request, queryset):
         openstreetmap_element_ids = []
         for superlachaise_poi in queryset:
             openstreetmap_element_ids.append(superlachaise_poi.openstreetmap_element_id)
@@ -698,13 +660,13 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
-    sync_page.short_description = _('Sync selected superlachaise POIs')
+    sync_object.short_description = _('Sync selected superlachaise POIs')
     
     def delete_notes(self, request, queryset):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete notes')
     
-    actions = [delete_notes, sync_page]
+    actions = [delete_notes, sync_object]
 
 @admin.register(SuperLachaiseLocalizedPOI)
 class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
@@ -732,7 +694,7 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
         queryset.update(notes=u'')
     delete_notes.short_description = _('Delete notes')
     
-    def sync_page(self, request, queryset):
+    def sync_object(self, request, queryset):
         openstreetmap_element_ids = []
         for superlachaise_localized_poi in queryset:
             openstreetmap_element_ids.append(superlachaise_localized_poi.superlachaise_poi.openstreetmap_element_id)
@@ -749,9 +711,9 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
             split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
             url = '/'.join(split_url[0:len(split_url) - 1])
             return HttpResponseRedirect(url)
-    sync_page.short_description = _('Sync selected superlachaise localized POIs')
+    sync_object.short_description = _('Sync selected superlachaise localized POIs')
     
-    actions = [delete_notes, sync_page]
+    actions = [delete_notes, sync_object]
 
 class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
     model = SuperLachaiseLocalizedCategory

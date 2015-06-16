@@ -134,12 +134,15 @@ class Command(BaseCommand):
                 # Delete previous modification if any
                 PendingModification.objects.filter(target_object_class="WikimediaCommonsFile", target_object_id=id).delete()
     
-    def sync_wikimedia_commons_files(self):
+    def sync_wikimedia_commons_files(self, param_wikimedia_commons_files):
         # Get wikimedia commons files
         files_to_fetch = []
         fetched_files = []
         
-        files_to_fetch = WikimediaCommonsCategory.objects.exclude(main_image__exact='').values_list('main_image', flat=True)
+        if param_wikimedia_commons_files:
+            files_to_fetch = param_wikimedia_commons_files.split('|')
+        else:
+            files_to_fetch = WikimediaCommonsCategory.objects.exclude(main_image__exact='').values_list('main_image', flat=True)
         
         print_unicode(_('Requesting Wikimedia Commons...'))
         files_to_fetch = list(set(files_to_fetch))
@@ -173,6 +176,11 @@ class Command(BaseCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
     
+    def add_arguments(self, parser):
+        parser.add_argument('--wikimedia_commons_files',
+            action='store',
+            dest='wikimedia_commons_files')
+    
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
         self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
@@ -188,7 +196,7 @@ class Command(BaseCommand):
             self.modified_objects = 0
             self.deleted_objects = 0
             
-            self.sync_wikimedia_commons_files()
+            self.sync_wikimedia_commons_files(options['wikimedia_commons_files'])
             
             result_list = []
             if self.created_objects > 0:

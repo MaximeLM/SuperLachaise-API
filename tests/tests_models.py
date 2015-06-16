@@ -192,10 +192,24 @@ class WikipediaPageTestCase(TestCase):
         self.assertFalse('\r' in wikipedia_page.intro)
 
 class WikimediaCommonsCategoryTestCase(TestCase):
-    pass
+    
+    def test_wikimedia_commons_url_returns_none_if_field_is_empty(self):
+        wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id="wikimedia_commons_id")
+        
+        self.assertIsNone(wikimedia_commons_category.wikimedia_commons_url("main_image"))
+    
+    def test_wikimedia_commons_url_returns_url_if_field_is_not_empty(self):
+        main_image = "main_image"
+        wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id="wikimedia_commons_id", main_image=main_image)
+        
+        self.assertIsNotNone(wikimedia_commons_category.wikimedia_commons_url("main_image"))
 
 class WikimediaCommonsFileTestCase(TestCase):
-    pass
+    
+    def test_wikimedia_commons_url_returns_url(self):
+        wikimedia_commons_file = WikimediaCommonsFile(wikimedia_commons_id="wikimedia_commons_id")
+        
+        self.assertIsNotNone(wikimedia_commons_file.wikimedia_commons_url("wikimedia_commons_id"))
 
 class SuperLachaisePOITestCase(TestCase):
     pass
