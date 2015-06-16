@@ -118,13 +118,42 @@ class OpenStreetMapElementTestCase(TestCase):
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, type=type)
         
         self.assertIsNotNone(openstreetmap_element.openstreetmap_url())
-    """
-    def test_wikipedia_urls_returns_single_url_if_wikipedia_has_no_semicolon(self):
+    
+    def test_wikidata_urls_returns_none_if_wikidata_is_empty(self):
+        language_code = "en"
         openstreetmap_id = "123456"
-        wikipedia = "fr:"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id)
         
-        self.assertIsNone(openstreetmap_element.openstreetmap_url())"""
+        wikidata_urls = openstreetmap_element.wikidata_urls(language_code)
+        
+        self.assertIsNone(wikidata_urls)
+    
+    def test_wikidata_urls_returns_ordred_list_of_tuples_of_wikidata_codes_and_url_if_wikidata_is_not_empty(self):
+        language_code = "en"
+        openstreetmap_id = "123456"
+        wikidata = "Q123;Q456"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikidata=wikidata)
+        
+        wikidata_urls = openstreetmap_element.wikidata_urls(language_code)
+        
+        self.assertEqual(2, len(wikidata_urls))
+        self.assertEqual(2, len(wikidata_urls[0]))
+        self.assertEqual("Q123", wikidata_urls[0][0])
+        self.assertEqual(2, len(wikidata_urls[1]))
+        self.assertEqual("Q456", wikidata_urls[1][0])
+    
+    def test_wikimedia_commons_url_returns_none_if_wikimedia_commons_is_none(self):
+        openstreetmap_id = "123456"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id)
+        
+        self.assertIsNone(openstreetmap_element.wikimedia_commons_url())
+    
+    def test_wikimedia_commons_url_returns_url_if_wikimedia_commons_is_not_none(self):
+        openstreetmap_id = "123456"
+        wikimedia_commons = "wikimedia commons"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikimedia_commons=wikimedia_commons)
+        
+        self.assertIsNotNone(openstreetmap_element.wikimedia_commons_url())
 
 class WikidataEntryTestCase(TestCase):
     

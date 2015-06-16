@@ -145,26 +145,20 @@ class OpenStreetMapElement(SuperLachaiseModel):
     nature = models.CharField(max_length=255, blank=True, verbose_name=_('nature'))
     latitude = models.DecimalField(max_digits=10, null=True, blank=True, decimal_places=7, verbose_name=_('latitude'))
     longitude = models.DecimalField(max_digits=10, null=True, blank=True, decimal_places=7, verbose_name=_('longitude'))
-    wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
-    wikidata_combined = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata combined'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     
     def openstreetmap_url(self):
         if self.type:
             return self.URL_TEMPLATE.format(type=self.type, id=self.openstreetmap_id)
     
-    def wikipedia_links(self):
-        result = []
-        if self.wikipedia:
-            for wikipedia in self.wikipedia.split(';'):
-                if ':' in wikipedia:
-                    language_code = wikipedia.split(':')[-2]
-                    title = unicode(wikipedia.split(':')[-1])
-                    result.append((wikipedia, WikipediaPage.URL_TEMPLATE.format(language_code=language_code, title=title)))
-                else:
-                    result.append((wikipedia, None))
-        return result
+    def wikidata_urls(self, language_code):
+        if self.wikidata:
+            return [(wikidata, WikidataEntry.URL_TEMPLATE.format(id=wikidata.split(':')[-1], language_code=language_code)) for wikidata in self.wikidata.split(';')]
+    
+    def wikimedia_commons_url(self):
+        if self.wikimedia_commons:
+            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=self.wikimedia_commons)
     
     def __unicode__(self):
         return self.openstreetmap_id + u':' + self.name
@@ -175,6 +169,8 @@ class OpenStreetMapElement(SuperLachaiseModel):
         verbose_name_plural = _('openstreetmap elements')
 
 class WikidataEntry(SuperLachaiseModel):
+    
+    URL_TEMPLATE = u'https://www.wikidata.org/wiki/{id}?userlang={language_code}&uselang={language_code}'
     
     YEAR = 'Year'
     MONTH = 'Month'
@@ -256,6 +252,8 @@ class WikipediaPage(SuperLachaiseModel):
         verbose_name_plural = _('wikipedia pages')
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
+    
+    URL_TEMPLATE = u'https://commons.wikimedia.org/wiki/{title}'
     
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))

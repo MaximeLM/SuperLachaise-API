@@ -143,15 +143,15 @@ class SettingAdmin(admin.ModelAdmin):
 
 @admin.register(OpenStreetMapElement)
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'name', 'sorting_name', 'openstreetmap_id', 'type', 'openstreetmap_link', 'nature', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
+    list_display = ('__unicode__', 'name', 'sorting_name', 'openstreetmap_id', 'type', 'openstreetmap_link', 'wikidata_links', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
     list_filter = ('type', 'nature',)
-    search_fields = ('name', 'openstreetmap_id', 'wikidata', 'wikipedia', 'wikimedia_commons', 'notes',)
+    search_fields = ('name', 'openstreetmap_id', 'wikidata', 'wikimedia_commons', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['name', 'sorting_name', 'openstreetmap_id', 'type', 'nature', 'latitude', 'longitude', 'wikipedia', 'wikipedia_link', 'wikidata', 'wikidata_link', 'wikidata_combined', 'wikidata_combined_link', 'wikimedia_commons', 'wikimedia_commons_link']}),
+        (None, {'fields': ['name', 'sorting_name', 'openstreetmap_id', 'type', 'nature', 'latitude', 'longitude', 'wikidata', 'wikidata_links', 'wikimedia_commons', 'wikimedia_commons_link']}),
     ]
-    readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link')
+    readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikidata_links', 'wikimedia_commons_link')
     
     def openstreetmap_link(self, obj):
         url = obj.openstreetmap_url()
@@ -160,43 +160,18 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     openstreetmap_link.allow_tags = True
     openstreetmap_link.short_description = _('openStreetMap')
     
-    def wikipedia_link(self, obj):
-        result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikipedia)) if url else wikipedia for (wikipedia, url) in obj.wikipedia_links()]
+    def wikidata_links(self, obj):
+        language_code = translation.get_language().split("-", 1)[0]
+        result = [mark_safe(u"<a href='%s'>%s</a>" % (url, wikidata)) for (wikidata, url) in obj.wikidata_urls(language_code)]
         return ';'.join(result)
-    wikipedia_link.allow_tags = True
-    wikipedia_link.short_description = _('wikipedia')
-    wikipedia_link.admin_order_field = 'wikipedia'
-    
-    def wikidata_link(self, obj):
-        if obj.wikidata:
-            language = translation.get_language().split("-", 1)[0]
-            
-            result = []
-            for link in obj.wikidata.split(';'):
-                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link.split(':')[-1]), language=language)
-                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return ';'.join(result)
-    wikidata_link.allow_tags = True
-    wikidata_link.short_description = _('wikidata')
-    wikidata_link.admin_order_field = 'wikidata'
-    
-    def wikidata_combined_link(self, obj):
-        if obj.wikidata_combined:
-            language = translation.get_language().split("-", 1)[0]
-            
-            result = []
-            for link in obj.wikidata_combined.split(';'):
-                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link.split(':')[-1]), language=language)
-                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return ';'.join(result)
-    wikidata_combined_link.allow_tags = True
-    wikidata_combined_link.short_description = _('wikidata combined')
-    wikidata_combined_link.admin_order_field = 'wikidata_combined'
+    wikidata_links.allow_tags = True
+    wikidata_links.short_description = _('wikidata')
+    wikidata_links.admin_order_field = 'wikidata'
     
     def wikimedia_commons_link(self, obj):
-        if obj.wikimedia_commons:
-            url = u'https://commons.wikimedia.org/wiki/{name}'.format(name=unicode(obj.wikimedia_commons)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons)))
+        url = obj.wikimedia_commons_url().replace("'","%27")
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, obj.wikimedia_commons))
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons'
