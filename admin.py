@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import datetime
+import datetime, traceback
 from django.contrib import admin
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
@@ -58,6 +58,7 @@ class AdminCommandAdmin(admin.ModelAdmin):
     
     def description(self, obj):
         language = Language.objects.filter(code=translation.get_language().split("-", 1)[0]).first()
+        localized_admin_command = None
         if language:
             localized_admin_command = obj.localizations.filter(language=language).first()
         if not localized_admin_command:
@@ -71,8 +72,8 @@ class AdminCommandAdmin(admin.ModelAdmin):
         for admin_command in queryset.order_by('dependency_order'):
             try:
                 admin_command.perform_command()
-            except Exception as exception:
-                print exception
+            except:
+                traceback.print_exc()
     perform_commands.short_description = _('Execute selected admin commands')
     
     def delete_notes(self, request, queryset):

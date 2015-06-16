@@ -194,8 +194,8 @@ class WikidataEntry(SuperLachaiseModel):
 class WikidataLocalizedEntry(SuperLachaiseModel):
     """ The part of a wikidata entry specific to a language """
     
-    wikidata_entry = models.ForeignKey('WikidataEntry', to_field='wikidata_id', related_name='localizations', verbose_name=_('wikidata entry'))
-    language = models.ForeignKey('Language', to_field='code', verbose_name=_('language'))
+    wikidata_entry = models.ForeignKey('WikidataEntry', related_name='localizations', verbose_name=_('wikidata entry'))
+    language = models.ForeignKey('Language', verbose_name=_('language'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
@@ -457,7 +457,26 @@ class PendingModification(SuperLachaiseModel):
                 raise ValidationError({'target_object_id': _('The value must be a JSON dictionary.')})
             
             try:
-                invalid_fields = [field for field in target_object_id_dict if field not in self.target_object_model()._meta.get_all_field_names()]
+                invalid_fields = []
+                for field in target_object_id_dict:
+                    model = self.target_object_model()
+                    loop = True
+                    for field_part in field.split('__'):
+                        if not loop:
+                            invalid_fields.append(field)
+                            break
+                        
+                        if not field_part in model._meta.get_all_field_names():
+                            invalid_fields.append(field)
+                            break
+                        
+                        # Lookup relations
+                        field_type = model._meta.get_field(field_part).get_internal_type()
+                        if field_type == 'ForeignKey':
+                            model = model._meta.get_field(field_part).rel.to
+                        else:
+                            loop = False
+                
                 if invalid_fields:
                     raise ValidationError({'target_object_id': _('The following fields are not fields of the target object model: %s.') % ', '.join(invalid_fields)})
             except LookupError:
@@ -479,13 +498,26 @@ class PendingModification(SuperLachaiseModel):
             except LookupError:
                 pass
     
+    @classmethod
+    def resolve_field_relation(cls, object_model, field, value):
+        if '__' in field:
+            resolved_field = field.split('__')[0]
+            model = object_model._meta.get_field(resolved_field).rel.to
+            resolved_value = model.objects.get(**{'__'.join(field.split('__')[1:]): value})
+            result = (resolved_field, resolved_value)
+        else:
+            # Assert field exists
+            object_model._meta.get_field(field)
+            result = (field, value)
+        return result
+    
     def apply_modification(self):
         """ Apply the modification and delete self """
         self.full_clean()
         if self.action == PendingModification.CREATE_OR_UPDATE:
             # Get or create target object
             target_object_model = self.target_object_model()
-            target_object_id_dict = json.loads(self.target_object_id)
+            target_object_id_dict = {field:value for (field, value) in [self.resolve_field_relation(target_object_model, field, value) for (field, value) in json.loads(self.target_object_id).iteritems()]}
             target_object, created = target_object_model.objects.get_or_create(**target_object_id_dict)
             
             # Apply field modifications

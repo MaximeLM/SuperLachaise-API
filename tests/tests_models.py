@@ -21,7 +21,7 @@ limitations under the License.
 """
 
 from decimal import Decimal
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
@@ -416,6 +416,17 @@ class PendingModificationTestCase(TestCase):
         except ValidationError:
             pass
     
+    def test_validation_succeeds_if_target_object_id_has_field_following_target_object_model_relation(self):
+        target_object_class = "WikidataLocalizedEntry"
+        target_object_id = '{"wikidata_entry__wikidata_id":"wikidata_id", "language__code":"fr"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        
+        try:
+            pending_modification.full_clean()
+        except ValidationError:
+            self.fail()
+    
     def test_validation_fails_if_modified_fields_is_not_json(self):
         target_object_class = "OpenStreetMapElement"
         target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
@@ -511,7 +522,7 @@ class PendingModificationTestCase(TestCase):
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
         wikidata_localized_entry.save()
         target_object_class = "WikidataLocalizedEntry"
-        target_object_id = '{"wikidata_entry_id":"%s", "language_id":"%s"}' % (wikidata_entry_id, language_code)
+        target_object_id = '{"wikidata_entry__wikidata_id":"%s", "language__code":"%s"}' % (wikidata_entry_id, language_code)
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
@@ -527,7 +538,7 @@ class PendingModificationTestCase(TestCase):
         wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
         wikidata_entry.save()
         target_object_class = "WikidataLocalizedEntry"
-        target_object_id = '{"wikidata_entry_id":"%s", "language_id":"%s"}' % (wikidata_entry_id, language_code)
+        target_object_id = '{"wikidata_entry__wikidata_id":"%s", "language__code":"%s"}' % (wikidata_entry_id, language_code)
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
@@ -543,6 +554,47 @@ class PendingModificationTestCase(TestCase):
             pending_modification.target_object()
             self.fail()
         except LookupError:
+            pass
+    
+    def test_resolve_field_relation_returns_field_and_value_if_field_is_simple(self):
+        object_model = OpenStreetMapElement
+        field = 'name'
+        value = 'value'
+        
+        self.assertEqual((field, value), PendingModification.resolve_field_relation(object_model, field, value))
+    
+    def test_resolve_field_relation_raises_does_not_exist_if_field_is_not_in_object_model_fields(self):
+        wikidata_entry_id = "wikidata_entry_id"
+        object_model = WikidataLocalizedEntry
+        field = 'field'
+        value = wikidata_entry_id
+        
+        try:
+            PendingModification.resolve_field_relation(object_model, field, value)
+            self.fail()
+        except FieldDoesNotExist:
+            pass
+    
+    def test_resolve_field_relation_returns_field_and_destination_value_if_field_is_relation_and_destination_value_exists(self):
+        wikidata_entry_id = "wikidata_entry_id"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
+        wikidata_entry.save()
+        object_model = WikidataLocalizedEntry
+        field = 'wikidata_entry__wikidata_id'
+        value = wikidata_entry_id
+        
+        self.assertEqual(('wikidata_entry', wikidata_entry), PendingModification.resolve_field_relation(object_model, field, value))
+    
+    def test_resolve_field_relation_raises_field_does_not_exist_if_field_is_relation_and_destination_value_does_not_exist(self):
+        wikidata_entry_id = "wikidata_entry_id"
+        object_model = WikidataLocalizedEntry
+        field = 'wikidata_entry__wikidata_id'
+        value = wikidata_entry_id
+        
+        try:
+            PendingModification.resolve_field_relation(object_model, field, value)
+            self.fail()
+        except WikidataEntry.DoesNotExist:
             pass
     
     def test_apply_modification_raises_validation_error_if_target_object_class_is_not_valid(self):
@@ -583,15 +635,22 @@ class PendingModificationTestCase(TestCase):
             pass
     
     def test_apply_modification_creates_target_object_if_action_is_create_or_update_and_target_object_does_not_exist(self):
-        openstreetmap_id = "openstreetmap_id"
-        target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        language_code = "language_code"
+        wikidata_entry_id = "wikidata_entry_id"
+        language_code = "language_code"
+        language = Language(code=language_code)
+        language.save()
+        wikidata_entry_id = "wikidata_entry_id"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
+        wikidata_entry.save()
+        target_object_class = "WikidataLocalizedEntry"
+        target_object_id = '{"wikidata_entry__wikidata_id":"%s", "language__code":"%s"}' % (wikidata_entry_id, language_code)
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
         pending_modification.save()
         
         pending_modification.apply_modification()
         
-        self.assertIsNotNone(OpenStreetMapElement.objects.filter(openstreetmap_id=openstreetmap_id).first())
+        self.assertIsNotNone(WikidataLocalizedEntry.objects.filter(wikidata_entry__wikidata_id=wikidata_entry_id, language__code=language_code).first())
     
     def test_apply_modification_deletes_target_object_if_action_is_delete_and_target_object_exists(self):
         openstreetmap_id = "openstreetmap_id"
