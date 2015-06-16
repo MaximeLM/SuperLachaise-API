@@ -504,7 +504,7 @@ class PendingModification(SuperLachaiseModel):
                 if invalid_fields:
                     raise ValidationError({'modified_fields': _('The following fields are not valid: %s.') % ', '.join(invalid_fields)})
                 invalid_fields = []
-                for field in target_object_id_dict:
+                for field in modified_fields_dict:
                     model = self.target_object_model()
                     loop = True
                     for field_part in field.split('__'):
@@ -531,6 +531,7 @@ class PendingModification(SuperLachaiseModel):
     
     @classmethod
     def resolve_field_relation(cls, object_model, field, value):
+        """ Convert a field/value pair to object/value if needed e.g. language__code=fr => language=<Language> """
         if '__' in field:
             resolved_field = field.split('__')[0]
             model = object_model._meta.get_field(resolved_field).rel.to

@@ -466,6 +466,18 @@ class PendingModificationTestCase(TestCase):
         except ValidationError:
             pass
     
+    def test_validation_succeeds_if_modified_fields_has_field_following_target_object_model_relation(self):
+        target_object_class = "WikidataOccupation"
+        target_object_id = '{"wikidata_id":"wikidata_id"}'
+        modified_fields = '{"superlachaise_category__code":"code"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        
+        try:
+            pending_modification.full_clean()
+        except ValidationError:
+            self.fail()
+    
     def test_validation_fails_if_modified_fields_has_id_field(self):
         target_object_class = "OpenStreetMapElement"
         target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
