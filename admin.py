@@ -43,7 +43,7 @@ class LocalizedAdminCommandInline(admin.StackedInline):
 
 @admin.register(AdminCommand)
 class AdminCommandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dependency_order', 'last_executed', 'last_result', 'description', 'notes')
+    list_display = ('__unicode__', 'name', 'dependency_order', 'last_executed', 'last_result', 'description', 'notes')
     search_fields = ('name', 'last_result', 'notes',)
     
     fieldsets = [
@@ -84,7 +84,7 @@ class AdminCommandAdmin(admin.ModelAdmin):
 
 @admin.register(Language)
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ('code', 'description', 'enumeration_separator', 'last_enumeration_separator', 'artist_prefix', 'notes')
+    list_display = ('__unicode__', 'code', 'description', 'enumeration_separator', 'last_enumeration_separator', 'artist_prefix', 'notes')
     search_fields = ('code', 'description', 'notes',)
     
     fieldsets = [
@@ -110,7 +110,7 @@ class LocalizedSettingInline(admin.StackedInline):
 
 @admin.register(Setting)
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('key', 'value', 'description', 'notes')
+    list_display = ('__unicode__', 'key', 'value', 'description', 'notes')
     search_fields = ('key', 'value', 'notes',)
     
     fieldsets = [
@@ -125,6 +125,7 @@ class SettingAdmin(admin.ModelAdmin):
     
     def description(self, obj):
         language = Language.objects.filter(code=translation.get_language().split("-", 1)[0]).first()
+        localized_setting = None
         if language:
             localized_setting = obj.localizations.filter(language=language).first()
         if not localized_setting:
@@ -140,49 +141,9 @@ class SettingAdmin(admin.ModelAdmin):
     
     actions = [delete_notes]
 
-@admin.register(PendingModification)
-class PendingModificationAdmin(admin.ModelAdmin):
-    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
-    list_filter = ('action','target_object_class',)
-    search_fields = ('target_object_id', 'modified_fields', 'notes',)
-    
-    fieldsets = [
-        (None, {'fields': ['created', 'modified', 'notes']}),
-        (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
-        (None, {'fields': ['action', 'modified_fields']}),
-    ]
-    readonly_fields = ('target_object_link', 'created', 'modified')
-   
-    def target_object_link(self, obj):
-        try:
-            if obj.target_object():
-                app_name = obj._meta.app_label
-                reverse_name = obj.target_object_class.lower()
-                reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-                url = reverse(reverse_path, args=(obj.target_object().pk,)).replace("'","%27")
-                return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
-        except:
-            pass
-    target_object_link.allow_tags = True
-    target_object_link.short_description = _('target object')
-    
-    def apply_modifications(self, request, queryset):
-        for pending_modification in queryset:
-            try:
-                pending_modification.apply_modification()
-            except Exception as exception:
-                print exception
-    apply_modifications.short_description = _('Apply selected pending modifications')
-    
-    def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
-    delete_notes.short_description = _('Delete notes')
-    
-    actions=[delete_notes, apply_modifications]
-
 @admin.register(OpenStreetMapElement)
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('sorted_name', 'openstreetmap_link', 'type', 'nature', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
+    list_display = ('__unicode__', 'name', 'sorting_name', 'openstreetmap_id', 'type', 'openstreetmap_link', 'nature', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link', 'latitude', 'longitude', 'notes')
     list_filter = ('type', 'nature',)
     search_fields = ('name', 'openstreetmap_id', 'wikidata', 'wikipedia', 'wikimedia_commons', 'notes',)
     
@@ -190,31 +151,18 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['name', 'sorting_name', 'openstreetmap_id', 'type', 'nature', 'latitude', 'longitude', 'wikipedia', 'wikipedia_link', 'wikidata', 'wikidata_link', 'wikidata_combined', 'wikidata_combined_link', 'wikimedia_commons', 'wikimedia_commons_link']}),
     ]
-    readonly_fields = ('sorted_name', 'created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link')
-    
-    def sorted_name(self, obj):
-        return obj.name
-    sorted_name.short_description = _('name')
-    sorted_name.admin_order_field = 'sorting_name'
+    readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikipedia_link', 'wikidata_link', 'wikidata_combined_link', 'wikimedia_commons_link')
     
     def openstreetmap_link(self, obj):
-        url = u'https://www.openstreetmap.org/{type}/{id}'.format(type=obj.type, id=unicode(obj.openstreetmap_id))
-        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.openstreetmap_id)))
+        url = obj.openstreetmap_url()
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(url)))
     openstreetmap_link.allow_tags = True
-    openstreetmap_link.short_description = _('OpenStreetMap')
-    openstreetmap_link.admin_order_field = 'openstreetmap_id'
+    openstreetmap_link.short_description = _('openStreetMap')
     
     def wikipedia_link(self, obj):
-        if obj.wikipedia:
-            result = []
-            for link in obj.wikipedia.split(';'):
-                if ':' in link:
-                    language = link.split(':')[-2]
-                    url = u'https://{language}.wikipedia.org/wiki/{name}'.format(language=language, name=unicode(link.split(':')[-1])).replace("'","%27")
-                    result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-                else:
-                    result.append(link)
-            return ';'.join(result)
+        result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikipedia)) if url else wikipedia for (wikipedia, url) in obj.wikipedia_links()]
+        return ';'.join(result)
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
@@ -919,3 +867,43 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
+
+@admin.register(PendingModification)
+class PendingModificationAdmin(admin.ModelAdmin):
+    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
+    list_filter = ('action','target_object_class',)
+    search_fields = ('target_object_id', 'modified_fields', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
+        (None, {'fields': ['action', 'modified_fields']}),
+    ]
+    readonly_fields = ('target_object_link', 'created', 'modified')
+   
+    def target_object_link(self, obj):
+        try:
+            if obj.target_object():
+                app_name = obj._meta.app_label
+                reverse_name = obj.target_object_class.lower()
+                reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+                url = reverse(reverse_path, args=(obj.target_object().pk,)).replace("'","%27")
+                return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
+        except:
+            pass
+    target_object_link.allow_tags = True
+    target_object_link.short_description = _('target object')
+    
+    def apply_modifications(self, request, queryset):
+        for pending_modification in queryset:
+            try:
+                pending_modification.apply_modification()
+            except Exception as exception:
+                print exception
+    apply_modifications.short_description = _('Apply selected pending modifications')
+    
+    def delete_notes(self, request, queryset):
+        queryset.update(notes=u'')
+    delete_notes.short_description = _('Delete notes')
+    
+    actions=[delete_notes, apply_modifications]

@@ -21,16 +21,11 @@ limitations under the License.
 """
 
 import json, traceback
-from decimal import Decimal
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import models
-from django.db.models import Q
 from django.utils.translation import ugettext as _
-
-def date_handler(obj):
-    return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
 class SuperLachaiseModel(models.Model):
     """ An abstract model with common fields """
@@ -71,7 +66,7 @@ class LocalizedAdminCommand(SuperLachaiseModel):
     description = models.TextField(blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
-        return unicode(self.language) + u':' + unicode(self.admin_command)
+        return unicode(self.admin_command) + u' (' + unicode(self.language) + u')'
     
     class Meta:
         ordering = ['language', 'admin_command']
@@ -89,7 +84,10 @@ class Language(SuperLachaiseModel):
     artist_prefix = models.CharField(max_length=255, verbose_name=_('artist prefix'))
     
     def __unicode__(self):
-        return self.code
+        if self.description:
+            return self.description
+        else:
+            return self.code
     
     class Meta:
         ordering = ['code']
@@ -118,7 +116,7 @@ class LocalizedSetting(SuperLachaiseModel):
     description = models.TextField(blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
-        return unicode(self.language) + u':' + unicode(self.setting)
+        return unicode(self.setting) + u' (' + unicode(self.language) + u')'
     
     class Meta:
         ordering = ['language', 'setting']
@@ -127,6 +125,8 @@ class LocalizedSetting(SuperLachaiseModel):
         unique_together = ('setting', 'language',)
 
 class OpenStreetMapElement(SuperLachaiseModel):
+    
+    URL_TEMPLATE = u'https://www.openstreetmap.org/{type}/{id}'
     
     NODE = 'node'
     WAY = 'way'
@@ -138,20 +138,36 @@ class OpenStreetMapElement(SuperLachaiseModel):
         (RELATION, RELATION),
     )
     
-    openstreetmap_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('id'))
+    openstreetmap_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('openstreetmap id'))
     type = models.CharField(max_length=255, blank=True, choices=type_choices, verbose_name=_('type'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
     nature = models.CharField(max_length=255, blank=True, verbose_name=_('nature'))
-    latitude = models.DecimalField(max_digits=10, null=True, decimal_places=7, verbose_name=_('latitude'))
-    longitude = models.DecimalField(max_digits=10, null=True, decimal_places=7, verbose_name=_('longitude'))
+    latitude = models.DecimalField(max_digits=10, null=True, blank=True, decimal_places=7, verbose_name=_('latitude'))
+    longitude = models.DecimalField(max_digits=10, null=True, blank=True, decimal_places=7, verbose_name=_('longitude'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
     wikidata_combined = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata combined'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     
+    def openstreetmap_url(self):
+        if self.type:
+            return self.URL_TEMPLATE.format(type=self.type, id=self.openstreetmap_id)
+    
+    def wikipedia_links(self):
+        result = []
+        if self.wikipedia:
+            for wikipedia in self.wikipedia.split(';'):
+                if ':' in wikipedia:
+                    language_code = wikipedia.split(':')[-2]
+                    title = unicode(wikipedia.split(':')[-1])
+                    result.append((wikipedia, WikipediaPage.URL_TEMPLATE.format(language_code=language_code, title=title)))
+                else:
+                    result.append((wikipedia, None))
+        return result
+    
     def __unicode__(self):
-        return self.name
+        return self.openstreetmap_id + u':' + self.name
     
     class Meta:
         ordering = ['sorting_name', 'openstreetmap_id']
@@ -170,7 +186,7 @@ class WikidataEntry(SuperLachaiseModel):
         (DAY, _('Day')),
     )
     
-    wikidata_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('id'))
+    wikidata_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikidata id'))
     instance_of = models.CharField(max_length=255, blank=True, verbose_name=_('instance of'))
     sex_or_gender = models.CharField(max_length=255, blank=True, verbose_name=_('sex or gender'))
     occupations = models.CharField(max_length=255, blank=True, verbose_name=_('occupations'))
@@ -217,6 +233,8 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
 
 class WikipediaPage(SuperLachaiseModel):
     
+    URL_TEMPLATE = u'https://{language_code}.wikipedia.org/wiki/{title}'
+    
     wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
     default_sort = models.CharField(max_length=255, blank=True, verbose_name=_('default sort'))
     intro = models.TextField(blank=True, verbose_name=_('intro'))
@@ -239,7 +257,7 @@ class WikipediaPage(SuperLachaiseModel):
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
     
-    wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('id'))
+    wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
     
     def __unicode__(self):
@@ -252,7 +270,7 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
 
 class WikimediaCommonsFile(SuperLachaiseModel):
     
-    wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('id'))
+    wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     original_url = models.CharField(max_length=500, blank=True, verbose_name=_('original url'))
     thumbnail_url = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
     
@@ -396,7 +414,7 @@ class SuperLachaiseCategoryRelation(SuperLachaiseModel):
 class WikidataOccupation(SuperLachaiseModel):
     """ Associate a person's occupation to a category """
     
-    wikidata_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('id'))
+    wikidata_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikidata id'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'type': SuperLachaiseCategory.OCCUPATION}, related_name='wikidata_occupations', verbose_name=_('superlachaise category'))
     used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='wikidata_occupations', verbose_name=_('used in'))

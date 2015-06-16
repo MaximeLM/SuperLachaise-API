@@ -105,6 +105,26 @@ class OpenStreetMapElementTestCase(TestCase):
             self.fail()
         except IntegrityError:
             pass
+    
+    def test_openstreetmap_url_returns_none_if_type_is_none(self):
+        openstreetmap_id = "123456"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id)
+        
+        self.assertIsNone(openstreetmap_element.openstreetmap_url())
+    
+    def test_openstreetmap_url_returns_url_if_type_is_not_none(self):
+        openstreetmap_id = "123456"
+        type = "node"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, type=type)
+        
+        self.assertIsNotNone(openstreetmap_element.openstreetmap_url())
+    """
+    def test_wikipedia_urls_returns_single_url_if_wikipedia_has_no_semicolon(self):
+        openstreetmap_id = "123456"
+        wikipedia = "fr:"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id)
+        
+        self.assertIsNone(openstreetmap_element.openstreetmap_url())"""
 
 class WikidataEntryTestCase(TestCase):
     

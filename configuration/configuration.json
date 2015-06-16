@@ -58,7 +58,7 @@
         },
         {
             "action": "create_or_update",
-            "modified_fields": "{\"enumeration_separator\": \", \", \"last_enumeration_separator\": \" et \", \"description\": \"French\", \"artist_prefix\": \"Artiste : \"}",
+            "modified_fields": "{\"enumeration_separator\": \", \", \"last_enumeration_separator\": \" et \", \"description\": \"Fran\\u00e7ais\", \"artist_prefix\": \"Artiste : \"}",
             "target_object_class": "Language",
             "target_object_id": "{\"code\": \"fr\"}"
         }
@@ -361,12 +361,6 @@
             "modified_fields": "{\"value\": \"false\"}",
             "target_object_class": "Setting",
             "target_object_id": "{\"key\": \"wikimedia_commons:auto_apply_modifications\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"value\": \"true\"}",
-            "target_object_class": "Setting",
-            "target_object_id": "{\"key\": \"wikimedia_commons:sync_only_main_image\"}"
         },
         {
             "action": "create_or_update",
