@@ -33,9 +33,9 @@ class Command(BaseCommand):
             configuration = json.load(configuration_file)
             
             models = [
+                Language,
                 AdminCommand,
                 LocalizedAdminCommand,
-                Language,
                 Setting,
                 LocalizedSetting,
                 SuperLachaiseCategory,
@@ -44,35 +44,14 @@ class Command(BaseCommand):
             ]
             
             for model in models:
-                objects = configuration[model.__module__ + '.' + model.__name__]
+                objects = configuration[model.__name__]
                 
                 synced_objects = []
-                
-                for object_fields in objects:
-                    if model == AdminCommand:
-                        object, created = model.objects.get_or_create(name=object_fields['name'])
-                    elif model == LocalizedAdminCommand:
-                        object, created = model.objects.get_or_create(language_id=object_fields['language_id'], admin_command_id=object_fields['admin_command_id'])
-                    elif model == Language:
-                        object, created = model.objects.get_or_create(code=object_fields['code'])
-                    elif model == Setting:
-                        object, created = model.objects.get_or_create(key=object_fields['key'])
-                    elif model == LocalizedSetting:
-                        object, created = model.objects.get_or_create(language_id=object_fields['language_id'], setting_id=object_fields['setting_id'])
-                    elif model == SuperLachaiseCategory:
-                        object, created = model.objects.get_or_create(code=object_fields['code'])
-                    elif model == SuperLachaiseLocalizedCategory:
-                        object, created = model.objects.get_or_create(language_id=object_fields['language_id'], superlachaise_category_id=object_fields['superlachaise_category_id'])
-                    elif model == WikidataOccupation:
-                        object, created = model.objects.get_or_create(id=object_fields['id'])
-                    else:
-                        raise BaseException("Invalid model: %s" % model)
+                PendingModification.objects.filter(target_object_class=model.__name__).delete()
+                for pending_modification_dict in objects:
+                    pending_modification = PendingModification(**pending_modification_dict)
+                    pending_modification.apply_modification()
                     
-                    for field, value in object_fields.iteritems():
-                        setattr(object, field, value)
+                    synced_objects.append(pending_modification.target_object().pk)
                     
-                    object.save()
-                    synced_objects.append(object.pk)
-                
                 model.objects.exclude(pk__in=synced_objects).delete()
-                    

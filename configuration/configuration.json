@@ -1,1316 +1,1596 @@
 {
-    "superlachaise_api.models.AdminCommand": [
+    "AdminCommand": [
         {
-            "dependency_order": 1,
-            "name": "sync_openstreetmap"
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 1}",
+            "target_object_class": "AdminCommand",
+            "target_object_id": "{\"name\": \"sync_openstreetmap\"}"
         },
         {
-            "dependency_order": 2,
-            "name": "sync_wikidata"
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 2}",
+            "target_object_class": "AdminCommand",
+            "target_object_id": "{\"name\": \"sync_wikidata\"}"
         },
         {
-            "dependency_order": 3,
-            "name": "sync_wikipedia"
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 3}",
+            "target_object_class": "AdminCommand",
+            "target_object_id": "{\"name\": \"sync_wikipedia\"}"
         },
         {
-            "dependency_order": 4,
-            "name": "sync_wikimedia_commons_categories"
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 4}",
+            "target_object_class": "AdminCommand",
+            "target_object_id": "{\"name\": \"sync_wikimedia_commons_categories\"}"
         },
         {
-            "dependency_order": 5,
-            "name": "sync_wikimedia_commons_files"
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 5}",
+            "target_object_class": "AdminCommand",
+            "target_object_id": "{\"name\": \"sync_wikimedia_commons_files\"}"
         },
         {
-            "dependency_order": 6,
-            "name": "sync_wikidata_occupations"
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 6}",
+            "target_object_class": "AdminCommand",
+            "target_object_id": "{\"name\": \"sync_wikidata_occupations\"}"
         },
         {
-            "dependency_order": 7,
-            "name": "sync_superlachaise_pois"
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 7}",
+            "target_object_class": "AdminCommand",
+            "target_object_id": "{\"name\": \"sync_superlachaise_pois\"}"
         },
         {
-            "dependency_order": null,
-            "name": "sync_all_and_send_mail_to_managers"
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": null}",
+            "target_object_class": "AdminCommand",
+            "target_object_id": "{\"name\": \"sync_all_and_send_mail_to_managers\"}"
         }
     ],
-    "superlachaise_api.models.Language": [
+    "Language": [
         {
-            "artist_prefix": "Artist: ",
-            "code": "en",
-            "description": "English",
-            "enumeration_separator": ", ",
-            "last_enumeration_separator": " and "
+            "action": "create_or_update",
+            "modified_fields": "{\"enumeration_separator\": \", \", \"last_enumeration_separator\": \" and \", \"description\": \"English\", \"artist_prefix\": \"Artist: \"}",
+            "target_object_class": "Language",
+            "target_object_id": "{\"code\": \"en\"}"
         },
         {
-            "artist_prefix": "Artiste : ",
-            "code": "fr",
-            "description": "French",
-            "enumeration_separator": ", ",
-            "last_enumeration_separator": " et "
+            "action": "create_or_update",
+            "modified_fields": "{\"enumeration_separator\": \", \", \"last_enumeration_separator\": \" et \", \"description\": \"French\", \"artist_prefix\": \"Artiste : \"}",
+            "target_object_class": "Language",
+            "target_object_id": "{\"code\": \"fr\"}"
         }
     ],
-    "superlachaise_api.models.LocalizedAdminCommand": [
+    "LocalizedAdminCommand": [
         {
-            "admin_command_id": "sync_openstreetmap",
-            "description": "Synchronize OpenStreetMap elements by querying Overpass API for the geographic boundary and tags defined in the settings. Build the \"wikidata combined\" field by querying Wikidata API for the values of the field \"wikipedia\" on OpenStreetMap elements.",
-            "language_id": "en"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize OpenStreetMap elements by querying Overpass API for the geographic boundary and tags defined in the settings. Build the \\\"wikidata combined\\\" field by querying Wikidata API for the values of the field \\\"wikipedia\\\" on OpenStreetMap elements.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"en\", \"admin_command__name\": \"sync_openstreetmap\"}"
         },
         {
-            "admin_command_id": "sync_wikidata",
-            "description": "Synchronize Wikidata entries by querying Wikidata API for the Wikidata codes in the field \"wikidata combined\" on OpenStreetMap elements and the field \"grave_of:wikidata\" on Wikidata entries.",
-            "language_id": "en"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikidata entries by querying Wikidata API for the Wikidata codes in the field \\\"wikidata combined\\\" on OpenStreetMap elements and the field \\\"grave_of:wikidata\\\" on Wikidata entries.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"en\", \"admin_command__name\": \"sync_wikidata\"}"
         },
         {
-            "admin_command_id": "sync_wikipedia",
-            "description": "Synchronize Wikipedia pages by querying Wikipedia API for the Wikipedia pages referenced on localized Wikidata entries.",
-            "language_id": "en"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikipedia pages by querying Wikipedia API for the Wikipedia pages referenced on localized Wikidata entries.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"en\", \"admin_command__name\": \"sync_wikipedia\"}"
         },
         {
-            "admin_command_id": "sync_wikimedia_commons_categories",
-            "description": "Synchronize Wikimedia Commons categories by querying Wikimedia Commons API for the Wikimedia Commons categories referenced on OpenStreetMap elements and Wikidata entries.",
-            "language_id": "en"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikimedia Commons categories by querying Wikimedia Commons API for the Wikimedia Commons categories referenced on OpenStreetMap elements and Wikidata entries.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"en\", \"admin_command__name\": \"sync_wikimedia_commons_categories\"}"
         },
         {
-            "admin_command_id": "sync_wikimedia_commons_files",
-            "description": "Synchronize Wikimedia Commons files by querying Wikimedia Commons API for the Wikimedia Commons files referenced on Wikimedia Commons categories.",
-            "language_id": "en"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikimedia Commons files by querying Wikimedia Commons API for the Wikimedia Commons files referenced on Wikimedia Commons categories.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"en\", \"admin_command__name\": \"sync_wikimedia_commons_files\"}"
         },
         {
-            "admin_command_id": "sync_wikidata_occupations",
-            "description": "Synchronize Wikidata occupations by querying Wikidata API for the codes in the \"occupations\" field on Wikidata entries.",
-            "language_id": "en"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikidata occupations by querying Wikidata API for the codes in the \\\"occupations\\\" field on Wikidata entries.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"en\", \"admin_command__name\": \"sync_wikidata_occupations\"}"
         },
         {
-            "admin_command_id": "sync_superlachaise_pois",
-            "description": "Synchronize SuperLachaise POIs by rebuilding links between OpenStreetMap elements, Wikidata entries, Wikimedia Commons categories and files.",
-            "language_id": "en"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize SuperLachaise POIs by rebuilding links between OpenStreetMap elements, Wikidata entries, Wikimedia Commons categories and files.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"en\", \"admin_command__name\": \"sync_superlachaise_pois\"}"
         },
         {
-            "admin_command_id": "sync_all_and_send_mail_to_managers",
-            "description": "Execute all synchronizations in dependency order and send a mail to the managers if modifications or errors occur.",
-            "language_id": "en"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Execute all synchronizations in dependency order and send a mail to the managers if modifications or errors occur.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"en\", \"admin_command__name\": \"sync_all_and_send_mail_to_managers\"}"
         },
         {
-            "admin_command_id": "sync_openstreetmap",
-            "description": "Synchronise les éléments OpenStreetMap en requêtant l'API Overpass pour la zone géographique et les types de tags paramétrés. Construit le champ \"wikidata combiné\" en requêtant l'API Wikidata pour les valeurs du champ \"wikipédia\" des éléments OpenStreetMap.",
-            "language_id": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les \\u00e9l\\u00e9ments OpenStreetMap en requ\\u00eatant l'API Overpass pour la zone g\\u00e9ographique et les types de tags param\\u00e9tr\\u00e9s. Construit le champ \\\"wikidata combin\\u00e9\\\" en requ\\u00eatant l'API Wikidata pour les valeurs du champ \\\"wikip\\u00e9dia\\\" des \\u00e9l\\u00e9ments OpenStreetMap.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"fr\", \"admin_command__name\": \"sync_openstreetmap\"}"
         },
         {
-            "admin_command_id": "sync_wikidata",
-            "description": "Synchronise les entrées Wikidata en requêtant l'API Wikidata pour les codes Wikidata présents dans le champ \"wikidata combiné\" des éléments OpenStreetMap et le champ \"grave_of:wikidata\" des entrées Wikidata.",
-            "language_id": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les entr\\u00e9es Wikidata en requ\\u00eatant l'API Wikidata pour les codes Wikidata pr\\u00e9sents dans le champ \\\"wikidata combin\\u00e9\\\" des \\u00e9l\\u00e9ments OpenStreetMap et le champ \\\"grave_of:wikidata\\\" des entr\\u00e9es Wikidata.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"fr\", \"admin_command__name\": \"sync_wikidata\"}"
         },
         {
-            "admin_command_id": "sync_wikipedia",
-            "description": "Synchronise les pages Wikipédia en requêtant l'API Wikipédia pour les pages Wikipédia référencées par les entrées Wikidata localisées.",
-            "language_id": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les pages Wikip\\u00e9dia en requ\\u00eatant l'API Wikip\\u00e9dia pour les pages Wikip\\u00e9dia r\\u00e9f\\u00e9renc\\u00e9es par les entr\\u00e9es Wikidata localis\\u00e9es.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"fr\", \"admin_command__name\": \"sync_wikipedia\"}"
         },
         {
-            "admin_command_id": "sync_wikimedia_commons_categories",
-            "description": "Synchronise les catégories Wikimedia Commons en requêtant l'API Wikimedia Commons pour les catégories Wikimedia Commons des éléments OpenStreetMap et des entrées Wikidata.",
-            "language_id": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les cat\\u00e9gories Wikimedia Commons en requ\\u00eatant l'API Wikimedia Commons pour les cat\\u00e9gories Wikimedia Commons des \\u00e9l\\u00e9ments OpenStreetMap et des entr\\u00e9es Wikidata.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"fr\", \"admin_command__name\": \"sync_wikimedia_commons_categories\"}"
         },
         {
-            "admin_command_id": "sync_wikimedia_commons_files",
-            "description": "Synchronise les fichiers Wikimedia Commons en requêtant l'API Wikimedia Commons pour les fichiers Wikimedia Commons référencés dans les catégories Wikimedia Commons.",
-            "language_id": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les fichiers Wikimedia Commons en requ\\u00eatant l'API Wikimedia Commons pour les fichiers Wikimedia Commons r\\u00e9f\\u00e9renc\\u00e9s dans les cat\\u00e9gories Wikimedia Commons.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"fr\", \"admin_command__name\": \"sync_wikimedia_commons_files\"}"
         },
         {
-            "admin_command_id": "sync_wikidata_occupations",
-            "description": "Synchronise les occupations Wikidata en requêtant l'API Wikidata pour les valeurs du champ \"occupations\" des entrées Wikidata.",
-            "language_id": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les occupations Wikidata en requ\\u00eatant l'API Wikidata pour les valeurs du champ \\\"occupations\\\" des entr\\u00e9es Wikidata.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"fr\", \"admin_command__name\": \"sync_wikidata_occupations\"}"
         },
         {
-            "admin_command_id": "sync_superlachaise_pois",
-            "description": "Synchronise les POIs SuperLachaise en reconstituant les liens entre les éléments OpenStreetMap, les entrées Wikidata, les catégories et fichiers Wikimedia Commons.",
-            "language_id": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les POIs SuperLachaise en reconstituant les liens entre les \\u00e9l\\u00e9ments OpenStreetMap, les entr\\u00e9es Wikidata, les cat\\u00e9gories et fichiers Wikimedia Commons.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"fr\", \"admin_command__name\": \"sync_superlachaise_pois\"}"
         },
         {
-            "admin_command_id": "sync_all_and_send_mail_to_managers",
-            "description": "Exécute toutes les synchronisations dans leur ordre de dépendance et envoie un mail aux managers si des modifications ou erreurs ont été rencontrées.",
-            "language_id": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Ex\\u00e9cute toutes les synchronisations dans leur ordre de d\\u00e9pendance et envoie un mail aux managers si des modifications ou erreurs ont \\u00e9t\\u00e9 rencontr\\u00e9es.\"}",
+            "target_object_class": "LocalizedAdminCommand",
+            "target_object_id": "{\"language__code\": \"fr\", \"admin_command__name\": \"sync_all_and_send_mail_to_managers\"}"
         }
     ],
-    "superlachaise_api.models.LocalizedSetting": [
+    "LocalizedSetting": [
         {
-            "description": "If set to \"true\", auto-apply new modifications after synchronizing OpenStreetMap elements. Else, create pending modifications that must be manually applied.",
-            "language_id": "en",
-            "setting_id": "openstreetmap:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"If set to \\\"true\\\", auto-apply new modifications after synchronizing OpenStreetMap elements. Else, create pending modifications that must be manually applied.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"openstreetmap:auto_apply_modifications\"}"
         },
         {
-            "description": "The geographical region where OpenStreetMap are synchronized.",
-            "language_id": "en",
-            "setting_id": "openstreetmap:bounding_box"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"The geographical region where OpenStreetMap are synchronized.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"openstreetmap:bounding_box\"}"
         },
         {
-            "description": "The list of OpenStreetMap elements to explicitly exclude from synchronization.",
-            "language_id": "en",
-            "setting_id": "openstreetmap:exclude_ids"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"The list of OpenStreetMap elements to explicitly exclude from synchronization.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"openstreetmap:exclude_ids\"}"
         },
         {
-            "description": "The default language of \"name\" tags on OpenStreetMap elements for the synchronized region.",
-            "language_id": "en",
-            "setting_id": "openstreetmap:name_tag_language"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"The default language of \\\"name\\\" tags on OpenStreetMap elements for the synchronized region.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"openstreetmap:name_tag_language\"}"
         },
         {
-            "description": "The list of OpenStreetMap tags to synchronize.",
-            "language_id": "en",
-            "setting_id": "openstreetmap:synced_tags"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"The list of OpenStreetMap tags to synchronize.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"openstreetmap:synced_tags\"}"
         },
         {
-            "description": "If set to \"true\", auto-apply new modifications after synchronizing SuperLachaise POIs. Else, create pending modifications that must be manually applied.",
-            "language_id": "en",
-            "setting_id": "superlachaise_poi:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"If set to \\\"true\\\", auto-apply new modifications after synchronizing SuperLachaise POIs. Else, create pending modifications that must be manually applied.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"superlachaise_poi:auto_apply_modifications\"}"
         },
         {
-            "description": "The list of Wikidata codes corresponding to burial places to synchronize. Used to solve multiple burial places in the P119 property of Wikidata.",
-            "language_id": "en",
-            "setting_id": "wikidata:accepted_locations_of_burial"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"The list of Wikidata codes corresponding to burial places to synchronize. Used to solve multiple burial places in the P119 property of Wikidata.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"wikidata:accepted_locations_of_burial\"}"
         },
         {
-            "description": "If set to \"true\", auto-apply new modifications after synchronizing Wikidata entries. Else, create pending modifications that must be manually applied.",
-            "language_id": "en",
-            "setting_id": "wikidata:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"If set to \\\"true\\\", auto-apply new modifications after synchronizing Wikidata entries. Else, create pending modifications that must be manually applied.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"wikidata:auto_apply_modifications\"}"
         },
         {
-            "description": "If set to \"true\", auto-apply new modifications after synchronizing Wikimedia Commons categories and files. Else, create pending modifications that must be manually applied.",
-            "language_id": "en",
-            "setting_id": "wikimedia_commons:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"If set to \\\"true\\\", auto-apply new modifications after synchronizing Wikimedia Commons categories and files. Else, create pending modifications that must be manually applied.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"wikimedia_commons:auto_apply_modifications\"}"
         },
         {
-            "description": "Wikimedia Commons categories are always synchronized for the values in the field \"wikimedia commons tomb category\" on Wikidata entries. But the values in the field \"wikimedia commons category\" will be synchronized only if the value in the field \"instance of\" of the Wikidata entry contains one of the values in this list. ",
-            "language_id": "en",
-            "setting_id": "wikimedia_commons:synced_instance_of"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Wikimedia Commons categories are always synchronized for the values in the field \\\"wikimedia commons tomb category\\\" on Wikidata entries. But the values in the field \\\"wikimedia commons category\\\" will be synchronized only if the value in the field \\\"instance of\\\" of the Wikidata entry contains one of the values in this list. \"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"wikimedia_commons:synced_instance_of\"}"
         },
         {
-            "description": "The thumbnail size of the synchronized Wikimedia Commons file. Used to get the thumbnail URL.",
-            "language_id": "en",
-            "setting_id": "wikimedia_commons:thumbnail_width"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"The thumbnail size of the synchronized Wikimedia Commons file. Used to get the thumbnail URL.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"wikimedia_commons:thumbnail_width\"}"
         },
         {
-            "description": "If set to \"true\", auto-apply new modifications after synchronizing Wikipedia pages. Else, create pending modifications that must be manually applied.",
-            "language_id": "en",
-            "setting_id": "wikipedia:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"If set to \\\"true\\\", auto-apply new modifications after synchronizing Wikipedia pages. Else, create pending modifications that must be manually applied.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"en\", \"setting__key\": \"wikipedia:auto_apply_modifications\"}"
         },
         {
-            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des éléments OpenStreetMap. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
-            "language_id": "fr",
-            "setting_id": "openstreetmap:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Si la valeur est \\u00e0 \\\"true\\\", applique automatiquement les nouvelles modifications apr\\u00e8s la synchronisation des \\u00e9l\\u00e9ments OpenStreetMap. Sinon, cr\\u00e9e des modifications en attente qui doivent \\u00eatre valid\\u00e9es manuellement.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"openstreetmap:auto_apply_modifications\"}"
         },
         {
-            "description": "La région géographique où seront requêtés les éléments OpenStreetMap pour la synchronisation.",
-            "language_id": "fr",
-            "setting_id": "openstreetmap:bounding_box"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"La r\\u00e9gion g\\u00e9ographique o\\u00f9 seront requ\\u00eat\\u00e9s les \\u00e9l\\u00e9ments OpenStreetMap pour la synchronisation.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"openstreetmap:bounding_box\"}"
         },
         {
-            "description": "La liste des éléments OpenStreetMap à exclure explicitement de la synchronisation.",
-            "language_id": "fr",
-            "setting_id": "openstreetmap:exclude_ids"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"La liste des \\u00e9l\\u00e9ments OpenStreetMap \\u00e0 exclure explicitement de la synchronisation.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"openstreetmap:exclude_ids\"}"
         },
         {
-            "description": "Le langage par défaut des tags \"name\" sur les éléments OpenStreetMap de la région synchronisée.",
-            "language_id": "fr",
-            "setting_id": "openstreetmap:name_tag_language"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Le langage par d\\u00e9faut des tags \\\"name\\\" sur les \\u00e9l\\u00e9ments OpenStreetMap de la r\\u00e9gion synchronis\\u00e9e.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"openstreetmap:name_tag_language\"}"
         },
         {
-            "description": "La liste des tags d'éléments OpenStreetMap à synchroniser.",
-            "language_id": "fr",
-            "setting_id": "openstreetmap:synced_tags"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"La liste des tags d'\\u00e9l\\u00e9ments OpenStreetMap \\u00e0 synchroniser.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"openstreetmap:synced_tags\"}"
         },
         {
-            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des POIs SuperLachaise. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
-            "language_id": "fr",
-            "setting_id": "superlachaise_poi:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Si la valeur est \\u00e0 \\\"true\\\", applique automatiquement les nouvelles modifications apr\\u00e8s la synchronisation des POIs SuperLachaise. Sinon, cr\\u00e9e des modifications en attente qui doivent \\u00eatre valid\\u00e9es manuellement.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"superlachaise_poi:auto_apply_modifications\"}"
         },
         {
-            "description": "La liste des codes Wikidata correspondant aux lieux d'enterrement à synchroniser. Permet de résoudre les lieux d'enterrement multiples dans la propriété P119 de Wikidata.",
-            "language_id": "fr",
-            "setting_id": "wikidata:accepted_locations_of_burial"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"La liste des codes Wikidata correspondant aux lieux d'enterrement \\u00e0 synchroniser. Permet de r\\u00e9soudre les lieux d'enterrement multiples dans la propri\\u00e9t\\u00e9 P119 de Wikidata.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"wikidata:accepted_locations_of_burial\"}"
         },
         {
-            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des entrées Wikidata. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
-            "language_id": "fr",
-            "setting_id": "wikidata:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Si la valeur est \\u00e0 \\\"true\\\", applique automatiquement les nouvelles modifications apr\\u00e8s la synchronisation des entr\\u00e9es Wikidata. Sinon, cr\\u00e9e des modifications en attente qui doivent \\u00eatre valid\\u00e9es manuellement.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"wikidata:auto_apply_modifications\"}"
         },
         {
-            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des catégories et fichiers Wikimedia Commons. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
-            "language_id": "fr",
-            "setting_id": "wikimedia_commons:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Si la valeur est \\u00e0 \\\"true\\\", applique automatiquement les nouvelles modifications apr\\u00e8s la synchronisation des cat\\u00e9gories et fichiers Wikimedia Commons. Sinon, cr\\u00e9e des modifications en attente qui doivent \\u00eatre valid\\u00e9es manuellement.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"wikimedia_commons:auto_apply_modifications\"}"
         },
         {
-            "description": "Les catégories Wikimedia Commons sont toujours synchronisées pour les valeurs du champ \"catégorie tombe Wikimedia Commons\" des entrées Wikidata. Par contre, les valeurs du champ \"catégorie Wikimedia Commons\" ne donneront lieu à une synchronisation que si la valeur du champ \"nature\" de l'entrée Wikidata contient une des valeurs de cette liste.",
-            "language_id": "fr",
-            "setting_id": "wikimedia_commons:synced_instance_of"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Les cat\\u00e9gories Wikimedia Commons sont toujours synchronis\\u00e9es pour les valeurs du champ \\\"cat\\u00e9gorie tombe Wikimedia Commons\\\" des entr\\u00e9es Wikidata. Par contre, les valeurs du champ \\\"cat\\u00e9gorie Wikimedia Commons\\\" ne donneront lieu \\u00e0 une synchronisation que si la valeur du champ \\\"nature\\\" de l'entr\\u00e9e Wikidata contient une des valeurs de cette liste.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"wikimedia_commons:synced_instance_of\"}"
         },
         {
-            "description": "La taille de la miniature du fichier Wikimedia Commons synchronisée. Utilisé pour récupérer l'URL de la miniature.",
-            "language_id": "fr",
-            "setting_id": "wikimedia_commons:thumbnail_width"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"La taille de la miniature du fichier Wikimedia Commons synchronis\\u00e9e. Utilis\\u00e9 pour r\\u00e9cup\\u00e9rer l'URL de la miniature.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"wikimedia_commons:thumbnail_width\"}"
         },
         {
-            "description": "Si la valeur est à \"true\", applique automatiquement les nouvelles modifications après la synchronisation des pages Wikipédia. Sinon, crée des modifications en attente qui doivent être validées manuellement.",
-            "language_id": "fr",
-            "setting_id": "wikipedia:auto_apply_modifications"
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Si la valeur est \\u00e0 \\\"true\\\", applique automatiquement les nouvelles modifications apr\\u00e8s la synchronisation des pages Wikip\\u00e9dia. Sinon, cr\\u00e9e des modifications en attente qui doivent \\u00eatre valid\\u00e9es manuellement.\"}",
+            "target_object_class": "LocalizedSetting",
+            "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"wikipedia:auto_apply_modifications\"}"
         }
     ],
-    "superlachaise_api.models.Setting": [
+    "Setting": [
         {
-            "key": "openstreetmap:auto_apply_modifications",
-            "value": "false"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"false\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"openstreetmap:auto_apply_modifications\"}"
         },
         {
-            "key": "openstreetmap:bounding_box",
-            "value": "48.8575,2.3877,48.8649,2.4006"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"48.8575,2.3877,48.8649,2.4006\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"openstreetmap:bounding_box\"}"
         },
         {
-            "key": "openstreetmap:exclude_ids",
-            "value": "[{\"type\": \"node\", \"id\": 1688357881}]"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"[{\\\"type\\\": \\\"node\\\", \\\"id\\\": 1688357881}]\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"openstreetmap:exclude_ids\"}"
         },
         {
-            "key": "openstreetmap:name_tag_language",
-            "value": "fr"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"fr\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"openstreetmap:name_tag_language\"}"
         },
         {
-            "key": "openstreetmap:synced_tags",
-            "value": "[\"historic=tomb\", \"historic=memorial\"]"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"[\\\"historic=tomb\\\", \\\"historic=memorial\\\"]\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"openstreetmap:synced_tags\"}"
         },
         {
-            "key": "superlachaise_poi:auto_apply_modifications",
-            "value": "false"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"false\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"superlachaise_poi:auto_apply_modifications\"}"
         },
         {
-            "key": "wikidata:accepted_locations_of_burial",
-            "value": "[\"Q311\", \"Q3006253\"]"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"[\\\"Q311\\\", \\\"Q3006253\\\"]\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"wikidata:accepted_locations_of_burial\"}"
         },
         {
-            "key": "wikidata:auto_apply_modifications",
-            "value": "false"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"false\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"wikidata:auto_apply_modifications\"}"
         },
         {
-            "key": "wikimedia_commons:auto_apply_modifications",
-            "value": "false"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"false\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"wikimedia_commons:auto_apply_modifications\"}"
         },
         {
-            "key": "wikimedia_commons:sync_only_main_image",
-            "value": "true"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"true\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"wikimedia_commons:sync_only_main_image\"}"
         },
         {
-            "key": "wikimedia_commons:synced_instance_of",
-            "value": "[\"Q173387\", \"Q16423655\", \"Q575759\", \"Q860861\", \"Q42948\"]"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"[\\\"Q173387\\\", \\\"Q16423655\\\", \\\"Q575759\\\", \\\"Q860861\\\", \\\"Q42948\\\"]\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"wikimedia_commons:synced_instance_of\"}"
         },
         {
-            "key": "wikimedia_commons:thumbnail_width",
-            "value": "350"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"350\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"wikimedia_commons:thumbnail_width\"}"
         },
         {
-            "key": "wikipedia:auto_apply_modifications",
-            "value": "false"
+            "action": "create_or_update",
+            "modified_fields": "{\"value\": \"false\"}",
+            "target_object_class": "Setting",
+            "target_object_id": "{\"key\": \"wikipedia:auto_apply_modifications\"}"
         }
     ],
-    "superlachaise_api.models.SuperLachaiseCategory": [
+    "SuperLachaiseCategory": [
         {
-            "code": "memorial",
-            "type": "element_nature",
-            "values": "memorial"
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"memorial\", \"type\": \"element_nature\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"memorial\"}"
         },
         {
-            "code": "tomb",
-            "type": "element_nature",
-            "values": "tomb"
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"tomb\", \"type\": \"element_nature\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"tomb\"}"
         },
         {
-            "code": "art",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"art\"}"
         },
         {
-            "code": "cinema",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"cinema\"}"
         },
         {
-            "code": "literature",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"literature\"}"
         },
         {
-            "code": "medias",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"medias\"}"
         },
         {
-            "code": "military",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"military\"}"
         },
         {
-            "code": "music",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"music\"}"
         },
         {
-            "code": "other",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"other\"}"
         },
         {
-            "code": "performing_arts",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"performing_arts\"}"
         },
         {
-            "code": "philosophy",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"philosophy\"}"
         },
         {
-            "code": "politics",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"politics\"}"
         },
         {
-            "code": "research",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"research\"}"
         },
         {
-            "code": "theatre",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"theatre\"}"
         },
         {
-            "code": "urbanism",
-            "type": "occupation",
-            "values": ""
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"\", \"type\": \"occupation\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"urbanism\"}"
         },
         {
-            "code": "men",
-            "type": "sex_or_gender",
-            "values": "Q6581097"
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"Q6581097\", \"type\": \"sex_or_gender\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"men\"}"
         },
         {
-            "code": "women",
-            "type": "sex_or_gender",
-            "values": "Q6581072"
+            "action": "create_or_update",
+            "modified_fields": "{\"values\": \"Q6581072\", \"type\": \"sex_or_gender\"}",
+            "target_object_class": "SuperLachaiseCategory",
+            "target_object_id": "{\"code\": \"women\"}"
         }
     ],
-    "superlachaise_api.models.SuperLachaiseLocalizedCategory": [
+    "SuperLachaiseLocalizedCategory": [
         {
-            "language_id": "en",
-            "name": "Art",
-            "superlachaise_category_id": "art"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Art\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"art\"}"
         },
         {
-            "language_id": "en",
-            "name": "Cinema",
-            "superlachaise_category_id": "cinema"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Cinema\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"cinema\"}"
         },
         {
-            "language_id": "en",
-            "name": "Literature",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Literature\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"literature\"}"
         },
         {
-            "language_id": "en",
-            "name": "Medias",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Medias\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"medias\"}"
         },
         {
-            "language_id": "en",
-            "name": "Memorials",
-            "superlachaise_category_id": "memorial"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Memorials\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"memorial\"}"
         },
         {
-            "language_id": "en",
-            "name": "Men",
-            "superlachaise_category_id": "men"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Men\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"men\"}"
         },
         {
-            "language_id": "en",
-            "name": "Military",
-            "superlachaise_category_id": "military"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Military\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"military\"}"
         },
         {
-            "language_id": "en",
-            "name": "Music",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Music\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"music\"}"
         },
         {
-            "language_id": "en",
-            "name": "Other",
-            "superlachaise_category_id": "other"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Other\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"other\"}"
         },
         {
-            "language_id": "en",
-            "name": "Performing arts",
-            "superlachaise_category_id": "performing_arts"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Performing arts\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"performing_arts\"}"
         },
         {
-            "language_id": "en",
-            "name": "Philosophy",
-            "superlachaise_category_id": "philosophy"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Philosophy\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"philosophy\"}"
         },
         {
-            "language_id": "en",
-            "name": "Politics",
-            "superlachaise_category_id": "politics"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Politics\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"politics\"}"
         },
         {
-            "language_id": "en",
-            "name": "Research",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Research\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"research\"}"
         },
         {
-            "language_id": "en",
-            "name": "Theatre",
-            "superlachaise_category_id": "theatre"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Theatre\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"theatre\"}"
         },
         {
-            "language_id": "en",
-            "name": "Tombs",
-            "superlachaise_category_id": "tomb"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Tombs\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"tomb\"}"
         },
         {
-            "language_id": "en",
-            "name": "Urban planning",
-            "superlachaise_category_id": "urbanism"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Urban planning\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"urbanism\"}"
         },
         {
-            "language_id": "en",
-            "name": "Women",
-            "superlachaise_category_id": "women"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Women\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"en\", \"superlachaise_category__code\": \"women\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Armée",
-            "superlachaise_category_id": "military"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Arm\\u00e9e\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"military\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Art",
-            "superlachaise_category_id": "art"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Art\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"art\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Autre",
-            "superlachaise_category_id": "other"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Autre\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"other\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Cinéma",
-            "superlachaise_category_id": "cinema"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Cin\\u00e9ma\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"cinema\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Femmes",
-            "superlachaise_category_id": "women"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Femmes\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"women\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Hommes",
-            "superlachaise_category_id": "men"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Hommes\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"men\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Littérature",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Litt\\u00e9rature\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"literature\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Musique",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Musique\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"music\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Médias",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"M\\u00e9dias\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"medias\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Mémoriaux",
-            "superlachaise_category_id": "memorial"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"M\\u00e9moriaux\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"memorial\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Philosophie",
-            "superlachaise_category_id": "philosophy"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Philosophie\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"philosophy\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Politique",
-            "superlachaise_category_id": "politics"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Politique\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"politics\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Recherche scientifique",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Recherche scientifique\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"research\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Spectacle vivant",
-            "superlachaise_category_id": "performing_arts"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Spectacle vivant\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"performing_arts\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Théâtre",
-            "superlachaise_category_id": "theatre"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Th\\u00e9\\u00e2tre\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"theatre\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Tombes",
-            "superlachaise_category_id": "tomb"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Tombes\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"tomb\"}"
         },
         {
-            "language_id": "fr",
-            "name": "Urbanisme",
-            "superlachaise_category_id": "urbanism"
+            "action": "create_or_update",
+            "modified_fields": "{\"name\": \"Urbanisme\"}",
+            "target_object_class": "SuperLachaiseLocalizedCategory",
+            "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"urbanism\"}"
         }
     ],
-    "superlachaise_api.models.WikidataOccupation": [
+    "WikidataOccupation": [
         {
-            "id": "Q1028181",
-            "name": "(fr)peintre",
-            "superlachaise_category_id": "art"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"art\", \"name\": \"(fr)peintre\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1028181\"}"
         },
         {
-            "id": "Q105186",
-            "name": "(fr)pharmacien",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)pharmacien\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q105186\"}"
         },
         {
-            "id": "Q10732476",
-            "name": "(fr)collectionneur d'art",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)collectionneur d'art\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q10732476\"}"
         },
         {
-            "id": "Q10800557",
-            "name": "(fr)acteur de films",
-            "superlachaise_category_id": "cinema"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"cinema\", \"name\": \"(fr)acteur de films\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q10800557\"}"
         },
         {
-            "id": "Q10872101",
-            "name": "(fr)anatomiste",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)anatomiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q10872101\"}"
         },
         {
-            "id": "Q11063",
-            "name": "(fr)astronome",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)astronome\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q11063\"}"
         },
         {
-            "id": "Q1114448",
-            "name": "(fr)dessinateur de presse",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"medias\", \"name\": \"(fr)dessinateur de presse\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1114448\"}"
         },
         {
-            "id": "Q11774202",
-            "name": "(fr)essayiste",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)essayiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q11774202\"}"
         },
         {
-            "id": "Q12020057",
-            "name": "",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q12020057\"}"
         },
         {
-            "id": "Q1229025",
-            "name": "(fr)typographe",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)typographe\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1229025\"}"
         },
         {
-            "id": "Q1234713",
-            "name": "(fr)théologien",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)th\\u00e9ologien\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1234713\"}"
         },
         {
-            "id": "Q1259917",
-            "name": "(fr)violoniste",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)violoniste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1259917\"}"
         },
         {
-            "id": "Q12800682",
-            "name": "(fr)saxophoniste",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)saxophoniste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q12800682\"}"
         },
         {
-            "id": "Q1281618",
-            "name": "(fr)sculpteur",
-            "superlachaise_category_id": "art"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"art\", \"name\": \"(fr)sculpteur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1281618\"}"
         },
         {
-            "id": "Q131524",
-            "name": "(fr)entrepreneur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)entrepreneur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q131524\"}"
         },
         {
-            "id": "Q133485",
-            "name": "(fr)rabbin",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)rabbin\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q133485\"}"
         },
         {
-            "id": "Q13391399",
-            "name": "(fr)chansonnier",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)chansonnier\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q13391399\"}"
         },
         {
-            "id": "Q13416354",
-            "name": "(fr)minéralogiste",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)min\\u00e9ralogiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q13416354\"}"
         },
         {
-            "id": "Q13418253",
-            "name": "(fr)philologue",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)philologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q13418253\"}"
         },
         {
-            "id": "Q13472585",
-            "name": "(fr)philanthrope",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)philanthrope\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q13472585\"}"
         },
         {
-            "id": "Q1350189",
-            "name": "(fr)égyptologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)\\u00e9gyptologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1350189\"}"
         },
         {
-            "id": "Q13582652",
-            "name": "(fr)ingénieur civil",
-            "superlachaise_category_id": "urbanism"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"urbanism\", \"name\": \"(fr)ing\\u00e9nieur civil\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q13582652\"}"
         },
         {
-            "id": "Q1371378",
-            "name": "(fr)ethnologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)ethnologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1371378\"}"
         },
         {
-            "id": "Q14089670",
-            "name": "(fr)joueur de rugby à XV",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)joueur de rugby \\u00e0 XV\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q14089670\"}"
         },
         {
-            "id": "Q1420621",
-            "name": "(fr)magnat des médias",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)magnat des m\\u00e9dias\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1420621\"}"
         },
         {
-            "id": "Q14467526",
-            "name": "(fr)linguiste",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)linguiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q14467526\"}"
         },
         {
-            "id": "Q14565331",
-            "name": "(fr)logicien",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)logicien\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q14565331\"}"
         },
         {
-            "id": "Q14623005",
-            "name": "(fr)dessinateur en bâtiment",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)dessinateur en b\\u00e2timent\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q14623005\"}"
         },
         {
-            "id": "Q148401",
-            "name": "(fr)magicien",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)magicien\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q148401\"}"
         },
         {
-            "id": "Q14915627",
-            "name": "(fr)musicologue",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)musicologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q14915627\"}"
         },
         {
-            "id": "Q15296811",
-            "name": "(fr)dessinateur",
-            "superlachaise_category_id": "art"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"art\", \"name\": \"(fr)dessinateur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15296811\"}"
         },
         {
-            "id": "Q15632482",
-            "name": "(fr)épistémologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)\\u00e9pist\\u00e9mologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15632482\"}"
         },
         {
-            "id": "Q15632632",
-            "name": "(fr)épigraphiste",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)\\u00e9pigraphiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15632632\"}"
         },
         {
-            "id": "Q15809665",
-            "name": "(fr)critique de films",
-            "superlachaise_category_id": "cinema"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"cinema\", \"name\": \"(fr)critique de films\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15809665\"}"
         },
         {
-            "id": "Q158852",
-            "name": "(fr)chef d'orchestre",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)chef d'orchestre\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q158852\"}"
         },
         {
-            "id": "Q15895020",
-            "name": "(fr)ingénieur en aérospatiale",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)ing\\u00e9nieur en a\\u00e9rospatiale\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15895020\"}"
         },
         {
-            "id": "Q15921002",
-            "name": "(fr)ornithologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)ornithologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15921002\"}"
         },
         {
-            "id": "Q15949613",
-            "name": "(fr)nouvelliste",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)nouvelliste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15949613\"}"
         },
         {
-            "id": "Q15962340",
-            "name": "",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15962340\"}"
         },
         {
-            "id": "Q15966904",
-            "name": "(fr)graveur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)graveur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15966904\"}"
         },
         {
-            "id": "Q15978391",
-            "name": "(fr)satiriste",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"medias\", \"name\": \"(fr)satiriste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q15978391\"}"
         },
         {
-            "id": "Q16031530",
-            "name": "(fr)théoricien de la musique",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)th\\u00e9oricien de la musique\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q16031530\"}"
         },
         {
-            "id": "Q1607826",
-            "name": "(fr)éditeur",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"medias\", \"name\": \"(fr)\\u00e9diteur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1607826\"}"
         },
         {
-            "id": "Q16145150",
-            "name": "(fr)professeur de musique",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)professeur de musique\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q16145150\"}"
         },
         {
-            "id": "Q1622272",
-            "name": "(fr)professeur d'université",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)professeur d'universit\\u00e9\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1622272\"}"
         },
         {
-            "id": "Q1662561",
-            "name": "(fr)paléontologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)pal\\u00e9ontologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1662561\"}"
         },
         {
-            "id": "Q169470",
-            "name": "(fr)physicien",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)physicien\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q169470\"}"
         },
         {
-            "id": "Q16947657",
-            "name": "(fr)lithographe",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)lithographe\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q16947657\"}"
         },
         {
-            "id": "Q170790",
-            "name": "(fr)mathématicien",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)math\\u00e9maticien\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q170790\"}"
         },
         {
-            "id": "Q1708232",
-            "name": "(fr)médailleur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)m\\u00e9dailleur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1708232\"}"
         },
         {
-            "id": "Q17093672",
-            "name": "(fr)trompettiste",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)trompettiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q17093672\"}"
         },
         {
-            "id": "Q175151",
-            "name": "(fr)imprimeur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)imprimeur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q175151\"}"
         },
         {
-            "id": "Q177220",
-            "name": "(fr)chanteur",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)chanteur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q177220\"}"
         },
         {
-            "id": "Q1792450",
-            "name": "(fr)historien de l'art",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)historien de l'art\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1792450\"}"
         },
         {
-            "id": "Q18195617",
-            "name": "(fr)littéraire",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)litt\\u00e9raire\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q18195617\"}"
         },
         {
-            "id": "Q182436",
-            "name": "(fr)bibliothécaire",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)biblioth\\u00e9caire\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q182436\"}"
         },
         {
-            "id": "Q185351",
-            "name": "(fr)juriste",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)juriste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q185351\"}"
         },
         {
-            "id": "Q188094",
-            "name": "(fr)économiste",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)\\u00e9conomiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q188094\"}"
         },
         {
-            "id": "Q18814623",
-            "name": "(fr)autobiographe",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)autobiographe\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q18814623\"}"
         },
         {
-            "id": "Q189290",
-            "name": "(fr)officier",
-            "superlachaise_category_id": "military"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"military\", \"name\": \"(fr)officier\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q189290\"}"
         },
         {
-            "id": "Q1930187",
-            "name": "(fr)journaliste",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"medias\", \"name\": \"(fr)journaliste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1930187\"}"
         },
         {
-            "id": "Q193391",
-            "name": "(fr)diplomate",
-            "superlachaise_category_id": "politics"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"politics\", \"name\": \"(fr)diplomate\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q193391\"}"
         },
         {
-            "id": "Q19435686",
-            "name": "(fr)fondeur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)fondeur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q19435686\"}"
         },
         {
-            "id": "Q1979607",
-            "name": "(fr)financier",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)financier\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q1979607\"}"
         },
         {
-            "id": "Q201788",
-            "name": "(fr)historien",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)historien\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q201788\"}"
         },
         {
-            "id": "Q205375",
-            "name": "(fr)inventeur",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)inventeur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q205375\"}"
         },
         {
-            "id": "Q211423",
-            "name": "(fr)orfèvre",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)orf\\u00e8vre\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q211423\"}"
         },
         {
-            "id": "Q2114605",
-            "name": "",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2114605\"}"
         },
         {
-            "id": "Q212980",
-            "name": "(fr)psychologue",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)psychologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q212980\"}"
         },
         {
-            "id": "Q214917",
-            "name": "(fr)dramaturge",
-            "superlachaise_category_id": "theatre"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"theatre\", \"name\": \"(fr)dramaturge\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q214917\"}"
         },
         {
-            "id": "Q2259451",
-            "name": "(fr)acteur de théâtre",
-            "superlachaise_category_id": "theatre"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"theatre\", \"name\": \"(fr)acteur de th\\u00e9\\u00e2tre\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2259451\"}"
         },
         {
-            "id": "Q2306091",
-            "name": "(fr)sociologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)sociologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2306091\"}"
         },
         {
-            "id": "Q2310145",
-            "name": "(fr)météorologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)m\\u00e9t\\u00e9orologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2310145\"}"
         },
         {
-            "id": "Q2358549",
-            "name": "(fr)attaché de presse",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)attach\\u00e9 de presse\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2358549\"}"
         },
         {
-            "id": "Q2374149",
-            "name": "(fr)botaniste",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)botaniste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2374149\"}"
         },
         {
-            "id": "Q245068",
-            "name": "(fr)humoriste",
-            "superlachaise_category_id": "theatre"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"theatre\", \"name\": \"(fr)humoriste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q245068\"}"
         },
         {
-            "id": "Q2490358",
-            "name": "(fr)chorégraphe",
-            "superlachaise_category_id": "performing_arts"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"performing_arts\", \"name\": \"(fr)chor\\u00e9graphe\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2490358\"}"
         },
         {
-            "id": "Q2516866",
-            "name": "(fr)éditeur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)\\u00e9diteur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2516866\"}"
         },
         {
-            "id": "Q2526255",
-            "name": "(fr)réalisateur",
-            "superlachaise_category_id": "cinema"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"cinema\", \"name\": \"(fr)r\\u00e9alisateur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2526255\"}"
         },
         {
-            "id": "Q266569",
-            "name": "(fr)animateur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)animateur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q266569\"}"
         },
         {
-            "id": "Q2722764",
-            "name": "(fr)animateur de radio",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"medias\", \"name\": \"(fr)animateur de radio\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2722764\"}"
         },
         {
-            "id": "Q28389",
-            "name": "(fr)scénariste",
-            "superlachaise_category_id": "cinema"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"cinema\", \"name\": \"(fr)sc\\u00e9nariste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q28389\"}"
         },
         {
-            "id": "Q2865819",
-            "name": "(fr)artiste lyrique",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)artiste lyrique\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2865819\"}"
         },
         {
-            "id": "Q2962070",
-            "name": "(fr)chef décorateur",
-            "superlachaise_category_id": "cinema"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"cinema\", \"name\": \"(fr)chef d\\u00e9corateur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2962070\"}"
         },
         {
-            "id": "Q3064032",
-            "name": "(fr)fabuliste",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)fabuliste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3064032\"}"
         },
         {
-            "id": "Q3064175",
-            "name": "(fr)Facteur de pianos",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)Facteur de pianos\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3064175\"}"
         },
         {
-            "id": "Q3068305",
-            "name": "(fr)salonnière",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)salonni\\u00e8re\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3068305\"}"
         },
         {
-            "id": "Q3128486",
-            "name": "(fr)haut fonctionnaire",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)haut fonctionnaire\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3128486\"}"
         },
         {
-            "id": "Q3190200",
-            "name": "(fr)jurisconsulte",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)jurisconsulte\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3190200\"}"
         },
         {
-            "id": "Q3253361",
-            "name": "(fr)liste des premiers présidents de la Cour de cassation",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)liste des premiers pr\\u00e9sidents de la Cour de cassation\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3253361\"}"
         },
         {
-            "id": "Q3282637",
-            "name": "(fr)producteur de cinéma",
-            "superlachaise_category_id": "cinema"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"cinema\", \"name\": \"(fr)producteur de cin\\u00e9ma\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3282637\"}"
         },
         {
-            "id": "Q329439",
-            "name": "(fr)graveur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)graveur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q329439\"}"
         },
         {
-            "id": "Q33231",
-            "name": "(fr)photographe",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)photographe\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q33231\"}"
         },
         {
-            "id": "Q333634",
-            "name": "(fr)traducteur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)traducteur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q333634\"}"
         },
         {
-            "id": "Q3387717",
-            "name": "(fr)metteur en scène",
-            "superlachaise_category_id": "theatre"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"theatre\", \"name\": \"(fr)metteur en sc\\u00e8ne\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3387717\"}"
         },
         {
-            "id": "Q33999",
-            "name": "(fr)acteur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)acteur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q33999\"}"
         },
         {
-            "id": "Q3406814",
-            "name": "(fr)professeur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)professeur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3406814\"}"
         },
         {
-            "id": "Q3488528",
-            "name": "(fr)clerc de notaire",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)clerc de notaire\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3488528\"}"
         },
         {
-            "id": "Q3499072",
-            "name": "(fr)chef cuisinier",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)chef cuisinier\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3499072\"}"
         },
         {
-            "id": "Q350979",
-            "name": "(fr)zoologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)zoologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q350979\"}"
         },
         {
-            "id": "Q355242",
-            "name": "(fr)forain",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)forain\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q355242\"}"
         },
         {
-            "id": "Q3579035",
-            "name": "(fr)écrivain voyageur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)\\u00e9crivain voyageur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3579035\"}"
         },
         {
-            "id": "Q3579159",
-            "name": "(fr)Éditeur de musique",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)\\u00c9diteur de musique\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3579159\"}"
         },
         {
-            "id": "Q36180",
-            "name": "(fr)écrivain",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)\\u00e9crivain\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q36180\"}"
         },
         {
-            "id": "Q3621491",
-            "name": "(fr)archéologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)arch\\u00e9ologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3621491\"}"
         },
         {
-            "id": "Q3658608",
-            "name": "(fr)caricaturiste",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"medias\", \"name\": \"(fr)caricaturiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q3658608\"}"
         },
         {
-            "id": "Q36834",
-            "name": "(fr)compositeur",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)compositeur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q36834\"}"
         },
         {
-            "id": "Q37226",
-            "name": "(fr)instituteur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)instituteur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q37226\"}"
         },
         {
-            "id": "Q39631",
-            "name": "(fr)médecin",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)m\\u00e9decin\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q39631\"}"
         },
         {
-            "id": "Q40348",
-            "name": "(fr)avocat",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)avocat\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q40348\"}"
         },
         {
-            "id": "Q4108101",
-            "name": "(fr)compositeur",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)compositeur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q4108101\"}"
         },
         {
-            "id": "Q4263842",
-            "name": "(fr)critique littéraire",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)critique litt\\u00e9raire\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q4263842\"}"
         },
         {
-            "id": "Q42973",
-            "name": "(fr)architecte",
-            "superlachaise_category_id": "urbanism"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"urbanism\", \"name\": \"(fr)architecte\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q42973\"}"
         },
         {
-            "id": "Q43845",
-            "name": "(fr)personnalité du monde des affaires",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)personnalit\\u00e9 du monde des affaires\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q43845\"}"
         },
         {
-            "id": "Q4773904",
-            "name": "(fr)anthropologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)anthropologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q4773904\"}"
         },
         {
-            "id": "Q482980",
-            "name": "(fr)auteur",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)auteur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q482980\"}"
         },
         {
-            "id": "Q483501",
-            "name": "(fr)artiste",
-            "superlachaise_category_id": "art"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"art\", \"name\": \"(fr)artiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q483501\"}"
         },
         {
-            "id": "Q4853732",
-            "name": "(fr)auteur de littérature d'enfance et de jeunesse",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)auteur de litt\\u00e9rature d'enfance et de jeunesse\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q4853732\"}"
         },
         {
-            "id": "Q486748",
-            "name": "(fr)pianiste",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)pianiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q486748\"}"
         },
         {
-            "id": "Q488205",
-            "name": "(fr)auteur-compositeur-interprète",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)auteur-compositeur-interpr\\u00e8te\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q488205\"}"
         },
         {
-            "id": "Q4964182",
-            "name": "(fr)philosophe",
-            "superlachaise_category_id": "philosophy"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"philosophy\", \"name\": \"(fr)philosophe\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q4964182\"}"
         },
         {
-            "id": "Q49757",
-            "name": "(fr)poète",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)po\\u00e8te\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q49757\"}"
         },
         {
-            "id": "Q4991371",
-            "name": "(fr)soldat",
-            "superlachaise_category_id": "military"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"military\", \"name\": \"(fr)soldat\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q4991371\"}"
         },
         {
-            "id": "Q520549",
-            "name": "(fr)géologue",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)g\\u00e9ologue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q520549\"}"
         },
         {
-            "id": "Q5716684",
-            "name": "(fr)danseur",
-            "superlachaise_category_id": "performing_arts"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"performing_arts\", \"name\": \"(fr)danseur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q5716684\"}"
         },
         {
-            "id": "Q578109",
-            "name": "(fr)producteur de télévision",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"medias\", \"name\": \"(fr)producteur de t\\u00e9l\\u00e9vision\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q578109\"}"
         },
         {
-            "id": "Q593644",
-            "name": "(fr)chimiste",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)chimiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q593644\"}"
         },
         {
-            "id": "Q623386",
-            "name": "(fr)nègre littéraire",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)n\\u00e8gre litt\\u00e9raire\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q623386\"}"
         },
         {
-            "id": "Q635734",
-            "name": "(fr)archiviste",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)archiviste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q635734\"}"
         },
         {
-            "id": "Q639669",
-            "name": "(fr)musicien",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)musicien\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q639669\"}"
         },
         {
-            "id": "Q650012",
-            "name": "(fr)Corps des ponts et chaussées",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)Corps des ponts et chauss\\u00e9es\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q650012\"}"
         },
         {
-            "id": "Q6625963",
-            "name": "(fr)romancier",
-            "superlachaise_category_id": "literature"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"literature\", \"name\": \"(fr)romancier\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q6625963\"}"
         },
         {
-            "id": "Q674067",
-            "name": "(fr)mime",
-            "superlachaise_category_id": "performing_arts"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"performing_arts\", \"name\": \"(fr)mime\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q674067\"}"
         },
         {
-            "id": "Q691522",
-            "name": "(fr)contremaître",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)contrema\\u00eetre\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q691522\"}"
         },
         {
-            "id": "Q7272",
-            "name": "(fr)socialisme",
-            "superlachaise_category_id": "politics"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"politics\", \"name\": \"(fr)socialisme\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q7272\"}"
         },
         {
-            "id": "Q728425",
-            "name": "(fr)aéronaute",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)a\\u00e9ronaute\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q728425\"}"
         },
         {
-            "id": "Q7358",
-            "name": "(fr)clown",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)clown\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q7358\"}"
         },
         {
-            "id": "Q753110",
-            "name": "(fr)auteur-compositeur",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)auteur-compositeur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q753110\"}"
         },
         {
-            "id": "Q7622988",
-            "name": "(fr)artiste de rue",
-            "superlachaise_category_id": "performing_arts"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"performing_arts\", \"name\": \"(fr)artiste de rue\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q7622988\"}"
         },
         {
-            "id": "Q806798",
-            "name": "(fr)banquier",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)banquier\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q806798\"}"
         },
         {
-            "id": "Q80687",
-            "name": "(fr)secrétaire",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)secr\\u00e9taire\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q80687\"}"
         },
         {
-            "id": "Q81096",
-            "name": "(fr)ingénieur",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)ing\\u00e9nieur\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q81096\"}"
         },
         {
-            "id": "Q82955",
-            "name": "(fr)personnalité politique",
-            "superlachaise_category_id": "politics"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"politics\", \"name\": \"(fr)personnalit\\u00e9 politique\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q82955\"}"
         },
         {
-            "id": "Q855091",
-            "name": "(fr)guitariste",
-            "superlachaise_category_id": "music"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"music\", \"name\": \"(fr)guitariste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q855091\"}"
         },
         {
-            "id": "Q860918",
-            "name": "(fr)espérantiste",
-            "superlachaise_category_id": null
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category\": null, \"name\": \"(fr)esp\\u00e9rantiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q860918\"}"
         },
         {
-            "id": "Q864503",
-            "name": "(fr)biologiste",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)biologiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q864503\"}"
         },
         {
-            "id": "Q901",
-            "name": "(fr)scientifique",
-            "superlachaise_category_id": "research"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"research\", \"name\": \"(fr)scientifique\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q901\"}"
         },
         {
-            "id": "Q9352089",
-            "name": "(fr)espion",
-            "superlachaise_category_id": "military"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"military\", \"name\": \"(fr)espion\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q9352089\"}"
         },
         {
-            "id": "Q947873",
-            "name": "(fr)animateur de télévision",
-            "superlachaise_category_id": "medias"
+            "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"medias\", \"name\": \"(fr)animateur de t\\u00e9l\\u00e9vision\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q947873\"}"
         }
     ]
 }
