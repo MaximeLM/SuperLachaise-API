@@ -20,6 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
@@ -415,6 +416,71 @@ class PendingModificationTestCase(TestCase):
         except ValidationError:
             pass
     
+    def test_validation_fails_if_modified_fields_is_not_json(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        modified_fields = 'modified_fields'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        
+        try:
+            pending_modification.full_clean()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_validation_fails_if_modified_fields_is_not_json_dict(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        modified_fields = '["modified_fields"]'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        
+        try:
+            pending_modification.full_clean()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_validation_fails_if_modified_fields_has_field_not_in_target_object_model_fields(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        modified_fields = '{"field":"value"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        
+        try:
+            pending_modification.full_clean()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_validation_fails_if_modified_fields_has_id_field(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        modified_fields = '{"id:5"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        
+        try:
+            pending_modification.full_clean()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_validation_fails_if_modified_fields_has_pk_field(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        modified_fields = '{"pk:5"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        
+        try:
+            pending_modification.full_clean()
+            self.fail()
+        except ValidationError:
+            pass
+    
     def test_target_object_model_returns_model_if_model_exists(self):
         target_object_class = "OpenStreetMapElement"
         target_object_id = "target_object_id"
@@ -479,10 +545,35 @@ class PendingModificationTestCase(TestCase):
         except LookupError:
             pass
     
-    def test_apply_modification_raises_validation_error_if_object_is_not_valid(self):
+    def test_apply_modification_raises_validation_error_if_target_object_class_is_not_valid(self):
+        target_object_class = "target_object_class"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification.save()
+        
+        try:
+            pending_modification.apply_modification()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_apply_modification_raises_validation_error_if_target_object_id_is_not_valid(self):
         target_object_class = "OpenStreetMapElement"
         target_object_id = 'target_object_id'
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification.save()
+        
+        try:
+            pending_modification.apply_modification()
+            self.fail()
+        except ValidationError:
+            pass
+    
+    def test_apply_modification_raises_validation_error_if_modified_fields_is_not_valid(self):
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        modified_fields = 'modified_fields'
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
         pending_modification.save()
         
         try:
@@ -521,7 +612,7 @@ class PendingModificationTestCase(TestCase):
         name = "foo"
         sorting_name = "bar"
         modified_fields = '{"name":"%s", "sorting_name":"%s"}' % (name, sorting_name)
-        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
         pending_modification.save()
         
         pending_modification.apply_modification()
@@ -529,6 +620,36 @@ class PendingModificationTestCase(TestCase):
         
         self.assertEqual(name, openstreetmap_element.name)
         self.assertEqual(sorting_name, openstreetmap_element.sorting_name)
+    
+    def test_apply_modification_sets_modified_fields_values_if_action_is_create_or_update_and_target_object_exists(self):
+        openstreetmap_id = "openstreetmap_id"
+        OpenStreetMapElement(openstreetmap_id=openstreetmap_id, name="name", sorting_name="sorting_name").save()
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        name = "foo"
+        sorting_name = "bar"
+        modified_fields = '{"name":"%s", "sorting_name":"%s"}' % (name, sorting_name)
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        pending_modification.save()
+        
+        pending_modification.apply_modification()
+        openstreetmap_element = OpenStreetMapElement.objects.get(openstreetmap_id=openstreetmap_id)
+        
+        self.assertEqual(name, openstreetmap_element.name)
+        self.assertEqual(sorting_name, openstreetmap_element.sorting_name)
+    
+    def test_apply_modification_converts_none_char_fields_to_empty_char_fields(self):
+        openstreetmap_id = "openstreetmap_id"
+        target_object_class = "OpenStreetMapElement"
+        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        modified_fields = '{"name":null}'
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        pending_modification.save()
+        
+        pending_modification.apply_modification()
+        openstreetmap_element = OpenStreetMapElement.objects.get(openstreetmap_id=openstreetmap_id)
+        
+        self.assertEqual("", openstreetmap_element.name)
     
     def test_apply_modification_deletes_pending_modification(self):
         openstreetmap_id = "openstreetmap_id"

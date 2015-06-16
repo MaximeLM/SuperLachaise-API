@@ -52,11 +52,11 @@ class AdminCommand(SuperLachaiseModel):
     last_executed = models.DateTimeField(blank=True, null=True, verbose_name=_('last executed'))
     last_result = models.TextField(blank=True, null=True, verbose_name=_('last result'))
     
-    def __unicode__(self):
-        return self.name
-    
     def perform_command(self):
         call_command(str(self.name))
+    
+    def __unicode__(self):
+        return self.name
     
     class Meta:
         ordering = ['dependency_order', 'name']
@@ -200,6 +200,12 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     
+    def save(self, *args, **kwargs):
+        super(WikidataLocalizedEntry, self).save(*args, **kwargs)
+        
+        # Touch Wikidata entry
+        self.wikidata_entry.save()
+    
     def __unicode__(self):
         return unicode(self.language) + u':' + self.name
     
@@ -208,26 +214,12 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         verbose_name = _('wikidata localized entry')
         verbose_name_plural = _('wikidata localized entries')
         unique_together = ('wikidata_entry', 'language',)
-    
-    def save(self, *args, **kwargs):
-        super(WikidataLocalizedEntry, self).save(*args, **kwargs)
-        
-        # Touch Wikidata entry
-        self.wikidata_entry.save()
 
 class WikipediaPage(SuperLachaiseModel):
     
     wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
     default_sort = models.CharField(max_length=255, blank=True, verbose_name=_('default sort'))
     intro = models.TextField(blank=True, verbose_name=_('intro'))
-    
-    def __unicode__(self):
-        return unicode(self.wikidata_localized_entry)
-    
-    class Meta:
-        ordering = ['default_sort', 'wikidata_localized_entry']
-        verbose_name = _('wikipedia page')
-        verbose_name_plural = _('wikipedia pages')
     
     def save(self, *args, **kwargs):
         # Delete \r added by textfield
@@ -236,6 +228,14 @@ class WikipediaPage(SuperLachaiseModel):
         
         # Touch Wikidata localized entry
         self.wikidata_localized_entry.save()
+    
+    def __unicode__(self):
+        return unicode(self.wikidata_localized_entry)
+    
+    class Meta:
+        ordering = ['default_sort', 'wikidata_localized_entry']
+        verbose_name = _('wikipedia page')
+        verbose_name_plural = _('wikipedia pages')
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
     
@@ -290,6 +290,12 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
     sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
     
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseLocalizedPOI, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
+    
     def __unicode__(self):
         return self.name
     
@@ -298,12 +304,6 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
         verbose_name = _('superlachaise localized POI')
         verbose_name_plural = _('superlachaise localized POIs')
         unique_together = ('superlachaise_poi', 'language',)
-    
-    def save(self, *args, **kwargs):
-        super(SuperLachaiseLocalizedPOI, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        self.superlachaise_poi.save()
 
 class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a Wikidata entry """
@@ -316,6 +316,12 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))
     relation_type = models.CharField(max_length=255, verbose_name=_('relation type'))
     
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseWikidataRelation, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
+    
     def __unicode__(self):
         return self.relation_type + u': ' + unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
     
@@ -324,12 +330,6 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
         ordering = ['superlachaise_poi', 'relation_type', 'wikidata_entry']
         verbose_name = _('superlachaisepoi-wikidataentry relationship')
         verbose_name_plural = _('superlachaisepoi-wikidataentry relationships')
-    
-    def save(self, *args, **kwargs):
-        super(SuperLachaiseWikidataRelation, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        self.superlachaise_poi.save()
 
 class SuperLachaiseCategory(SuperLachaiseModel):
     """ A category for Super Lachaise POIs """
@@ -357,6 +357,12 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
     superlachaise_category = models.ForeignKey('SuperLachaiseCategory', related_name='localizations', verbose_name=_('superlachaise category'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
     
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseLocalizedCategory, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise categories
+        self.superlachaise_category.save()
+    
     def __unicode__(self):
         return unicode(self.language) + u':' + self.name
     
@@ -365,18 +371,18 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
         verbose_name = _('superlachaise localized category')
         verbose_name_plural = _('superlachaise localized categories')
         unique_together = ('superlachaise_category', 'language',)
-    
-    def save(self, *args, **kwargs):
-        super(SuperLachaiseLocalizedCategory, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise categories
-        self.superlachaise_category.save()
 
 class SuperLachaiseCategoryRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a SuperLachaise category """
     
     superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
     superlachaise_category = models.ForeignKey('SuperLachaiseCategory', verbose_name=_('superlachaise category'))
+    
+    def save(self, *args, **kwargs):
+        super(SuperLachaiseCategoryRelation, self).save(*args, **kwargs)
+        
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
     
     def __unicode__(self):
         return unicode(self.superlachaise_poi) + u' - ' + unicode(self.superlachaise_category)
@@ -386,12 +392,6 @@ class SuperLachaiseCategoryRelation(SuperLachaiseModel):
         ordering = ['superlachaise_poi', 'superlachaise_category']
         verbose_name = _('superlachaisepoi-superlachaisecategory relationship')
         verbose_name_plural = _('superlachaisepoi-superlachaisecategory relationships')
-    
-    def save(self, *args, **kwargs):
-        super(SuperLachaiseCategoryRelation, self).save(*args, **kwargs)
-        
-        # Touch SuperLachaise POIs
-        self.superlachaise_poi.save()
 
 class WikidataOccupation(SuperLachaiseModel):
     """ Associate a person's occupation to a category """
@@ -455,10 +455,55 @@ class PendingModification(SuperLachaiseModel):
         
             if not isinstance(target_object_id_dict, dict):
                 raise ValidationError({'target_object_id': _('The value must be a JSON dictionary.')})
+            
+            try:
+                invalid_fields = [field for field in target_object_id_dict if field not in self.target_object_model()._meta.get_all_field_names()]
+                if invalid_fields:
+                    raise ValidationError({'target_object_id': _('The following fields are not fields of the target object model: %s.') % ', '.join(invalid_fields)})
+            except LookupError:
+                pass
         
-            invalid_fields = [field for field in target_object_id_dict if field not in self.target_object_model()._meta.get_all_field_names()]
-            if invalid_fields:
-                raise ValidationError({'target_object_id': _('The following fields are not fields of the target object model: %s.') % ', '.join(invalid_fields)})
+        if self.modified_fields:
+            try:
+                modified_fields_dict = json.loads(self.modified_fields) 
+            except ValueError as error:
+                raise ValidationError({'modified_fields': _('The value must be a JSON dictionary.')})
+        
+            if not isinstance(modified_fields_dict, dict):
+                raise ValidationError({'modified_fields': _('The value must be a JSON dictionary.')})
+            
+            try:
+                invalid_fields = [field for field in modified_fields_dict if field not in self.target_object_model()._meta.get_all_field_names() or field in ['id', 'pk']]
+                if invalid_fields:
+                    raise ValidationError({'modified_fields': _('The following fields are not fields of the target object model: %s.') % ', '.join(invalid_fields)})
+            except LookupError:
+                pass
+    
+    def apply_modification(self):
+        """ Apply the modification and delete self """
+        self.full_clean()
+        if self.action == PendingModification.CREATE_OR_UPDATE:
+            # Get or create target object
+            target_object_model = self.target_object_model()
+            target_object_id_dict = json.loads(self.target_object_id)
+            target_object, created = target_object_model.objects.get_or_create(**target_object_id_dict)
+            
+            # Apply field modifications
+            if self.modified_fields:
+                for field, value in json.loads(self.modified_fields).iteritems():
+                    field_type = target_object_model._meta.get_field(field).get_internal_type()
+                    if field_type == 'CharField' and value == None:
+                        setattr(target_object, field, u'')
+                    else:
+                        setattr(target_object, field, value)
+            
+            target_object.save()
+        elif self.action == PendingModification.DELETE:
+            # Delete target object
+            self.target_object().delete()
+        
+        # Delete pending modification
+        self.delete()
     
     def __unicode__(self):
         try:
@@ -474,190 +519,3 @@ class PendingModification(SuperLachaiseModel):
         verbose_name = _('pending modification')
         verbose_name_plural = _('pending modifications')
         unique_together = ('target_object_class', 'target_object_id',)
-    
-    def apply_modification(self):
-        """ Apply the modification and delete self """
-        self.full_clean()
-        if self.action == PendingModification.CREATE_OR_UPDATE:
-            # Get or create target object
-            target_object_id_dict = json.loads(self.target_object_id)
-            target_object, created = self.target_object_model().objects.get_or_create(**target_object_id_dict)
-            
-            target_object.save()
-        elif self.action == PendingModification.DELETE:
-            # Delete target object
-            self.target_object().delete()
-        
-        # Delete pending modification
-        self.delete()
-        """
-        try:
-            if self.action == PendingModification.CREATE_OR_UPDATE:
-                # Get or create target object
-                target_object_id_dict = json.loads(self.target_object_id)
-                target_object, created = self.target_object_model().objects.get_or_create(**target_object_id_dict)
-                
-                target_object.save()
-            elif self.action == PendingModification.DELETE:
-                # Delete target object
-                self.target_object().delete()
-            
-            if self.action == PendingModification.CREATE_OR_UPDATE:
-                # Get or create target object
-                target_object_model = self.target_object_model()
-                target_object = self.target_object()
-                if not target_object:
-                    if self.target_object_class == 'SuperLachaisePOI':
-                        openstreetmap_element = OpenStreetMapElement.objects.get(id=self.target_object_id)
-                        target_object = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
-                    else:
-                        target_object = target_object_model(id=self.target_object_id)
-                    if self.target_object_class == 'WikipediaPage':
-                        language = Language.objects.get(code=self.target_object_id.split(':')[0])
-                        wikidata_entry = WikidataEntry.objects.get(id=self.target_object_id.split(':')[1])
-                        wikidata_localized_entry = wikidata_entry.localizations.get(language=language)
-                        
-                        WikipediaPage.objects.filter(wikidata_localized_entry=wikidata_localized_entry).delete()
-                        target_object.wikidata_localized_entry = wikidata_localized_entry
-                
-                localized_fields = []
-                wikidata_entries = None
-                categories = None
-                
-                # Set field values
-                for original_field, original_value in json.loads(self.modified_fields).iteritems():
-                    object_model = target_object_model
-                    object = target_object
-                    field = original_field
-                
-                    if ':' in field and self.target_object_class in ['WikidataEntry', 'SuperLachaisePOI']:
-                        localized_fields.append((original_field, original_value))
-                        continue
-                
-                    if field == 'wikidata_entries' and self.target_object_class == 'SuperLachaisePOI':
-                        wikidata_entries = original_value
-                        continue
-                    
-                    if field == 'superlachaise_categories' and self.target_object_class == 'SuperLachaisePOI':
-                        categories = original_value
-                        continue
-                
-                    if not field in object_model._meta.get_all_field_names():
-                        raise BaseException
-                    field_type = object_model._meta.get_field(field).get_internal_type()
-                    if field_type == 'CharField':
-                        if original_value is None:
-                            value = u''
-                        else:
-                            value = original_value
-                    elif field_type == 'DecimalField':
-                        value = Decimal(original_value)
-                    else:
-                        value = original_value
-                    setattr(object, field, value)
-                
-                # Save
-                target_object.full_clean()
-                target_object.save()
-                
-                localized_objects = {}
-                
-                for (original_field, original_value) in localized_fields:
-                    object_model = target_object_model
-                    object = target_object
-                    field = original_field
-                    
-                    if self.target_object_class == 'WikidataEntry':
-                        object_model = apps.get_model(self._meta.app_label, 'WikidataLocalizedEntry')
-                    elif self.target_object_class == 'SuperLachaisePOI':
-                        object_model = apps.get_model(self._meta.app_label, 'SuperLachaiseLocalizedPOI')
-                    if not object_model or object_model == target_object_model:
-                        raise BaseException
-                    language = Language.objects.get(code=original_field.split(':')[0])
-                
-                    object = None
-                    if language.code in localized_objects:
-                        object = localized_objects[language.code]
-                    if not object:
-                        object = target_object.localizations.filter(language=language).first()
-                
-                    if original_field == (language.code + u':') and original_value is None:
-                        # Delete localization
-                        if object:
-                            object.delete()
-                        continue
-                
-                    if not object:
-                        if self.target_object_class == 'WikidataEntry':
-                            object = object_model(wikidata_entry=target_object, language=language)
-                        elif self.target_object_class == 'SuperLachaisePOI':
-                            object = object_model(superlachaise_poi=target_object, language=language)
-                
-                    if not language.code in localized_objects:
-                        localized_objects[language.code] = object
-                    field = original_field.split(':')[1]
-                    
-                    if not field in object_model._meta.get_all_field_names():
-                        raise BaseException
-                    field_type = object_model._meta.get_field(field).get_internal_type()
-                    if field_type == 'CharField':
-                        if original_value is None:
-                            value = u''
-                        else:
-                            value = original_value
-                    elif field_type == 'DecimalField':
-                        value = Decimal(original_value)
-                    else:
-                        value = original_value
-                    setattr(object, field, value)
-                
-                for language_code, localized_object in localized_objects.iteritems():
-                    localized_object.full_clean()
-                    localized_object.save()
-                
-                if wikidata_entries:
-                    for wikidata_entry_relation in wikidata_entries:
-                        relation_type = wikidata_entry_relation.split(':')[0]
-                        wikidata_id = wikidata_entry_relation.split(':')[-1]
-                        wikidata_entry = WikidataEntry.objects.get(id=wikidata_id)
-                        wikidata_entry_relation = target_object.superlachaisewikidatarelation_set.filter(wikidata_entry_id=wikidata_id, relation_type=relation_type).first()
-                        if not wikidata_entry_relation:
-                            # Create relation
-                            wikidata_entry_relation = SuperLachaiseWikidataRelation(superlachaise_poi=target_object, wikidata_entry=wikidata_entry, relation_type=relation_type)
-                            wikidata_entry_relation.full_clean()
-                            wikidata_entry_relation.save()
-                        elif not wikidata_entry_relation.relation_type == relation_type:
-                            # Modify relation
-                            wikidata_entry_relation.relation_type = relation_type
-                            wikidata_entry_relation.full_clean()
-                            wikidata_entry_relation.save()
-                    for wikidata_entry_relation in target_object.superlachaisewikidatarelation_set.all():
-                        relation_str = wikidata_entry_relation.relation_type + u':' + str(wikidata_entry_relation.wikidata_entry_id)
-                        if not wikidata_entries or not relation_str in wikidata_entries:
-                            # Delete relation
-                            wikidata_entry_relation.delete()
-                
-                if categories:
-                    for category_name in categories:
-                        category = SuperLachaiseCategory.objects.get(code=category_name)
-                        if not category in target_object.superlachaise_categories.all():
-                            # Create relation
-                            category_relation = SuperLachaiseCategoryRelation(superlachaise_poi=target_object, category=category)
-                            category_relation.full_clean()
-                            category_relation.save()
-                        for category_relation in target_object.superlachaisecategoryrelation_set.all():
-                            if not category_relation.category_id in categories:
-                                # Delete relation
-                                category_relation.delete()
-            
-            elif self.action == self.DELETE:
-                target_object = self.target_object()
-                if target_object:
-                    target_object.delete()
-            else:
-                raise BaseException
-            
-            self.delete()
-            
-        except:
-            traceback.print_exc()"""
