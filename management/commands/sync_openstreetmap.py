@@ -363,6 +363,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
         self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
+        error_message = None
+        
         try:
             print_unicode(_('== Start %s ==') % self.admin_command.name)
             
@@ -393,8 +395,10 @@ class Command(BaseCommand):
             else:
                 self.admin_command.last_result = AdminCommand.NO_MODIFICATIONS
         except:
+            traceback.print_exc()
             exception = sys.exc_info()[0]
-            self.admin_command.last_result = exception.__class__.__name__ + ': ' + traceback.format_exc()
+            error_message = exception.__class__.__name__ + ': ' + traceback.format_exc()
+            self.admin_command.last_result = error_message
         
         print_unicode(_('== End %s ==') % self.admin_command.name)
         
@@ -402,3 +406,5 @@ class Command(BaseCommand):
         self.admin_command.save()
         
         translation.deactivate()
+        
+        return error_message

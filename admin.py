@@ -29,8 +29,16 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone, translation
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+from StringIO import StringIO
 
 from superlachaise_api.models import *
+
+def change_page_url(obj):
+    app_name = obj._meta.app_label
+    reverse_name = obj.__class__.__name__.lower()
+    reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+    url = reverse(reverse_path, args=(obj.pk,))
+    return url
 
 class LocalizedAdminCommandInline(admin.StackedInline):
     model = LocalizedAdminCommand
@@ -73,7 +81,7 @@ class AdminCommandAdmin(admin.ModelAdmin):
             try:
                 admin_command.perform_command()
             except:
-                traceback.print_exc()
+                messages.error(request, sys.exc_info()[1])
     perform_commands.short_description = _('Execute selected admin commands')
     
     def delete_notes(self, request, queryset):
@@ -310,7 +318,11 @@ class WikidataEntryAdmin(admin.ModelAdmin):
         sync_start = timezone.now()
         
         try:
-            call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
+            out = StringIO()
+            call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids), stdout=out)
+            if out.getvalue():
+                messages.error(request, _('An error occured. See the admin commands screen for more information.'))
+            out.close()
         except:
             messages.error(request, sys.exc_info()[1])
             return
@@ -329,61 +341,59 @@ class WikidataEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikidataLocalizedEntry)
 class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'language', 'wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'description', 'notes')
+    list_display = ('__unicode__', 'wikidata_entry_link', 'language', 'name', 'wikidata_link', 'wikipedia_link', 'description', 'notes')
     list_filter = ('language',)
     search_fields = ('name', 'wikidata_entry__id', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'wikidata_entry', 'name', 'wikipedia', 'description']}),
+        (None, {'fields': ['wikidata_entry', 'language', 'name', 'wikipedia', 'description']}),
     ]
     readonly_fields = ('wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'created', 'modified')
     
     def wikidata_entry_link(self, obj):
         if obj.wikidata_entry:
-            app_name = obj._meta.app_label
-            reverse_name = obj.wikidata_entry.__class__.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.wikidata_entry.pk,))
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.wikidata_entry), unicode(obj.wikidata_entry)))
     wikidata_entry_link.allow_tags = True
     wikidata_entry_link.short_description = _('wikidata entry')
     wikidata_entry_link.admin_order_field = 'wikidata_entry'
     
     def wikidata_link(self, obj):
-        if obj.wikidata_entry:
-            language = translation.get_language().split("-", 1)[0]
-            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_entry.wikidata_id), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_entry.wikidata_id)))
+        language_code = translation.get_language().split("-", 1)[0]
+        wikidata_urls = obj.wikidata_entry.wikidata_urls(language_code, "wikidata_id")
+        if wikidata_urls:
+            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
+            return ';'.join(result)
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata_entry'
     
     def wikipedia_link(self, obj):
-        if obj.wikipedia:
-            url = u'https://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
+        url = obj.wikipedia_url()
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikipedia))
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
     
     def sync_entry(self, request, queryset):
-        wikidata_ids = []
-        for wikidata_localized_entry in queryset:
-            wikidata_ids.append(str(wikidata_localized_entry.wikidata_entry.wikidata_id))
+        wikidata_ids = [wikidata_localized_entry.wikidata_entry.wikidata_id for wikidata_localized_entry in queryset]
         sync_start = timezone.now()
-        call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
         
+        try:
+            out = StringIO()
+            call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids), stdout=out)
+            if out.getvalue():
+                messages.error(request, _('An error occured. See the admin commands screen for more information.'))
+            out.close()
+        except:
+            messages.error(request, sys.exc_info()[1])
+            return
+        
+        # Redirect to pending modifications scren if needed
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
         if pending_modifications:
-            # Open modification page with filter
-            app_name = PendingModification._meta.app_label
-            reverse_name = PendingModification.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
-            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
-            url = '/'.join(split_url[0:len(split_url) - 1])
-            return HttpResponseRedirect(url)
+            return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
     sync_entry.short_description = _('Sync selected localized wikidata entries')
     
     def delete_notes(self, request, queryset):

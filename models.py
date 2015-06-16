@@ -231,7 +231,7 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         self.wikidata_entry.save()
     
     def __unicode__(self):
-        return unicode(self.language) + u':' + self.name
+        return self.name + u' (' + unicode(self.language) + u')'
     
     class Meta:
         ordering = ['language', 'name']
