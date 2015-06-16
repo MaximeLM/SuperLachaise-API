@@ -20,8 +20,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import datetime, traceback
-from django.contrib import admin
+import datetime, traceback, sys
+from django.contrib import admin, messages
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.db.models import Count
@@ -156,22 +156,24 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     def openstreetmap_link(self, obj):
         url = obj.openstreetmap_url()
         if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(url)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), unicode(url)))
     openstreetmap_link.allow_tags = True
     openstreetmap_link.short_description = _('openStreetMap')
     
     def wikidata_links(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        result = [mark_safe(u"<a href='%s'>%s</a>" % (url, wikidata)) for (wikidata, url) in obj.wikidata_urls(language_code)]
-        return ';'.join(result)
+        wikidata_urls = obj.wikidata_urls(language_code)
+        if wikidata_urls:
+            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
+            return ';'.join(result)
     wikidata_links.allow_tags = True
     wikidata_links.short_description = _('wikidata')
     wikidata_links.admin_order_field = 'wikidata'
     
     def wikimedia_commons_link(self, obj):
-        url = obj.wikimedia_commons_url().replace("'","%27")
+        url = obj.wikimedia_commons_url()
         if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, obj.wikimedia_commons))
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons))
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons'
@@ -192,117 +194,102 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     readonly_fields = ('wikipedia_link',)
     
     def wikipedia_link(self, obj):
-        if obj.wikipedia:
-            url = u'https://{language}.wikipedia.org/wiki/{name}'.format(language=obj.language.code, name=unicode(obj.wikipedia)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikipedia)))
+        url = obj.wikipedia_url()
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikipedia))
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
 
 @admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
+    list_display = ('__unicode__', 'name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'grave_of_wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'notes')
     search_fields = ('localizations__name', 'wikidata_id', 'instance_of', 'sex_or_gender', 'occupations', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['wikidata_id', 'wikidata_link', 'instance_of', 'instance_of_link', 'sex_or_gender', 'sex_or_gender_link', 'occupations', 'occupations_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+        (None, {'fields': ['wikidata_id', 'wikidata_link', 'instance_of', 'instance_of_link', 'sex_or_gender', 'sex_or_gender_link', 'occupations', 'occupations_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
-    readonly_fields = ('name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'grave_of_wikidata_link', 'created', 'modified')
+    readonly_fields = ('name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'grave_of_wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
     
     inlines = [
         WikidataLocalizedEntryInline,
     ]
     
     def name(self, obj):
-        names = {}
-        for wikidata_localized_entry in obj.localizations.all():
-            if not wikidata_localized_entry.name in names:
-                names[wikidata_localized_entry.name] = []
-            names[wikidata_localized_entry.name].append(wikidata_localized_entry.language.code)
-        
-        if len(names) > 0:
-            result = []
-            for name, languages in names.iteritems():
-                result.append('(%s)%s' % (','.join(languages), name))
-            return '; '.join(result)
-        
-        return obj.wikidata_id
+        language_code = translation.get_language().split("-", 1)[0]
+        language = Language.objects.filter(code=language_code).first()
+        if language:
+            wikidata_localized_entry = obj.localizations.filter(language=language).first()
+            if wikidata_localized_entry:
+                return wikidata_localized_entry.name
     name.short_description = _('name')
     
     def wikidata_link(self, obj):
-        if obj.wikidata_id:
-            language = translation.get_language().split("-", 1)[0]
-            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_id), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_id)))
+        language_code = translation.get_language().split("-", 1)[0]
+        wikidata_urls = obj.wikidata_urls(language_code, "wikidata_id")
+        if wikidata_urls:
+            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
+            return ';'.join(result)
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata_id'
     
     def instance_of_link(self, obj):
-        if obj.instance_of:
-            language = translation.get_language().split("-", 1)[0]
-            
-            result = []
-            for link in obj.instance_of.split(';'):
-                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
-                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+        language_code = translation.get_language().split("-", 1)[0]
+        wikidata_urls = obj.wikidata_urls(language_code, "instance_of")
+        if wikidata_urls:
+            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
             return ';'.join(result)
     instance_of_link.allow_tags = True
     instance_of_link.short_description = _('instance of')
     instance_of_link.admin_order_field = 'instance_of'
     
     def occupations_link(self, obj):
-        if obj.occupations:
-            language = translation.get_language().split("-", 1)[0]
-            
-            result = []
-            for link in obj.occupations.split(';'):
-                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
-                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
+        language_code = translation.get_language().split("-", 1)[0]
+        wikidata_urls = obj.wikidata_urls(language_code, "occupations")
+        if wikidata_urls:
+            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
             return ';'.join(result)
     occupations_link.allow_tags = True
     occupations_link.short_description = _('occupations')
     occupations_link.admin_order_field = 'occupations'
     
     def sex_or_gender_link(self, obj):
-        if obj.sex_or_gender:
-            language = translation.get_language().split("-", 1)[0]
-            
-            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.sex_or_gender), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.sex_or_gender)))
+        language_code = translation.get_language().split("-", 1)[0]
+        wikidata_urls = obj.wikidata_urls(language_code, "sex_or_gender")
+        if wikidata_urls:
+            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
+            return ';'.join(result)
     sex_or_gender_link.allow_tags = True
     sex_or_gender_link.short_description = _('sex or gender')
     sex_or_gender_link.admin_order_field = 'sex_or_gender'
     
+    def grave_of_wikidata_link(self, obj):
+        language_code = translation.get_language().split("-", 1)[0]
+        wikidata_urls = obj.wikidata_urls(language_code, "grave_of_wikidata")
+        if wikidata_urls:
+            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
+            return ';'.join(result)
+    grave_of_wikidata_link.allow_tags = True
+    grave_of_wikidata_link.short_description = _('grave_of:wikidata')
+    grave_of_wikidata_link.admin_order_field = 'grave_of_wikidata'
+    
     def wikimedia_commons_category_link(self, obj):
-        if obj.wikimedia_commons_category:
-            url = u'https://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_category)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
+        url = obj.wikimedia_commons_category_url("wikimedia_commons_category")
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_category))
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
     def wikimedia_commons_grave_category_link(self, obj):
-        if obj.wikimedia_commons_grave_category:
-            url = u'https://commons.wikimedia.org/wiki/Category:{name}'.format(name=unicode(obj.wikimedia_commons_grave_category)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_grave_category)))
+        url = obj.wikimedia_commons_category_url("wikimedia_commons_grave_category")
+        if url:
+            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_grave_category))
     wikimedia_commons_grave_category_link.allow_tags = True
     wikimedia_commons_grave_category_link.short_description = _('wikimedia commons grave category')
     wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'
-    
-    def grave_of_wikidata_link(self, obj):
-        if obj.grave_of_wikidata:
-            language = translation.get_language().split("-", 1)[0]
-            
-            result = []
-            for link in obj.grave_of_wikidata.split(';'):
-                url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(link), language=language)
-                result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(link))))
-            return ';'.join(result)
-    grave_of_wikidata_link.allow_tags = True
-    grave_of_wikidata_link.short_description = _('grave_of:wikidata')
-    grave_of_wikidata_link.admin_order_field = 'grave_of_wikidata'
     
     def date_of_birth_with_accuracy(self, obj):
         date = obj.date_of_birth if obj.date_of_birth else u''
@@ -319,23 +306,19 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     date_of_death_with_accuracy.admin_order_field = 'date_of_death'
     
     def sync_entry(self, request, queryset):
-        wikidata_ids = []
-        for wikidata_entry in queryset:
-            wikidata_ids.append(str(wikidata_entry.wikidata_id))
+        wikidata_ids = [wikidata_entry.wikidata_id for wikidata_entry in queryset]
         sync_start = timezone.now()
-        call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
         
+        try:
+            call_command('sync_wikidata', wikidata_ids='|'.join(wikidata_ids))
+        except:
+            messages.error(request, sys.exc_info()[1])
+            return
+        
+        # Redirect to pending modifications scren if needed
+        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
         if pending_modifications:
-            # Open modification page with filter
-            app_name = PendingModification._meta.app_label
-            reverse_name = PendingModification.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
-            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
-            url = '/'.join(split_url[0:len(split_url) - 1])
-            return HttpResponseRedirect(url)
-    
+            return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
     sync_entry.short_description = _('Sync selected wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -855,7 +838,18 @@ class PendingModificationAdmin(admin.ModelAdmin):
         (None, {'fields': ['action', 'modified_fields']}),
     ]
     readonly_fields = ('target_object_link', 'created', 'modified')
-   
+    
+    @classmethod
+    def modified_since_url(cls, modified_since):
+        """ Return an URL for the pending modifications admin page where the entries are filtered by modified date greater than the specified date """
+        app_name = PendingModification._meta.app_label
+        reverse_name = PendingModification.__name__.lower()
+        reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+        split_url = reverse(reverse_path, args=(1,)).split('/')
+        split_url[len(split_url) - 2] = u'?modified__gte=%s' % (modified_since.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+        url = '/'.join(split_url[0:len(split_url) - 1])
+        return url
+    
     def target_object_link(self, obj):
         try:
             if obj.target_object():

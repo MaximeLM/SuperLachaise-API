@@ -195,6 +195,14 @@ class WikidataEntry(SuperLachaiseModel):
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
     
+    def wikidata_urls(self, language_code, field):
+        if getattr(self, field):
+           return [(wikidata, WikidataEntry.URL_TEMPLATE.format(id=wikidata, language_code=language_code)) for wikidata in getattr(self, field).split(';')]
+    
+    def wikimedia_commons_category_url(self, field):
+        if getattr(self, field):
+            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=u'Category:%s' % getattr(self, field))
+    
     def __unicode__(self):
         return self.wikidata_id
     
@@ -211,6 +219,10 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     wikipedia = models.CharField(max_length=255, blank=True, verbose_name=_('wikipedia'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('description'))
+    
+    def wikipedia_url(self):
+        if self.wikipedia:
+            return WikipediaPage.URL_TEMPLATE.format(language_code=self.language.code, title=self.wikipedia)
     
     def save(self, *args, **kwargs):
         super(WikidataLocalizedEntry, self).save(*args, **kwargs)
