@@ -152,9 +152,12 @@ class OpenStreetMapElement(SuperLachaiseModel):
         if self.type:
             return OpenStreetMapElement.URL_TEMPLATE.format(type=self.type, id=self.openstreetmap_id)
     
-    def wikidata_urls(self, language_code):
+    def wikidata_list(self):
         if self.wikidata:
-            return [(wikidata, WikidataEntry.URL_TEMPLATE.format(id=wikidata.split(':')[-1], language_code=language_code)) for wikidata in self.wikidata.split(';')]
+            return self.wikidata.split(';')
+    
+    def wikidata_url(self, language_code, wikidata):
+        return WikidataEntry.URL_TEMPLATE.format(id=wikidata.split(':')[-1], language_code=language_code)
     
     def wikimedia_commons_url(self):
         if self.wikimedia_commons:
@@ -195,13 +198,23 @@ class WikidataEntry(SuperLachaiseModel):
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
     
+    def wikidata_list(self, field):
+        value = getattr(self, field)
+        if value:
+            return value.split(';')
+    
+    def wikidata_url(self, language_code, wikidata):
+        return WikidataEntry.URL_TEMPLATE.format(id=wikidata, language_code=language_code)
+    
     def wikidata_urls(self, language_code, field):
-        if getattr(self, field):
-           return [(wikidata, WikidataEntry.URL_TEMPLATE.format(id=wikidata, language_code=language_code)) for wikidata in getattr(self, field).split(';')]
+        value = getattr(self, field)
+        if value:
+           return [(wikidata, WikidataEntry.URL_TEMPLATE.format(id=wikidata, language_code=language_code)) for wikidata in value.split(';')]
     
     def wikimedia_commons_category_url(self, field):
-        if getattr(self, field):
-            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=u'Category:%s' % getattr(self, field))
+        value = getattr(self, field)
+        if value:
+            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=u'Category:%s' % value)
     
     def __unicode__(self):
         return self.wikidata_id
@@ -288,9 +301,8 @@ class WikimediaCommonsFile(SuperLachaiseModel):
     original_url = models.CharField(max_length=500, blank=True, verbose_name=_('original url'))
     thumbnail_url = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
     
-    def wikimedia_commons_url(self, field):
-        if getattr(self, field):
-            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=getattr(self, field))
+    def wikimedia_commons_url(self):
+        return WikimediaCommonsCategory.URL_TEMPLATE.format(title=self.wikimedia_commons_id)
     
     def __unicode__(self):
         return self.wikimedia_commons_id

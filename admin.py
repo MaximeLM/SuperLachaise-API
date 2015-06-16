@@ -187,8 +187,9 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     
     def wikidata_links(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        wikidata_urls = obj.wikidata_urls(language_code)
-        if wikidata_urls:
+        wikidata_list = obj.wikidata_list()
+        if wikidata_list:
+            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
             result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
             return ';'.join(result)
     wikidata_links.allow_tags = True
@@ -252,18 +253,17 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def wikidata_link(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        wikidata_urls = obj.wikidata_urls(language_code, "wikidata_id")
-        if wikidata_urls:
-            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
-            return ';'.join(result)
+        url = obj.wikidata_url(language_code, obj.wikidata_id)
+        return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikidata_id))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata_id'
     
     def instance_of_link(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        wikidata_urls = obj.wikidata_urls(language_code, "instance_of")
-        if wikidata_urls:
+        wikidata_list = obj.wikidata_list("instance_of")
+        if wikidata_list:
+            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
             result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
             return ';'.join(result)
     instance_of_link.allow_tags = True
@@ -272,8 +272,9 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def occupations_link(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        wikidata_urls = obj.wikidata_urls(language_code, "occupations")
-        if wikidata_urls:
+        wikidata_list = obj.wikidata_list("occupations")
+        if wikidata_list:
+            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
             result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
             return ';'.join(result)
     occupations_link.allow_tags = True
@@ -282,8 +283,9 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def sex_or_gender_link(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        wikidata_urls = obj.wikidata_urls(language_code, "sex_or_gender")
-        if wikidata_urls:
+        wikidata_list = obj.wikidata_list("sex_or_gender")
+        if wikidata_list:
+            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
             result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
             return ';'.join(result)
     sex_or_gender_link.allow_tags = True
@@ -292,8 +294,9 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def grave_of_wikidata_link(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        wikidata_urls = obj.wikidata_urls(language_code, "grave_of_wikidata")
-        if wikidata_urls:
+        wikidata_list = obj.wikidata_list("grave_of_wikidata")
+        if wikidata_list:
+            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
             result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
             return ';'.join(result)
     grave_of_wikidata_link.allow_tags = True
@@ -317,16 +320,16 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'
     
     def date_of_birth_with_accuracy(self, obj):
-        date = obj.date_of_birth if obj.date_of_birth else u''
-        accuracy = u' (%s)' % obj.date_of_birth_accuracy if obj.date_of_birth_accuracy else u''
-        return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
+        if obj.date_of_birth:
+            accuracy = u' (%s)' % obj.date_of_birth_accuracy if obj.date_of_birth_accuracy else u''
+            return u'{date}{accuracy}'.format(accuracy=accuracy, date=obj.date_of_birth)
     date_of_birth_with_accuracy.short_description = _('date of birth')
     date_of_birth_with_accuracy.admin_order_field = 'date_of_birth'
     
     def date_of_death_with_accuracy(self, obj):
-        date = obj.date_of_death if obj.date_of_death else u''
-        accuracy = u' (%s)' % obj.date_of_death_accuracy if obj.date_of_death_accuracy else u''
-        return u'{date}{accuracy}'.format(accuracy=accuracy, date=date)
+        if obj.date_of_death:
+            accuracy = u' (%s)' % obj.date_of_death_accuracy if obj.date_of_death_accuracy else u''
+            return u'{date}{accuracy}'.format(accuracy=accuracy, date=obj.date_of_death)
     date_of_death_with_accuracy.short_description = _('date of death')
     date_of_death_with_accuracy.admin_order_field = 'date_of_death'
     
@@ -483,7 +486,7 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     readonly_fields = ('wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = obj.wikimedia_commons_url("wikimedia_commons_id")
+        url = obj.wikimedia_commons_url()
         if url:
             return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_id))
     wikimedia_commons_link.allow_tags = True
@@ -515,6 +518,15 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     
     actions = [delete_notes, sync_object]
 
+class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
+    model = SuperLachaiseLocalizedPOI
+    extra = 0
+    
+    fieldsets = [
+        (None, {'fields': ['language', 'name', 'sorting_name', 'description', 'created', 'modified']}),
+    ]
+    readonly_fields = ('created', 'modified')
+
 class SuperLachaiseWikidataRelationInline(admin.StackedInline):
     model = SuperLachaisePOI.wikidata_entries.through
     extra = 0
@@ -525,32 +537,16 @@ class SuperLachaiseWikidataRelationInline(admin.StackedInline):
     readonly_fields = ('name',)
     
     def name(self, obj):
-        names = {}
-        for wikidata_localized_entry in obj.wikidata_entry.localizations.all():
-            if not wikidata_localized_entry.name in names:
-                names[wikidata_localized_entry.name] = []
-            names[wikidata_localized_entry.name].append(wikidata_localized_entry.language.code)
-        
-        if len(names) > 0:
-            result = []
-            for name, languages in names.iteritems():
-                result.append('(%s)%s' % (','.join(languages), name))
-            return '; '.join(result)
-        
-        return obj.wikidata_entry.wikidata_id
+        language_code = translation.get_language().split("-", 1)[0]
+        language = Language.objects.filter(code=language_code).first()
+        if language:
+            wikidata_localized_entry = obj.wikidata_entry.localizations.filter(language=language).first()
+            if wikidata_localized_entry:
+                return wikidata_localized_entry.name
     name.short_description = _('name')
     
     verbose_name = "wikidata entry"
     verbose_name_plural = "wikidata entries"
-
-class SuperLachaiseLocalizedPOIInline(admin.StackedInline):
-    model = SuperLachaiseLocalizedPOI
-    extra = 0
-    
-    fieldsets = [
-        (None, {'fields': ['language', 'name', 'sorting_name', 'description', 'created', 'modified']}),
-    ]
-    readonly_fields = ('created', 'modified')
 
 class SuperLachaiseCategoryRelationInline(admin.StackedInline):
     model = SuperLachaiseCategoryRelation
@@ -565,16 +561,15 @@ class SuperLachaiseCategoryRelationInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'superlachaise_categories_link', 'modified', 'notes')
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'wikimedia_commons_category_link', 'main_image_link', 'modified', 'notes')
     list_filter = ('superlachaise_categories',)
     search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image', 'superlachaise_categories_link']}),
+        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image']}),
     ]
-    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'wikimedia_commons_category_link', 'main_image_link', 'superlachaise_categories_link', 'created', 'modified')
-    filter_horizontal = ('superlachaise_categories',)
+    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'wikimedia_commons_category_link', 'main_image_link', 'created', 'modified')
     
     inlines = [
         SuperLachaiseLocalizedPOIInline,
@@ -584,11 +579,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     
     def openstreetmap_element_link(self, obj):
         if obj.openstreetmap_element:
-            app_name = obj._meta.app_label
-            reverse_name = obj.openstreetmap_element.__class__.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.openstreetmap_element.pk,))
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.openstreetmap_element)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.openstreetmap_element).replace("'","%27"), unicode(obj.openstreetmap_element)))
     openstreetmap_element_link.allow_tags = True
     openstreetmap_element_link.short_description = _('openstreetmap element')
     openstreetmap_element_link.admin_order_field = 'openstreetmap_element'
@@ -600,7 +591,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
             reverse_name = 'wikidataentry'
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
             url = reverse(reverse_path, args=(wikidata_entry_relation.wikidata_entry_id,))
-            text = wikidata_entry_relation.relation_type + u':' + wikidata_entry_relation.wikidata_entry_id
+            text = wikidata_entry_relation.relation_type + u':' + unicode(wikidata_entry_relation.wikidata_entry)
             result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, text)))
         return ';'.join(result)
     wikidata_entries_link.allow_tags = True

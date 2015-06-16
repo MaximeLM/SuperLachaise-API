@@ -44,41 +44,57 @@ class LocalizedSettingTestCase(TestCase):
 
 class OpenStreetMapElementTestCase(TestCase):
     
-    def test_openstreetmap_url_returns_none_if_type_is_none(self):
+    def test_openstreetmap_url_returns_none_if_type_is_empty(self):
         openstreetmap_id = "123456"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id)
         
         self.assertIsNone(openstreetmap_element.openstreetmap_url())
     
-    def test_openstreetmap_url_returns_url_if_type_is_not_none(self):
+    def test_openstreetmap_url_returns_openstreetmap_url_with_type_and_id_if_type_is_not_empty(self):
         openstreetmap_id = "123456"
         type = "node"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, type=type)
         
-        self.assertIsNotNone(openstreetmap_element.openstreetmap_url())
+        self.assertEqual(OpenStreetMapElement.URL_TEMPLATE.format(type=type, id=openstreetmap_id), openstreetmap_element.openstreetmap_url())
     
-    def test_wikidata_urls_returns_none_if_wikidata_is_empty(self):
-        language_code = "en"
+    def test_wikidata_list_returns_none_if_wikidata_is_empty(self):
         openstreetmap_id = "123456"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id)
         
-        wikidata_urls = openstreetmap_element.wikidata_urls(language_code)
-        
-        self.assertIsNone(wikidata_urls)
+        self.assertIsNone(openstreetmap_element.wikidata_list())
     
-    def test_wikidata_urls_returns_ordred_list_of_tuples_of_wikidata_codes_and_url_if_wikidata_is_not_empty(self):
-        language_code = "en"
+    def test_wikidata_list_returns_wikidata_if_wikidata_has_no_semicolon(self):
         openstreetmap_id = "123456"
-        wikidata = "Q123;Q456"
+        wikidata = "Q123456"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikidata=wikidata)
         
-        wikidata_urls = openstreetmap_element.wikidata_urls(language_code)
+        self.assertEqual([wikidata], openstreetmap_element.wikidata_list())
+    
+    def test_wikidata_list_returns_wikidata_splitted_by_semicolon_if_wikidata_has_semicolon(self):
+        openstreetmap_id = "123456"
+        wikidata_1 = "Q456"
+        wikidata_2 = "Q123"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikidata=';'.join([wikidata_1, wikidata_2]))
         
-        self.assertEqual(2, len(wikidata_urls))
-        self.assertEqual(2, len(wikidata_urls[0]))
-        self.assertEqual("Q123", wikidata_urls[0][0])
-        self.assertEqual(2, len(wikidata_urls[1]))
-        self.assertEqual("Q456", wikidata_urls[1][0])
+        self.assertEqual([wikidata_1, wikidata_2], openstreetmap_element.wikidata_list())
+    
+    def test_wikidata_url_returns_wikidata_url_with_language_and_wikidata_if_wikidata_has_no_colon(self):
+        language_code = "en"
+        openstreetmap_id = "123456"
+        wikidata = "Q123"
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikidata=wikidata)
+        
+        self.assertEqual(WikidataEntry.URL_TEMPLATE.format(id=wikidata, language_code=language_code), openstreetmap_element.wikidata_url(language_code, wikidata))
+    
+    def test_wikidata_url_returns_wikidata_url_with_language_and_last_part_of_wikidata_splitted_by_colon_if_wikidata_has_colon(self):
+        language_code = "en"
+        openstreetmap_id = "123456"
+        prefix = "artist"
+        suffix = "Q123"
+        wikidata = ':'.join([prefix, suffix])
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikidata=wikidata)
+        
+        self.assertEqual(WikidataEntry.URL_TEMPLATE.format(id=suffix, language_code=language_code), openstreetmap_element.wikidata_url(language_code, wikidata))
     
     def test_wikimedia_commons_url_returns_none_if_wikimedia_commons_is_empty(self):
         openstreetmap_id = "123456"
@@ -86,46 +102,54 @@ class OpenStreetMapElementTestCase(TestCase):
         
         self.assertIsNone(openstreetmap_element.wikimedia_commons_url())
     
-    def test_wikimedia_commons_url_returns_url_if_wikimedia_commons_is_not_empty(self):
+    def test_wikimedia_commons_url_returns_wikimedia_commons_url_with_wikimedia_commons_if_wikimedia_commons_is_not_empty(self):
         openstreetmap_id = "123456"
         wikimedia_commons = "wikimedia commons"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikimedia_commons=wikimedia_commons)
         
-        self.assertIsNotNone(openstreetmap_element.wikimedia_commons_url())
+        self.assertEqual(WikimediaCommonsCategory.URL_TEMPLATE.format(title=wikimedia_commons), openstreetmap_element.wikimedia_commons_url())
 
 class WikidataEntryTestCase(TestCase):
     
-    def test_wikidata_urls_returns_ordred_list_of_tuples_of_wikidata_codes_and_url_if_field_is_not_empty(self):
-        language_code = "language_code"
-        instance_of = "Q123;Q456"
-        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id", instance_of=instance_of)
+    def test_wikidata_list_returns_none_if_field_value_is_empty(self):
+        wikidata_id = "wikidata_id"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id)
         
-        wikidata_urls = wikidata_entry.wikidata_urls(language_code, "instance_of")
-        
-        self.assertEqual(2, len(wikidata_urls))
-        self.assertEqual(2, len(wikidata_urls[0]))
-        self.assertEqual("Q123", wikidata_urls[0][0])
-        self.assertEqual(2, len(wikidata_urls[1]))
-        self.assertEqual("Q456", wikidata_urls[1][0])
+        self.assertIsNone(wikidata_entry.wikidata_list("occupations"))
     
-    def test_wikidata_urls_returns_none_if_field_is_empty(self):
-        language_code = "language_code"
-        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+    def test_wikidata_list_returns_field_value_if_field_value_has_no_semicolon(self):
+        wikidata_id = "wikidata_id"
+        occupations = "occupations"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id, occupations=occupations)
         
-        wikidata_urls = wikidata_entry.wikidata_urls(language_code, "instance_of")
-        
-        self.assertIsNone(wikidata_urls)
+        self.assertEqual([occupations], wikidata_entry.wikidata_list("occupations"))
     
-    def test_wikimedia_commons_category_url_returns_none_if_field_is_empty(self):
+    def test_wikidata_list_returns_field_value_splitted_by_semicolon_if_field_value_has_semicolon(self):
+        wikidata_id = "wikidata_id"
+        occupation_1 = "occupation_1"
+        occupation_2 = "occupation_2"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id, occupations=';'.join([occupation_1, occupation_2]))
+        
+        self.assertEqual([occupation_1, occupation_2], wikidata_entry.wikidata_list("occupations"))
+    
+    def test_wikidata_url_returns_wikidata_url_with_language_and_field_value_if_field_value_is_not_empty(self):
+        language_code = "en"
+        wikidata_id = "Q123"
+        occupations = "occupations"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id, occupations=occupations)
+        
+        self.assertEqual(WikidataEntry.URL_TEMPLATE.format(id=occupations, language_code=language_code), wikidata_entry.wikidata_url(language_code, occupations))
+    
+    def test_wikimedia_commons_category_url_returns_none_if_field_value_is_empty(self):
         wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
         
         self.assertIsNone(wikidata_entry.wikimedia_commons_category_url("wikimedia_commons_category"))
     
-    def test_wikimedia_commons_category_url_returns_url_if_field_is_not_empty(self):
+    def test_wikimedia_commons_category_url_returns_wikimedia_commons_url_with_category_and_field_value_if_field_value_is_not_empty(self):
         wikimedia_commons_category = "wikimedia_commons_category"
         wikidata_entry = WikidataEntry(wikidata_id="wikidata_id", wikimedia_commons_category=wikimedia_commons_category)
         
-        self.assertIsNotNone(wikidata_entry.wikimedia_commons_category_url("wikimedia_commons_category"))
+        self.assertEqual(WikimediaCommonsCategory.URL_TEMPLATE.format(title=u'Category:%s' % wikimedia_commons_category), wikidata_entry.wikimedia_commons_category_url("wikimedia_commons_category"))
 
 class WikidataLocalizedEntryTestCase(TestCase):
     
@@ -151,7 +175,7 @@ class WikidataLocalizedEntryTestCase(TestCase):
         
         self.assertIsNone(wikidata_localized_entry.wikipedia_url())
     
-    def test_wikipedia_url_returns_url_if_wikipedia_is_not_empty(self):
+    def test_wikipedia_url_returns_wikipedia_url_with_language_and_wikipedia_if_wikipedia_is_not_empty(self):
         wikidata_id = "wikidata_id"
         language_code = "language_code"
         wikidata_entry = WikidataEntry(wikidata_id=wikidata_id)
@@ -161,7 +185,7 @@ class WikidataLocalizedEntryTestCase(TestCase):
         wikipedia = "wikipedia"
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language, wikipedia=wikipedia)
         
-        self.assertIsNotNone(wikidata_localized_entry.wikipedia_url())
+        self.assertEqual(WikipediaPage.URL_TEMPLATE.format(language_code=language.code, title=wikipedia), wikidata_localized_entry.wikipedia_url())
 
 class WikipediaPageTestCase(TestCase):
     
@@ -193,23 +217,24 @@ class WikipediaPageTestCase(TestCase):
 
 class WikimediaCommonsCategoryTestCase(TestCase):
     
-    def test_wikimedia_commons_url_returns_none_if_field_is_empty(self):
+    def test_wikimedia_commons_url_returns_none_if_field_value_is_empty(self):
         wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id="wikimedia_commons_id")
         
         self.assertIsNone(wikimedia_commons_category.wikimedia_commons_url("main_image"))
     
-    def test_wikimedia_commons_url_returns_url_if_field_is_not_empty(self):
-        main_image = "main_image"
+    def test_wikimedia_commons_url_returns_wikimedia_commons_url_with_field_value_if_field_value_is_not_empty(self):
+        main_image = "image"
         wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id="wikimedia_commons_id", main_image=main_image)
         
-        self.assertIsNotNone(wikimedia_commons_category.wikimedia_commons_url("main_image"))
+        self.assertEqual(WikimediaCommonsCategory.URL_TEMPLATE.format(title=main_image), wikimedia_commons_category.wikimedia_commons_url("main_image"))
 
 class WikimediaCommonsFileTestCase(TestCase):
     
-    def test_wikimedia_commons_url_returns_url(self):
-        wikimedia_commons_file = WikimediaCommonsFile(wikimedia_commons_id="wikimedia_commons_id")
+    def test_wikimedia_commons_url_returns_wikimedia_commons_url_with_id(self):
+        wikimedia_commons_id = "id"
+        wikimedia_commons_file = WikimediaCommonsFile(wikimedia_commons_id=wikimedia_commons_id)
         
-        self.assertIsNotNone(wikimedia_commons_file.wikimedia_commons_url("wikimedia_commons_id"))
+        self.assertEqual(WikimediaCommonsCategory.URL_TEMPLATE.format(title=wikimedia_commons_id), wikimedia_commons_file.wikimedia_commons_url())
 
 class SuperLachaisePOITestCase(TestCase):
     pass
