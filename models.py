@@ -260,9 +260,11 @@ class WikipediaPage(SuperLachaiseModel):
     default_sort = models.CharField(max_length=255, blank=True, verbose_name=_('default sort'))
     intro = models.TextField(blank=True, verbose_name=_('intro'))
     
-    def save(self, *args, **kwargs):
+    def clean(self):
         # Delete \r added by textfield
         self.intro = self.intro.replace('\r','')
+    
+    def save(self, *args, **kwargs):
         super(WikipediaPage, self).save(*args, **kwargs)
         
         # Touch Wikidata localized entry
@@ -345,7 +347,7 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
         self.superlachaise_poi.save()
     
     def __unicode__(self):
-        return self.name
+        return self.name + u' (' + unicode(self.language) + u')'
     
     class Meta:
         ordering = ['language', 'sorting_name', 'name']
@@ -388,7 +390,7 @@ class SuperLachaiseCategory(SuperLachaiseModel):
     
     code = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('code'))
     type = models.CharField(max_length=255, verbose_name=_('type'))
-    values = models.CharField(max_length=255, blank=True, verbose_name=_('codes'))
+    values = models.CharField(max_length=255, blank=True, verbose_name=_('values'))
     
     def __unicode__(self):
         return self.code
@@ -449,6 +451,9 @@ class WikidataOccupation(SuperLachaiseModel):
     superlachaise_category = models.ForeignKey('SuperLachaiseCategory', null=True, blank=True, limit_choices_to={'type': SuperLachaiseCategory.OCCUPATION}, related_name='wikidata_occupations', verbose_name=_('superlachaise category'))
     used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='wikidata_occupations', verbose_name=_('used in'))
     
+    def wikidata_url(self, language_code):
+        return WikidataEntry.URL_TEMPLATE.format(id=self.wikidata_id, language_code=language_code)
+    
     def __unicode__(self):
         return self.wikidata_id
     
@@ -469,9 +474,9 @@ class PendingModification(SuperLachaiseModel):
     )
     
     target_object_class_choices = (
+        (Language.__name__, Language._meta.verbose_name),
         (AdminCommand.__name__, AdminCommand._meta.verbose_name),
         (LocalizedAdminCommand.__name__, LocalizedAdminCommand._meta.verbose_name),
-        (Language.__name__, Language._meta.verbose_name),
         (Setting.__name__, Setting._meta.verbose_name),
         (LocalizedSetting.__name__, LocalizedSetting._meta.verbose_name),
         (SuperLachaiseCategory.__name__, SuperLachaiseCategory._meta.verbose_name),
@@ -499,23 +504,40 @@ class PendingModification(SuperLachaiseModel):
     
     def target_object(self):
         """ Returns the target object """
-        target_object_id_dict = json.loads(self.target_object_id)
-        return self.target_object_model().objects.filter(**target_object_id_dict).first()
+        try:
+            target_object_id_dict = json.loads(self.target_object_id)
+            return self.target_object_model().objects.filter(**target_object_id_dict).first()
+        except LookupError:
+            return None
+        except ValueError:
+            return None
     
     def clean(self):
-        if self.target_object_id:
-            try:
-                target_object_id_dict = json.loads(self.target_object_id) 
-            except ValueError as error:
-                raise ValidationError({'target_object_id': _('The value must be a JSON dictionary.')})
-        
-            if not isinstance(target_object_id_dict, dict):
-                raise ValidationError({'target_object_id': _('The value must be a JSON dictionary.')})
-            
-            try:
+        for field in ['target_object_id', 'modified_fields']:
+            value = getattr(self, field)
+            if value:
+                try:
+                    value_dict = json.loads(value)
+                except ValueError as error:
+                    raise ValidationError({field: _('The value must be a JSON dictionary.')})
+                
+                if not isinstance(value_dict, dict):
+                    raise ValidationError({field: _('The value must be a JSON dictionary.')})
+                
+                try:
+                    target_object_model = self.target_object_model()
+                except LookupError:
+                    # Model invalid, do not clean this field
+                    continue
+                
+                if field == 'modified_fields':
+                    id_or_pk_fields = [field for field in value_dict if field in ['id', 'pk']]
+                    if id_or_pk_fields:
+                        raise ValidationError({'modified_fields': _('The following fields are not valid for modification: %s.') % ', '.join(id_or_pk_fields)})
+                
                 invalid_fields = []
-                for field in target_object_id_dict:
-                    model = self.target_object_model()
+                for field in value_dict:
+                    model = target_object_model
                     loop = True
                     for field_part in field.split('__'):
                         if not loop:
@@ -534,48 +556,7 @@ class PendingModification(SuperLachaiseModel):
                             loop = False
                 
                 if invalid_fields:
-                    raise ValidationError({'target_object_id': _('The following fields are not fields of the target object model: %s.') % ', '.join(invalid_fields)})
-            except LookupError:
-                pass
-        
-        if self.modified_fields:
-            try:
-                modified_fields_dict = json.loads(self.modified_fields) 
-            except ValueError as error:
-                raise ValidationError({'modified_fields': _('The value must be a JSON dictionary.')})
-        
-            if not isinstance(modified_fields_dict, dict):
-                raise ValidationError({'modified_fields': _('The value must be a JSON dictionary.')})
-            
-            try:
-                invalid_fields = [field for field in modified_fields_dict if field in ['id', 'pk']]
-                if invalid_fields:
-                    raise ValidationError({'modified_fields': _('The following fields are not valid: %s.') % ', '.join(invalid_fields)})
-                invalid_fields = []
-                for field in modified_fields_dict:
-                    model = self.target_object_model()
-                    loop = True
-                    for field_part in field.split('__'):
-                        if not loop:
-                            invalid_fields.append(field)
-                            break
-                        
-                        if not field_part in model._meta.get_all_field_names():
-                            invalid_fields.append(field)
-                            break
-                        
-                        # Lookup relations
-                        field_type = model._meta.get_field(field_part).get_internal_type()
-                        if field_type == 'ForeignKey':
-                            model = model._meta.get_field(field_part).rel.to
-                        else:
-                            loop = False
-                
-                if invalid_fields:
-                    raise ValidationError({'modified_fields': _('The following fields are not fields of the target object model: %s.') % ', '.join(invalid_fields)})
-                
-            except LookupError:
-                pass
+                    raise ValidationError({field: _('The following fields are not fields of the target object model: %s.') % ', '.join(invalid_fields)})
     
     @classmethod
     def resolve_field_relation(cls, object_model, field, value):
@@ -629,7 +610,7 @@ class PendingModification(SuperLachaiseModel):
         return self.action
     
     class Meta:
-        ordering = ['action', 'target_object_class', 'target_object_id']
+        ordering = ['modified']
         verbose_name = _('pending modification')
         verbose_name_plural = _('pending modifications')
         unique_together = ('target_object_class', 'target_object_id',)

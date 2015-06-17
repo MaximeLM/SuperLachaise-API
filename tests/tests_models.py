@@ -202,7 +202,7 @@ class WikipediaPageTestCase(TestCase):
         
         self.assertTrue(wikidata_localized_entry.modified > now)
     
-    def test_save_deletes_carriage_returns_in_intro(self):
+    def test_full_clean_deletes_carriage_returns_in_intro(self):
         wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
         wikidata_entry.save()
         language = Language(code="code")
@@ -211,7 +211,7 @@ class WikipediaPageTestCase(TestCase):
         wikidata_localized_entry.save()
         wikipedia_page = WikipediaPage(wikidata_localized_entry=wikidata_localized_entry, intro="intro\r\nnext\n")
         
-        wikipedia_page.save()
+        wikipedia_page.full_clean()
         
         self.assertFalse('\r' in wikipedia_page.intro)
 
@@ -303,7 +303,13 @@ class SuperLachaiseCategoryRelationTestCase(TestCase):
         self.assertTrue(superlachaise_poi.modified > now)
 
 class WikidataOccupationTestCase(TestCase):
-    pass
+    
+    def test_wikidata_url_returns_wikidata_url_with_wikidata_id(self):
+        language_code = "en"
+        wikidata_id = "Q123"
+        wikidata_occupation = WikidataOccupation(wikidata_id=wikidata_id)
+        
+        self.assertEqual(WikidataEntry.URL_TEMPLATE.format(id=wikidata_id, language_code=language_code), wikidata_occupation.wikidata_url(language_code))
 
 class PendingModificationTestCase(TestCase):
     
@@ -467,6 +473,22 @@ class PendingModificationTestCase(TestCase):
         
         self.assertEqual(wikidata_localized_entry.pk, pending_modification.target_object().pk)
     
+    def test_target_object_returns_none_if_target_object_class_is_not_valid(self):
+        target_object_class = "target_object_class"
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
+        
+        self.assertIsNone(pending_modification.target_object())
+    
+    def test_target_object_returns_none_if_target_object_id_is_not_valid(self):
+        target_object_class = "OpenStreetMap"
+        target_object_id = 'target_object_id'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
+        
+        self.assertIsNone(pending_modification.target_object())
+    
     def test_target_object_returns_none_if_target_object_does_not_exist(self):
         language_code = "language_code"
         wikidata_entry_id = "wikidata_entry_id"
@@ -481,19 +503,7 @@ class PendingModificationTestCase(TestCase):
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
-        self.assertEqual(None, pending_modification.target_object())
-    
-    def test_target_object_raises_lookup_error_if_model_does_not_exist(self):
-        target_object_class = "target_object_class"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
-        
-        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
-        
-        try:
-            pending_modification.target_object()
-            self.fail()
-        except LookupError:
-            pass
+        self.assertIsNone(pending_modification.target_object())
     
     def test_resolve_field_relation_returns_field_and_value_if_field_is_simple(self):
         object_model = OpenStreetMapElement
@@ -649,7 +659,7 @@ class PendingModificationTestCase(TestCase):
         
         self.assertEqual("", openstreetmap_element.name)
     
-    def test_apply_modification_deletes_pending_modification(self):
+    def test_apply_modification_deletes_pending_modification_if_modification_is_successful(self):
         openstreetmap_id = "openstreetmap_id"
         target_object_class = "OpenStreetMapElement"
         target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)

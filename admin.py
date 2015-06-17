@@ -34,6 +34,7 @@ from StringIO import StringIO
 from superlachaise_api.models import *
 
 def change_page_url(obj):
+    """ Return the URL for the change page of an object """
     app_name = obj._meta.app_label
     reverse_name = obj.__class__.__name__.lower()
     reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
@@ -41,6 +42,7 @@ def change_page_url(obj):
     return url
 
 def execute_sync(command, args, request):
+    """ Start a synchronisation """
     try:
         sync_start = timezone.now()
         out = StringIO()
@@ -561,7 +563,7 @@ class SuperLachaiseCategoryRelationInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'wikimedia_commons_category_link', 'main_image_link', 'modified', 'notes')
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'wikimedia_commons_category_link', 'main_image_link', 'notes')
     list_filter = ('superlachaise_categories',)
     search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
@@ -585,72 +587,34 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     openstreetmap_element_link.admin_order_field = 'openstreetmap_element'
     
     def wikidata_entries_link(self, obj):
-        result = []
-        for wikidata_entry_relation in obj.superlachaisewikidatarelation_set.all():
-            app_name = obj._meta.app_label
-            reverse_name = 'wikidataentry'
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(wikidata_entry_relation.wikidata_entry_id,))
-            text = wikidata_entry_relation.relation_type + u':' + unicode(wikidata_entry_relation.wikidata_entry)
-            result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, text)))
-        return ';'.join(result)
+        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(wikidata_entry_relation.wikidata_entry).replace("'","%27"), wikidata_entry_relation.relation_type + u':' + unicode(wikidata_entry_relation.wikidata_entry))) for wikidata_entry_relation in obj.superlachaisewikidatarelation_set.all()])
     wikidata_entries_link.allow_tags = True
     wikidata_entries_link.short_description = _('wikidata entries')
     wikidata_entries_link.admin_order_field = 'wikidata_entries'
     
+    def superlachaise_categories_link(self, obj):
+        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(superlachaise_category).replace("'","%27"), unicode(superlachaise_category))) for superlachaise_category in obj.superlachaise_categories.all()])
+    superlachaise_categories_link.allow_tags = True
+    superlachaise_categories_link.short_description = _('superlachaise categories')
+    superlachaise_categories_link.admin_order_field = 'superlachaise_categories'
+    
     def wikimedia_commons_category_link(self, obj):
         if obj.wikimedia_commons_category:
-            app_name = obj._meta.app_label
-            reverse_name = obj.wikimedia_commons_category.__class__.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.wikimedia_commons_category.pk,)).replace("'","%27")
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikimedia_commons_category)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.wikimedia_commons_category).replace("'","%27"), unicode(obj.wikimedia_commons_category)))
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
     def main_image_link(self, obj):
         if obj.main_image:
-            app_name = obj._meta.app_label
-            reverse_name = obj.main_image.__class__.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(obj.main_image.pk,)).replace("'","%27")
-            result = u'<div style="background: url({image_url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(image_url=obj.main_image.thumbnail_url, url=url)
-            return mark_safe(result)
+            return mark_safe(u'<div style="background: url({image_url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(image_url=obj.main_image.thumbnail_url, url=change_page_url(obj.main_image).replace("'","%27")))
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
     
-    def superlachaise_categories_link(self, obj):
-        result = []
-        for superlachaise_category in obj.superlachaise_categories.all():
-            app_name = obj._meta.app_label
-            reverse_name = superlachaise_category.__class__.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(superlachaise_category.code,))
-            result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(superlachaise_category))))
-        return ';'.join(result)
-    superlachaise_categories_link.allow_tags = True
-    superlachaise_categories_link.short_description = _('superlachaise categories')
-    superlachaise_categories_link.admin_order_field = 'superlachaise_categories'
-    
     def sync_object(self, request, queryset):
-        openstreetmap_element_ids = []
-        for superlachaise_poi in queryset:
-            openstreetmap_element_ids.append(superlachaise_poi.openstreetmap_element_id)
-        sync_start = timezone.now()
-        call_command('sync_superlachaise_pois', openstreetmap_element_ids='|'.join(openstreetmap_element_ids))
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
-        
-        if pending_modifications:
-            # Open modification page with filter
-            app_name = PendingModification._meta.app_label
-            reverse_name = PendingModification.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
-            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
-            url = '/'.join(split_url[0:len(split_url) - 1])
-            return HttpResponseRedirect(url)
+        openstreetmap_element_ids = [superlachaise_poi.openstreetmap_element.openstreetmap_id for superlachaise_poi in queryset]
+        return execute_sync('sync_superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
     sync_object.short_description = _('Sync selected superlachaise POIs')
     
     def delete_notes(self, request, queryset):
@@ -661,22 +625,18 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
 
 @admin.register(SuperLachaiseLocalizedPOI)
 class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
-    list_display = ('language', 'name', 'sorting_name', 'superlachaise_poi_link', 'description', 'modified', 'notes')
+    list_display = ('__unicode__', 'superlachaise_poi_link', 'language', 'name', 'sorting_name', 'description', 'modified', 'notes')
     list_filter = ('language',)
     search_fields = ('name', 'description', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['language', 'name', 'sorting_name', 'superlachaise_poi', 'description']}),
+        (None, {'fields': ['superlachaise_poi', 'language', 'name', 'sorting_name', 'description']}),
     ]
     readonly_fields = ('superlachaise_poi_link', 'created', 'modified')
     
     def superlachaise_poi_link(self, obj):
-        app_name = obj._meta.app_label
-        reverse_name = obj.superlachaise_poi.__class__.__name__.lower()
-        reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-        url = reverse(reverse_path, args=(obj.superlachaise_poi.pk,))
-        return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.superlachaise_poi)))
+        return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.superlachaise_poi).replace("'","%27"), unicode(obj.superlachaise_poi)))
     superlachaise_poi_link.allow_tags = True
     superlachaise_poi_link.short_description = _('superlachaise poi')
     superlachaise_poi_link.admin_order_field = 'superlachaise_poi'
@@ -686,22 +646,8 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete notes')
     
     def sync_object(self, request, queryset):
-        openstreetmap_element_ids = []
-        for superlachaise_localized_poi in queryset:
-            openstreetmap_element_ids.append(superlachaise_localized_poi.superlachaise_poi.openstreetmap_element_id)
-        sync_start = timezone.now()
-        call_command('sync_superlachaise_pois', openstreetmap_element_ids='|'.join(openstreetmap_element_ids))
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
-        
-        if pending_modifications:
-            # Open modification page with filter
-            app_name = PendingModification._meta.app_label
-            reverse_name = PendingModification.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            split_url = reverse(reverse_path, args=(pending_modifications.first().pk,)).split('/')
-            split_url[len(split_url) - 2] = u'?modified__gte=%s' % (sync_start.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
-            url = '/'.join(split_url[0:len(split_url) - 1])
-            return HttpResponseRedirect(url)
+        openstreetmap_element_ids = [superlachaise_localized_poi.superlachaise_poi.openstreetmap_element.openstreetmap_id for superlachaise_localized_poi in queryset]
+        return execute_sync('sync_superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
     sync_object.short_description = _('Sync selected superlachaise localized POIs')
     
     actions = [delete_notes, sync_object]
@@ -716,7 +662,7 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('code', 'type', 'values', 'members_count', 'wikidata_occupations_count', 'notes')
+    list_display = ('__unicode__', 'code', 'type', 'values', 'members_count', 'wikidata_occupations_count', 'notes')
     list_filter = ('type',)
     search_fields = ('code', 'type', 'values', 'notes',)
     
@@ -745,23 +691,22 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(WikidataOccupation)
 class WikidataOccupationAdmin(admin.ModelAdmin):
-    list_display = ('wikidata_id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in_link', 'notes')
+    list_display = ('__unicode__', 'wikidata_link', 'name', 'superlachaise_category', 'used_in_link', 'notes')
     list_filter = ('superlachaise_category',)
     list_editable = ('superlachaise_category',)
     search_fields = ('wikidata_id', 'name', 'used_in__id', 'used_in__localizations__name', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['wikidata_id', 'name', 'wikidata_link', 'superlachaise_category', 'used_in']}),
+        (None, {'fields': ['wikidata_id', 'wikidata_link', 'name', 'superlachaise_category', 'used_in']}),
     ]
     filter_horizontal = ('used_in',)
     readonly_fields = ('wikidata_link', 'used_in_link', 'created', 'modified')
     
     def wikidata_link(self, obj):
-        if obj.wikidata_id:
-            language = translation.get_language().split("-", 1)[0]
-            url = u'https://www.wikidata.org/wiki/{name}?userlang={language}&uselang={language}'.format(name=unicode(obj.wikidata_id), language=language)
-            return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.wikidata_id)))
+        language_code = translation.get_language().split("-", 1)[0]
+        url = obj.wikidata_url(language_code)
+        return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikidata_id))
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata_id'
@@ -771,14 +716,7 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
     used_in_count.short_description = _('used in count')
     
     def used_in_link(self, obj):
-        result = []
-        for wikidata_entry in obj.used_in.all():
-            app_name = obj._meta.app_label
-            reverse_name = wikidata_entry.__class__.__name__.lower()
-            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-            url = reverse(reverse_path, args=(wikidata_entry.pk,))
-            result.append(mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(wikidata_entry))))
-        return ';'.join(result)
+        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(wikidata_entry).replace("'","%27"), unicode(wikidata_entry))) for wikidata_entry in obj.used_in.all()])
     used_in_link.allow_tags = True
     used_in_link.short_description = _('used in')
     used_in_link.admin_order_field = 'used_in'
@@ -791,7 +729,7 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
 
 @admin.register(PendingModification)
 class PendingModificationAdmin(admin.ModelAdmin):
-    list_display = ('action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
+    list_display = ('__unicode__', 'action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
     list_filter = ('action','target_object_class',)
     search_fields = ('target_object_id', 'modified_fields', 'notes',)
     
@@ -814,24 +752,18 @@ class PendingModificationAdmin(admin.ModelAdmin):
         return url
     
     def target_object_link(self, obj):
-        try:
-            if obj.target_object():
-                app_name = obj._meta.app_label
-                reverse_name = obj.target_object_class.lower()
-                reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-                url = reverse(reverse_path, args=(obj.target_object().pk,)).replace("'","%27")
-                return mark_safe(u"<a href='%s'>%s</a>" % (url, unicode(obj.target_object())))
-        except:
-            pass
+        target_object = obj.target_object()
+        if target_object:
+            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(target_object).replace("'","%27"), unicode(target_object)))
     target_object_link.allow_tags = True
     target_object_link.short_description = _('target object')
     
     def apply_modifications(self, request, queryset):
-        for pending_modification in queryset:
+        for pending_modification in queryset.order_by('modified'):
             try:
                 pending_modification.apply_modification()
-            except Exception as exception:
-                print exception
+            except:
+                messages.error(request, _('Error on pending modification "{pending_modification}": {error}').format(pending_modification=unicode(pending_modification), error=sys.exc_info()[1]))
     apply_modifications.short_description = _('Apply selected pending modifications')
     
     def delete_notes(self, request, queryset):
