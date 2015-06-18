@@ -55,7 +55,7 @@ class AdminUtils():
     
     EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : no pending modifications')
     EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : {count} new pending modification(s)')
-    EXECUTE_SYNC_ERROR_FORMAT = _('Error in admin command {command_name}: {error}')
+    EXECUTE_SYNC_ERROR_FORMAT = _('Error in admin command "{command_name}": {error}')
     
     @classmethod
     def execute_sync(cls, command_name, request, args={}):
