@@ -76,7 +76,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual('/admin/superlachaise_api/openstreetmapelement/', url)
     
     def test_execute_sync_calls_call_command(self):
-        command_name = "admin_command"
+        command_name = "synchronization"
         args = {}
         request = self.dummy_request()
         self.mock_call_command()
@@ -86,7 +86,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertTrue(django.core.management.call_command.called)
     
     def test_execute_sync_call_command_with_command_name(self):
-        command_name = "admin_command"
+        command_name = "synchronization"
         args = {}
         request = self.dummy_request()
         self.mock_call_command()
@@ -97,7 +97,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual(command_name, args[0])
     
     def test_execute_sync_add_args_to_command(self):
-        command_name = "admin_command"
+        command_name = "synchronization"
         args = {
             "arg1": "value1",
             "arg2": "value2",
@@ -112,7 +112,7 @@ class AdminUtilsTestCase(TestCase):
             self.assertEqual(value, kwargs[arg])
     
     def test_execute_sync_add_no_pending_modifications_success_message_to_request_if_command_raises_no_exception_and_command_creates_no_pending_modifications(self):
-        command_name = "admin_command"
+        command_name = "synchronization"
         args = {}
         request = self.dummy_request()
         error = Exception("error")
@@ -126,7 +126,7 @@ class AdminUtilsTestCase(TestCase):
             self.assertEqual(AdminUtils.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT, message.message)
     
     def test_execute_sync_add_new_pending_modifications_success_message_to_request_if_command_raises_no_exception_and_command_creates_pending_modifications(self):
-        command_name = "admin_command"
+        command_name = "synchronization"
         args = {}
         request = self.dummy_request()
         error = Exception("error")
@@ -143,7 +143,7 @@ class AdminUtilsTestCase(TestCase):
             self.assertEqual(AdminUtils.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=1), message.message)
     
     def test_execute_sync_add_error_message_with_exception_message_to_request_if_command_raises_exception(self):
-        command_name = "admin_command"
+        command_name = "synchronization"
         args = {}
         request = self.dummy_request()
         error = Exception("error")
@@ -157,7 +157,7 @@ class AdminUtilsTestCase(TestCase):
             self.assertEqual(AdminUtils.EXECUTE_SYNC_ERROR_FORMAT.format(command_name=command_name, error=unicode(error)), message.message)
     
     def test_execute_sync_returns_none_if_command_creates_no_pending_modifications(self):
-        command_name = "admin_command"
+        command_name = "synchronization"
         args = {}
         request = self.dummy_request()
         self.mock_call_command()
@@ -167,7 +167,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertIsNone(result)
     
     def test_execute_sync_returns_redirect_to_pending_modifications_filtered_by_created_objects_if_command_creates_pending_modifications(self):
-        command_name = "admin_command"
+        command_name = "synchronization"
         args = {}
         request = self.dummy_request()
         
@@ -248,38 +248,38 @@ class AdminUtilsTestCase(TestCase):
             i += 1
     
     def test_current_localization_returns_localized_object_for_current_language_if_localization_for_current_language_exist(self):
-        admin_command = AdminCommand(name="name")
-        admin_command.save()
+        synchronization = Synchronization(name="name")
+        synchronization.save()
         current_language_code = translation.get_language().split("-", 1)[0]
         current_language = Language(code=current_language_code)
         current_language.save()
         other_language = Language(code="other_code")
         other_language.save()
-        current_language_localized_admin_command = LocalizedAdminCommand(admin_command=admin_command, language=current_language)
-        current_language_localized_admin_command.save()
-        other_language_localized_admin_command = LocalizedAdminCommand(admin_command=admin_command, language=other_language)
-        other_language_localized_admin_command.save()
+        current_language_localized_synchronization = LocalizedSynchronization(synchronization=synchronization, language=current_language)
+        current_language_localized_synchronization.save()
+        other_language_localized_synchronization = LocalizedSynchronization(synchronization=synchronization, language=other_language)
+        other_language_localized_synchronization.save()
         
-        self.assertEqual(current_language_localized_admin_command, AdminUtils.current_localization(admin_command))
+        self.assertEqual(current_language_localized_synchronization, AdminUtils.current_localization(synchronization))
     
     def test_current_localization_returns_none_if_localization_for_current_language_does_not_exist(self):
-        admin_command = AdminCommand(name="name")
-        admin_command.save()
+        synchronization = Synchronization(name="name")
+        synchronization.save()
         other_language = Language(code="other_code")
         other_language.save()
-        other_language_localized_admin_command = LocalizedAdminCommand(admin_command=admin_command, language=other_language)
-        other_language_localized_admin_command.save()
+        other_language_localized_synchronization = LocalizedSynchronization(synchronization=synchronization, language=other_language)
+        other_language_localized_synchronization.save()
         
-        self.assertIsNone(AdminUtils.current_localization(admin_command))
+        self.assertIsNone(AdminUtils.current_localization(synchronization))
     
     def test_delete_notes_empties_notes_for_objects_in_queryset(self):
-        AdminCommand(name="name_1", notes="notes_1").save()
-        AdminCommand(name="name_2", notes="notes_2").save()
+        Synchronization(name="name_1", notes="notes_1").save()
+        Synchronization(name="name_2", notes="notes_2").save()
         
-        AdminUtils.delete_notes(AdminCommand.objects.all())
+        AdminUtils.delete_notes(Synchronization.objects.all())
         
-        for admin_command in AdminCommand.objects.all():
-            self.assertEqual("", admin_command.notes)
+        for synchronization in Synchronization.objects.all():
+            self.assertEqual("", synchronization.notes)
     
     def test_html_link_returns_none_if_url_is_none(self):
         self.assertIsNone(AdminUtils.html_link(None))

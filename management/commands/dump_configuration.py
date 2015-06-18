@@ -41,12 +41,12 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         models = {
-            AdminCommand: {
+            Synchronization: {
                 'id_fields': ['name'],
                 'other_fields': ['dependency_order'],
             },
-            LocalizedAdminCommand: {
-                'id_fields': ['admin_command__name', 'language__code'],
+            LocalizedSynchronization: {
+                'id_fields': ['synchronization__name', 'language__code'],
                 'other_fields': ['description'],
             },
             Language: {

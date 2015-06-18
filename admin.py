@@ -123,8 +123,8 @@ class AdminUtils():
         if url:
             return mark_safe(cls.HTML_IMAGE_LINK_FORMAT.format(url=url.replace("'","%27"), image_url=image_url.replace("'","%27") if image_url else url.replace("'","%27"), width=width, height=height))
 
-class LocalizedAdminCommandInline(admin.StackedInline):
-    model = LocalizedAdminCommand
+class LocalizedSynchronizationInline(admin.StackedInline):
+    model = LocalizedSynchronization
     extra = 0
     
     fieldsets = [
@@ -132,8 +132,8 @@ class LocalizedAdminCommandInline(admin.StackedInline):
     ]
     readonly_fields = ('created', 'modified')
 
-@admin.register(AdminCommand)
-class AdminCommandAdmin(admin.ModelAdmin):
+@admin.register(Synchronization)
+class SynchronizationAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'name', 'dependency_order', 'last_executed', 'created_objects', 'modified_objects', 'deleted_objects', 'errors', 'description', 'notes')
     search_fields = ('name', 'last_result', 'notes',)
     
@@ -144,7 +144,7 @@ class AdminCommandAdmin(admin.ModelAdmin):
     readonly_fields = ('description', 'created', 'modified')
     
     inlines = [
-        LocalizedAdminCommandInline,
+        LocalizedSynchronizationInline,
     ]
     
     def description(self, obj):
@@ -154,8 +154,8 @@ class AdminCommandAdmin(admin.ModelAdmin):
     description.short_description = _('description')
     
     def perform_commands(self, request, queryset):
-        for admin_command in queryset.order_by('dependency_order'):
-            AdminUtils.execute_sync(admin_command.name, request)
+        for synchronization in queryset.order_by('dependency_order'):
+            AdminUtils.execute_sync(synchronization.name, request)
     perform_commands.short_description = _('Execute selected admin commands')
     
     def delete_notes(self, request, queryset):

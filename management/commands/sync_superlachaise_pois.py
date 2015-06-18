@@ -500,11 +500,11 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
-        self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
+        self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0])
         error_message = None
         
         try:
-            print_unicode(_('== Start %s ==') % self.admin_command.name)
+            print_unicode(_('== Start %s ==') % self.synchronization.name)
             
             self.auto_apply = (Setting.objects.get(key=u'superlachaise_poi:auto_apply_modifications').value == 'true')
             self.openstreetmap_name_tag_language = Setting.objects.get(key=u'openstreetmap:name_tag_language').value
@@ -525,19 +525,19 @@ class Command(BaseCommand):
                 result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
             
             if result_list:
-                self.admin_command.last_result = ', '.join(result_list)
+                self.synchronization.last_result = ', '.join(result_list)
             else:
-                self.admin_command.last_result = AdminCommand.NO_MODIFICATIONS
+                self.synchronization.last_result = Synchronization.NO_MODIFICATIONS
         except:
             traceback.print_exc()
             exception = sys.exc_info()[0]
             error_message = exception.__class__.__name__ + ': ' + traceback.format_exc()
-            self.admin_command.last_result = error_message
+            self.synchronization.last_result = error_message
         
-        print_unicode(_('== End %s ==') % self.admin_command.name)
+        print_unicode(_('== End %s ==') % self.synchronization.name)
         
-        self.admin_command.last_executed = timezone.now()
-        self.admin_command.save()
+        self.synchronization.last_executed = timezone.now()
+        self.synchronization.save()
         
         translation.deactivate()
         

@@ -34,8 +34,8 @@ class Command(BaseCommand):
             
             models = [
                 Language,
-                AdminCommand,
-                LocalizedAdminCommand,
+                Synchronization,
+                LocalizedSynchronization,
                 Setting,
                 LocalizedSetting,
                 SuperLachaiseCategory,

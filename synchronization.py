@@ -45,7 +45,7 @@ class SynchronizationCommand(BaseCommand):
         
         try:
             self.log_file = codecs.open(os.path.dirname(__file__) + '/management/logs/log_' + self.command_name, "w", "utf-8")
-            self.admin_command = AdminCommand.objects.get(name=self.command_name)
+            self.synchronization = Synchronization.objects.get(name=self.command_name)
         except:
             raise CommandError(sys.exc_info()[1])
         
@@ -59,18 +59,18 @@ class SynchronizationCommand(BaseCommand):
             self.deleted_objects = 0
             self.errors = []
             
-            self.log(_('== Start %s ==') % self.admin_command.name)
+            self.log(_('== Start %s ==') % self.synchronization.name)
             self.synchronize()
-            self.log(_('== End %s ==') % self.admin_command.name)
+            self.log(_('== End %s ==') % self.synchronization.name)
             
             translation.deactivate()
         except:
             self.log(traceback.format_exc())
             error = sys.exc_info()[1]
-            self.admin_command.errors = error
+            self.synchronization.errors = error
         
-        self.admin_command.last_executed = timezone.now()
-        self.admin_command.save()
+        self.synchronization.last_executed = timezone.now()
+        self.synchronization.save()
         
         if error:
             raise CommandError(error)

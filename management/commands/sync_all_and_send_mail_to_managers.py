@@ -40,19 +40,19 @@ class MailSendingStatus:
 class Command(BaseCommand):
     
     def sync_all(self):
-        for admin_command in AdminCommand.objects.exclude(name=self.admin_command.name).order_by('dependency_order'):
-            call_command(admin_command.name)
+        for synchronization in Synchronization.objects.exclude(name=self.synchronization.name).order_by('dependency_order'):
+            call_command(synchronization.name)
     
     def send_mail_to_managers(self):
         mail_content = []
         
-        for admin_command in AdminCommand.objects.exclude(name=self.admin_command.name).order_by('dependency_order'):
-            if not admin_command.last_executed or admin_command.last_executed < self.start_date:
-                mail_content.append(_("{name}: not executed").format(name=admin_command.name))
+        for synchronization in Synchronization.objects.exclude(name=self.synchronization.name).order_by('dependency_order'):
+            if not synchronization.last_executed or synchronization.last_executed < self.start_date:
+                mail_content.append(_("{name}: not executed").format(name=synchronization.name))
                 mail_content.append('')
-            elif not admin_command.last_result == AdminCommand.NO_MODIFICATIONS:
-                mail_content.append(_("{name}: executed on {date} at {time}").format(name=admin_command.name, date=formats.date_format(admin_command.last_executed.date(), "SHORT_DATE_FORMAT"), time=formats.time_format(admin_command.last_executed.time(), "TIME_FORMAT")))
-                mail_content.append(_('Result: {result}').format(result=admin_command.last_result))
+            elif not synchronization.last_result == Synchronization.NO_MODIFICATIONS:
+                mail_content.append(_("{name}: executed on {date} at {time}").format(name=synchronization.name, date=formats.date_format(synchronization.last_executed.date(), "SHORT_DATE_FORMAT"), time=formats.time_format(synchronization.last_executed.time(), "TIME_FORMAT")))
+                mail_content.append(_('Result: {result}').format(result=synchronization.last_result))
                 mail_content.append('')
         
         if mail_content:
@@ -65,11 +65,11 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
-        self.admin_command = AdminCommand.objects.get(name=os.path.basename(__file__).split('.')[0])
+        self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0])
         error_message = None
         
         try:
-            print_unicode(_('== Start %s ==') % self.admin_command.name)
+            print_unicode(_('== Start %s ==') % self.synchronization.name)
             
             self.start_date = timezone.now()
             self.mail_sending_status = MailSendingStatus.MAIL_NOT_SENT
@@ -91,17 +91,17 @@ class Command(BaseCommand):
             
             last_result.append(_('Duration: {minutes} minute(s) and {seconds} second(s)').format(minutes=minutes, seconds=seconds))
             
-            self.admin_command.last_result = ' ; '.join(last_result)
+            self.synchronization.last_result = ' ; '.join(last_result)
         except:
             traceback.print_exc()
             exception = sys.exc_info()[0]
             error_message = exception.__class__.__name__ + ': ' + traceback.format_exc()
-            self.admin_command.last_result = error_message
+            self.synchronization.last_result = error_message
         
-        print_unicode(_('== End %s ==') % self.admin_command.name)
+        print_unicode(_('== End %s ==') % self.synchronization.name)
         
-        self.admin_command.last_executed = timezone.now()
-        self.admin_command.save()
+        self.synchronization.last_executed = timezone.now()
+        self.synchronization.save()
         
         translation.deactivate()
         

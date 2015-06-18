@@ -37,8 +37,8 @@ class SuperLachaiseModel(models.Model):
     class Meta:
         abstract = True
 
-class AdminCommand(SuperLachaiseModel):
-    """ An admin command that can be monitored """
+class Synchronization(SuperLachaiseModel):
+    """ An synchronization admin command that can be monitored """
     
     name = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('name'))
     dependency_order = models.IntegerField(null=True, blank=True, verbose_name=_('dependency order'))
@@ -53,24 +53,24 @@ class AdminCommand(SuperLachaiseModel):
     
     class Meta:
         ordering = ['dependency_order', 'name']
-        verbose_name = _('admin command')
-        verbose_name_plural = _('admin commands')
+        verbose_name = _('synchronization')
+        verbose_name_plural = _('synchronizations')
 
-class LocalizedAdminCommand(SuperLachaiseModel):
-    """ The part of an Admin Command specific to a language """
+class LocalizedSynchronization(SuperLachaiseModel):
+    """ The part of a Synchronization specific to a language """
     
     language = models.ForeignKey('Language', verbose_name=_('language'))
-    admin_command = models.ForeignKey('AdminCommand', related_name='localizations', verbose_name=_('admin command'))
+    synchronization = models.ForeignKey('Synchronization', related_name='localizations', verbose_name=_('synchronization'))
     description = models.TextField(blank=True, verbose_name=_('description'))
     
     def __unicode__(self):
-        return unicode(self.admin_command) + u' (' + unicode(self.language) + u')'
+        return unicode(self.synchronization) + u' (' + unicode(self.language) + u')'
     
     class Meta:
-        ordering = ['language', 'admin_command']
-        verbose_name = _('localized admin command')
-        verbose_name_plural = _('localized admin commands')
-        unique_together = ('admin_command', 'language',)
+        ordering = ['language', 'synchronization']
+        verbose_name = _('localized synchronization')
+        verbose_name_plural = _('localized synchronizations')
+        unique_together = ('synchronization', 'language',)
 
 class Language(SuperLachaiseModel):
     """ A language used in the sync operations """
@@ -473,8 +473,8 @@ class PendingModification(SuperLachaiseModel):
     
     target_object_class_choices = (
         (Language.__name__, Language._meta.verbose_name),
-        (AdminCommand.__name__, AdminCommand._meta.verbose_name),
-        (LocalizedAdminCommand.__name__, LocalizedAdminCommand._meta.verbose_name),
+        (Synchronization.__name__, Synchronization._meta.verbose_name),
+        (LocalizedSynchronization.__name__, LocalizedSynchronization._meta.verbose_name),
         (Setting.__name__, Setting._meta.verbose_name),
         (LocalizedSetting.__name__, LocalizedSetting._meta.verbose_name),
         (SuperLachaiseCategory.__name__, SuperLachaiseCategory._meta.verbose_name),
