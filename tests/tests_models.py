@@ -27,21 +27,6 @@ from django.utils import timezone
 
 from superlachaise_api.models import *
 
-class AdminCommandTestCase(TestCase):
-    pass
-
-class LocalizedAdminCommandTestCase(TestCase):
-    pass
-
-class LanguageTestCase(TestCase):
-    pass
-
-class SettingTestCase(TestCase):
-    pass
-
-class LocalizedSettingTestCase(TestCase):
-    pass
-
 class OpenStreetMapElementTestCase(TestCase):
     
     def test_openstreetmap_url_returns_none_if_type_is_empty(self):
@@ -236,9 +221,6 @@ class WikimediaCommonsFileTestCase(TestCase):
         
         self.assertEqual(WikimediaCommonsCategory.URL_FORMAT.format(title=wikimedia_commons_id), wikimedia_commons_file.wikimedia_commons_url())
 
-class SuperLachaisePOITestCase(TestCase):
-    pass
-
 class SuperLachaiseLocalizedPOITestCase(TestCase):
     
     def test_save_updates_superlachaise_poi_modified(self):
@@ -269,9 +251,6 @@ class SuperLachaiseWikidataRelationTestCase(TestCase):
         SuperLachaiseWikidataRelation(superlachaise_poi=superlachaise_poi, wikidata_entry=wikidata_entry, relation_type=relation_type).save()
         
         self.assertTrue(superlachaise_poi.modified > now)
-
-class SuperLachaiseCategoryTestCase(TestCase):
-    pass
 
 class SuperLachaiseLocalizedCategoryTestCase(TestCase):
     

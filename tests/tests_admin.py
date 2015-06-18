@@ -68,7 +68,14 @@ class AdminUtilsTestCase(TestCase):
         
         self.assertEqual('/admin/superlachaise_api/openstreetmapelement/%s/' % openstreetmap_element.pk, url)
     
-    def test_execute_sync_call_command(self):
+    def test_changelist_page_url_returns_admin_url_with_model(self):
+        model = OpenStreetMapElement
+        
+        url = AdminUtils.changelist_page_url(model)
+        
+        self.assertEqual('/admin/superlachaise_api/openstreetmapelement/', url)
+    
+    def test_execute_sync_calls_call_command(self):
         command_name = "admin_command"
         args = {}
         request = self.dummy_request()
@@ -116,7 +123,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
             self.assertEqual(SUCCESS, message.level)
-            self.assertEqual(AdminUtils.ADMIN_COMMAND_NO_PENDING_MODIFICATIONS_FORMAT, message.message)
+            self.assertEqual(AdminUtils.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT, message.message)
     
     def test_execute_sync_add_new_pending_modifications_success_message_to_request_if_command_raises_no_exception_and_command_creates_pending_modifications(self):
         command_name = "admin_command"
@@ -133,7 +140,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
             self.assertEqual(SUCCESS, message.level)
-            self.assertEqual(AdminUtils.ADMIN_COMMAND_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=1), message.message)
+            self.assertEqual(AdminUtils.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=1), message.message)
     
     def test_execute_sync_add_error_message_with_exception_message_to_request_if_command_raises_exception(self):
         command_name = "admin_command"
@@ -147,7 +154,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
             self.assertEqual(ERROR, message.level)
-            self.assertEqual(AdminUtils.ADMIN_COMMAND_ERROR_FORMAT.format(command_name=command_name, error=unicode(error)), message.message)
+            self.assertEqual(AdminUtils.EXECUTE_SYNC_ERROR_FORMAT.format(command_name=command_name, error=unicode(error)), message.message)
     
     def test_execute_sync_returns_none_if_command_creates_no_pending_modifications(self):
         command_name = "admin_command"
@@ -167,7 +174,7 @@ class AdminUtilsTestCase(TestCase):
         PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"1"}', action=PendingModification.DELETE).save()
         
         def side_effect(*args, **kwargs):
-            PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.DELETE).save()
+            PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE).save()
         self.mock_call_command(side_effect=side_effect)
         
         result = AdminUtils.execute_sync(command_name, request, args)
@@ -182,6 +189,63 @@ class AdminUtilsTestCase(TestCase):
         
         self.assertEqual(1, len(pending_modifications))
         self.assertEqual('OpenStreetMapElement', pending_modifications[0].target_object_class)
+    
+    def test_apply_pending_modifications_calls_apply_modification_on_pending_modifications(self):
+        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification_2 = PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"1"}', action=PendingModification.DELETE)
+        pending_modification_1.apply_modification = MagicMock(return_value=None)
+        pending_modification_2.apply_modification = MagicMock(return_value=None)
+        request = self.dummy_request()
+        
+        AdminUtils.apply_pending_modifications([pending_modification_1, pending_modification_2], request)
+        
+        self.assertTrue(pending_modification_1.apply_modification.called)
+        self.assertTrue(pending_modification_2.apply_modification.called)
+    
+    def test_apply_pending_modifications_adds_success_message_to_request_if_at_least_one_pending_modification_raises_no_exception(self):
+        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification_2 = PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"1"}', action=PendingModification.DELETE)
+        error_2 = Exception("error_2")
+        pending_modification_1.apply_modification = MagicMock(return_value=None)
+        pending_modification_2.apply_modification = MagicMock(return_value=None, side_effect=error_2)
+        request = self.dummy_request()
+        
+        AdminUtils.apply_pending_modifications([pending_modification_1, pending_modification_2], request)
+        
+        self.assertEqual(2, len(request._messages))
+        expected_messages = [
+            (ERROR, AdminUtils.APPLY_PENDING_MODIFICATIONS_ERROR_FORMAT.format(pending_modification=unicode(pending_modification_2), error=unicode(error_2))),
+            (SUCCESS, AdminUtils.APPLY_PENDING_MODIFICATIONS_SUCCESS_FORMAT),
+        ]
+        i = 0
+        for message in request._messages:
+            self.assertEqual(expected_messages[i][0], message.level)
+            self.assertEqual(expected_messages[i][1], message.message)
+            i += 1
+    
+    def test_apply_pending_modifications_adds_error_messages_to_request_for_exceptions_raised_by_pending_modifications(self):
+        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification_2 = PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"1"}', action=PendingModification.DELETE)
+        pending_modification_3 = PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"2"}', action=PendingModification.DELETE)
+        error_1 = Exception("error_1")
+        error_2 = Exception("error_2")
+        pending_modification_1.apply_modification = MagicMock(return_value=None, side_effect=error_1)
+        pending_modification_2.apply_modification = MagicMock(return_value=None, side_effect=error_2)
+        pending_modification_3.apply_modification = MagicMock(return_value=None)
+        request = self.dummy_request()
+        
+        AdminUtils.apply_pending_modifications([pending_modification_1, pending_modification_2], request)
+        
+        self.assertEqual(2, len(request._messages))
+        expected_messages = [
+            (ERROR, AdminUtils.APPLY_PENDING_MODIFICATIONS_ERROR_FORMAT.format(pending_modification=unicode(pending_modification_1), error=unicode(error_1))),
+            (ERROR, AdminUtils.APPLY_PENDING_MODIFICATIONS_ERROR_FORMAT.format(pending_modification=unicode(pending_modification_2), error=unicode(error_2))),
+        ]
+        i = 0
+        for message in request._messages:
+            self.assertEqual(expected_messages[i][0], message.level)
+            self.assertEqual(expected_messages[i][1], message.message)
+            i += 1
     
     def test_current_localization_returns_localized_object_for_current_language_if_localization_for_current_language_exist(self):
         admin_command = AdminCommand(name="name")

@@ -44,13 +44,22 @@ class AdminUtils():
             url = reverse(reverse_path, args=(object.pk,))
             return url
     
-    ADMIN_COMMAND_NO_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : no pending modifications')
-    ADMIN_COMMAND_NEW_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : {count} new pending modification(s)')
-    ADMIN_COMMAND_ERROR_FORMAT = _('Error in admin command {command_name}: {error}')
+    @classmethod
+    def changelist_page_url(cls, model):
+        """ Return the URL for the changelist page of a model """
+        app_name = model._meta.app_label
+        reverse_name = model.__name__.lower()
+        reverse_path = "admin:%s_%s_changelist" % (app_name, reverse_name)
+        url = reverse(reverse_path)
+        return url
+    
+    EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : no pending modifications')
+    EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : {count} new pending modification(s)')
+    EXECUTE_SYNC_ERROR_FORMAT = _('Error in admin command {command_name}: {error}')
     
     @classmethod
     def execute_sync(cls, command_name, request, args={}):
-        """ Start a synchronisation """
+        """ Execute a synchronisation and add success/error messages to the request """
         try:
             sync_start = timezone.now()
             django.core.management.call_command(command_name, **args)
@@ -58,13 +67,30 @@ class AdminUtils():
             # Redirect to pending modifications scren if needed
             pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
             if pending_modifications:
-                messages.success(request, cls.ADMIN_COMMAND_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=len(pending_modifications)))
-                return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
+                messages.success(request, cls.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=len(pending_modifications)))
+                redirect_url = u'{url}?modified__gte={modified_gte}'.format(url=cls.changelist_page_url(PendingModification), modified_gte=sync_start.isoformat())
+                return HttpResponseRedirect(redirect_url)
             else:
-                messages.success(request, cls.ADMIN_COMMAND_NO_PENDING_MODIFICATIONS_FORMAT)
+                messages.success(request, cls.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT)
         except:
-            messages.error(request, cls.ADMIN_COMMAND_ERROR_FORMAT.format(command_name=command_name, error=sys.exc_info()[1]))
+            messages.error(request, cls.EXECUTE_SYNC_ERROR_FORMAT.format(command_name=command_name, error=sys.exc_info()[1]))
             return
+    
+    APPLY_PENDING_MODIFICATIONS_SUCCESS_FORMAT = _('Modifications applied with success')
+    APPLY_PENDING_MODIFICATIONS_ERROR_FORMAT = _('Error when applying modification {pending_modification}: {error}')
+    
+    @classmethod
+    def apply_pending_modifications(cls, pending_modifications, request):
+        """ Apply pending modifications and add success/error messages to the request """
+        success = False
+        for pending_modification in pending_modifications:
+            try:
+                pending_modification.apply_modification()
+                success = True
+            except:
+                messages.error(request, cls.APPLY_PENDING_MODIFICATIONS_ERROR_FORMAT.format(pending_modification=unicode(pending_modification), error=sys.exc_info()[1]))
+        if success:
+            messages.success(request, cls.APPLY_PENDING_MODIFICATIONS_SUCCESS_FORMAT)
     
     @classmethod
     def current_localization(cls, object):
@@ -517,12 +543,9 @@ class SuperLachaiseWikidataRelationInline(admin.StackedInline):
     readonly_fields = ('name',)
     
     def name(self, obj):
-        language_code = translation.get_language().split("-", 1)[0]
-        language = Language.objects.filter(code=language_code).first()
-        if language:
-            wikidata_localized_entry = obj.wikidata_entry.localizations.filter(language=language).first()
-            if wikidata_localized_entry:
-                return wikidata_localized_entry.name
+        current_localization = AdminUtils.current_localization(obj.wikidata_entry)
+        if current_localization:
+            return current_localization.name
     name.short_description = _('name')
     
     verbose_name = "wikidata entry"
@@ -558,34 +581,31 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     ]
     
     def openstreetmap_element_link(self, obj):
-        if obj.openstreetmap_element:
-            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.openstreetmap_element).replace("'","%27"), unicode(obj.openstreetmap_element)))
+        return AdminUtils.html_link(AdminUtils.change_page_url(obj.openstreetmap_element), unicode(obj.openstreetmap_element))
     openstreetmap_element_link.allow_tags = True
     openstreetmap_element_link.short_description = _('openstreetmap element')
     openstreetmap_element_link.admin_order_field = 'openstreetmap_element'
     
     def wikidata_entries_link(self, obj):
-        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(wikidata_entry_relation.wikidata_entry).replace("'","%27"), wikidata_entry_relation.relation_type + u':' + unicode(wikidata_entry_relation.wikidata_entry))) for wikidata_entry_relation in obj.superlachaisewikidatarelation_set.all()])
+        return ';'.join([AdminUtils.html_link(AdminUtils.change_page_url(wikidata_entry_relation.wikidata_entry), wikidata_entry_relation.relation_type + u':' + unicode(wikidata_entry_relation.wikidata_entry)) for wikidata_entry_relation in obj.superlachaisewikidatarelation_set.all()])
     wikidata_entries_link.allow_tags = True
     wikidata_entries_link.short_description = _('wikidata entries')
     wikidata_entries_link.admin_order_field = 'wikidata_entries'
     
     def superlachaise_categories_link(self, obj):
-        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(superlachaise_category).replace("'","%27"), unicode(superlachaise_category))) for superlachaise_category in obj.superlachaise_categories.all()])
+        return ';'.join([AdminUtils.html_link(AdminUtils.change_page_url(superlachaise_category), unicode(superlachaise_category)) for superlachaise_category in obj.superlachaise_categories.all()])
     superlachaise_categories_link.allow_tags = True
     superlachaise_categories_link.short_description = _('superlachaise categories')
     superlachaise_categories_link.admin_order_field = 'superlachaise_categories'
     
     def wikimedia_commons_category_link(self, obj):
-        if obj.wikimedia_commons_category:
-            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.wikimedia_commons_category).replace("'","%27"), unicode(obj.wikimedia_commons_category)))
+        return AdminUtils.html_link(AdminUtils.change_page_url(obj.wikimedia_commons_category), unicode(obj.wikimedia_commons_category))
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
     def main_image_link(self, obj):
-        if obj.main_image:
-            return mark_safe(u'<div style="background: url({image_url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(image_url=obj.main_image.thumbnail_url, url=AdminUtils.change_page_url(obj.main_image).replace("'","%27")))
+        return AdminUtils.html_image_link(AdminUtils.change_page_url(obj.main_image), obj.main_image.thumbnail_url)
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
@@ -614,7 +634,7 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
     readonly_fields = ('superlachaise_poi_link', 'created', 'modified')
     
     def superlachaise_poi_link(self, obj):
-        return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.superlachaise_poi).replace("'","%27"), unicode(obj.superlachaise_poi)))
+        return AdminUtils.html_link(AdminUtils.change_page_url(obj.superlachaise_poi), unicode(obj.superlachaise_poi))
     superlachaise_poi_link.allow_tags = True
     superlachaise_poi_link.short_description = _('superlachaise poi')
     superlachaise_poi_link.admin_order_field = 'superlachaise_poi'
@@ -683,8 +703,7 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
     
     def wikidata_link(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        url = obj.wikidata_url(language_code)
-        return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikidata_id))
+        return AdminUtils.html_link(obj.wikidata_url(language_code), obj.wikidata_id)
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata_id'
@@ -694,7 +713,7 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
     used_in_count.short_description = _('used in count')
     
     def used_in_link(self, obj):
-        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(wikidata_entry).replace("'","%27"), unicode(wikidata_entry))) for wikidata_entry in obj.used_in.all()])
+        return ';'.join([AdminUtils.html_link(AdminUtils.change_page_url(wikidata_entry), unicode(wikidata_entry)) for wikidata_entry in obj.used_in.all()])
     used_in_link.allow_tags = True
     used_in_link.short_description = _('used in')
     used_in_link.admin_order_field = 'used_in'
@@ -718,30 +737,14 @@ class PendingModificationAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('target_object_link', 'created', 'modified')
     
-    @classmethod
-    def modified_since_url(cls, modified_since):
-        """ Return an URL for the pending modifications admin page where the entries are filtered by modified date greater than the specified date """
-        app_name = PendingModification._meta.app_label
-        reverse_name = PendingModification.__name__.lower()
-        reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-        split_url = reverse(reverse_path, args=(1,)).split('/')
-        split_url[len(split_url) - 2] = u'?modified__gte=%s' % urllib.quote(modified_since.isoformat())
-        url = '/'.join(split_url[0:len(split_url) - 1])
-        return url
-    
     def target_object_link(self, obj):
         target_object = obj.target_object()
-        if target_object:
-            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(target_object).replace("'","%27"), unicode(target_object)))
+        return AdminUtils.html_link(AdminUtils.change_page_url(target_object), unicode(target_object))
     target_object_link.allow_tags = True
     target_object_link.short_description = _('target object')
     
     def apply_modifications(self, request, queryset):
-        for pending_modification in queryset.order_by('modified'):
-            try:
-                pending_modification.apply_modification()
-            except:
-                messages.error(request, _('Error on pending modification "{pending_modification}": {error}').format(pending_modification=unicode(pending_modification), error=sys.exc_info()[1]))
+        AdminUtils.apply_pending_modifications(queryset, request)
     apply_modifications.short_description = _('Apply selected pending modifications')
     
     def delete_notes(self, request, queryset):
