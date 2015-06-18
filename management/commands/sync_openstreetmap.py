@@ -29,6 +29,7 @@ from django.utils.translation import ugettext as _
 from overpy.exception import OverpassTooManyRequests
 
 from superlachaise_api.models import *
+from superlachaise_api.synchronization import *
 
 def print_unicode(str):
     print str.encode('utf-8')
@@ -65,7 +66,7 @@ def none_to_blank(s):
         return u''
     return unicode(s)
 
-class Command(BaseCommand):
+class Command(SynchronizationCommand):
     
     def request_wikidata_with_wikipedia_links(self, language_code, wikipedia_links):
         result = {}
@@ -371,7 +372,7 @@ class Command(BaseCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
     
-    def handle(self, *args, **options):
+    def handlee(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
         self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0])
         error_message = None
@@ -419,3 +420,48 @@ class Command(BaseCommand):
         translation.deactivate()
         
         return error_message
+    
+    def handle(self, *args, **options):
+        self.execute(Synchronization.objects.get(name=os.path.basename(__file__).split('.py')[0].split('sync_')[1]))
+    
+    def synchronize(self):
+        # request_overpass_api_elements(boundary, query_string): overpass_elements
+        # get_wikipedia_to_wikidata(overpass_elements): wikipedia_to_wikidata
+        # get_overpass_node_coordinates(overpass_node)
+        # get_overpass_way_coordinates(overpass_way)
+        # get_overpass_relation_coordinates(overpass_relation)
+        # handle_overpass_element(overpass_element, wikipedia_to_wikidata) : object_id
+        # delete_orphaned_objects(synced_objects_ids)
+        pass
+    
+    def request_overpass_api_elements(self, boundary, query_string):
+        pass
+    
+    def get_wikipedia_to_wikidata(self, overpass_elements):
+        # get_tag_values(overpass_element, tag_name) : tag_values
+        # request_wikidata_api_ids(language, wikipedia_titles) : wikidata_ids
+        pass
+    
+    def get_tag_values(overpass_element, tag_name):
+        pass
+    
+    def request_wikidata_api_ids(language, wikipedia_titles):
+        pass
+    
+    def get_overpass_node_coordinates(self, overpass_node):
+        pass
+    
+    def get_overpass_way_coordinates(self, overpass_node):
+        pass
+    
+    def get_overpass_relation_coordinates(self, overpass_node):
+        pass
+    
+    def handle_overpass_element(self, overpass_element, wikipedia_to_wikidata):
+        # get_tag_values(overpass_element, tag_name) : tag_values
+        # super : handle_object_values(model, object_id, values)
+        pass
+    
+    def delete_orphaned_objects(synced_objects_ids):
+        # super : delete_orphaned_objects(model, object_to_id, synced_objects_ids)
+        pass

@@ -23,79 +23,97 @@ limitations under the License.
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.utils import timezone
-from mock import MagicMock
+from mock import MagicMock, patch
 
 from superlachaise_api.models import *
 from superlachaise_api.synchronization import *
+from superlachaise_api.management.commands.sync_openstreetmap import Command as SyncOpenStreetMapCommand
 
 class SynchronizationCommandTestCase(TestCase):
     
-    def test_handle_raises_command_error_if_synchronization_is_not_set(self):
-        try:
-            SynchronizationCommand().handle()
-            self.fail()
-        except CommandError:
-            pass
-    
-    def test_handle_updates_synchronization_last_executed_if_synchronization_is_set(self):
+    def test_execute_sets_synchronization(self):
         synchronization = Synchronization(name="test")
         synchronization.save()
         before_sync = timezone.now()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.synchronization = synchronization
         synchronization_command.synchronize = MagicMock(return_value=None)
         
-        synchronization_command.handle()
+        synchronization_command.execute(synchronization)
+        
+        self.assertEqual(synchronization_command.synchronization, synchronization)
+    
+    def test_execute_updates_synchronization_last_executed(self):
+        synchronization = Synchronization(name="test")
+        synchronization.save()
+        before_sync = timezone.now()
+        synchronization_command = SynchronizationCommand()
+        synchronization_command.synchronize = MagicMock(return_value=None)
+        
+        synchronization_command.execute(synchronization)
         
         self.assertTrue(Synchronization.objects.get(name=synchronization.name).last_executed > before_sync)
     
-    def test_handle_calls_synchronize_if_synchronization_is_set(self):
+    def test_execute_calls_synchronize(self):
         synchronization = Synchronization(name="test")
         synchronization.save()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.synchronization = synchronization
         synchronization_command.synchronize = MagicMock(return_value=None)
         
-        synchronization_command.handle()
+        synchronization_command.execute(synchronization)
         
         self.assertTrue(synchronization_command.synchronize.called)
     
-    def test_handle_raises_command_error_if_synchronize_is_not_implemented(self):
+    def test_execute_raises_command_error_if_synchronize_is_not_implemented(self):
         synchronization = Synchronization(name="test")
         synchronization.save()
         synchronization_command = SynchronizationCommand()
         synchronization_command.synchronization = synchronization
         
         try:
-            synchronization_command.handle()
+            synchronization_command.execute(synchronization)
             self.fail()
         except CommandError:
             pass
     
-    def test_handle_raises_command_error_with_synchronize_error_if_synchronize_raises_error(self):
+    def test_execute_raises_command_error_with_synchronize_error_if_synchronize_raises_error(self):
         synchronization = Synchronization(name="test")
         synchronization.save()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.synchronization = synchronization
         error = "error"
         synchronization_command.synchronize = MagicMock(side_effect=Exception(error))
         
         try:
-            synchronization_command.handle()
+            synchronization_command.execute(synchronization)
             self.fail()
         except CommandError:
             self.assertEqual(unicode(sys.exc_info()[1]), error)
     
-    def test_handle_sets_synchronization_errors_with_synchronize_error_if_synchronize_raises_error(self):
+    def test_execute_sets_synchronization_errors_with_synchronize_error_if_synchronize_raises_error(self):
         synchronization = Synchronization(name="test")
         synchronization.save()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.synchronization = synchronization
         error = "error"
         synchronization_command.synchronize = MagicMock(side_effect=Exception(error))
         
         try:
-            synchronization_command.handle()
+            synchronization_command.execute(synchronization)
             self.fail()
         except CommandError:
             self.assertEqual(Synchronization.objects.get(name=synchronization.name).errors, error)
+
+class SyncOpenStreetMapTestCase(TestCase):
+    
+    def setUp(self):
+        self.synchronization_name = "openstreetmap"
+        self.synchronization = Synchronization.objects.create(name=self.synchronization_name)
+    
+    @patch.object(SynchronizationCommand, 'execute')
+    def test_handle_calls_execute_with_openstreetmap_synchronization(self, mock):
+        command = SyncOpenStreetMapCommand()
+        command.synchronize = MagicMock(return_value=None)
+        
+        command.handle()
+        
+        self.assertTrue(mock.called)
+        self.assertTrue(isinstance(mock.call_args[0][0], Synchronization))
+        self.assertEqual(mock.call_args[0][0].name, self.synchronization_name)

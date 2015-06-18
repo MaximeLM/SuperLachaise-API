@@ -20,8 +20,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from __future__ import print_function
-
 import codecs, os, sys, traceback
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -40,9 +38,10 @@ class SynchronizationCommand(BaseCommand):
         """ Override this method to perform the synchronization """
         raise CommandError("synchronize method not implemented by subclass")
     
-    def handle(self, *args, **options):
-        """ Override this method and set self.synchronization before calling super """
+    def execute(self, synchronization):
+        """ Initialize logging, call 'synchronize' and save the synchronization object """
         
+        self.synchronization = synchronization
         try:
             self.log_file = codecs.open(os.path.dirname(__file__) + '/management/logs/log_' + self.synchronization.name, "w", "utf-8")
         except:
@@ -52,11 +51,6 @@ class SynchronizationCommand(BaseCommand):
         
         try:
             translation.activate(settings.LANGUAGE_CODE)
-            
-            self.created_objects = 0
-            self.modified_objects = 0
-            self.deleted_objects = 0
-            self.errors = []
             
             self.log(_('== Start %s ==') % self.synchronization.name)
             self.synchronize()
