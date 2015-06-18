@@ -40,12 +40,13 @@ class SuperLachaiseModel(models.Model):
 class AdminCommand(SuperLachaiseModel):
     """ An admin command that can be monitored """
     
-    NO_MODIFICATIONS = _("No modifications")
-    
     name = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('name'))
     dependency_order = models.IntegerField(null=True, blank=True, verbose_name=_('dependency order'))
     last_executed = models.DateTimeField(blank=True, null=True, verbose_name=_('last executed'))
-    last_result = models.TextField(blank=True, null=True, verbose_name=_('last result'))
+    created_objects = models.IntegerField(default=0, verbose_name=_('created objects'))
+    modified_objects = models.IntegerField(default=0, verbose_name=_('modified objects'))
+    deleted_objects = models.IntegerField(default=0, verbose_name=_('deleted objects'))
+    errors = models.TextField(blank=True, null=True, verbose_name=_('errors'))
     
     def __unicode__(self):
         return self.name

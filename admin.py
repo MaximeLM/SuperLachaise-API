@@ -134,12 +134,12 @@ class LocalizedAdminCommandInline(admin.StackedInline):
 
 @admin.register(AdminCommand)
 class AdminCommandAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'name', 'dependency_order', 'last_executed', 'last_result', 'description', 'notes')
+    list_display = ('__unicode__', 'name', 'dependency_order', 'last_executed', 'created_objects', 'modified_objects', 'deleted_objects', 'errors', 'description', 'notes')
     search_fields = ('name', 'last_result', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['name', 'dependency_order', 'last_executed', 'last_result']}),
+        (None, {'fields': ['name', 'dependency_order', 'last_executed', 'created_objects', 'modified_objects', 'deleted_objects', 'errors']}),
     ]
     readonly_fields = ('description', 'created', 'modified')
     

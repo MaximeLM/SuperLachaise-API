@@ -22,6 +22,7 @@ limitations under the License.
 
 from django.core.management.base import CommandError
 from django.test import TestCase
+from django.utils import timezone
 from mock import MagicMock
 
 from superlachaise_api.models import *
@@ -45,6 +46,18 @@ class SynchronizationCommandTestCase(TestCase):
             self.fail()
         except CommandError:
             pass
+    
+    def test_handle_updates_admin_command_last_executed_if_admin_command_exists(self):
+        admin_command_name = "sync_test"
+        AdminCommand(name=admin_command_name).save()
+        before_sync = timezone.now()
+        synchronization_command = SynchronizationCommand()
+        synchronization_command.command_name = admin_command_name
+        synchronization_command.synchronize = MagicMock(return_value=None)
+        
+        synchronization_command.handle()
+        
+        self.assertTrue(AdminCommand.objects.get(name=admin_command_name).last_executed > before_sync)
     
     def test_handle_calls_synchronize(self):
         admin_command_name = "sync_test"
@@ -83,7 +96,7 @@ class SynchronizationCommandTestCase(TestCase):
         except CommandError:
             self.assertEqual(unicode(sys.exc_info()[1]), error)
     
-    def test_handle_sets_admin_command_last_result_with_synchronize_error_if_synchronize_raises_error(self):
+    def test_handle_sets_admin_command_errors_with_synchronize_error_if_synchronize_raises_error(self):
         admin_command_name = "sync_test"
         AdminCommand(name=admin_command_name).save()
         synchronization_command = SynchronizationCommand()
@@ -95,4 +108,4 @@ class SynchronizationCommandTestCase(TestCase):
             synchronization_command.handle()
             self.fail()
         except CommandError:
-            self.assertEqual(AdminCommand.objects.get(name=admin_command_name).last_result, error)
+            self.assertEqual(AdminCommand.objects.get(name=admin_command_name).errors, error)

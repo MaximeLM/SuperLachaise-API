@@ -63,26 +63,11 @@ class SynchronizationCommand(BaseCommand):
             self.synchronize()
             self.log(_('== End %s ==') % self.admin_command.name)
             
-            result_list = []
-            if self.created_objects > 0:
-                result_list.append(_('{nb} object(s) created').format(nb=self.created_objects))
-            if self.modified_objects > 0:
-                result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
-            if self.deleted_objects > 0:
-                result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
-            if self.errors:
-                result_list.extend(self.errors)
-            
-            if result_list:
-                self.admin_command.last_result = ', '.join(result_list)
-            else:
-                self.admin_command.last_result = AdminCommand.NO_MODIFICATIONS
-            
             translation.deactivate()
         except:
             self.log(traceback.format_exc())
             error = sys.exc_info()[1]
-            self.admin_command.last_result = error
+            self.admin_command.errors = error
         
         self.admin_command.last_executed = timezone.now()
         self.admin_command.save()
