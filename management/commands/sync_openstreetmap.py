@@ -26,6 +26,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
+from overpy.exception OverpassTooManyRequests
 
 from superlachaise_api.models import *
 
@@ -122,11 +123,21 @@ class Command(BaseCommand):
         query_string_list.append(');\n(._;>;);out body;')
         query_string = "".join(query_string_list)
         
-        # Kill any other query
-        requests.get('http://overpass-api.de/api/kill_my_queries')
-        
         api = overpy.Overpass()
-        result = api.query(query_string)
+        
+        MAX_REQUEST = 5
+        count = 0
+        while count < MAX_REQUEST:
+            try:
+                result = api.query(query_string)
+                break
+            except OverpassTooManyRequests:
+                count += 1
+                print_unicode(u'OverpassTooManyRequests %s/%s' % (count, MAX_REQUEST))
+                
+                # Kill any other query
+                requests.get('http://overpass-api.de/api/kill_my_queries')
+                pass
         
         return result
     

@@ -20,44 +20,46 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import datetime, traceback, sys
+import datetime, traceback, sys, urllib
 from django.contrib import admin, messages
-from django.core.management import call_command
+import django.core.management
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.utils import timezone, translation
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
-from StringIO import StringIO
 
 from superlachaise_api.models import *
 
-def change_page_url(obj):
-    """ Return the URL for the change page of an object """
-    app_name = obj._meta.app_label
-    reverse_name = obj.__class__.__name__.lower()
-    reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
-    url = reverse(reverse_path, args=(obj.pk,))
-    return url
+class AdminUtils():
+    
+    ADMIN_COMMAND_ERROR_TEMPLATE = _('Error in admin command {command_name}: {error}')
+    
+    @classmethod
+    def change_page_url(cls, object):
+        """ Return the URL for the change page of an object """
+        if object.pk:
+            app_name = object._meta.app_label
+            reverse_name = object.__class__.__name__.lower()
+            reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
+            url = reverse(reverse_path, args=(object.pk,))
+            return url
 
-def execute_sync(command, args, request):
-    """ Start a synchronisation """
-    try:
-        sync_start = timezone.now()
-        out = StringIO()
-        call_command(command, stdout=out, **args)
-        if out.getvalue():
-            messages.error(request, _('An error occured. See the admin commands screen for more information.'))
-        out.close()
-        
-        # Redirect to pending modifications scren if needed
-        pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
-        if pending_modifications:
-            return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
-    except:
-        messages.error(request, sys.exc_info()[1])
-        return
+    @classmethod
+    def execute_sync(cls, command_name, args, request):
+        """ Start a synchronisation """
+        try:
+            sync_start = timezone.now()
+            django.core.management.call_command(command_name, **args)
+            
+            # Redirect to pending modifications scren if needed
+            pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
+            if pending_modifications:
+                return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
+        except:
+            messages.error(request, cls.ADMIN_COMMAND_ERROR_TEMPLATE.format(command_name=command_name, error=sys.exc_info()[1]))
+            return
 
 class LocalizedAdminCommandInline(admin.StackedInline):
     model = LocalizedAdminCommand
@@ -337,7 +339,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_ids = [wikidata_entry.wikidata_id for wikidata_entry in queryset]
-        return execute_sync('sync_wikidata', {"wikidata_ids": '|'.join(wikidata_ids)}, request)
+        return AdminUtils.execute_sync('sync_wikidata', {"wikidata_ids": '|'.join(wikidata_ids)}, request)
     sync_entry.short_description = _('Sync selected wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -360,7 +362,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     
     def wikidata_entry_link(self, obj):
         if obj.wikidata_entry:
-            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.wikidata_entry).replace("'","%27"), unicode(obj.wikidata_entry)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.wikidata_entry).replace("'","%27"), unicode(obj.wikidata_entry)))
     wikidata_entry_link.allow_tags = True
     wikidata_entry_link.short_description = _('wikidata entry')
     wikidata_entry_link.admin_order_field = 'wikidata_entry'
@@ -385,7 +387,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_ids = [wikidata_localized_entry.wikidata_entry.wikidata_id for wikidata_localized_entry in queryset]
-        return execute_sync('sync_wikidata', {"wikidata_ids": '|'.join(wikidata_ids)}, request)
+        return AdminUtils.execute_sync('sync_wikidata', {"wikidata_ids": '|'.join(wikidata_ids)}, request)
     sync_entry.short_description = _('Sync selected localized wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -408,7 +410,7 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     
     def wikidata_localized_entry_link(self, obj):
         if obj.wikidata_localized_entry:
-            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.wikidata_localized_entry).replace("'","%27"), unicode(obj.wikidata_localized_entry)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.wikidata_localized_entry).replace("'","%27"), unicode(obj.wikidata_localized_entry)))
     wikidata_localized_entry_link.allow_tags = True
     wikidata_localized_entry_link.short_description = _('wikidata localized entry')
     wikidata_localized_entry_link.admin_order_field = 'wikidata_localized_entry'
@@ -429,7 +431,7 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_localized_entry_ids = [str(value) for value in queryset.values_list('wikidata_localized_entry_id', flat=True)]
-        return execute_sync('sync_wikipedia', {"wikidata_localized_entry_ids": '|'.join(wikidata_localized_entry_ids)}, request)
+        return AdminUtils.execute_sync('sync_wikipedia', {"wikidata_localized_entry_ids": '|'.join(wikidata_localized_entry_ids)}, request)
     sync_entry.short_description = _('Sync selected wikipedia pages')
     
     def delete_notes(self, request, queryset):
@@ -467,7 +469,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     
     def sync_object(self, request, queryset):
         wikimedia_commons_categories = [wikimedia_commons_category.wikimedia_commons_id for wikimedia_commons_category in queryset]
-        return execute_sync('sync_wikimedia_commons_categories', {"wikimedia_commons_categories": '|'.join(wikimedia_commons_categories)}, request)
+        return AdminUtils.execute_sync('sync_wikimedia_commons_categories', {"wikimedia_commons_categories": '|'.join(wikimedia_commons_categories)}, request)
     sync_object.short_description = _('Sync selected wikimedia commons categories')
     
     def delete_notes(self, request, queryset):
@@ -511,7 +513,7 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     
     def sync_object(self, request, queryset):
         wikimedia_commons_files = [wikimedia_commons_file.wikimedia_commons_id for wikimedia_commons_file in queryset]
-        return execute_sync('sync_wikimedia_commons_files', {"wikimedia_commons_files": '|'.join(wikimedia_commons_files)}, request)
+        return AdminUtils.execute_sync('sync_wikimedia_commons_files', {"wikimedia_commons_files": '|'.join(wikimedia_commons_files)}, request)
     sync_object.short_description = _('Sync selected wikimedia commons files')
     
     def delete_notes(self, request, queryset):
@@ -581,40 +583,40 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     
     def openstreetmap_element_link(self, obj):
         if obj.openstreetmap_element:
-            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.openstreetmap_element).replace("'","%27"), unicode(obj.openstreetmap_element)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.openstreetmap_element).replace("'","%27"), unicode(obj.openstreetmap_element)))
     openstreetmap_element_link.allow_tags = True
     openstreetmap_element_link.short_description = _('openstreetmap element')
     openstreetmap_element_link.admin_order_field = 'openstreetmap_element'
     
     def wikidata_entries_link(self, obj):
-        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(wikidata_entry_relation.wikidata_entry).replace("'","%27"), wikidata_entry_relation.relation_type + u':' + unicode(wikidata_entry_relation.wikidata_entry))) for wikidata_entry_relation in obj.superlachaisewikidatarelation_set.all()])
+        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(wikidata_entry_relation.wikidata_entry).replace("'","%27"), wikidata_entry_relation.relation_type + u':' + unicode(wikidata_entry_relation.wikidata_entry))) for wikidata_entry_relation in obj.superlachaisewikidatarelation_set.all()])
     wikidata_entries_link.allow_tags = True
     wikidata_entries_link.short_description = _('wikidata entries')
     wikidata_entries_link.admin_order_field = 'wikidata_entries'
     
     def superlachaise_categories_link(self, obj):
-        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(superlachaise_category).replace("'","%27"), unicode(superlachaise_category))) for superlachaise_category in obj.superlachaise_categories.all()])
+        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(superlachaise_category).replace("'","%27"), unicode(superlachaise_category))) for superlachaise_category in obj.superlachaise_categories.all()])
     superlachaise_categories_link.allow_tags = True
     superlachaise_categories_link.short_description = _('superlachaise categories')
     superlachaise_categories_link.admin_order_field = 'superlachaise_categories'
     
     def wikimedia_commons_category_link(self, obj):
         if obj.wikimedia_commons_category:
-            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.wikimedia_commons_category).replace("'","%27"), unicode(obj.wikimedia_commons_category)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.wikimedia_commons_category).replace("'","%27"), unicode(obj.wikimedia_commons_category)))
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
     def main_image_link(self, obj):
         if obj.main_image:
-            return mark_safe(u'<div style="background: url({image_url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(image_url=obj.main_image.thumbnail_url, url=change_page_url(obj.main_image).replace("'","%27")))
+            return mark_safe(u'<div style="background: url({image_url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(image_url=obj.main_image.thumbnail_url, url=AdminUtils.change_page_url(obj.main_image).replace("'","%27")))
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
     
     def sync_object(self, request, queryset):
         openstreetmap_element_ids = [superlachaise_poi.openstreetmap_element.openstreetmap_id for superlachaise_poi in queryset]
-        return execute_sync('sync_superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
+        return AdminUtils.execute_sync('sync_superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
     sync_object.short_description = _('Sync selected superlachaise POIs')
     
     def delete_notes(self, request, queryset):
@@ -636,7 +638,7 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
     readonly_fields = ('superlachaise_poi_link', 'created', 'modified')
     
     def superlachaise_poi_link(self, obj):
-        return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(obj.superlachaise_poi).replace("'","%27"), unicode(obj.superlachaise_poi)))
+        return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.superlachaise_poi).replace("'","%27"), unicode(obj.superlachaise_poi)))
     superlachaise_poi_link.allow_tags = True
     superlachaise_poi_link.short_description = _('superlachaise poi')
     superlachaise_poi_link.admin_order_field = 'superlachaise_poi'
@@ -647,7 +649,7 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
     
     def sync_object(self, request, queryset):
         openstreetmap_element_ids = [superlachaise_localized_poi.superlachaise_poi.openstreetmap_element.openstreetmap_id for superlachaise_localized_poi in queryset]
-        return execute_sync('sync_superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
+        return AdminUtils.execute_sync('sync_superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
     sync_object.short_description = _('Sync selected superlachaise localized POIs')
     
     actions = [delete_notes, sync_object]
@@ -716,7 +718,7 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
     used_in_count.short_description = _('used in count')
     
     def used_in_link(self, obj):
-        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(wikidata_entry).replace("'","%27"), unicode(wikidata_entry))) for wikidata_entry in obj.used_in.all()])
+        return ';'.join([mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(wikidata_entry).replace("'","%27"), unicode(wikidata_entry))) for wikidata_entry in obj.used_in.all()])
     used_in_link.allow_tags = True
     used_in_link.short_description = _('used in')
     used_in_link.admin_order_field = 'used_in'
@@ -747,14 +749,14 @@ class PendingModificationAdmin(admin.ModelAdmin):
         reverse_name = PendingModification.__name__.lower()
         reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
         split_url = reverse(reverse_path, args=(1,)).split('/')
-        split_url[len(split_url) - 2] = u'?modified__gte=%s' % (modified_since.strftime('%Y-%m-%d+%H:%M:%S') + '%2B00%3A00')
+        split_url[len(split_url) - 2] = u'?modified__gte=%s' % urllib.quote(modified_since.isoformat())
         url = '/'.join(split_url[0:len(split_url) - 1])
         return url
     
     def target_object_link(self, obj):
         target_object = obj.target_object()
         if target_object:
-            return mark_safe(u"<a href='%s'>%s</a>" % (change_page_url(target_object).replace("'","%27"), unicode(target_object)))
+            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(target_object).replace("'","%27"), unicode(target_object)))
     target_object_link.allow_tags = True
     target_object_link.short_description = _('target object')
     
