@@ -47,9 +47,6 @@ class AdminCommand(SuperLachaiseModel):
     last_executed = models.DateTimeField(blank=True, null=True, verbose_name=_('last executed'))
     last_result = models.TextField(blank=True, null=True, verbose_name=_('last result'))
     
-    def perform_command(self):
-        call_command(str(self.name))
-    
     def __unicode__(self):
         return self.name
     
@@ -126,7 +123,7 @@ class LocalizedSetting(SuperLachaiseModel):
 
 class OpenStreetMapElement(SuperLachaiseModel):
     
-    URL_TEMPLATE = u'https://www.openstreetmap.org/{type}/{id}'
+    URL_FORMAT = u'https://www.openstreetmap.org/{type}/{id}'
     
     NODE = 'node'
     WAY = 'way'
@@ -150,18 +147,18 @@ class OpenStreetMapElement(SuperLachaiseModel):
     
     def openstreetmap_url(self):
         if self.type:
-            return OpenStreetMapElement.URL_TEMPLATE.format(type=self.type, id=self.openstreetmap_id)
+            return OpenStreetMapElement.URL_FORMAT.format(type=self.type, id=self.openstreetmap_id)
     
     def wikidata_list(self):
         if self.wikidata:
             return self.wikidata.split(';')
     
     def wikidata_url(self, language_code, wikidata):
-        return WikidataEntry.URL_TEMPLATE.format(id=wikidata.split(':')[-1], language_code=language_code)
+        return WikidataEntry.URL_FORMAT.format(id=wikidata.split(':')[-1], language_code=language_code)
     
     def wikimedia_commons_url(self):
         if self.wikimedia_commons:
-            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=self.wikimedia_commons)
+            return WikimediaCommonsCategory.URL_FORMAT.format(title=self.wikimedia_commons)
     
     def __unicode__(self):
         return self.openstreetmap_id + u':' + self.name
@@ -173,7 +170,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
 
 class WikidataEntry(SuperLachaiseModel):
     
-    URL_TEMPLATE = u'https://www.wikidata.org/wiki/{id}?userlang={language_code}&uselang={language_code}'
+    URL_FORMAT = u'https://www.wikidata.org/wiki/{id}?userlang={language_code}&uselang={language_code}'
     
     YEAR = 'Year'
     MONTH = 'Month'
@@ -204,17 +201,17 @@ class WikidataEntry(SuperLachaiseModel):
             return value.split(';')
     
     def wikidata_url(self, language_code, wikidata):
-        return WikidataEntry.URL_TEMPLATE.format(id=wikidata, language_code=language_code)
+        return WikidataEntry.URL_FORMAT.format(id=wikidata, language_code=language_code)
     
     def wikidata_urls(self, language_code, field):
         value = getattr(self, field)
         if value:
-           return [(wikidata, WikidataEntry.URL_TEMPLATE.format(id=wikidata, language_code=language_code)) for wikidata in value.split(';')]
+           return [(wikidata, WikidataEntry.URL_FORMAT.format(id=wikidata, language_code=language_code)) for wikidata in value.split(';')]
     
     def wikimedia_commons_category_url(self, field):
         value = getattr(self, field)
         if value:
-            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=u'Category:%s' % value)
+            return WikimediaCommonsCategory.URL_FORMAT.format(title=u'Category:%s' % value)
     
     def __unicode__(self):
         return self.wikidata_id
@@ -235,7 +232,7 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
     
     def wikipedia_url(self):
         if self.wikipedia:
-            return WikipediaPage.URL_TEMPLATE.format(language_code=self.language.code, title=self.wikipedia)
+            return WikipediaPage.URL_FORMAT.format(language_code=self.language.code, title=self.wikipedia)
     
     def save(self, *args, **kwargs):
         super(WikidataLocalizedEntry, self).save(*args, **kwargs)
@@ -254,7 +251,7 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
 
 class WikipediaPage(SuperLachaiseModel):
     
-    URL_TEMPLATE = u'https://{language_code}.wikipedia.org/wiki/{title}'
+    URL_FORMAT = u'https://{language_code}.wikipedia.org/wiki/{title}'
     
     wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
     default_sort = models.CharField(max_length=255, blank=True, verbose_name=_('default sort'))
@@ -280,14 +277,14 @@ class WikipediaPage(SuperLachaiseModel):
 
 class WikimediaCommonsCategory(SuperLachaiseModel):
     
-    URL_TEMPLATE = u'https://commons.wikimedia.org/wiki/{title}'
+    URL_FORMAT = u'https://commons.wikimedia.org/wiki/{title}'
     
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
     
     def wikimedia_commons_url(self, field):
         if getattr(self, field):
-            return WikimediaCommonsCategory.URL_TEMPLATE.format(title=getattr(self, field))
+            return WikimediaCommonsCategory.URL_FORMAT.format(title=getattr(self, field))
     
     def __unicode__(self):
         return self.wikimedia_commons_id
@@ -304,7 +301,7 @@ class WikimediaCommonsFile(SuperLachaiseModel):
     thumbnail_url = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
     
     def wikimedia_commons_url(self):
-        return WikimediaCommonsCategory.URL_TEMPLATE.format(title=self.wikimedia_commons_id)
+        return WikimediaCommonsCategory.URL_FORMAT.format(title=self.wikimedia_commons_id)
     
     def __unicode__(self):
         return self.wikimedia_commons_id
@@ -452,7 +449,7 @@ class WikidataOccupation(SuperLachaiseModel):
     used_in = models.ManyToManyField('WikidataEntry', blank=True, related_name='wikidata_occupations', verbose_name=_('used in'))
     
     def wikidata_url(self, language_code):
-        return WikidataEntry.URL_TEMPLATE.format(id=self.wikidata_id, language_code=language_code)
+        return WikidataEntry.URL_FORMAT.format(id=self.wikidata_id, language_code=language_code)
     
     def __unicode__(self):
         return self.wikidata_id

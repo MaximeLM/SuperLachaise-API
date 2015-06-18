@@ -34,20 +34,22 @@ from superlachaise_api.models import *
 
 class AdminUtils():
     
-    ADMIN_COMMAND_ERROR_TEMPLATE = _('Error in admin command {command_name}: {error}')
-    
     @classmethod
     def change_page_url(cls, object):
         """ Return the URL for the change page of an object """
-        if object.pk:
+        if object and object.pk:
             app_name = object._meta.app_label
             reverse_name = object.__class__.__name__.lower()
             reverse_path = "admin:%s_%s_change" % (app_name, reverse_name)
             url = reverse(reverse_path, args=(object.pk,))
             return url
-
+    
+    ADMIN_COMMAND_NO_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : no pending modifications')
+    ADMIN_COMMAND_NEW_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : {count} new pending modification(s)')
+    ADMIN_COMMAND_ERROR_FORMAT = _('Error in admin command {command_name}: {error}')
+    
     @classmethod
-    def execute_sync(cls, command_name, args, request):
+    def execute_sync(cls, command_name, request, args={}):
         """ Start a synchronisation """
         try:
             sync_start = timezone.now()
@@ -56,10 +58,44 @@ class AdminUtils():
             # Redirect to pending modifications scren if needed
             pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
             if pending_modifications:
+                messages.success(request, cls.ADMIN_COMMAND_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=len(pending_modifications)))
                 return HttpResponseRedirect(PendingModificationAdmin.modified_since_url(sync_start))
+            else:
+                messages.success(request, cls.ADMIN_COMMAND_NO_PENDING_MODIFICATIONS_FORMAT)
         except:
-            messages.error(request, cls.ADMIN_COMMAND_ERROR_TEMPLATE.format(command_name=command_name, error=sys.exc_info()[1]))
+            messages.error(request, cls.ADMIN_COMMAND_ERROR_FORMAT.format(command_name=command_name, error=sys.exc_info()[1]))
             return
+    
+    @classmethod
+    def current_localization(cls, object):
+        """ Return the localized object for the current language if it exists """
+        
+        # Get current language
+        language = Language.objects.filter(code=translation.get_language().split("-", 1)[0]).first()
+        
+        if language:
+            return object.localizations.filter(language=language).first()
+    
+    @classmethod
+    def delete_notes(cls, queryset):
+        """ Empty the notes field of all objects in a queryset """
+        queryset.update(notes=u'')
+    
+    HTML_LINK_FORMAT = u"<a href='{url}'>{name}</a>"
+    
+    @classmethod
+    def html_link(cls, url, name=None):
+        """ Return an HTML <a> tag for an URL and optional name (defaults to the URL) """
+        if url:
+            return mark_safe(cls.HTML_LINK_FORMAT.format(url=url.replace("'","%27"), name=name if name else url))
+    
+    HTML_IMAGE_LINK_FORMAT = u'<div style="background: url({image_url}); width:{width}px; height:{height}px; background-position:center; background-size:cover;"><a href="{url}"><img width={width}px height={height}px/></a></div>'
+    
+    @classmethod
+    def html_image_link(cls, url, image_url=None, width=150, height=150):
+        """ Return an HTML link for an URL with an  image """
+        if url:
+            return mark_safe(cls.HTML_IMAGE_LINK_FORMAT.format(url=url.replace("'","%27"), image_url=image_url.replace("'","%27") if image_url else url.replace("'","%27"), width=width, height=height))
 
 class LocalizedAdminCommandInline(admin.StackedInline):
     model = LocalizedAdminCommand
@@ -86,27 +122,18 @@ class AdminCommandAdmin(admin.ModelAdmin):
     ]
     
     def description(self, obj):
-        language = Language.objects.filter(code=translation.get_language().split("-", 1)[0]).first()
-        localized_admin_command = None
-        if language:
-            localized_admin_command = obj.localizations.filter(language=language).first()
-        if not localized_admin_command:
-            localized_admin_command = obj.localizations.all().first()
-        
-        if localized_admin_command:
-            return localized_admin_command.description
+        current_localization = AdminUtils.current_localization(obj)
+        if current_localization:
+            return current_localization.description
     description.short_description = _('description')
     
     def perform_commands(self, request, queryset):
         for admin_command in queryset.order_by('dependency_order'):
-            try:
-                admin_command.perform_command()
-            except:
-                messages.error(request, sys.exc_info()[1])
+            AdminUtils.execute_sync(admin_command.name, request)
     perform_commands.short_description = _('Execute selected admin commands')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes, perform_commands]
@@ -123,7 +150,7 @@ class LanguageAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
@@ -153,19 +180,13 @@ class SettingAdmin(admin.ModelAdmin):
     ]
     
     def description(self, obj):
-        language = Language.objects.filter(code=translation.get_language().split("-", 1)[0]).first()
-        localized_setting = None
-        if language:
-            localized_setting = obj.localizations.filter(language=language).first()
-        if not localized_setting:
-            localized_setting = obj.localizations.all().first()
-        
-        if localized_setting:
-            return localized_setting.description
+        current_localization = AdminUtils.current_localization(obj)
+        if current_localization:
+            return current_localization.description
     description.short_description = _('description')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
@@ -183,33 +204,26 @@ class OpenStreetMapElementAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikidata_links', 'wikimedia_commons_link')
     
     def openstreetmap_link(self, obj):
-        url = obj.openstreetmap_url()
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), unicode(url)))
+        return AdminUtils.html_link(obj.openstreetmap_url())
     openstreetmap_link.allow_tags = True
     openstreetmap_link.short_description = _('openstreetmap')
     
     def wikidata_links(self, obj):
-        language_code = translation.get_language().split("-", 1)[0]
-        wikidata_list = obj.wikidata_list()
-        if wikidata_list:
-            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
-            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
-            return ';'.join(result)
+        if obj.wikidata:
+            language_code = translation.get_language().split("-", 1)[0]
+            return ';'.join([AdminUtils.html_link(obj.wikidata_url(language_code, wikidata), wikidata) for wikidata in obj.wikidata_list()])
     wikidata_links.allow_tags = True
     wikidata_links.short_description = _('wikidata')
     wikidata_links.admin_order_field = 'wikidata'
     
     def wikimedia_commons_link(self, obj):
-        url = obj.wikimedia_commons_url()
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons))
+        return AdminUtils.html_link(obj.wikimedia_commons_url(), obj.wikimedia_commons)
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons'
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
@@ -224,9 +238,7 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
     readonly_fields = ('wikipedia_link',)
     
     def wikipedia_link(self, obj):
-        url = obj.wikipedia_url()
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikipedia))
+        return AdminUtils.html_link(obj.wikipedia_url(), obj.wikipedia)
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
@@ -247,78 +259,58 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     ]
     
     def name(self, obj):
-        language_code = translation.get_language().split("-", 1)[0]
-        language = Language.objects.filter(code=language_code).first()
-        if language:
-            wikidata_localized_entry = obj.localizations.filter(language=language).first()
-            if wikidata_localized_entry:
-                return wikidata_localized_entry.name
+        current_localization = AdminUtils.current_localization(obj)
+        if current_localization:
+            return current_localization.name
     name.short_description = _('name')
     
     def wikidata_link(self, obj):
         language_code = translation.get_language().split("-", 1)[0]
-        url = obj.wikidata_url(language_code, obj.wikidata_id)
-        return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikidata_id))
+        return AdminUtils.html_link(obj.wikidata_url(language_code, obj.wikidata_id), obj.wikidata_id)
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata_id'
     
     def instance_of_link(self, obj):
-        language_code = translation.get_language().split("-", 1)[0]
-        wikidata_list = obj.wikidata_list("instance_of")
-        if wikidata_list:
-            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
-            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
-            return ';'.join(result)
+        if obj.instance_of:
+            language_code = translation.get_language().split("-", 1)[0]
+            return ';'.join([AdminUtils.html_link(obj.wikidata_url(language_code, wikidata), wikidata) for wikidata in obj.wikidata_list("instance_of")])
     instance_of_link.allow_tags = True
     instance_of_link.short_description = _('instance of')
     instance_of_link.admin_order_field = 'instance_of'
     
     def occupations_link(self, obj):
-        language_code = translation.get_language().split("-", 1)[0]
-        wikidata_list = obj.wikidata_list("occupations")
-        if wikidata_list:
-            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
-            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
-            return ';'.join(result)
+        if obj.occupations:
+            language_code = translation.get_language().split("-", 1)[0]
+            return ';'.join([AdminUtils.html_link(obj.wikidata_url(language_code, wikidata), wikidata) for wikidata in obj.wikidata_list("occupations")])
     occupations_link.allow_tags = True
     occupations_link.short_description = _('occupations')
     occupations_link.admin_order_field = 'occupations'
     
     def sex_or_gender_link(self, obj):
-        language_code = translation.get_language().split("-", 1)[0]
-        wikidata_list = obj.wikidata_list("sex_or_gender")
-        if wikidata_list:
-            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
-            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
-            return ';'.join(result)
+        if obj.sex_or_gender:
+            language_code = translation.get_language().split("-", 1)[0]
+            return ';'.join([AdminUtils.html_link(obj.wikidata_url(language_code, wikidata), wikidata) for wikidata in obj.wikidata_list("sex_or_gender")])
     sex_or_gender_link.allow_tags = True
     sex_or_gender_link.short_description = _('sex or gender')
     sex_or_gender_link.admin_order_field = 'sex_or_gender'
     
     def grave_of_wikidata_link(self, obj):
-        language_code = translation.get_language().split("-", 1)[0]
-        wikidata_list = obj.wikidata_list("grave_of_wikidata")
-        if wikidata_list:
-            wikidata_urls = [(wikidata, obj.wikidata_url(language_code, wikidata)) for wikidata in wikidata_list]
-            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
-            return ';'.join(result)
+        if obj.grave_of_wikidata:
+            language_code = translation.get_language().split("-", 1)[0]
+            return ';'.join([AdminUtils.html_link(obj.wikidata_url(language_code, wikidata), wikidata) for wikidata in obj.wikidata_list("grave_of_wikidata")])
     grave_of_wikidata_link.allow_tags = True
     grave_of_wikidata_link.short_description = _('grave_of:wikidata')
     grave_of_wikidata_link.admin_order_field = 'grave_of_wikidata'
     
     def wikimedia_commons_category_link(self, obj):
-        url = obj.wikimedia_commons_category_url("wikimedia_commons_category")
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_category))
+        return AdminUtils.html_link(obj.wikimedia_commons_category_url("wikimedia_commons_category"), obj.wikimedia_commons_category)
     wikimedia_commons_category_link.allow_tags = True
     wikimedia_commons_category_link.short_description = _('wikimedia commons category')
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
     def wikimedia_commons_grave_category_link(self, obj):
-        url = obj.wikimedia_commons_category_url("wikimedia_commons_grave_category")
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_grave_category))
+        return AdminUtils.html_link(obj.wikimedia_commons_category_url("wikimedia_commons_grave_category"), obj.wikimedia_commons_category)
     wikimedia_commons_grave_category_link.allow_tags = True
     wikimedia_commons_grave_category_link.short_description = _('wikimedia commons grave category')
     wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'
@@ -339,11 +331,11 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_ids = [wikidata_entry.wikidata_id for wikidata_entry in queryset]
-        return AdminUtils.execute_sync('sync_wikidata', {"wikidata_ids": '|'.join(wikidata_ids)}, request)
+        return AdminUtils.execute_sync('sync_wikidata', request, {"wikidata_ids": '|'.join(wikidata_ids)})
     sync_entry.short_description = _('Sync selected wikidata entries')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes, sync_entry]
@@ -356,42 +348,37 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['wikidata_entry', 'language', 'name', 'wikipedia', 'description']}),
+        (None, {'fields': ['wikidata_entry', 'language', 'name', 'wikipedia', 'wikidata_link', 'wikipedia_link', 'description']}),
     ]
     readonly_fields = ('wikidata_entry_link', 'wikidata_link', 'wikipedia_link', 'created', 'modified')
     
     def wikidata_entry_link(self, obj):
-        if obj.wikidata_entry:
-            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.wikidata_entry).replace("'","%27"), unicode(obj.wikidata_entry)))
+        return AdminUtils.html_link(AdminUtils.change_page_url(obj.wikidata_entry), unicode(obj.wikidata_entry))
     wikidata_entry_link.allow_tags = True
     wikidata_entry_link.short_description = _('wikidata entry')
     wikidata_entry_link.admin_order_field = 'wikidata_entry'
     
     def wikidata_link(self, obj):
-        language_code = translation.get_language().split("-", 1)[0]
-        wikidata_urls = obj.wikidata_entry.wikidata_urls(language_code, "wikidata_id")
-        if wikidata_urls:
-            result = [mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), wikidata)) for (wikidata, url) in wikidata_urls]
-            return ';'.join(result)
+        if obj.wikidata_entry:
+            language_code = translation.get_language().split("-", 1)[0]
+            return AdminUtils.html_link(obj.wikidata_entry.wikidata_url(language_code, obj.wikidata_entry.wikidata_id), obj.wikidata_entry.wikidata_id)
     wikidata_link.allow_tags = True
     wikidata_link.short_description = _('wikidata')
     wikidata_link.admin_order_field = 'wikidata_entry'
     
     def wikipedia_link(self, obj):
-        url = obj.wikipedia_url()
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikipedia))
+        return AdminUtils.html_link(obj.wikipedia_url(), obj.wikipedia)
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
     
     def sync_entry(self, request, queryset):
         wikidata_ids = [wikidata_localized_entry.wikidata_entry.wikidata_id for wikidata_localized_entry in queryset]
-        return AdminUtils.execute_sync('sync_wikidata', {"wikidata_ids": '|'.join(wikidata_ids)}, request)
+        return AdminUtils.execute_sync('sync_wikidata', request, {"wikidata_ids": '|'.join(wikidata_ids)})
     sync_entry.short_description = _('Sync selected localized wikidata entries')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_entry]
@@ -409,16 +396,13 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     readonly_fields = ('wikidata_localized_entry_link', 'wikipedia_link', 'intro_html', 'created', 'modified')
     
     def wikidata_localized_entry_link(self, obj):
-        if obj.wikidata_localized_entry:
-            return mark_safe(u"<a href='%s'>%s</a>" % (AdminUtils.change_page_url(obj.wikidata_localized_entry).replace("'","%27"), unicode(obj.wikidata_localized_entry)))
+        return AdminUtils.html_link(AdminUtils.change_page_url(obj.wikidata_localized_entry), unicode(obj.wikidata_localized_entry))
     wikidata_localized_entry_link.allow_tags = True
     wikidata_localized_entry_link.short_description = _('wikidata localized entry')
     wikidata_localized_entry_link.admin_order_field = 'wikidata_localized_entry'
     
     def wikipedia_link(self, obj):
-        url = obj.wikidata_localized_entry.wikipedia_url()
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikidata_localized_entry.wikipedia))
+        return AdminUtils.html_link(obj.wikidata_localized_entry.wikipedia_url(), obj.wikidata_localized_entry.wikipedia)
     wikipedia_link.allow_tags = True
     wikipedia_link.short_description = _('wikipedia')
     wikipedia_link.admin_order_field = 'wikipedia'
@@ -431,11 +415,11 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_localized_entry_ids = [str(value) for value in queryset.values_list('wikidata_localized_entry_id', flat=True)]
-        return AdminUtils.execute_sync('sync_wikipedia', {"wikidata_localized_entry_ids": '|'.join(wikidata_localized_entry_ids)}, request)
+        return AdminUtils.execute_sync('sync_wikipedia', request, {"wikidata_localized_entry_ids": '|'.join(wikidata_localized_entry_ids)})
     sync_entry.short_description = _('Sync selected wikipedia pages')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_entry]
@@ -452,28 +436,24 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('wikimedia_commons_link', 'main_image_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = obj.wikimedia_commons_url("wikimedia_commons_id")
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_id))
+        return AdminUtils.html_link(obj.wikimedia_commons_url("wikimedia_commons_id"), obj.wikimedia_commons_id)
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons_id'
     
     def main_image_link(self, obj):
-        url = obj.wikimedia_commons_url("main_image")
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.main_image))
+        return AdminUtils.html_link(obj.wikimedia_commons_url("main_image"), obj.main_image)
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
     
     def sync_object(self, request, queryset):
         wikimedia_commons_categories = [wikimedia_commons_category.wikimedia_commons_id for wikimedia_commons_category in queryset]
-        return AdminUtils.execute_sync('sync_wikimedia_commons_categories', {"wikimedia_commons_categories": '|'.join(wikimedia_commons_categories)}, request)
+        return AdminUtils.execute_sync('sync_wikimedia_commons_categories', request, {"wikimedia_commons_categories": '|'.join(wikimedia_commons_categories)})
     sync_object.short_description = _('Sync selected wikimedia commons categories')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_object]
@@ -490,34 +470,30 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     readonly_fields = ('wikimedia_commons_link', 'original_url_link', 'thumbnail_url_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        url = obj.wikimedia_commons_url()
-        if url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (url.replace("'","%27"), obj.wikimedia_commons_id))
+        return AdminUtils.html_link(obj.wikimedia_commons_url(), obj.wikimedia_commons_id)
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons_id'
     
     def original_url_link(self, obj):
-        if obj.original_url:
-            return mark_safe(u"<a href='%s'>%s</a>" % (obj.original_url.replace("'","%27"), _('original image')))
+        return AdminUtils.html_link(obj.original_url, _('original image'))
     original_url_link.allow_tags = True
     original_url_link.short_description = _('original url')
     original_url_link.admin_order_field = 'original_url'
     
     def thumbnail_url_link(self, obj):
-        if obj.thumbnail_url:
-            return mark_safe(u'<div style="background: url({url}); width:150px; height:150px; background-position:center; background-size:cover;"><a href="{url}"><img width=150 height=150/></a></div>'.format(url=obj.thumbnail_url.replace("'","%27")))
+        return AdminUtils.html_image_link(obj.thumbnail_url)
     thumbnail_url_link.allow_tags = True
     thumbnail_url_link.short_description = _('thumbnail url')
     thumbnail_url_link.admin_order_field = 'thumbnail_url'
     
     def sync_object(self, request, queryset):
         wikimedia_commons_files = [wikimedia_commons_file.wikimedia_commons_id for wikimedia_commons_file in queryset]
-        return AdminUtils.execute_sync('sync_wikimedia_commons_files', {"wikimedia_commons_files": '|'.join(wikimedia_commons_files)}, request)
+        return AdminUtils.execute_sync('sync_wikimedia_commons_files', request, {"wikimedia_commons_files": '|'.join(wikimedia_commons_files)})
     sync_object.short_description = _('Sync selected wikimedia commons files')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_object]
@@ -616,11 +592,11 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     
     def sync_object(self, request, queryset):
         openstreetmap_element_ids = [superlachaise_poi.openstreetmap_element.openstreetmap_id for superlachaise_poi in queryset]
-        return AdminUtils.execute_sync('sync_superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
+        return AdminUtils.execute_sync('sync_superlachaise_pois', request, {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)})
     sync_object.short_description = _('Sync selected superlachaise POIs')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes, sync_object]
@@ -644,7 +620,7 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
     superlachaise_poi_link.admin_order_field = 'superlachaise_poi'
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     def sync_object(self, request, queryset):
@@ -686,7 +662,7 @@ class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
     wikidata_occupations_count.short_description = _('wikidata occupations count')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
@@ -724,7 +700,7 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
     used_in_link.admin_order_field = 'used_in'
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
@@ -769,7 +745,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
     apply_modifications.short_description = _('Apply selected pending modifications')
     
     def delete_notes(self, request, queryset):
-        queryset.update(notes=u'')
+        AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes, apply_modifications]

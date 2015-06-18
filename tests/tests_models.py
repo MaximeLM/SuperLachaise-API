@@ -55,7 +55,7 @@ class OpenStreetMapElementTestCase(TestCase):
         type = "node"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, type=type)
         
-        self.assertEqual(OpenStreetMapElement.URL_TEMPLATE.format(type=type, id=openstreetmap_id), openstreetmap_element.openstreetmap_url())
+        self.assertEqual(OpenStreetMapElement.URL_FORMAT.format(type=type, id=openstreetmap_id), openstreetmap_element.openstreetmap_url())
     
     def test_wikidata_list_returns_none_if_wikidata_is_empty(self):
         openstreetmap_id = "123456"
@@ -84,7 +84,7 @@ class OpenStreetMapElementTestCase(TestCase):
         wikidata = "Q123"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikidata=wikidata)
         
-        self.assertEqual(WikidataEntry.URL_TEMPLATE.format(id=wikidata, language_code=language_code), openstreetmap_element.wikidata_url(language_code, wikidata))
+        self.assertEqual(WikidataEntry.URL_FORMAT.format(id=wikidata, language_code=language_code), openstreetmap_element.wikidata_url(language_code, wikidata))
     
     def test_wikidata_url_returns_wikidata_url_with_language_and_last_part_of_wikidata_splitted_by_colon_if_wikidata_has_colon(self):
         language_code = "en"
@@ -94,7 +94,7 @@ class OpenStreetMapElementTestCase(TestCase):
         wikidata = ':'.join([prefix, suffix])
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikidata=wikidata)
         
-        self.assertEqual(WikidataEntry.URL_TEMPLATE.format(id=suffix, language_code=language_code), openstreetmap_element.wikidata_url(language_code, wikidata))
+        self.assertEqual(WikidataEntry.URL_FORMAT.format(id=suffix, language_code=language_code), openstreetmap_element.wikidata_url(language_code, wikidata))
     
     def test_wikimedia_commons_url_returns_none_if_wikimedia_commons_is_empty(self):
         openstreetmap_id = "123456"
@@ -107,7 +107,7 @@ class OpenStreetMapElementTestCase(TestCase):
         wikimedia_commons = "wikimedia commons"
         openstreetmap_element = OpenStreetMapElement(openstreetmap_id=openstreetmap_id, wikimedia_commons=wikimedia_commons)
         
-        self.assertEqual(WikimediaCommonsCategory.URL_TEMPLATE.format(title=wikimedia_commons), openstreetmap_element.wikimedia_commons_url())
+        self.assertEqual(WikimediaCommonsCategory.URL_FORMAT.format(title=wikimedia_commons), openstreetmap_element.wikimedia_commons_url())
 
 class WikidataEntryTestCase(TestCase):
     
@@ -138,7 +138,7 @@ class WikidataEntryTestCase(TestCase):
         occupations = "occupations"
         wikidata_entry = WikidataEntry(wikidata_id=wikidata_id, occupations=occupations)
         
-        self.assertEqual(WikidataEntry.URL_TEMPLATE.format(id=occupations, language_code=language_code), wikidata_entry.wikidata_url(language_code, occupations))
+        self.assertEqual(WikidataEntry.URL_FORMAT.format(id=occupations, language_code=language_code), wikidata_entry.wikidata_url(language_code, occupations))
     
     def test_wikimedia_commons_category_url_returns_none_if_field_value_is_empty(self):
         wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
@@ -149,7 +149,7 @@ class WikidataEntryTestCase(TestCase):
         wikimedia_commons_category = "wikimedia_commons_category"
         wikidata_entry = WikidataEntry(wikidata_id="wikidata_id", wikimedia_commons_category=wikimedia_commons_category)
         
-        self.assertEqual(WikimediaCommonsCategory.URL_TEMPLATE.format(title=u'Category:%s' % wikimedia_commons_category), wikidata_entry.wikimedia_commons_category_url("wikimedia_commons_category"))
+        self.assertEqual(WikimediaCommonsCategory.URL_FORMAT.format(title=u'Category:%s' % wikimedia_commons_category), wikidata_entry.wikimedia_commons_category_url("wikimedia_commons_category"))
 
 class WikidataLocalizedEntryTestCase(TestCase):
     
@@ -185,7 +185,7 @@ class WikidataLocalizedEntryTestCase(TestCase):
         wikipedia = "wikipedia"
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language, wikipedia=wikipedia)
         
-        self.assertEqual(WikipediaPage.URL_TEMPLATE.format(language_code=language.code, title=wikipedia), wikidata_localized_entry.wikipedia_url())
+        self.assertEqual(WikipediaPage.URL_FORMAT.format(language_code=language.code, title=wikipedia), wikidata_localized_entry.wikipedia_url())
 
 class WikipediaPageTestCase(TestCase):
     
@@ -226,7 +226,7 @@ class WikimediaCommonsCategoryTestCase(TestCase):
         main_image = "image"
         wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id="wikimedia_commons_id", main_image=main_image)
         
-        self.assertEqual(WikimediaCommonsCategory.URL_TEMPLATE.format(title=main_image), wikimedia_commons_category.wikimedia_commons_url("main_image"))
+        self.assertEqual(WikimediaCommonsCategory.URL_FORMAT.format(title=main_image), wikimedia_commons_category.wikimedia_commons_url("main_image"))
 
 class WikimediaCommonsFileTestCase(TestCase):
     
@@ -234,7 +234,7 @@ class WikimediaCommonsFileTestCase(TestCase):
         wikimedia_commons_id = "id"
         wikimedia_commons_file = WikimediaCommonsFile(wikimedia_commons_id=wikimedia_commons_id)
         
-        self.assertEqual(WikimediaCommonsCategory.URL_TEMPLATE.format(title=wikimedia_commons_id), wikimedia_commons_file.wikimedia_commons_url())
+        self.assertEqual(WikimediaCommonsCategory.URL_FORMAT.format(title=wikimedia_commons_id), wikimedia_commons_file.wikimedia_commons_url())
 
 class SuperLachaisePOITestCase(TestCase):
     pass
@@ -309,7 +309,7 @@ class WikidataOccupationTestCase(TestCase):
         wikidata_id = "Q123"
         wikidata_occupation = WikidataOccupation(wikidata_id=wikidata_id)
         
-        self.assertEqual(WikidataEntry.URL_TEMPLATE.format(id=wikidata_id, language_code=language_code), wikidata_occupation.wikidata_url(language_code))
+        self.assertEqual(WikidataEntry.URL_FORMAT.format(id=wikidata_id, language_code=language_code), wikidata_occupation.wikidata_url(language_code))
 
 class PendingModificationTestCase(TestCase):
     
