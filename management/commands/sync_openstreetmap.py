@@ -26,7 +26,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
-from overpy.exception OverpassTooManyRequests
+from overpy.exception import OverpassTooManyRequests
 
 from superlachaise_api.models import *
 

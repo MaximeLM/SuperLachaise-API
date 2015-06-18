@@ -30,40 +30,30 @@ from superlachaise_api.synchronization import *
 
 class SynchronizationCommandTestCase(TestCase):
     
-    def test_handle_raises_command_error_if_command_name_is_not_set(self):
+    def test_handle_raises_command_error_if_synchronization_is_not_set(self):
         try:
             SynchronizationCommand().handle()
             self.fail()
         except CommandError:
             pass
     
-    def test_handle_raises_command_error_if_synchronization_with_command_does_not_exist(self):
-        synchronization_command = SynchronizationCommand()
-        synchronization_command.command_name = "sync_openstreetmap"
-        
-        try:
-            synchronization_command.handle()
-            self.fail()
-        except CommandError:
-            pass
-    
-    def test_handle_updates_synchronization_last_executed_if_synchronization_exists(self):
-        synchronization_name = "sync_test"
-        Synchronization(name=synchronization_name).save()
+    def test_handle_updates_synchronization_last_executed_if_synchronization_is_set(self):
+        synchronization = Synchronization(name="test")
+        synchronization.save()
         before_sync = timezone.now()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.command_name = synchronization_name
+        synchronization_command.synchronization = synchronization
         synchronization_command.synchronize = MagicMock(return_value=None)
         
         synchronization_command.handle()
         
-        self.assertTrue(Synchronization.objects.get(name=synchronization_name).last_executed > before_sync)
+        self.assertTrue(Synchronization.objects.get(name=synchronization.name).last_executed > before_sync)
     
-    def test_handle_calls_synchronize(self):
-        synchronization_name = "sync_test"
-        Synchronization(name=synchronization_name).save()
+    def test_handle_calls_synchronize_if_synchronization_is_set(self):
+        synchronization = Synchronization(name="test")
+        synchronization.save()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.command_name = synchronization_name
+        synchronization_command.synchronization = synchronization
         synchronization_command.synchronize = MagicMock(return_value=None)
         
         synchronization_command.handle()
@@ -71,10 +61,10 @@ class SynchronizationCommandTestCase(TestCase):
         self.assertTrue(synchronization_command.synchronize.called)
     
     def test_handle_raises_command_error_if_synchronize_is_not_implemented(self):
-        synchronization_name = "sync_test"
-        Synchronization(name=synchronization_name).save()
+        synchronization = Synchronization(name="test")
+        synchronization.save()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.command_name = synchronization_name
+        synchronization_command.synchronization = synchronization
         
         try:
             synchronization_command.handle()
@@ -83,10 +73,10 @@ class SynchronizationCommandTestCase(TestCase):
             pass
     
     def test_handle_raises_command_error_with_synchronize_error_if_synchronize_raises_error(self):
-        synchronization_name = "sync_test"
-        Synchronization(name=synchronization_name).save()
+        synchronization = Synchronization(name="test")
+        synchronization.save()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.command_name = synchronization_name
+        synchronization_command.synchronization = synchronization
         error = "error"
         synchronization_command.synchronize = MagicMock(side_effect=Exception(error))
         
@@ -97,10 +87,10 @@ class SynchronizationCommandTestCase(TestCase):
             self.assertEqual(unicode(sys.exc_info()[1]), error)
     
     def test_handle_sets_synchronization_errors_with_synchronize_error_if_synchronize_raises_error(self):
-        synchronization_name = "sync_test"
-        Synchronization(name=synchronization_name).save()
+        synchronization = Synchronization(name="test")
+        synchronization.save()
         synchronization_command = SynchronizationCommand()
-        synchronization_command.command_name = synchronization_name
+        synchronization_command.synchronization = synchronization
         error = "error"
         synchronization_command.synchronize = MagicMock(side_effect=Exception(error))
         
@@ -108,4 +98,4 @@ class SynchronizationCommandTestCase(TestCase):
             synchronization_command.handle()
             self.fail()
         except CommandError:
-            self.assertEqual(Synchronization.objects.get(name=synchronization_name).errors, error)
+            self.assertEqual(Synchronization.objects.get(name=synchronization.name).errors, error)

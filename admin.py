@@ -55,14 +55,14 @@ class AdminUtils():
     
     EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : no pending modifications')
     EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : {count} new pending modification(s)')
-    EXECUTE_SYNC_ERROR_FORMAT = _('Error in admin command "{command_name}": {error}')
+    EXECUTE_SYNC_ERROR_FORMAT = _('Error in admin command "{synchronization_name}": {error}')
     
     @classmethod
-    def execute_sync(cls, command_name, request, args={}):
+    def execute_sync(cls, synchronization_name, request, args={}):
         """ Execute a synchronisation and add success/error messages to the request """
         try:
             sync_start = timezone.now()
-            django.core.management.call_command(command_name, **args)
+            django.core.management.call_command(Synchronization.PREFIX + synchronization_name, **args)
             
             # Redirect to pending modifications scren if needed
             pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
@@ -73,7 +73,7 @@ class AdminUtils():
             else:
                 messages.success(request, cls.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT)
         except:
-            messages.error(request, cls.EXECUTE_SYNC_ERROR_FORMAT.format(command_name=command_name, error=sys.exc_info()[1]))
+            messages.error(request, cls.EXECUTE_SYNC_ERROR_FORMAT.format(synchronization_name=synchronization_name, error=sys.exc_info()[1]))
             return
     
     APPLY_PENDING_MODIFICATIONS_SUCCESS_FORMAT = _('Modifications applied with success')

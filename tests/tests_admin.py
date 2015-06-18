@@ -76,28 +76,28 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual('/admin/superlachaise_api/openstreetmapelement/', url)
     
     def test_execute_sync_calls_call_command(self):
-        command_name = "synchronization"
+        synchronization_name = "synchronization"
         args = {}
         request = self.dummy_request()
         self.mock_call_command()
         
-        AdminUtils.execute_sync(command_name, request, args)
+        AdminUtils.execute_sync(synchronization_name, request, args)
         
         self.assertTrue(django.core.management.call_command.called)
     
-    def test_execute_sync_call_command_with_command_name(self):
-        command_name = "synchronization"
+    def test_execute_sync_call_command_with_prefixed_synchronization_name(self):
+        synchronization_name = "synchronization"
         args = {}
         request = self.dummy_request()
         self.mock_call_command()
         
-        AdminUtils.execute_sync(command_name, request, args)
+        AdminUtils.execute_sync(synchronization_name, request, args)
         
         args = django.core.management.call_command.call_args[0]
-        self.assertEqual(command_name, args[0])
+        self.assertEqual(Synchronization.PREFIX + synchronization_name, args[0])
     
     def test_execute_sync_add_args_to_command(self):
-        command_name = "synchronization"
+        synchronization_name = "synchronization"
         args = {
             "arg1": "value1",
             "arg2": "value2",
@@ -105,20 +105,20 @@ class AdminUtilsTestCase(TestCase):
         request = self.dummy_request()
         self.mock_call_command()
         
-        AdminUtils.execute_sync(command_name, request, args)
+        AdminUtils.execute_sync(synchronization_name, request, args)
         
         kwargs = django.core.management.call_command.call_args[1]
         for arg, value in args.iteritems():
             self.assertEqual(value, kwargs[arg])
     
     def test_execute_sync_add_no_pending_modifications_success_message_to_request_if_command_raises_no_exception_and_command_creates_no_pending_modifications(self):
-        command_name = "synchronization"
+        synchronization_name = "synchronization"
         args = {}
         request = self.dummy_request()
         error = Exception("error")
         self.mock_call_command()
         
-        AdminUtils.execute_sync(command_name, request, args)
+        AdminUtils.execute_sync(synchronization_name, request, args)
         
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
@@ -126,7 +126,7 @@ class AdminUtilsTestCase(TestCase):
             self.assertEqual(AdminUtils.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT, message.message)
     
     def test_execute_sync_add_new_pending_modifications_success_message_to_request_if_command_raises_no_exception_and_command_creates_pending_modifications(self):
-        command_name = "synchronization"
+        synchronization_name = "synchronization"
         args = {}
         request = self.dummy_request()
         error = Exception("error")
@@ -135,7 +135,7 @@ class AdminUtilsTestCase(TestCase):
             PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.DELETE).save()
         self.mock_call_command(side_effect=side_effect)
         
-        AdminUtils.execute_sync(command_name, request, args)
+        AdminUtils.execute_sync(synchronization_name, request, args)
         
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
@@ -143,31 +143,31 @@ class AdminUtilsTestCase(TestCase):
             self.assertEqual(AdminUtils.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=1), message.message)
     
     def test_execute_sync_add_error_message_with_exception_message_to_request_if_command_raises_exception(self):
-        command_name = "synchronization"
+        synchronization_name = "synchronization"
         args = {}
         request = self.dummy_request()
         error = Exception("error")
         self.mock_call_command(side_effect=error)
         
-        AdminUtils.execute_sync(command_name, request, args)
+        AdminUtils.execute_sync(synchronization_name, request, args)
         
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
             self.assertEqual(ERROR, message.level)
-            self.assertEqual(AdminUtils.EXECUTE_SYNC_ERROR_FORMAT.format(command_name=command_name, error=unicode(error)), message.message)
+            self.assertEqual(AdminUtils.EXECUTE_SYNC_ERROR_FORMAT.format(synchronization_name=synchronization_name, error=unicode(error)), message.message)
     
     def test_execute_sync_returns_none_if_command_creates_no_pending_modifications(self):
-        command_name = "synchronization"
+        synchronization_name = "synchronization"
         args = {}
         request = self.dummy_request()
         self.mock_call_command()
         
-        result = AdminUtils.execute_sync(command_name, request, args)
+        result = AdminUtils.execute_sync(synchronization_name, request, args)
         
         self.assertIsNone(result)
     
     def test_execute_sync_returns_redirect_to_pending_modifications_filtered_by_created_objects_if_command_creates_pending_modifications(self):
-        command_name = "synchronization"
+        synchronization_name = "synchronization"
         args = {}
         request = self.dummy_request()
         
@@ -177,7 +177,7 @@ class AdminUtilsTestCase(TestCase):
             PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE).save()
         self.mock_call_command(side_effect=side_effect)
         
-        result = AdminUtils.execute_sync(command_name, request, args)
+        result = AdminUtils.execute_sync(synchronization_name, request, args)
         
         self.assertIsNotNone(result)
         self.assertTrue(isinstance(result, HttpResponseRedirect))

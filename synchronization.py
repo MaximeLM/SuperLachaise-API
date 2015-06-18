@@ -41,11 +41,10 @@ class SynchronizationCommand(BaseCommand):
         raise CommandError("synchronize method not implemented by subclass")
     
     def handle(self, *args, **options):
-        """ Override this method and set self.command_name before calling super """
+        """ Override this method and set self.synchronization before calling super """
         
         try:
-            self.log_file = codecs.open(os.path.dirname(__file__) + '/management/logs/log_' + self.command_name, "w", "utf-8")
-            self.synchronization = Synchronization.objects.get(name=self.command_name)
+            self.log_file = codecs.open(os.path.dirname(__file__) + '/management/logs/log_' + self.synchronization.name, "w", "utf-8")
         except:
             raise CommandError(sys.exc_info()[1])
         

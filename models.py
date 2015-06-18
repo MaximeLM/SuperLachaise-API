@@ -40,6 +40,8 @@ class SuperLachaiseModel(models.Model):
 class Synchronization(SuperLachaiseModel):
     """ An synchronization admin command that can be monitored """
     
+    PREFIX = 'sync_'
+    
     name = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('name'))
     dependency_order = models.IntegerField(null=True, blank=True, verbose_name=_('dependency order'))
     last_executed = models.DateTimeField(blank=True, null=True, verbose_name=_('last executed'))

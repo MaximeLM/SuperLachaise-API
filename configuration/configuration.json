@@ -1,54 +1,4 @@
 {
-    "Synchronization": [
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"dependency_order\": 1}",
-            "target_object_class": "Synchronization",
-            "target_object_id": "{\"name\": \"sync_openstreetmap\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"dependency_order\": 2}",
-            "target_object_class": "Synchronization",
-            "target_object_id": "{\"name\": \"sync_wikidata\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"dependency_order\": 3}",
-            "target_object_class": "Synchronization",
-            "target_object_id": "{\"name\": \"sync_wikipedia\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"dependency_order\": 4}",
-            "target_object_class": "Synchronization",
-            "target_object_id": "{\"name\": \"sync_wikimedia_commons_categories\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"dependency_order\": 5}",
-            "target_object_class": "Synchronization",
-            "target_object_id": "{\"name\": \"sync_wikimedia_commons_files\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"dependency_order\": 6}",
-            "target_object_class": "Synchronization",
-            "target_object_id": "{\"name\": \"sync_wikidata_occupations\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"dependency_order\": 7}",
-            "target_object_class": "Synchronization",
-            "target_object_id": "{\"name\": \"sync_superlachaise_pois\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"dependency_order\": null}",
-            "target_object_class": "Synchronization",
-            "target_object_id": "{\"name\": \"sync_all_and_send_mail_to_managers\"}"
-        }
-    ],
     "Language": [
         {
             "action": "create_or_update",
@@ -61,104 +11,6 @@
             "modified_fields": "{\"enumeration_separator\": \", \", \"last_enumeration_separator\": \" et \", \"description\": \"Fran\\u00e7ais\", \"artist_prefix\": \"Artiste : \"}",
             "target_object_class": "Language",
             "target_object_id": "{\"code\": \"fr\"}"
-        }
-    ],
-    "LocalizedSynchronization": [
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronize OpenStreetMap elements by querying Overpass API for the geographic boundary and tags defined in the settings. Build the \\\"wikidata combined\\\" field by querying Wikidata API for the values of the field \\\"wikipedia\\\" on OpenStreetMap elements.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"sync_openstreetmap\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronize Wikidata entries by querying Wikidata API for the Wikidata codes in the field \\\"wikidata combined\\\" on OpenStreetMap elements and the field \\\"grave_of:wikidata\\\" on Wikidata entries.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"sync_wikidata\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronize Wikipedia pages by querying Wikipedia API for the Wikipedia pages referenced on localized Wikidata entries.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"sync_wikipedia\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronize Wikimedia Commons categories by querying Wikimedia Commons API for the Wikimedia Commons categories referenced on OpenStreetMap elements and Wikidata entries.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"sync_wikimedia_commons_categories\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronize Wikimedia Commons files by querying Wikimedia Commons API for the Wikimedia Commons files referenced on Wikimedia Commons categories.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"sync_wikimedia_commons_files\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronize Wikidata occupations by querying Wikidata API for the codes in the \\\"occupations\\\" field on Wikidata entries.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"sync_wikidata_occupations\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronize SuperLachaise POIs by rebuilding links between OpenStreetMap elements, Wikidata entries, Wikimedia Commons categories and files.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"sync_superlachaise_pois\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Execute all synchronizations in dependency order and send a mail to the managers if modifications or errors occur.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"sync_all_and_send_mail_to_managers\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronise les \\u00e9l\\u00e9ments OpenStreetMap en requ\\u00eatant l'API Overpass pour la zone g\\u00e9ographique et les types de tags param\\u00e9tr\\u00e9s. Construit le champ \\\"wikidata combin\\u00e9\\\" en requ\\u00eatant l'API Wikidata pour les valeurs du champ \\\"wikip\\u00e9dia\\\" des \\u00e9l\\u00e9ments OpenStreetMap.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"sync_openstreetmap\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronise les entr\\u00e9es Wikidata en requ\\u00eatant l'API Wikidata pour les codes Wikidata pr\\u00e9sents dans le champ \\\"wikidata combin\\u00e9\\\" des \\u00e9l\\u00e9ments OpenStreetMap et le champ \\\"grave_of:wikidata\\\" des entr\\u00e9es Wikidata.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"sync_wikidata\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronise les pages Wikip\\u00e9dia en requ\\u00eatant l'API Wikip\\u00e9dia pour les pages Wikip\\u00e9dia r\\u00e9f\\u00e9renc\\u00e9es par les entr\\u00e9es Wikidata localis\\u00e9es.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"sync_wikipedia\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronise les cat\\u00e9gories Wikimedia Commons en requ\\u00eatant l'API Wikimedia Commons pour les cat\\u00e9gories Wikimedia Commons des \\u00e9l\\u00e9ments OpenStreetMap et des entr\\u00e9es Wikidata.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"sync_wikimedia_commons_categories\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronise les fichiers Wikimedia Commons en requ\\u00eatant l'API Wikimedia Commons pour les fichiers Wikimedia Commons r\\u00e9f\\u00e9renc\\u00e9s dans les cat\\u00e9gories Wikimedia Commons.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"sync_wikimedia_commons_files\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronise les occupations Wikidata en requ\\u00eatant l'API Wikidata pour les valeurs du champ \\\"occupations\\\" des entr\\u00e9es Wikidata.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"sync_wikidata_occupations\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Synchronise les POIs SuperLachaise en reconstituant les liens entre les \\u00e9l\\u00e9ments OpenStreetMap, les entr\\u00e9es Wikidata, les cat\\u00e9gories et fichiers Wikimedia Commons.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"sync_superlachaise_pois\"}"
-        },
-        {
-            "action": "create_or_update",
-            "modified_fields": "{\"description\": \"Ex\\u00e9cute toutes les synchronisations dans leur ordre de d\\u00e9pendance et envoie un mail aux managers si des modifications ou erreurs ont \\u00e9t\\u00e9 rencontr\\u00e9es.\"}",
-            "target_object_class": "LocalizedSynchronization",
-            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"sync_all_and_send_mail_to_managers\"}"
         }
     ],
     "LocalizedSetting": [
@@ -305,6 +157,104 @@
             "modified_fields": "{\"description\": \"Si la valeur est \\u00e0 \\\"true\\\", applique automatiquement les nouvelles modifications apr\\u00e8s la synchronisation des pages Wikip\\u00e9dia. Sinon, cr\\u00e9e des modifications en attente qui doivent \\u00eatre valid\\u00e9es manuellement.\"}",
             "target_object_class": "LocalizedSetting",
             "target_object_id": "{\"language__code\": \"fr\", \"setting__key\": \"wikipedia:auto_apply_modifications\"}"
+        }
+    ],
+    "LocalizedSynchronization": [
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize OpenStreetMap elements by querying Overpass API for the geographic boundary and tags defined in the settings. Build the \\\"wikidata combined\\\" field by querying Wikidata API for the values of the field \\\"wikipedia\\\" on OpenStreetMap elements.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"openstreetmap\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikidata entries by querying Wikidata API for the Wikidata codes in the field \\\"wikidata combined\\\" on OpenStreetMap elements and the field \\\"grave_of:wikidata\\\" on Wikidata entries.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"wikidata\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikipedia pages by querying Wikipedia API for the Wikipedia pages referenced on localized Wikidata entries.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"wikipedia\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikimedia Commons categories by querying Wikimedia Commons API for the Wikimedia Commons categories referenced on OpenStreetMap elements and Wikidata entries.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"wikimedia_commons_categories\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikimedia Commons files by querying Wikimedia Commons API for the Wikimedia Commons files referenced on Wikimedia Commons categories.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"wikimedia_commons_files\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize Wikidata occupations by querying Wikidata API for the codes in the \\\"occupations\\\" field on Wikidata entries.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"wikidata_occupations\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronize SuperLachaise POIs by rebuilding links between OpenStreetMap elements, Wikidata entries, Wikimedia Commons categories and files.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"superlachaise_pois\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Execute all synchronizations in dependency order and send a mail to the managers if modifications or errors occur.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"en\", \"synchronization__name\": \"all\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les \\u00e9l\\u00e9ments OpenStreetMap en requ\\u00eatant l'API Overpass pour la zone g\\u00e9ographique et les types de tags param\\u00e9tr\\u00e9s. Construit le champ \\\"wikidata combin\\u00e9\\\" en requ\\u00eatant l'API Wikidata pour les valeurs du champ \\\"wikip\\u00e9dia\\\" des \\u00e9l\\u00e9ments OpenStreetMap.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"openstreetmap\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les entr\\u00e9es Wikidata en requ\\u00eatant l'API Wikidata pour les codes Wikidata pr\\u00e9sents dans le champ \\\"wikidata combin\\u00e9\\\" des \\u00e9l\\u00e9ments OpenStreetMap et le champ \\\"grave_of:wikidata\\\" des entr\\u00e9es Wikidata.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"wikidata\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les pages Wikip\\u00e9dia en requ\\u00eatant l'API Wikip\\u00e9dia pour les pages Wikip\\u00e9dia r\\u00e9f\\u00e9renc\\u00e9es par les entr\\u00e9es Wikidata localis\\u00e9es.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"wikipedia\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les cat\\u00e9gories Wikimedia Commons en requ\\u00eatant l'API Wikimedia Commons pour les cat\\u00e9gories Wikimedia Commons des \\u00e9l\\u00e9ments OpenStreetMap et des entr\\u00e9es Wikidata.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"wikimedia_commons_categories\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les fichiers Wikimedia Commons en requ\\u00eatant l'API Wikimedia Commons pour les fichiers Wikimedia Commons r\\u00e9f\\u00e9renc\\u00e9s dans les cat\\u00e9gories Wikimedia Commons.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"wikimedia_commons_files\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les occupations Wikidata en requ\\u00eatant l'API Wikidata pour les valeurs du champ \\\"occupations\\\" des entr\\u00e9es Wikidata.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"wikidata_occupations\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Synchronise les POIs SuperLachaise en reconstituant les liens entre les \\u00e9l\\u00e9ments OpenStreetMap, les entr\\u00e9es Wikidata, les cat\\u00e9gories et fichiers Wikimedia Commons.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"superlachaise_pois\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"description\": \"Ex\\u00e9cute toutes les synchronisations dans leur ordre de d\\u00e9pendance et envoie un mail aux managers si des modifications ou erreurs ont \\u00e9t\\u00e9 rencontr\\u00e9es.\"}",
+            "target_object_class": "LocalizedSynchronization",
+            "target_object_id": "{\"language__code\": \"fr\", \"synchronization__name\": \"all\"}"
         }
     ],
     "Setting": [
@@ -689,6 +639,56 @@
             "modified_fields": "{\"name\": \"Urbanisme\"}",
             "target_object_class": "SuperLachaiseLocalizedCategory",
             "target_object_id": "{\"language__code\": \"fr\", \"superlachaise_category__code\": \"urbanism\"}"
+        }
+    ],
+    "Synchronization": [
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 1}",
+            "target_object_class": "Synchronization",
+            "target_object_id": "{\"name\": \"openstreetmap\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 2}",
+            "target_object_class": "Synchronization",
+            "target_object_id": "{\"name\": \"wikidata\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 3}",
+            "target_object_class": "Synchronization",
+            "target_object_id": "{\"name\": \"wikipedia\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 4}",
+            "target_object_class": "Synchronization",
+            "target_object_id": "{\"name\": \"wikimedia_commons_categories\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 5}",
+            "target_object_class": "Synchronization",
+            "target_object_id": "{\"name\": \"wikimedia_commons_files\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 6}",
+            "target_object_class": "Synchronization",
+            "target_object_id": "{\"name\": \"wikidata_occupations\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": 7}",
+            "target_object_class": "Synchronization",
+            "target_object_id": "{\"name\": \"superlachaise_pois\"}"
+        },
+        {
+            "action": "create_or_update",
+            "modified_fields": "{\"dependency_order\": null}",
+            "target_object_class": "Synchronization",
+            "target_object_id": "{\"name\": \"all\"}"
         }
     ],
     "WikidataOccupation": [
