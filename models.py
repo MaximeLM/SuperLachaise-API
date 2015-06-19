@@ -164,7 +164,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
             return WikimediaCommonsCategory.URL_FORMAT.format(title=self.wikimedia_commons)
     
     def __unicode__(self):
-        return self.openstreetmap_id + u':' + self.name
+        return self.name if self.name else u'[%s]' % self.openstreetmap_id
     
     class Meta:
         ordering = ['sorting_name', 'openstreetmap_id']
@@ -507,6 +507,8 @@ class PendingModification(SuperLachaiseModel):
         try:
             target_object_id_dict = json.loads(self.target_object_id)
             return self.target_object_model().objects.filter(**target_object_id_dict).first()
+        except TypeError:
+            return None
         except LookupError:
             return None
         except ValueError:

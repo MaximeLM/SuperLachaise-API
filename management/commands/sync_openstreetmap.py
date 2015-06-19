@@ -29,7 +29,6 @@ from django.utils.translation import ugettext as _
 from overpy.exception import OverpassTooManyRequests
 
 from superlachaise_api.models import *
-from superlachaise_api.synchronization import *
 
 def print_unicode(str):
     print str.encode('utf-8')
@@ -66,7 +65,7 @@ def none_to_blank(s):
         return u''
     return unicode(s)
 
-class Command(SynchronizationCommand):
+class Command(BaseCommand):
     
     def request_wikidata_with_wikipedia_links(self, language_code, wikipedia_links):
         result = {}
@@ -126,19 +125,24 @@ class Command(SynchronizationCommand):
         
         api = overpy.Overpass()
         
+        # Kill any other query
+        requests.get('http://overpass-api.de/api/kill_my_queries')
+        
         MAX_REQUEST = 5
         count = 0
         while count < MAX_REQUEST:
             try:
                 result = api.query(query_string)
                 break
-            except OverpassTooManyRequests:
+            except OverpassTooManyRequests as exc:
                 count += 1
                 print_unicode(u'OverpassTooManyRequests %s/%s' % (count, MAX_REQUEST))
                 
-                # Kill any other query
-                requests.get('http://overpass-api.de/api/kill_my_queries')
-                pass
+                if count < MAX_REQUEST:
+                    # Kill any other query
+                    requests.get('http://overpass-api.de/api/kill_my_queries')
+                else:
+                    raise exc
         
         return result
     
@@ -173,18 +177,19 @@ class Command(SynchronizationCommand):
             'sorting_name': overpass_element.tags.get("sorting_name"),
             'latitude': coordinate['x'],
             'longitude': coordinate['y'],
-            'wikipedia': none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia')),
-            'wikidata': none_to_blank(self.get_wiki_values(overpass_element, 'wikidata')),
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
         }
+        
+        wikipedia = none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia'))
+        wikidata = none_to_blank(self.get_wiki_values(overpass_element, 'wikidata'))
         
         result['nature'] = self.get_nature(overpass_element)
         
         # Get combined wikidata field
         wikidata_combined = []
         
-        if result['wikipedia']:
-            for wikipedia in result['wikipedia'].split(';'):
+        if wikipedia:
+            for wikipedia in wikipedia.split(';'):
                 if ':' in wikipedia:
                     language_code = wikipedia.split(':')[-2]
                     link = wikipedia.split(':')[-1]
@@ -196,13 +201,13 @@ class Command(SynchronizationCommand):
                     else:
                         self.errors.append(_('Error: The wikipedia page {language_code}{link} does not exist').format(language_code=language_code, link=link))
         
-        if result['wikidata']:
-            for wikidata_link in result['wikidata'].split(';'):
+        if wikidata:
+            for wikidata_link in wikidata.split(';'):
                 if not wikidata_link in wikidata_combined:
                     wikidata_combined.append(wikidata_link)
         
         wikidata_combined.sort()
-        result['wikidata_combined'] = ';'.join(wikidata_combined)
+        result['wikidata'] = ';'.join(wikidata_combined)
         
         if not result['sorting_name']:
             result['sorting_name'] = result['name']
@@ -210,16 +215,19 @@ class Command(SynchronizationCommand):
         return result
     
     def handle_element(self, overpass_element, coordinate):
+        target_object_id_dict = {"openstreetmap_id": overpass_element.id}
+        
         # Get element in database if it exists
-        openStreetMap_element = OpenStreetMapElement.objects.filter(id=overpass_element.id).first()
+        openStreetMap_element = OpenStreetMapElement.objects.filter(**target_object_id_dict).first()
         
         if not openStreetMap_element:
             # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id))
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps(target_object_id_dict))
+            self.fetched_pending_modifications_pks.append(pendingModification.pk)
             
             values_dict = self.get_values_from_element(overpass_element, coordinate)
             
-            pendingModification.action = "create"
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
             pendingModification.modified_fields = json.dumps(values_dict, default=decimal_handler)
             
             pendingModification.full_clean()
@@ -229,6 +237,8 @@ class Command(SynchronizationCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
         else:
+            self.fetched_objects_pks.append(openStreetMap_element.pk)
+            
             # Search for modifications
             modified_values = {}
             
@@ -239,10 +249,11 @@ class Command(SynchronizationCommand):
             
             if modified_values:
                 # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id))
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps(target_object_id_dict))
+                self.fetched_pending_modifications_pks.append(pendingModification.pk)
                 
                 pendingModification.modified_fields = json.dumps(modified_values, default=decimal_handler)
-                pendingModification.action = "modify"
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
                 
                 pendingModification.full_clean()
                 pendingModification.save()
@@ -341,26 +352,24 @@ class Command(SynchronizationCommand):
         print_unicode(str(count) + u'/' + str(total))
         
         # Handle downloaded elements
-        fetched_ids = []
+        self.fetched_objects_pks = []
+        self.fetched_pending_modifications_pks = []
         for element in result.nodes:
             if self.element_accepted(element):
-                fetched_ids.append(str(element.id))
                 self.handle_element(element, {'x': element.lat, 'y': element.lon})
         for element in result.ways:
             if self.element_accepted(element):
-                fetched_ids.append(str(element.id))
                 self.handle_way(element)
         for element in result.relations:
             if self.element_accepted(element):
-                fetched_ids.append(str(element.id))
                 self.handle_relation(element)
         
         # Delete pending creations if element was deleted in OSM
-        PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action=PendingModification.CREATE).exclude(target_object_id__in=fetched_ids).delete()
+        PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
         
         # Look for deleted elements
-        for openStreetMap_element in OpenStreetMapElement.objects.exclude(id__in=fetched_ids):
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=openStreetMap_element.id)
+        for openStreetMap_element in OpenStreetMapElement.objects.exclude(pk__in=self.fetched_objects_pks):
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps({"openstreetmap_id": openStreetMap_element.openstreetmap_id}))
             
             pendingModification.action = PendingModification.DELETE
             pendingModification.modified_fields = u''
@@ -372,13 +381,17 @@ class Command(SynchronizationCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
     
-    def handlee(self, *args, **options):
-        translation.activate(settings.LANGUAGE_CODE)
-        self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0])
-        error_message = None
+    def handle(self, *args, **options):
         
         try:
-            print_unicode(_('== Start %s ==') % self.synchronization.name)
+            self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0].split('sync_')[-1])
+        except:
+            raise CommandError(sys.exc_info()[1])
+        
+        error = None
+        
+        try:
+            translation.activate(settings.LANGUAGE_CODE)
             
             self.auto_apply = (Setting.objects.get(key=u'openstreetmap:auto_apply_modifications').value == 'true')
             self.bounding_box = Setting.objects.get(key=u'openstreetmap:bounding_box').value
@@ -390,78 +403,23 @@ class Command(SynchronizationCommand):
             self.deleted_objects = 0
             self.errors = []
             
+            print_unicode(_('== Start %s ==') % self.synchronization.name)
             self.sync_openstreetmap()
+            print_unicode(_('== End %s ==') % self.synchronization.name)
             
-            result_list = []
-            if self.created_objects > 0:
-                result_list.append(_('{nb} object(s) created').format(nb=self.created_objects))
-            if self.modified_objects > 0:
-                result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
-            if self.deleted_objects > 0:
-                result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
-            if self.errors:
-                result_list.extend(self.errors)
+            self.synchronization.created_objects = self.created_objects
+            self.synchronization.modified_objects = self.modified_objects
+            self.synchronization.deleted_objects = self.deleted_objects
+            self.synchronization.errors = ', '.join(self.errors)
             
-            if result_list:
-                self.synchronization.last_result = ', '.join(result_list)
-            else:
-                self.synchronization.last_result = Synchronization.NO_MODIFICATIONS
+            translation.deactivate()
         except:
-            traceback.print_exc()
-            exception = sys.exc_info()[0]
-            error_message = exception.__class__.__name__ + ': ' + traceback.format_exc()
-            self.synchronization.last_result = error_message
-        
-        print_unicode(_('== End %s ==') % self.synchronization.name)
+            print_unicode(traceback.format_exc())
+            error = sys.exc_info()[1]
+            self.synchronization.errors = error
         
         self.synchronization.last_executed = timezone.now()
         self.synchronization.save()
         
-        translation.deactivate()
-        
-        return error_message
-    
-    def handle(self, *args, **options):
-        self.execute(Synchronization.objects.get(name=os.path.basename(__file__).split('.py')[0].split('sync_')[1]))
-    
-    def synchronize(self):
-        # request_overpass_api_elements(boundary, query_string): overpass_elements
-        # get_wikipedia_to_wikidata(overpass_elements): wikipedia_to_wikidata
-        # get_overpass_node_coordinates(overpass_node)
-        # get_overpass_way_coordinates(overpass_way)
-        # get_overpass_relation_coordinates(overpass_relation)
-        # handle_overpass_element(overpass_element, wikipedia_to_wikidata) : object_id
-        # delete_orphaned_objects(synced_objects_ids)
-        pass
-    
-    def request_overpass_api_elements(self, boundary, query_string):
-        pass
-    
-    def get_wikipedia_to_wikidata(self, overpass_elements):
-        # get_tag_values(overpass_element, tag_name) : tag_values
-        # request_wikidata_api_ids(language, wikipedia_titles) : wikidata_ids
-        pass
-    
-    def get_tag_values(overpass_element, tag_name):
-        pass
-    
-    def request_wikidata_api_ids(language, wikipedia_titles):
-        pass
-    
-    def get_overpass_node_coordinates(self, overpass_node):
-        pass
-    
-    def get_overpass_way_coordinates(self, overpass_node):
-        pass
-    
-    def get_overpass_relation_coordinates(self, overpass_node):
-        pass
-    
-    def handle_overpass_element(self, overpass_element, wikipedia_to_wikidata):
-        # get_tag_values(overpass_element, tag_name) : tag_values
-        # super : handle_object_values(model, object_id, values)
-        pass
-    
-    def delete_orphaned_objects(synced_objects_ids):
-        # super : delete_orphaned_objects(model, object_to_id, synced_objects_ids)
-        pass
+        if error:
+            raise CommandError(error)
