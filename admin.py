@@ -53,9 +53,9 @@ class AdminUtils():
         url = reverse(reverse_path)
         return url
     
-    EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : no pending modifications')
-    EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT = _('Objects synchronized : {count} new pending modification(s)')
-    EXECUTE_SYNC_ERROR_FORMAT = _('Error in admin command "{synchronization_name}": {error}')
+    EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT = _('{synchronization_name}: no pending modifications')
+    EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT = _('{synchronization_name}: {count} new pending modification(s)')
+    EXECUTE_SYNC_ERROR_FORMAT = _('{synchronization_name}: {error}')
     
     @classmethod
     def execute_sync(cls, synchronization_name, request, args={}):
@@ -67,11 +67,11 @@ class AdminUtils():
             # Redirect to pending modifications scren if needed
             pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
             if pending_modifications:
-                messages.success(request, cls.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=len(pending_modifications)))
+                messages.success(request, cls.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(synchronization_name=synchronization_name, count=len(pending_modifications)))
                 redirect_url = u'{url}?modified__gte={modified_gte}'.format(url=cls.changelist_page_url(PendingModification), modified_gte=sync_start.isoformat())
                 return HttpResponseRedirect(redirect_url)
             else:
-                messages.success(request, cls.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT)
+                messages.success(request, cls.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT.format(synchronization_name=synchronization_name))
         except:
             messages.error(request, cls.EXECUTE_SYNC_ERROR_FORMAT.format(synchronization_name=synchronization_name, error=sys.exc_info()[1]))
             return

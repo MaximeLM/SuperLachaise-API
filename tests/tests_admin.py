@@ -123,7 +123,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
             self.assertEqual(SUCCESS, message.level)
-            self.assertEqual(AdminUtils.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT, message.message)
+            self.assertEqual(AdminUtils.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT.format(synchronization_name=synchronization_name), message.message)
     
     def test_execute_sync_add_new_pending_modifications_success_message_to_request_if_command_raises_no_exception_and_command_creates_pending_modifications(self):
         synchronization_name = "synchronization"
@@ -140,7 +140,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
             self.assertEqual(SUCCESS, message.level)
-            self.assertEqual(AdminUtils.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(count=1), message.message)
+            self.assertEqual(AdminUtils.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(synchronization_name=synchronization_name, count=1), message.message)
     
     def test_execute_sync_add_error_message_with_exception_message_to_request_if_command_raises_exception(self):
         synchronization_name = "synchronization"

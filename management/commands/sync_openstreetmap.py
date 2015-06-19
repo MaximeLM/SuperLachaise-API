@@ -263,7 +263,7 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Delete the previous modification if any
-                PendingModification.objects.filter(target_object_class="OpenStreetMapElement", target_object_id=str(overpass_element.id)).delete()
+                PendingModification.objects.filter(target_object_class="OpenStreetMapElement", target_object_id=json.dumps(target_object_id_dict)).delete()
     
     def handle_way(self, overpass_way):
         # Get way centroid

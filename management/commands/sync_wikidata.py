@@ -23,6 +23,7 @@ limitations under the License.
 import datetime, json, os, requests, sys, time, traceback
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
 
@@ -271,9 +272,9 @@ class Command(BaseCommand):
     def get_localized_values_from_entity(self, entity, language_code):
         wikipedia = self.get_wikipedia(entity, language_code)
         result = {
-            language_code + ':name': self.get_name(entity, language_code),
-            language_code + ':wikipedia': wikipedia,
-            language_code + ':description': self.get_description(entity, language_code),
+            'name': self.get_name(entity, language_code),
+            'wikipedia': wikipedia,
+            'description': self.get_description(entity, language_code),
         }
         
         for key, value in result.iteritems():
@@ -282,21 +283,67 @@ class Command(BaseCommand):
         
         return None
     
-    def handle_entity(self, code, entity):
+    def handle_localized_entity(self, code, language_code, localized_values_dict):
+        target_object_id_dict = {"wikidata_entry__wikidata_id": code, "language__code": language_code}
+        
         # Get element in database if it exists
-        wikidata_entry = WikidataEntry.objects.filter(id=code).first()
+        wikidata_localized_entry = WikidataLocalizedEntry.objects.filter(**target_object_id_dict).first()
+        
+        if not wikidata_localized_entry and localized_values_dict:
+            # Creation
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataLocalizedEntry", target_object_id=json.dumps(target_object_id_dict))
+            self.fetched_pending_modifications_pks.append(pendingModification.pk)
+            
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
+            pendingModification.modified_fields = json.dumps(localized_values_dict, default=date_handler)
+            
+            pendingModification.full_clean()
+            pendingModification.save()
+            self.created_objects = self.created_objects + 1
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
+        elif localized_values_dict:
+            self.localized_fetched_objects_pks.append(wikidata_localized_entry.pk)
+            
+            # Search for modifications
+            modified_values = {}
+            
+            for field, value in localized_values_dict.iteritems():
+                if value != getattr(wikidata_localized_entry, field):
+                    modified_values[field] = value
+            
+            if modified_values:
+                # Get or create a modification
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataLocalizedEntry", target_object_id=json.dumps(target_object_id_dict))
+                self.fetched_pending_modifications_pks.append(pendingModification.pk)
+                pendingModification.modified_fields = json.dumps(modified_values, default=date_handler)
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
+            
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.modified_objects = self.modified_objects + 1
+            
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+            else:
+                # Delete the previous modification if any
+                PendingModification.objects.filter(target_object_class="WikidataLocalizedEntry", target_object_id=json.dumps(target_object_id_dict)).delete()
+    
+    def handle_entity(self, code, entity):
+        target_object_id_dict = {"wikidata_id": code}
+        
+        # Get element in database if it exists
+        wikidata_entry = WikidataEntry.objects.filter(**target_object_id_dict).first()
         
         if not wikidata_entry:
             # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=code)
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=json.dumps(target_object_id_dict))
+            self.fetched_pending_modifications_pks.append(pendingModification.pk)
             
             values_dict = self.get_values_from_entity(entity)
-            for language in Language.objects.all():
-                localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
-                if localized_values_dict:
-                    values_dict.update(localized_values_dict)
             
-            pendingModification.action = PendingModification.CREATE
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
             pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)
             
             pendingModification.full_clean()
@@ -305,7 +352,13 @@ class Command(BaseCommand):
             
             if self.auto_apply:
                 pendingModification.apply_modification()
+            
+            for language in Language.objects.all():
+                localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
+                self.handle_localized_entity(code, language.code, localized_values_dict)
         else:
+            self.fetched_objects_pks.append(wikidata_entry.pk)
+            
             # Search for modifications
             modified_values = {}
             
@@ -314,26 +367,12 @@ class Command(BaseCommand):
                 if value != getattr(wikidata_entry, field):
                     modified_values[field] = value
             
-            for language in Language.objects.all():
-                values_dict = self.get_localized_values_from_entity(entity, language.code)
-                wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
-                
-                if values_dict:
-                    if not wikidata_localized_entry:
-                        modified_values.update(values_dict)
-                    else:
-                        for field, value in values_dict.iteritems():
-                            if value != getattr(wikidata_localized_entry, field.split(':')[1]):
-                                modified_values[field] = value
-                else:
-                    if wikidata_localized_entry:
-                        modified_values[language.code + u':'] = None
-            
             if modified_values:
                 # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=code)
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=json.dumps(target_object_id_dict))
+                self.fetched_pending_modifications_pks.append(pendingModification.pk)
                 pendingModification.modified_fields = json.dumps(modified_values, default=date_handler)
-                pendingModification.action = PendingModification.MODIFY
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
             
                 pendingModification.full_clean()
                 pendingModification.save()
@@ -344,6 +383,10 @@ class Command(BaseCommand):
             else:
                 # Delete the previous modification if any
                 PendingModification.objects.filter(target_object_class="WikidataEntry", target_object_id=code).delete()
+            
+            for language in Language.objects.all():
+                localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
+                self.handle_localized_entity(code, language.code, localized_values_dict)
     
     def sync_wikidata(self, wikidata_ids):
         self.wikidata_codes = []
@@ -352,8 +395,8 @@ class Command(BaseCommand):
         if wikidata_ids:
             self.wikidata_codes = wikidata_ids.split('|')
         else:
-            for openstreetmap_element in OpenStreetMapElement.objects.exclude(wikidata_combined__exact=''):
-                for wikidata in openstreetmap_element.wikidata_combined.split(';'):
+            for openstreetmap_element in OpenStreetMapElement.objects.exclude(wikidata__exact=''):
+                for wikidata in openstreetmap_element.wikidata.split(';'):
                     link = wikidata.split(':')[-1]
                     if not link in self.wikidata_codes:
                         self.wikidata_codes.append(link)
@@ -366,7 +409,11 @@ class Command(BaseCommand):
         
         print_unicode(_('Requesting Wikidata codes from OpenStreetMap elements...'))
         self.wikidata_codes = list(set(self.wikidata_codes))
-        fetched_entities = []
+        
+        self.fetched_objects_pks = []
+        self.localized_fetched_objects_pks = []
+        self.fetched_pending_modifications_pks = []
+        
         total = len(self.wikidata_codes)
         count = 0
         max_count_per_request = 25
@@ -377,7 +424,6 @@ class Command(BaseCommand):
             entities = self.request_wikidata(chunk)
             for wikidata_code, entity in entities.iteritems():
                 self.handle_entity(wikidata_code, entity)
-            fetched_entities.extend(entities.keys())
         print_unicode(str(count) + u'/' + str(total))
         
         if self.grave_of_wikidata_codes:
@@ -393,16 +439,27 @@ class Command(BaseCommand):
                 entities = self.request_wikidata(chunk)
                 for wikidata_code, entity in entities.iteritems():
                     self.handle_entity(wikidata_code, entity)
-                fetched_entities.extend(entities.keys())
             print_unicode(str(count) + u'/' + str(total))
         
         if not wikidata_ids:
             # Delete pending creations if element was not fetched
-            PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.CREATE).exclude(target_object_id__in=fetched_entities).delete()
+            PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
         
             # Look for deleted elements
-            for wikidata_entry in WikidataEntry.objects.exclude(id__in=fetched_entities):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=wikidata_entry.id)
+            for wikidata_entry in WikidataEntry.objects.exclude(pk__in=self.fetched_objects_pks):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=json.dumps({"wikidata_id": wikidata_entry.wikidata_id}))
+            
+                pendingModification.action = PendingModification.DELETE
+                pendingModification.modified_fields = u''
+            
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.deleted_objects = self.deleted_objects + 1
+            
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+            for wikidata_localized_entry in WikidataLocalizedEntry.objects.exclude(Q(pk__in=self.localized_fetched_objects_pks) | ~Q(wikidata_entry__pk__in=self.fetched_objects_pks)):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataLocalizedEntry", target_object_id=json.dumps({"wikidata_entry__wikidata_id": wikidata_localized_entry.wikidata_entry.wikidata_id, "language__code": wikidata_localized_entry.language.code}))
             
                 pendingModification.action = PendingModification.DELETE
                 pendingModification.modified_fields = u''
@@ -420,12 +477,16 @@ class Command(BaseCommand):
             dest='wikidata_ids')
     
     def handle(self, *args, **options):
-        translation.activate(settings.LANGUAGE_CODE)
-        self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0])
-        error_message = None
         
         try:
-            print_unicode(_('== Start %s ==') % self.synchronization.name)
+            self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0].split('sync_')[-1])
+        except:
+            raise CommandError(sys.exc_info()[1])
+        
+        error = None
+        
+        try:
+            translation.activate(settings.LANGUAGE_CODE)
             
             self.accepted_locations_of_burial = json.loads(Setting.objects.get(key=u'wikidata:accepted_locations_of_burial').value)
             self.auto_apply = (Setting.objects.get(key=u'wikidata:auto_apply_modifications').value == 'true')
@@ -433,32 +494,25 @@ class Command(BaseCommand):
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
+            self.errors = []
             
+            print_unicode(_('== Start %s ==') % self.synchronization.name)
             self.sync_wikidata(options['wikidata_ids'])
+            print_unicode(_('== End %s ==') % self.synchronization.name)
             
-            result_list = []
-            if self.created_objects > 0:
-                result_list.append(_('{nb} object(s) created').format(nb=self.created_objects))
-            if self.modified_objects > 0:
-                result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
-            if self.deleted_objects > 0:
-                result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
+            self.synchronization.created_objects = self.created_objects
+            self.synchronization.modified_objects = self.modified_objects
+            self.synchronization.deleted_objects = self.deleted_objects
+            self.synchronization.errors = ', '.join(self.errors)
             
-            if result_list:
-                self.synchronization.last_result = ', '.join(result_list)
-            else:
-                self.synchronization.last_result = Synchronization.NO_MODIFICATIONS
+            translation.deactivate()
         except:
-            traceback.print_exc()
-            exception = sys.exc_info()[0]
-            error_message = exception.__class__.__name__ + ': ' + traceback.format_exc()
-            self.synchronization.last_result = error_message
-            
-        print_unicode(_('== End %s ==') % self.synchronization.name)
+            print_unicode(traceback.format_exc())
+            error = sys.exc_info()[1]
+            self.synchronization.errors = error
         
         self.synchronization.last_executed = timezone.now()
         self.synchronization.save()
         
-        translation.deactivate()
-        
-        return error_message
+        if error:
+            raise CommandError(error)
