@@ -605,7 +605,8 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
     def main_image_link(self, obj):
-        return AdminUtils.html_image_link(AdminUtils.change_page_url(obj.main_image), obj.main_image.thumbnail_url)
+        if obj.main_image:
+            return AdminUtils.html_image_link(AdminUtils.change_page_url(obj.main_image), obj.main_image.thumbnail_url)
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
@@ -739,7 +740,10 @@ class PendingModificationAdmin(admin.ModelAdmin):
     
     def target_object_link(self, obj):
         target_object = obj.target_object()
-        return AdminUtils.html_link(AdminUtils.change_page_url(target_object), unicode(target_object))
+        try:
+            return AdminUtils.html_link(AdminUtils.change_page_url(target_object), unicode(target_object))
+        except:
+            pass
     target_object_link.allow_tags = True
     target_object_link.short_description = _('target object')
     

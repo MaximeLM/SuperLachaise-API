@@ -489,6 +489,7 @@ class PendingModification(SuperLachaiseModel):
         (WikimediaCommonsCategory.__name__, WikimediaCommonsCategory._meta.verbose_name),
         (WikimediaCommonsFile.__name__, WikimediaCommonsFile._meta.verbose_name),
         (SuperLachaisePOI.__name__, SuperLachaisePOI._meta.verbose_name),
+        (SuperLachaiseLocalizedPOI.__name__, SuperLachaiseLocalizedPOI._meta.verbose_name),
         (SuperLachaiseWikidataRelation.__name__, SuperLachaiseWikidataRelation._meta.verbose_name),
         (SuperLachaiseCategoryRelation.__name__, SuperLachaiseCategoryRelation._meta.verbose_name),
     )

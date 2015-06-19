@@ -36,10 +36,10 @@ class Command(BaseCommand):
     def get_wikidata_entries(self, openstreetmap_element):
         result = []
         
-        if openstreetmap_element.wikidata_combined:
-            for wikidata in openstreetmap_element.wikidata_combined.split(';'):
+        if openstreetmap_element.wikidata:
+            for wikidata in openstreetmap_element.wikidata.split(';'):
                 wikidata_id = wikidata.split(':')[-1]
-                wikidata_entry = WikidataEntry.objects.filter(id=wikidata_id).first()
+                wikidata_entry = WikidataEntry.objects.filter(wikidata_id=wikidata_id).first()
                 if wikidata_entry:
                     if len(wikidata.split(':')) == 2:
                         relation_type = wikidata.split(':')[0]
@@ -47,14 +47,14 @@ class Command(BaseCommand):
                         relation_type = SuperLachaiseWikidataRelation.PERSON
                     else:
                         relation_type = SuperLachaiseWikidataRelation.NONE
-                    result.append(relation_type + u':' + str(wikidata_entry.id))
+                    result.append(relation_type + u':' + str(wikidata_entry.wikidata_id))
                     
                     if wikidata_entry.grave_of_wikidata:
                         for grave_of_wikidata in wikidata_entry.grave_of_wikidata.split(';'):
-                            grave_of_wikidata_entry = WikidataEntry.objects.filter(id=grave_of_wikidata).first()
+                            grave_of_wikidata_entry = WikidataEntry.objects.filter(wikidata_id=grave_of_wikidata).first()
                             if grave_of_wikidata_entry:
                                 relation_type = SuperLachaiseWikidataRelation.PERSON
-                                result.append(relation_type + u':' + str(grave_of_wikidata_entry.id))
+                                result.append(relation_type + u':' + str(grave_of_wikidata_entry.wikidata_id))
         
         result.sort()
         return result
@@ -66,7 +66,7 @@ class Command(BaseCommand):
             if not wikimedia_commons in wikimedia_commons_categories:
                 wikimedia_commons_categories.append(wikimedia_commons)
         for wikidata_fetched_entry in wikidata_fetched_entries:
-            wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+            wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
             if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON and wikidata_entry.wikimedia_commons_grave_category:
                 # Person relation
                 wikimedia_commons = 'Category:' + wikidata_entry.wikimedia_commons_grave_category
@@ -84,13 +84,13 @@ class Command(BaseCommand):
                         wikimedia_commons_categories.append(wikimedia_commons)
         
         if len(wikimedia_commons_categories) == 1:
-            return WikimediaCommonsCategory.objects.filter(id=wikimedia_commons_categories[0]).first()
+            return WikimediaCommonsCategory.objects.filter(wikimedia_commons_id=wikimedia_commons_categories[0]).first()
         else:
             return None
     
     def get_main_image(self, wikimedia_commons_category):
         if wikimedia_commons_category and wikimedia_commons_category.main_image:
-            result =  WikimediaCommonsFile.objects.filter(id=wikimedia_commons_category.main_image).first()
+            result =  WikimediaCommonsFile.objects.filter(wikimedia_commons_id=wikimedia_commons_category.main_image).first()
             return result
         else:
             return None
@@ -105,7 +105,7 @@ class Command(BaseCommand):
                     properties[SuperLachaiseCategory.OCCUPATION] = []
         
         for wikidata_fetched_entry in wikidata_fetched_entries:
-            wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+            wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
             if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                 # Person relation
                 if not SuperLachaiseCategory.OCCUPATION in properties:
@@ -129,7 +129,7 @@ class Command(BaseCommand):
                 for superlachaise_category in SuperLachaiseCategory.objects.filter(type=type).exclude(code__in=superlachaise_categories, values__exact=''):
                     if value in superlachaise_category.values.split(';'):
                         superlachaise_categories.append(superlachaise_category.code)
-                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, wikidata_occupations__id=value).exclude(code__in=superlachaise_categories).values_list('code', flat=True))
+                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, wikidata_occupations__wikidata_id=value).exclude(code__in=superlachaise_categories).values_list('code', flat=True))
             if not superlachaise_categories and type == SuperLachaiseCategory.OCCUPATION:
                 superlachaise_categories = [u'other']
             result.extend(superlachaise_categories)
@@ -152,25 +152,16 @@ class Command(BaseCommand):
         result.sort()
         return result
     
-    def get_values_for_openstreetmap_element(self, openstreetmap_element):
-        wikidata_entries = self.get_wikidata_entries(openstreetmap_element)
+    def get_values_for_openstreetmap_element(self, openstreetmap_element, wikidata_entries):
         wikimedia_commons_category = self.get_wikimedia_commons_category(openstreetmap_element, wikidata_entries)
         main_image = self.get_main_image(wikimedia_commons_category)
-        superlachaise_categories = self.get_superlachaise_categories(openstreetmap_element, wikidata_entries)
         
         result = {
-            'wikidata_entries': wikidata_entries,
             'wikimedia_commons_category_id': wikimedia_commons_category.id if wikimedia_commons_category else None,
             'main_image_id': main_image.id if main_image else None,
-            'superlachaise_categories': superlachaise_categories,
         }
         
-        localized_results = {}
-        for language in Language.objects.all():
-            localized_result = self.get_localized_values_for_openstreetmap_element(language, openstreetmap_element, wikidata_entries)
-            localized_results[language] = localized_result
-        
-        return (result, localized_results)
+        return result
     
     def get_name(self, language, openstreetmap_element, wikidata_fetched_entries):
         result = u''
@@ -181,7 +172,7 @@ class Command(BaseCommand):
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                     if not unique_wikidata_entry:
-                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                        unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
                         unique_wikidata_entry = None
                         break
@@ -199,7 +190,7 @@ class Command(BaseCommand):
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NONE:
                     if not unique_wikidata_entry:
-                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                        unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
                         unique_wikidata_entry = None
                         break
@@ -221,7 +212,7 @@ class Command(BaseCommand):
             person_localized_entries = []
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
-                    wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                    wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                     if wikidata_localized_entry and (wikidata_localized_entry.name or wikidata_localized_entry.wikipedia):
                         person_localized_entries.append(wikidata_localized_entry)
@@ -252,7 +243,7 @@ class Command(BaseCommand):
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                     if not unique_wikidata_entry:
-                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                        unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
                         unique_wikidata_entry = None
                         break
@@ -271,7 +262,7 @@ class Command(BaseCommand):
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NONE:
                     if not unique_wikidata_entry:
-                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                        unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
                         unique_wikidata_entry = None
                         break
@@ -290,7 +281,7 @@ class Command(BaseCommand):
             person_wikipedia_pages = []
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
-                    wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                    wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                     if wikidata_localized_entry and hasattr(wikidata_localized_entry, 'wikipedia_page') and wikidata_localized_entry.wikipedia_page.default_sort:
                         person_wikipedia_pages.append(wikidata_localized_entry.wikipedia_page)
@@ -327,7 +318,7 @@ class Command(BaseCommand):
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
                     if not unique_wikidata_entry:
-                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                        unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
                         unique_wikidata_entry = None
                         break
@@ -342,7 +333,7 @@ class Command(BaseCommand):
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NONE:
                     if not unique_wikidata_entry:
-                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                        unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
                         unique_wikidata_entry = None
                         break
@@ -357,7 +348,7 @@ class Command(BaseCommand):
             for wikidata_fetched_entry in wikidata_fetched_entries:
                 if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.ARTIST:
                     if not unique_wikidata_entry:
-                        unique_wikidata_entry = WikidataEntry.objects.get(id=wikidata_fetched_entry.split(':')[-1])
+                        unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
                         unique_wikidata_entry = None
                         break
@@ -371,9 +362,9 @@ class Command(BaseCommand):
     def get_localized_values_for_openstreetmap_element(self, language, openstreetmap_element, wikidata_entries):
         name = self.get_name(language, openstreetmap_element, wikidata_entries)
         result = {
-            language.code + ':name': name,
-            language.code + ':sorting_name': self.get_sorting_name(language, name, openstreetmap_element, wikidata_entries),
-            language.code + ':description': self.get_description(language, openstreetmap_element, wikidata_entries),
+            'name': name,
+            'sorting_name': self.get_sorting_name(language, name, openstreetmap_element, wikidata_entries),
+            'description': self.get_description(language, openstreetmap_element, wikidata_entries),
         }
         
         for key, value in result.iteritems():
@@ -382,22 +373,70 @@ class Command(BaseCommand):
         
         return None
     
-    def sync_superlachaise_poi(self, openstreetmap_element_id):
-        openstreetmap_element = OpenStreetMapElement.objects.get(id=openstreetmap_element_id)
+    def sync_superlachaise_wikidata_relation(self, openstreetmap_element_id, relation_type, wikidata_id):
+        target_object_id_dict = {"superlachaise_poi__openstreetmap_element__openstreetmap_id": openstreetmap_element_id, "wikidata_entry__wikidata_id": wikidata_id, "relation_type": relation_type}
         
         # Get element in database if it exists
-        superlachaise_poi = SuperLachaisePOI.objects.filter(openstreetmap_element=openstreetmap_element).first()
+        wikidata_relation = SuperLachaiseWikidataRelation.objects.filter(**target_object_id_dict).first()
         
-        if not superlachaise_poi:
+        if not wikidata_relation:
             # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=openstreetmap_element_id)
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseWikidataRelation", target_object_id=json.dumps(target_object_id_dict))
+            self.fetched_pending_modifications_pks.append(pendingModification.pk)
             
-            values_dict, localized_values_dicts = self.get_values_for_openstreetmap_element(openstreetmap_element)
-            for language, localized_values_dict in localized_values_dicts.iteritems():
-                if localized_values_dict:
-                    values_dict.update(localized_values_dict)
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
+            pendingModification.modified_fields = u''
             
-            pendingModification.action = PendingModification.CREATE
+            pendingModification.full_clean()
+            pendingModification.save()
+            self.created_objects = self.created_objects + 1
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
+        else:
+            self.fetched_wikidata_relations_pks.append(wikidata_relation.pk)
+            
+            # Delete the previous modification if any
+            pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaiseWikidataRelation", target_object_id=json.dumps(target_object_id_dict)).delete()
+    
+    def sync_superlachaise_category_relation(self, openstreetmap_element_id, category_code):
+        target_object_id_dict = {"superlachaise_poi__openstreetmap_element__openstreetmap_id": openstreetmap_element_id, "superlachaise_category__code": category_code}
+        
+        # Get element in database if it exists
+        category_relation = SuperLachaiseCategoryRelation.objects.filter(**target_object_id_dict).first()
+        
+        if not category_relation:
+            # Creation
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseCategoryRelation", target_object_id=json.dumps(target_object_id_dict))
+            self.fetched_pending_modifications_pks.append(pendingModification.pk)
+            
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
+            pendingModification.modified_fields = u''
+            
+            pendingModification.full_clean()
+            pendingModification.save()
+            self.created_objects = self.created_objects + 1
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
+        else:
+            self.fetched_category_relations_pks.append(category_relation.pk)
+            
+            # Delete the previous modification if any
+            pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaiseCategoryRelation", target_object_id=json.dumps(target_object_id_dict)).delete()
+    
+    def sync_superlachaise_localized_poi(self, openstreetmap_element_id, language_code, values_dict):
+        target_object_id_dict = {"superlachaise_poi__openstreetmap_element__openstreetmap_id": openstreetmap_element_id, "language__code": language_code}
+        
+        # Get element in database if it exists
+        superlachaise_localized_poi = SuperLachaiseLocalizedPOI.objects.filter(**target_object_id_dict).first()
+        
+        if not superlachaise_localized_poi:
+            # Creation
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps(target_object_id_dict))
+            self.fetched_pending_modifications_pks.append(pendingModification.pk)
+            
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
             pendingModification.modified_fields = json.dumps(values_dict)
             
             pendingModification.full_clean()
@@ -407,42 +446,21 @@ class Command(BaseCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
         else:
+            self.localized_fetched_objects_pks.append(superlachaise_localized_poi.pk)
+            
             # Search for modifications
             modified_values = {}
             
-            values_dict, localized_values_dicts = self.get_values_for_openstreetmap_element(openstreetmap_element)
             for field, value in values_dict.iteritems():
-                if field == 'wikidata_entries':
-                    wikidata_entries = self.get_existing_wikidata_entries(superlachaise_poi)
-                    if value != wikidata_entries:
-                        modified_values[field] = value
-                elif field == 'superlachaise_categories':
-                    superlachaise_categories = self.get_existing_superlachaise_categories(superlachaise_poi)
-                    if value != superlachaise_categories:
-                        modified_values[field] = value
-                else:
-                    if value != getattr(superlachaise_poi, field):
-                        modified_values[field] = value
-            
-            for language, localized_value_dict in localized_values_dicts.iteritems():
-                superlachaise_localized_poi = superlachaise_poi.localizations.filter(language=language).first()
-                
-                if localized_value_dict:
-                    if not superlachaise_localized_poi:
-                        modified_values.update(localized_value_dict)
-                    else:
-                        for field, value in localized_value_dict.iteritems():
-                            if value != getattr(superlachaise_localized_poi, field.split(':')[1]):
-                                modified_values[field] = value
-                else:
-                    if superlachaise_localized_poi:
-                        modified_values[language.code + u':'] = None
+                if value != getattr(superlachaise_localized_poi, field):
+                    modified_values[field] = value
             
             if modified_values:
                 # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=openstreetmap_element_id)
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps(target_object_id_dict))
+                self.fetched_pending_modifications_pks.append(pendingModification.pk)
                 pendingModification.modified_fields = json.dumps(modified_values)
-                pendingModification.action = PendingModification.MODIFY
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
                 
                 pendingModification.full_clean()
                 pendingModification.save()
@@ -452,7 +470,70 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Delete the previous modification if any
-                pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaisePOI", target_object_id=openstreetmap_element_id).delete()
+                pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps(target_object_id_dict)).delete()
+    
+    def sync_superlachaise_poi(self, openstreetmap_element_id):
+        target_object_id_dict = {"openstreetmap_element__openstreetmap_id": openstreetmap_element_id}
+        
+        openstreetmap_element = OpenStreetMapElement.objects.get(openstreetmap_id=openstreetmap_element_id)
+        
+        wikidata_entries = self.get_wikidata_entries(openstreetmap_element)
+        values_dict = self.get_values_for_openstreetmap_element(openstreetmap_element, wikidata_entries)
+        
+        # Get element in database if it exists
+        superlachaise_poi = SuperLachaisePOI.objects.filter(**target_object_id_dict).first()
+        
+        if not superlachaise_poi:
+            # Creation
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps(target_object_id_dict))
+            self.fetched_pending_modifications_pks.append(pendingModification.pk)
+            
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
+            pendingModification.modified_fields = json.dumps(values_dict)
+            
+            pendingModification.full_clean()
+            pendingModification.save()
+            self.created_objects = self.created_objects + 1
+            
+            if self.auto_apply:
+                pendingModification.apply_modification()
+        else:
+            self.fetched_objects_pks.append(superlachaise_poi.pk)
+            
+            # Search for modifications
+            modified_values = {}
+            
+            for field, value in values_dict.iteritems():
+                if value != getattr(superlachaise_poi, field):
+                    modified_values[field] = value
+            
+            if modified_values:
+                # Get or create a modification
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps(target_object_id_dict))
+                self.fetched_pending_modifications_pks.append(pendingModification.pk)
+                pendingModification.modified_fields = json.dumps(modified_values)
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
+                
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.modified_objects = self.modified_objects + 1
+                
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+            else:
+                # Delete the previous modification if any
+                pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaisePOI", target_object_id=json.dumps(target_object_id_dict)).delete()
+        
+        for language in Language.objects.all():
+            localized_values_dict = self.get_localized_values_for_openstreetmap_element(language, openstreetmap_element, wikidata_entries)
+            self.sync_superlachaise_localized_poi(openstreetmap_element_id, language.code, localized_values_dict)
+        
+        for wikidata_entry in wikidata_entries:
+            wikidata_entry_split = wikidata_entry.split(':')
+            self.sync_superlachaise_wikidata_relation(openstreetmap_element_id, wikidata_entry_split[0], wikidata_entry_split[1])
+        
+        for superlachaise_category_code in self.get_superlachaise_categories(openstreetmap_element, wikidata_entries):
+            self.sync_superlachaise_category_relation(openstreetmap_element_id, superlachaise_category_code)
     
     def sync_superlachaise_pois(self, param_openstreetmap_element_ids):
         # Get OpenStreetMap elements
@@ -461,7 +542,13 @@ class Command(BaseCommand):
         else:
             openstreetmap_element_ids = []
             for openstreetmap_element in OpenStreetMapElement.objects.all():
-                openstreetmap_element_ids.append(openstreetmap_element.id)
+                openstreetmap_element_ids.append(openstreetmap_element.openstreetmap_id)
+        
+        self.fetched_objects_pks = []
+        self.localized_fetched_objects_pks = []
+        self.fetched_wikidata_relations_pks = []
+        self.fetched_category_relations_pks = []
+        self.fetched_pending_modifications_pks = []
         
         print_unicode(_('Preparing objects...'))
         total = len(openstreetmap_element_ids)
@@ -477,11 +564,50 @@ class Command(BaseCommand):
         
         if not param_openstreetmap_element_ids:
             # Delete pending creations if element was not fetched
-            PendingModification.objects.filter(target_object_class="SuperLachaisePOI", action=PendingModification.CREATE).exclude(target_object_id__in=openstreetmap_element_ids).delete()
+            PendingModification.objects.filter(target_object_class="SuperLachaisePOI", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
+            PendingModification.objects.filter(target_object_class="SuperLachaiseLocalizedPOI", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
+            PendingModification.objects.filter(target_object_class="SuperLachaiseWikidataRelation", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
+            PendingModification.objects.filter(target_object_class="SuperLachaiseCategoryRelation", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
             
             # Look for deleted elements
-            for superlachaise_poi in SuperLachaisePOI.objects.exclude(openstreetmap_element_id__in=openstreetmap_element_ids):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=superlachaise_poi.openstreetmap_element.id)
+            for superlachaise_poi in SuperLachaisePOI.objects.exclude(pk__in=self.fetched_objects_pks):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps({"openstreetmap_element__openstreetmap_id": superlachaise_poi.openstreetmap_element.openstreetmap_id}))
+                
+                pendingModification.action = PendingModification.DELETE
+                pendingModification.modified_fields = u''
+                
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.deleted_objects = self.deleted_objects + 1
+                
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+            for superlachaise_localized_poi in SuperLachaiseLocalizedPOI.objects.exclude(pk__in=self.localized_fetched_objects_pks):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": superlachaise_localized_poi.superlachaise_poi.openstreetmap_element.openstreetmap_id, "language__code": superlachaise_localized_poi.language.code}))
+                
+                pendingModification.action = PendingModification.DELETE
+                pendingModification.modified_fields = u''
+                
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.deleted_objects = self.deleted_objects + 1
+                
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+            for wikidata_relation in SuperLachaiseWikidataRelation.objects.exclude(pk__in=self.fetched_wikidata_relations_pks):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseWikidataRelation", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": wikidata_relation.superlachaise_poi.openstreetmap_element.openstreetmap_id, "wikidata_entry__wikidata_id": wikidata_relation.wikidata_entry.wikidata_id, "relation_type": wikidata_relation.relation_type}))
+                
+                pendingModification.action = PendingModification.DELETE
+                pendingModification.modified_fields = u''
+                
+                pendingModification.full_clean()
+                pendingModification.save()
+                self.deleted_objects = self.deleted_objects + 1
+                
+                if self.auto_apply:
+                    pendingModification.apply_modification()
+            for category_relation in SuperLachaiseCategoryRelation.objects.exclude(pk__in=self.fetched_category_relations_pks):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseCategoryRelation", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": category_relation.superlachaise_poi.openstreetmap_element.openstreetmap_id, "superlachaise_category__code": category_relation.superlachaise_category.code}))
                 
                 pendingModification.action = PendingModification.DELETE
                 pendingModification.modified_fields = u''
@@ -499,12 +625,16 @@ class Command(BaseCommand):
             dest='openstreetmap_element_ids')
     
     def handle(self, *args, **options):
-        translation.activate(settings.LANGUAGE_CODE)
-        self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0])
-        error_message = None
         
         try:
-            print_unicode(_('== Start %s ==') % self.synchronization.name)
+            self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0].split('sync_')[-1])
+        except:
+            raise CommandError(sys.exc_info()[1])
+        
+        error = None
+        
+        try:
+            translation.activate(settings.LANGUAGE_CODE)
             
             self.auto_apply = (Setting.objects.get(key=u'superlachaise_poi:auto_apply_modifications').value == 'true')
             self.openstreetmap_name_tag_language = Setting.objects.get(key=u'openstreetmap:name_tag_language').value
@@ -513,32 +643,25 @@ class Command(BaseCommand):
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
+            self.errors = []
             
+            print_unicode(_('== Start %s ==') % self.synchronization.name)
             self.sync_superlachaise_pois(options['openstreetmap_element_ids'])
+            print_unicode(_('== End %s ==') % self.synchronization.name)
             
-            result_list = []
-            if self.created_objects > 0:
-                result_list.append(_('{nb} object(s) created').format(nb=self.created_objects))
-            if self.modified_objects > 0:
-                result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
-            if self.deleted_objects > 0:
-                result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
+            self.synchronization.created_objects = self.created_objects
+            self.synchronization.modified_objects = self.modified_objects
+            self.synchronization.deleted_objects = self.deleted_objects
+            self.synchronization.errors = ', '.join(self.errors)
             
-            if result_list:
-                self.synchronization.last_result = ', '.join(result_list)
-            else:
-                self.synchronization.last_result = Synchronization.NO_MODIFICATIONS
+            translation.deactivate()
         except:
-            traceback.print_exc()
-            exception = sys.exc_info()[0]
-            error_message = exception.__class__.__name__ + ': ' + traceback.format_exc()
-            self.synchronization.last_result = error_message
-        
-        print_unicode(_('== End %s ==') % self.synchronization.name)
+            print_unicode(traceback.format_exc())
+            error = sys.exc_info()[1]
+            self.synchronization.errors = traceback.format_exc()
         
         self.synchronization.last_executed = timezone.now()
         self.synchronization.save()
         
-        translation.deactivate()
-        
-        return error_message
+        if error:
+            raise CommandError(error)

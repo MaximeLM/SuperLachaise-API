@@ -336,12 +336,12 @@ class Command(BaseCommand):
         # Get element in database if it exists
         wikidata_entry = WikidataEntry.objects.filter(**target_object_id_dict).first()
         
+        values_dict = self.get_values_from_entity(entity)
+        
         if not wikidata_entry:
             # Creation
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=json.dumps(target_object_id_dict))
             self.fetched_pending_modifications_pks.append(pendingModification.pk)
-            
-            values_dict = self.get_values_from_entity(entity)
             
             pendingModification.action = PendingModification.CREATE_OR_UPDATE
             pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)
@@ -352,17 +352,12 @@ class Command(BaseCommand):
             
             if self.auto_apply:
                 pendingModification.apply_modification()
-            
-            for language in Language.objects.all():
-                localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
-                self.handle_localized_entity(code, language.code, localized_values_dict)
         else:
             self.fetched_objects_pks.append(wikidata_entry.pk)
             
             # Search for modifications
             modified_values = {}
             
-            values_dict = self.get_values_from_entity(entity)
             for field, value in values_dict.iteritems():
                 if value != getattr(wikidata_entry, field):
                     modified_values[field] = value
@@ -383,10 +378,10 @@ class Command(BaseCommand):
             else:
                 # Delete the previous modification if any
                 PendingModification.objects.filter(target_object_class="WikidataEntry", target_object_id=code).delete()
-            
-            for language in Language.objects.all():
-                localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
-                self.handle_localized_entity(code, language.code, localized_values_dict)
+        
+        for language in Language.objects.all():
+            localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
+            self.handle_localized_entity(code, language.code, localized_values_dict)
     
     def sync_wikidata(self, wikidata_ids):
         self.wikidata_codes = []
