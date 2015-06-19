@@ -105,6 +105,7 @@ Create the database structure, configuration objects, and super user :
 ```sh
 cd <project_path>
 python manage.py migrate
+python manage.py load_configuration
 python manage.py createsuperuser
 ```
 
@@ -121,7 +122,7 @@ Open the admin interface in a browser (http://yoursite.com/admin/ or [http://127
 
 The application is now ready to synchronize data and serve requests.
 
- * Go to the **Admin commands** and **Settings** screens to begin synchronising data.
+ * Go to the **Synchronizations** and **Settings** screens to begin synchronising data.
  * The API is located at http://yoursite.com/api/
 
 ## Administration
