@@ -31,6 +31,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from django.utils import encoding, timezone, dateparse
 
+from superlachaise_api import conf
 from superlachaise_api.models import *
 
 class SuperLachaiseEncoder(object):
@@ -41,8 +42,17 @@ class SuperLachaiseEncoder(object):
         self.restrict_fields = restrict_fields
     
     def encode(self, obj):
-        obj['licence_url'] = self.request.build_absolute_uri(reverse(licence))
+        obj['about'] = self.about_dict()
         return json.dumps(self.obj_dict(obj), ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True, default=self.default)
+    
+    def about_dict(self):
+        result = {
+            'licence': self.request.build_absolute_uri(reverse(licence)),
+            'source': self.request.build_absolute_uri(reverse(objects)),
+            'version': conf.VERSION,
+        }
+        
+        return result
     
     def default(self, obj):
         if isinstance(obj, datetime.date):
@@ -176,9 +186,7 @@ class SuperLachaiseEncoder(object):
                 'name': openstreetmap_element.name,
                 'sorting_name': openstreetmap_element.sorting_name,
                 'nature': openstreetmap_element.nature,
-                'wikipedia': openstreetmap_element.wikipedia.split(';'),
                 'wikidata': openstreetmap_element.wikidata.split(';'),
-                'wikidata_combined': openstreetmap_element.wikidata_combined.split(';'),
                 'wikimedia_commons': openstreetmap_element.wikimedia_commons,
             })
         
@@ -302,15 +310,15 @@ def get_modified_since(request):
     except:
         raise SuspiciousOperation('Invalid parameter : modified_since')
 
-def get_restrict_fields(request):
-    restrict_fields = request.GET.get('restrict_fields', False)
+def get_restrict_fields(request, default=False):
+    restrict_fields = request.GET.get('restrict_fields', default)
     
     if restrict_fields == 'False' or restrict_fields == 'false' or restrict_fields == '0' or restrict_fields == 0:
         restrict_fields = False
     elif restrict_fields or restrict_fields == '':
         restrict_fields = True
     else:
-        restrict_fields = False
+        restrict_fields = default
     
     return restrict_fields
 
@@ -574,7 +582,7 @@ def superlachaise_category(request, id):
 @require_http_methods(["GET"])
 def superlachaise_poi_list(request):
     languages = get_languages(request)
-    restrict_fields = get_restrict_fields(request)
+    restrict_fields = get_restrict_fields(request, True)
     modified_since = get_modified_since(request)
     search = get_search(request)
     categories = get_categories(request)
@@ -647,7 +655,7 @@ def superlachaise_poi_list(request):
 @require_http_methods(["GET"])
 def superlachaise_poi(request, id):
     languages = get_languages(request)
-    restrict_fields = get_restrict_fields(request)
+    restrict_fields = get_restrict_fields(request, True)
     
     superlachaise_poi = SuperLachaisePOI.objects.get(openstreetmap_element_id=id)
     wikidata_entries = superlachaise_poi.wikidata_entries.all()
