@@ -7,6 +7,8 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
+    replaces = [(b'superlachaise_api', '0001_initial'), (b'superlachaise_api', '0002_auto_20150619_1723')]
+
     dependencies = [
     ]
 
@@ -292,7 +294,7 @@ class Migration(migrations.Migration):
                 ('wikidata_id', models.CharField(unique=True, max_length=255, verbose_name='wikidata id', db_index=True)),
                 ('name', models.CharField(max_length=255, verbose_name='name', blank=True)),
                 ('superlachaise_category', models.ForeignKey(related_name='wikidata_occupations', verbose_name='superlachaise category', blank=True, to='superlachaise_api.SuperLachaiseCategory', null=True)),
-                ('used_in', models.ManyToManyField(related_name='wikidata_occupations', verbose_name='used in', to='superlachaise_api.WikidataEntry', blank=True)),
+                ('used_in', models.ManyToManyField(related_name='wikidata_occupations', verbose_name='used in', to=b'superlachaise_api.WikidataEntry', blank=True)),
             ],
             options={
                 'ordering': ['wikidata_id'],
@@ -368,12 +370,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='superlachaisepoi',
             name='superlachaise_categories',
-            field=models.ManyToManyField(related_name='members', verbose_name='superlachaise categories', to='superlachaise_api.SuperLachaiseCategory', through='superlachaise_api.SuperLachaiseCategoryRelation', blank=True),
+            field=models.ManyToManyField(related_name='members', verbose_name='superlachaise categories', to=b'superlachaise_api.SuperLachaiseCategory', through='superlachaise_api.SuperLachaiseCategoryRelation', blank=True),
         ),
         migrations.AddField(
             model_name='superlachaisepoi',
             name='wikidata_entries',
-            field=models.ManyToManyField(related_name='superlachaise_pois', verbose_name='wikidata entries', through='superlachaise_api.SuperLachaiseWikidataRelation', to='superlachaise_api.WikidataEntry'),
+            field=models.ManyToManyField(related_name='superlachaise_pois', verbose_name='wikidata entries', through='superlachaise_api.SuperLachaiseWikidataRelation', to=b'superlachaise_api.WikidataEntry'),
         ),
         migrations.AddField(
             model_name='superlachaisepoi',
@@ -431,5 +433,10 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='localizedsetting',
             unique_together=set([('setting', 'language')]),
+        ),
+        migrations.AlterField(
+            model_name='pendingmodification',
+            name='target_object_class',
+            field=models.CharField(max_length=255, verbose_name='target object class', choices=[(b'Language', 'language'), (b'Synchronization', 'synchronization'), (b'LocalizedSynchronization', 'localized synchronization'), (b'Setting', 'setting'), (b'LocalizedSetting', 'localized setting'), (b'SuperLachaiseCategory', 'superlachaise category'), (b'SuperLachaiseLocalizedCategory', 'superlachaise localized category'), (b'WikidataOccupation', 'wikidata occupation'), (b'OpenStreetMapElement', 'openstreetmap element'), (b'WikidataEntry', 'wikidata entry'), (b'WikidataLocalizedEntry', 'wikidata localized entry'), (b'WikipediaPage', 'wikipedia page'), (b'WikimediaCommonsCategory', 'wikimedia commons category'), (b'WikimediaCommonsFile', 'wikimedia commons file'), (b'SuperLachaisePOI', 'superlachaise POI'), (b'SuperLachaiseLocalizedPOI', 'superlachaise localized POI'), (b'SuperLachaiseWikidataRelation', 'superlachaisepoi-wikidataentry relationship'), (b'SuperLachaiseCategoryRelation', 'superlachaisepoi-superlachaisecategory relationship')]),
         ),
     ]
