@@ -1114,6 +1114,12 @@
         },
         {
             "action": "create_or_update",
+            "modified_fields": "{\"superlachaise_category__code\": \"art\", \"name\": \"(fr)peintre portraitiste\"}",
+            "target_object_class": "WikidataOccupation",
+            "target_object_id": "{\"wikidata_id\": \"Q2180411\"}"
+        },
+        {
+            "action": "create_or_update",
             "modified_fields": "{\"superlachaise_category__code\": \"theatre\", \"name\": \"(fr)acteur de th\\u00e9\\u00e2tre\"}",
             "target_object_class": "WikidataOccupation",
             "target_object_id": "{\"wikidata_id\": \"Q2259451\"}"

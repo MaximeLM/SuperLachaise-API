@@ -72,18 +72,18 @@ class Command(BaseCommand):
         # Sync objects
         for wikidata_entry in WikidataEntry.objects.exclude(occupations__exact=''):
             for occupation in wikidata_entry.occupations.split(';'):
-                wikidata_occupation, created = WikidataOccupation.objects.get_or_create(id=occupation)
+                wikidata_occupation, created = WikidataOccupation.objects.get_or_create(wikidata_id=occupation)
                 if created:
                     self.created_objects += 1
                 wikidata_occupation.save()
                 if not wikidata_occupation in wikidata_entry.wikidata_occupations.all():
-                    wikidata_entry.wikidata_occupations.add(wikidata_occupation.id)
+                    wikidata_entry.wikidata_occupations.add(wikidata_occupation.pk)
             for wikidata_occupation in wikidata_entry.wikidata_occupations.all():
-                if not wikidata_occupation.id in wikidata_entry.occupations.split(';'):
-                    wikidata_entry.wikidata_occupations.remove(wikidata_occupation.id)
+                if not wikidata_occupation.wikidata_id in wikidata_entry.occupations.split(';'):
+                    wikidata_entry.wikidata_occupations.remove(wikidata_occupation.pk)
         
         # Sync names from Wikidata
-        wikidata_codes = WikidataOccupation.objects.all().values_list('id', flat=True)
+        wikidata_codes = WikidataOccupation.objects.all().values_list('wikidata_id', flat=True)
         
         print_unicode(_('Requesting Wikidata...'))
         wikidata_entities = {}
@@ -99,7 +99,7 @@ class Command(BaseCommand):
         print_unicode(str(count) + u'/' + str(total))
         
         for wikidata_occupation in WikidataOccupation.objects.all():
-            wikidata_entity = wikidata_entities[wikidata_occupation.id]
+            wikidata_entity = wikidata_entities[wikidata_occupation.wikidata_id]
             names = {}
             for language in Language.objects.all():
                 try:
@@ -120,36 +120,38 @@ class Command(BaseCommand):
             wikidata_occupation.save()
     
     def handle(self, *args, **options):
-        translation.activate(settings.LANGUAGE_CODE)
-        self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0])
-        error_message = None
+        try:
+            self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0].split('sync_')[-1])
+        except:
+            raise CommandError(sys.exc_info()[1])
+        
+        error = None
         
         try:
-            print_unicode(_('== Start %s ==') % self.synchronization.name)
+            translation.activate(settings.LANGUAGE_CODE)
             
             self.created_objects = 0
+            self.modified_objects = 0
+            self.deleted_objects = 0
+            self.errors = []
             
+            print_unicode(_('== Start %s ==') % self.synchronization.name)
             self.sync_wikidata_occupations()
+            print_unicode(_('== End %s ==') % self.synchronization.name)
             
-            result_list = []
-            if self.created_objects > 0:
-                result_list.append(_('{nb} object(s) created').format(nb=self.created_objects))
+            self.synchronization.created_objects = self.created_objects
+            self.synchronization.modified_objects = self.modified_objects
+            self.synchronization.deleted_objects = self.deleted_objects
+            self.synchronization.errors = ', '.join(self.errors)
             
-            if result_list:
-                self.synchronization.last_result = ', '.join(result_list)
-            else:
-                self.synchronization.last_result = Synchronization.NO_MODIFICATIONS
+            translation.deactivate()
         except:
-            traceback.print_exc()
-            exception = sys.exc_info()[0]
-            error_message = exception.__class__.__name__ + ': ' + traceback.format_exc()
-            self.synchronization.last_result = error_message
-        
-        print_unicode(_('== End %s ==') % self.synchronization.name)
+            print_unicode(traceback.format_exc())
+            error = sys.exc_info()[1]
+            self.synchronization.errors = traceback.format_exc()
         
         self.synchronization.last_executed = timezone.now()
         self.synchronization.save()
         
-        translation.deactivate()
-        
-        return error_message
+        if error:
+            raise CommandError(error)
