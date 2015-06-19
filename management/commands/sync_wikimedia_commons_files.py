@@ -115,7 +115,7 @@ class Command(BaseCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
         else:
-            self.fetched_objects_pks.append(wikimedia_commons_category.pk)
+            self.fetched_objects_pks.append(wikimedia_commons_file.pk)
             
             modified_fields = {}
             for field, value in values_dict.iteritems():

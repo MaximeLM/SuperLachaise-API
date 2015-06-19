@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-19 14:38+0200\n"
+"POT-Creation-Date: 2015-06-19 18:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,14 +19,18 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: admin.py:56
+#, python-brace-format
 msgid "{synchronization_name}: no pending modifications"
 msgstr "{synchronization_name} : aucune modification en attente"
 
 #: admin.py:57
+#, python-brace-format
 msgid "{synchronization_name}: {count} new pending modification(s)"
-msgstr "{synchronization_name} : {count} nouvelle(s) modification(s) en attente"
+msgstr ""
+"{synchronization_name} : {count} nouvelle(s) modification(s) en attente"
 
 #: admin.py:58
+#, python-brace-format
 msgid "{synchronization_name}: {error}"
 msgstr "{synchronization_name} : {error}"
 
@@ -51,8 +55,8 @@ msgid "Execute selected admin commands"
 msgstr "Exécuter les commandes admin sélectionnées"
 
 #: admin.py:163 admin.py:180 admin.py:216 admin.py:253 admin.py:365
-#: admin.py:408 admin.py:449 admin.py:483 admin.py:523 admin.py:620
-#: admin.py:644 admin.py:686 admin.py:723 admin.py:752
+#: admin.py:408 admin.py:449 admin.py:483 admin.py:523 admin.py:621
+#: admin.py:645 admin.py:687 admin.py:724 admin.py:756
 msgid "Delete notes"
 msgstr "Supprimer les notes"
 
@@ -60,7 +64,7 @@ msgstr "Supprimer les notes"
 msgid "openstreetmap"
 msgstr "openstreetmap"
 
-#: admin.py:242 admin.py:297 admin.py:392 admin.py:708 models.py:148
+#: admin.py:242 admin.py:297 admin.py:392 admin.py:709 models.py:148
 msgid "wikidata"
 msgstr "wikidata"
 
@@ -133,7 +137,7 @@ msgstr "intro"
 msgid "Sync selected wikipedia pages"
 msgstr "Synchroniser les pages wikipédia sélectionnées"
 
-#: admin.py:473 admin.py:610 models.py:286 models.py:323
+#: admin.py:473 admin.py:611 models.py:286 models.py:323
 msgid "main image"
 msgstr "image principale"
 
@@ -169,43 +173,43 @@ msgstr "entrées wikidata"
 msgid "superlachaise categories"
 msgstr "catégories SuperLachaise"
 
-#: admin.py:616
+#: admin.py:617
 msgid "Sync selected superlachaise POIs"
 msgstr "Synchroniser les POIs SuperLachaise sélectionnés"
 
-#: admin.py:639 models.py:338 models.py:365 models.py:428
+#: admin.py:640 models.py:338 models.py:365 models.py:428
 msgid "superlachaise poi"
 msgstr "poi SuperLachaise"
 
-#: admin.py:649
+#: admin.py:650
 msgid "Sync selected superlachaise localized POIs"
 msgstr "Synchroniser les POIs localisés SuperLachaise sélectionnés"
 
-#: admin.py:678
+#: admin.py:679
 msgid "members count"
 msgstr "nombre de membres"
 
-#: admin.py:682
+#: admin.py:683
 msgid "wikidata occupations count"
 msgstr "nombre d'occupations wikidata"
 
-#: admin.py:713
+#: admin.py:714
 msgid "used in count"
 msgstr "nombre d'utilisations"
 
-#: admin.py:718 models.py:452
+#: admin.py:719 models.py:452
 msgid "used in"
 msgstr "utilisé dans"
 
-#: admin.py:735
+#: admin.py:736
 msgid "Target object"
 msgstr "Objet cible"
 
-#: admin.py:744
+#: admin.py:748
 msgid "target object"
 msgstr "objet cible"
 
-#: admin.py:748
+#: admin.py:752
 msgid "Apply selected pending modifications"
 msgstr "Appliquer les modifications en attente sélectionnées"
 
@@ -213,62 +217,65 @@ msgstr "Appliquer les modifications en attente sélectionnées"
 msgid "SuperLachaise API"
 msgstr "API SuperLachaise"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:51
+#: management/commands/sync_all.py:51
 #, python-brace-format
 msgid "{name}: not executed"
 msgstr "{name} : non exécuté"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:54
+#: management/commands/sync_all.py:54
 #, python-brace-format
 msgid "{name}: executed on {date} at {time}"
 msgstr "{name} : exécuté le {date} à {time}"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:55
+#: management/commands/sync_all.py:56
 #, python-brace-format
-msgid "Result: {result}"
-msgstr "Résultat : {result}"
+msgid "Errors: {errors}"
+msgstr "Erreurs : {errors}"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:60
-msgid "Admin commands results"
-msgstr "Résultats des commandes admin"
+#: management/commands/sync_all.py:59
+#, python-brace-format
+msgid "Created objects: {count}"
+msgstr "objets créés : {count}"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:72
-#: management/commands/sync_openstreetmap.py:406
-#: management/commands/sync_superlachaise_pois.py:507
-#: management/commands/sync_wikidata.py:499
-#: management/commands/sync_wikidata_occupations.py:128
-#: management/commands/sync_wikimedia_commons_categories.py:253
-#: management/commands/sync_wikimedia_commons_files.py:190
-#: management/commands/sync_wikipedia.py:350
-#, python-format
-msgid "== Start %s =="
-msgstr "== Début %s =="
+#: management/commands/sync_all.py:61
+#, python-brace-format
+msgid "Modified objects: {count}"
+msgstr "objets modifiés : {count}"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:86
-msgid "Mail not sent"
-msgstr "Mail non envoyé"
+#: management/commands/sync_all.py:63
+#, python-brace-format
+msgid "Deleted objects: {count}"
+msgstr "objets supprimés : {count}"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:88
-msgid "Mail sent"
-msgstr "Mail envoyé"
-
-#: management/commands/sync_all_and_send_mail_to_managers.py:90
-msgid "Mail sending failure"
-msgstr "Échec de l'envoi du mail"
-
-#: management/commands/sync_all_and_send_mail_to_managers.py:92
+#: management/commands/sync_all.py:72
 #, python-brace-format
 msgid "Duration: {minutes} minute(s) and {seconds} second(s)"
 msgstr "Durée du traitement: {minutes} minute(s) et {seconds} seconde(s)"
 
-#: management/commands/sync_all_and_send_mail_to_managers.py:101
+#: management/commands/sync_all.py:76
+msgid "Admin commands results"
+msgstr "Résultats des commandes admin"
+
+#: management/commands/sync_all.py:100
+#: management/commands/sync_openstreetmap.py:406
+#: management/commands/sync_superlachaise_pois.py:648
+#: management/commands/sync_wikidata.py:495
+#: management/commands/sync_wikidata_occupations.py:138
+#: management/commands/sync_wikimedia_commons_categories.py:274
+#: management/commands/sync_wikimedia_commons_files.py:210
+#: management/commands/sync_wikipedia.py:368
+#, python-format
+msgid "== Start %s =="
+msgstr "== Début %s =="
+
+#: management/commands/sync_all.py:103
 #: management/commands/sync_openstreetmap.py:408
-#: management/commands/sync_superlachaise_pois.py:537
-#: management/commands/sync_wikidata.py:501
-#: management/commands/sync_wikidata_occupations.py:148
-#: management/commands/sync_wikimedia_commons_categories.py:282
-#: management/commands/sync_wikimedia_commons_files.py:219
-#: management/commands/sync_wikipedia.py:378
+#: management/commands/sync_superlachaise_pois.py:650
+#: management/commands/sync_wikidata.py:497
+#: management/commands/sync_wikidata_occupations.py:140
+#: management/commands/sync_wikimedia_commons_categories.py:276
+#: management/commands/sync_wikimedia_commons_files.py:212
+#: management/commands/sync_wikipedia.py:370
 #, python-format
 msgid "== End %s =="
 msgstr "== Fin %s =="
@@ -291,53 +298,28 @@ msgstr "Requête de l'API Overpass..."
 msgid "Requesting Wikidata..."
 msgstr "Requête de Wikidata..."
 
-#: management/commands/sync_superlachaise_pois.py:466
+#: management/commands/sync_superlachaise_pois.py:553
 msgid "Preparing objects..."
 msgstr "Préparation des objets..."
 
-#: management/commands/sync_superlachaise_pois.py:521
-#: management/commands/sync_wikidata_occupations.py:136
-#: management/commands/sync_wikimedia_commons_categories.py:266
-#: management/commands/sync_wikimedia_commons_files.py:203
-#: management/commands/sync_wikipedia.py:362
-#, python-brace-format
-msgid "{nb} object(s) created"
-msgstr "{nb} objet(s) créé(s)"
-
-#: management/commands/sync_superlachaise_pois.py:523
-#: management/commands/sync_wikimedia_commons_categories.py:268
-#: management/commands/sync_wikimedia_commons_files.py:205
-#: management/commands/sync_wikipedia.py:364
-#, python-brace-format
-msgid "{nb} object(s) modified"
-msgstr "{nb} objet(s) modifié(s)"
-
-#: management/commands/sync_superlachaise_pois.py:525
-#: management/commands/sync_wikimedia_commons_categories.py:270
-#: management/commands/sync_wikimedia_commons_files.py:207
-#: management/commands/sync_wikipedia.py:366
-#, python-brace-format
-msgid "{nb} object(s) deleted"
-msgstr "{nb} objet(s) supprimé(s)"
-
-#: management/commands/sync_wikidata.py:410
+#: management/commands/sync_wikidata.py:405
 msgid "Requesting Wikidata codes from OpenStreetMap elements..."
 msgstr "Requête des codes Wikidata issus des éléments OpenStreetMap..."
 
-#: management/commands/sync_wikidata.py:430
+#: management/commands/sync_wikidata.py:425
 msgid "Requesting new Wikidata codes from grave_of..."
 msgstr "Requête des nouveaux codes Wikidata issus de grave_of..."
 
-#: management/commands/sync_wikimedia_commons_categories.py:210
-#: management/commands/sync_wikimedia_commons_files.py:147
+#: management/commands/sync_wikimedia_commons_categories.py:215
+#: management/commands/sync_wikimedia_commons_files.py:153
 msgid "Requesting Wikimedia Commons..."
 msgstr "Requête de Wikimedia commons..."
 
-#: management/commands/sync_wikipedia.py:290
+#: management/commands/sync_wikipedia.py:295
 msgid "Requesting Wikipedia revisions..."
 msgstr "Requête des révisions Wikipédia..."
 
-#: management/commands/sync_wikipedia.py:307
+#: management/commands/sync_wikipedia.py:312
 msgid "Requesting Wikipedia page content..."
 msgstr "Requête du contenu des pages de Wikipédia..."
 
@@ -590,42 +572,42 @@ msgstr "occupations wikidata"
 msgid "wikidata occupations"
 msgstr "occupations wikidata"
 
-#: models.py:496
+#: models.py:497
 msgid "target object class"
 msgstr "classe de l'objet cible"
 
-#: models.py:497
+#: models.py:498
 msgid "target object id"
 msgstr "id de l'objet cible"
 
-#: models.py:498
+#: models.py:499
 msgid "action"
 msgstr "action"
 
-#: models.py:499
+#: models.py:500
 msgid "modified fields"
 msgstr "champs modifiés"
 
-#: models.py:524 models.py:527
+#: models.py:525 models.py:528
 msgid "The value must be a JSON dictionary."
 msgstr "La valeur doit être un dictionnaire JSON."
 
-#: models.py:538
+#: models.py:539
 #, python-format
 msgid "The following fields are not valid for modification: %s."
 msgstr "Les champs suivants ne sont pas valides pour la modification : %s."
 
-#: models.py:561
+#: models.py:562
 #, python-format
 msgid "The following fields are not fields of the target object model: %s."
 msgstr ""
 "Les champs suivants ne font pas partie des champs du modèle de l'objet "
 "cible : %s."
 
-#: models.py:616
+#: models.py:617
 msgid "pending modification"
 msgstr "modification en attente"
 
-#: models.py:617
+#: models.py:618
 msgid "pending modifications"
 msgstr "modifications en attente"
