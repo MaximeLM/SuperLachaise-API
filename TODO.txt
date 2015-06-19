@@ -1,8 +1,17 @@
 For 1.0 :
+
+Documentation
 - Write usage documentation
 - Write administration documentation
+
+Synchronization
 - Use pending modifications when synchronizing Wikidata Occupations
-- Allow Wikidata Occupations synchronization from change screen in admin
 - Control many-to-many relations for deletion when synchronizing SuperLachaise POIs in admin
+
+Admin
+- Allow Wikidata Occupations synchronization from change screen in admin
+- list_filter should only display values for existing objects
+
+Tests & refactor
 - Refactor & test synchronizations
 - Test views
