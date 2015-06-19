@@ -378,7 +378,7 @@ class Command(BaseCommand):
         except:
             print_unicode(traceback.format_exc())
             error = sys.exc_info()[1]
-            self.synchronization.errors = error
+            self.synchronization.errors = traceback.format_exc()
         
         self.synchronization.last_executed = timezone.now()
         self.synchronization.save()
