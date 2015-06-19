@@ -358,7 +358,7 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
 class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a Wikidata entry """
     
-    NONE = 'none'
+    NO_TYPE = 'no_type'
     PERSON = 'person'
     ARTIST = 'artist'
     

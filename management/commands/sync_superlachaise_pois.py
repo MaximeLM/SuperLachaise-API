@@ -46,7 +46,7 @@ class Command(BaseCommand):
                     elif 'Q5' in wikidata_entry.instance_of.split(';'):
                         relation_type = SuperLachaiseWikidataRelation.PERSON
                     else:
-                        relation_type = SuperLachaiseWikidataRelation.NONE
+                        relation_type = SuperLachaiseWikidataRelation.NO_TYPE
                     result.append(relation_type + u':' + str(wikidata_entry.wikidata_id))
                     
                     if wikidata_entry.grave_of_wikidata:
@@ -188,7 +188,7 @@ class Command(BaseCommand):
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NONE:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NO_TYPE:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
@@ -260,7 +260,7 @@ class Command(BaseCommand):
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NONE:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NO_TYPE:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
@@ -331,7 +331,7 @@ class Command(BaseCommand):
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NONE:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NO_TYPE:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
