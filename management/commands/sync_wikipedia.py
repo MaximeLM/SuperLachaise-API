@@ -231,7 +231,8 @@ class Command(BaseCommand):
             return u''
     
     def hande_wikidata_localized_entry(self, wikidata_localized_entry):
-        id = wikidata_localized_entry.language.code + u':' + wikidata_localized_entry.wikidata_entry_id
+        target_object_id_dict = {"wikidata_localized_entry_id": wikidata_localized_entry.pk}
+        
         values_dict = {
             'intro': self.get_wikipedia_intro(wikidata_localized_entry.language.code, wikidata_localized_entry.wikipedia),
         }
@@ -242,13 +243,14 @@ class Command(BaseCommand):
             values_dict['default_sort'] = u''
         
         # Get element in database if it exists
-        wikipedia_page = WikipediaPage.objects.filter(id=id).first()
+        wikipedia_page = WikipediaPage.objects.filter(**target_object_id_dict).first()
         
         if not wikipedia_page:
             # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=json.dumps(target_object_id_dict))
+            self.fetched_pending_modifications_pks.append(pendingModification.pk)
             
-            pendingModification.action = PendingModification.CREATE
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
             pendingModification.modified_fields = json.dumps(values_dict)
             
             pendingModification.full_clean()
@@ -258,6 +260,8 @@ class Command(BaseCommand):
             if self.auto_apply:
                 pendingModification.apply_modification()
         else:
+            self.fetched_objects_pks.append(wikipedia_page.pk)
+            
             # Search for modifications
             modified_values = {}
             
@@ -267,9 +271,10 @@ class Command(BaseCommand):
             
             if modified_values:
                 # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=id)
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=json.dumps(target_object_id_dict))
+                self.fetched_pending_modifications_pks.append(pendingModification.pk)
                 pendingModification.modified_fields = json.dumps(modified_values)
-                pendingModification.action = PendingModification.MODIFY
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
             
                 pendingModification.full_clean()
                 pendingModification.save()
@@ -279,7 +284,7 @@ class Command(BaseCommand):
                     pendingModification.apply_modification()
             else:
                 # Delete the previous modification if any
-                PendingModification.objects.filter(target_object_class="WikipediaPage", target_object_id=id).delete()
+                PendingModification.objects.filter(target_object_class="WikipediaPage", target_object_id=json.dumps(target_object_id_dict)).delete()
     
     def sync_wikipedia(self, wikidata_localized_entry_ids):
         if wikidata_localized_entry_ids:
@@ -308,23 +313,23 @@ class Command(BaseCommand):
         total = len(wikidata_localized_entries)
         count = 0
         max_count_per_request = 25
-        fetched_ids = []
+        self.fetched_objects_pks = []
+        self.fetched_pending_modifications_pks = []
         for chunk in [wikidata_localized_entries[i:i+max_count_per_request] for i in range(0,len(wikidata_localized_entries),max_count_per_request)]:
             print_unicode(str(count) + u'/' + str(total))
             count += len(chunk)
             
             for wikidata_localized_entry in chunk:
-                fetched_ids.append(wikidata_localized_entry.language.code + u':' + wikidata_localized_entry.wikidata_entry_id)
                 self.hande_wikidata_localized_entry(wikidata_localized_entry)
         print_unicode(str(count) + u'/' + str(total))
         
         if not wikidata_localized_entry_ids:
             # Delete pending creations if element was not fetched
-            PendingModification.objects.filter(target_object_class="WikipediaPage", action=PendingModification.CREATE).exclude(target_object_id__in=fetched_ids).delete()
+            PendingModification.objects.filter(target_object_class="WikipediaPage", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
         
             # Look for deleted elements
-            for wikipedia_page in WikipediaPage.objects.exclude(id__in=fetched_ids):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=str(wikipedia_page.wikidata_localized_entry_id))
+            for wikipedia_page in WikipediaPage.objects.exclude(pk__in=self.fetched_objects_pks):
+                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=json.dumps({"wikidata_localized_entry_id": wikipedia_page.wikidata_localized_entry.pk}))
                 
                 pendingModification.action = PendingModification.DELETE
                 pendingModification.modified_fields = u''
@@ -342,44 +347,41 @@ class Command(BaseCommand):
             dest='wikidata_localized_entry_ids')
     
     def handle(self, *args, **options):
-        translation.activate(settings.LANGUAGE_CODE)
-        self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0])
-        error_message = None
         
         try:
-            print_unicode(_('== Start %s ==') % self.synchronization.name)
+            self.synchronization = Synchronization.objects.get(name=os.path.basename(__file__).split('.')[0].split('sync_')[-1])
+        except:
+            raise CommandError(sys.exc_info()[1])
+        
+        error = None
+        
+        try:
+            translation.activate(settings.LANGUAGE_CODE)
             
             self.auto_apply = (Setting.objects.get(key=u'wikipedia:auto_apply_modifications').value == 'true')
             
             self.created_objects = 0
             self.modified_objects = 0
             self.deleted_objects = 0
+            self.errors = []
             
+            print_unicode(_('== Start %s ==') % self.synchronization.name)
             self.sync_wikipedia(options['wikidata_localized_entry_ids'])
+            print_unicode(_('== End %s ==') % self.synchronization.name)
             
-            result_list = []
-            if self.created_objects > 0:
-                result_list.append(_('{nb} object(s) created').format(nb=self.created_objects))
-            if self.modified_objects > 0:
-                result_list.append(_('{nb} object(s) modified').format(nb=self.modified_objects))
-            if self.deleted_objects > 0:
-                result_list.append(_('{nb} object(s) deleted').format(nb=self.deleted_objects))
+            self.synchronization.created_objects = self.created_objects
+            self.synchronization.modified_objects = self.modified_objects
+            self.synchronization.deleted_objects = self.deleted_objects
+            self.synchronization.errors = ', '.join(self.errors)
             
-            if result_list:
-                self.synchronization.last_result = ', '.join(result_list)
-            else:
-                self.synchronization.last_result = Synchronization.NO_MODIFICATIONS
+            translation.deactivate()
         except:
-            traceback.print_exc()
-            exception = sys.exc_info()[0]
-            error_message = exception.__class__.__name__ + ': ' + traceback.format_exc()
-            self.synchronization.last_result = error_message
-        
-        print_unicode(_('== End %s ==') % self.synchronization.name)
+            print_unicode(traceback.format_exc())
+            error = sys.exc_info()[1]
+            self.synchronization.errors = error
         
         self.synchronization.last_executed = timezone.now()
         self.synchronization.save()
         
-        translation.deactivate()
-        
-        return error_message
+        if error:
+            raise CommandError(error)

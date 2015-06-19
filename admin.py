@@ -357,7 +357,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_ids = [wikidata_entry.wikidata_id for wikidata_entry in queryset]
-        return AdminUtils.execute_sync('sync_wikidata', request, {"wikidata_ids": '|'.join(wikidata_ids)})
+        return AdminUtils.execute_sync('wikidata', request, {"wikidata_ids": '|'.join(wikidata_ids)})
     sync_entry.short_description = _('Sync selected wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -400,7 +400,7 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_ids = [wikidata_localized_entry.wikidata_entry.wikidata_id for wikidata_localized_entry in queryset]
-        return AdminUtils.execute_sync('sync_wikidata', request, {"wikidata_ids": '|'.join(wikidata_ids)})
+        return AdminUtils.execute_sync('wikidata', request, {"wikidata_ids": '|'.join(wikidata_ids)})
     sync_entry.short_description = _('Sync selected localized wikidata entries')
     
     def delete_notes(self, request, queryset):
@@ -441,7 +441,7 @@ class WikipediaPageAdmin(admin.ModelAdmin):
     
     def sync_entry(self, request, queryset):
         wikidata_localized_entry_ids = [str(value) for value in queryset.values_list('wikidata_localized_entry_id', flat=True)]
-        return AdminUtils.execute_sync('sync_wikipedia', request, {"wikidata_localized_entry_ids": '|'.join(wikidata_localized_entry_ids)})
+        return AdminUtils.execute_sync('wikipedia', request, {"wikidata_localized_entry_ids": '|'.join(wikidata_localized_entry_ids)})
     sync_entry.short_description = _('Sync selected wikipedia pages')
     
     def delete_notes(self, request, queryset):
@@ -475,7 +475,7 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
     
     def sync_object(self, request, queryset):
         wikimedia_commons_categories = [wikimedia_commons_category.wikimedia_commons_id for wikimedia_commons_category in queryset]
-        return AdminUtils.execute_sync('sync_wikimedia_commons_categories', request, {"wikimedia_commons_categories": '|'.join(wikimedia_commons_categories)})
+        return AdminUtils.execute_sync('wikimedia_commons_categories', request, {"wikimedia_commons_categories": '|'.join(wikimedia_commons_categories)})
     sync_object.short_description = _('Sync selected wikimedia commons categories')
     
     def delete_notes(self, request, queryset):
@@ -515,7 +515,7 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     
     def sync_object(self, request, queryset):
         wikimedia_commons_files = [wikimedia_commons_file.wikimedia_commons_id for wikimedia_commons_file in queryset]
-        return AdminUtils.execute_sync('sync_wikimedia_commons_files', request, {"wikimedia_commons_files": '|'.join(wikimedia_commons_files)})
+        return AdminUtils.execute_sync('wikimedia_commons_files', request, {"wikimedia_commons_files": '|'.join(wikimedia_commons_files)})
     sync_object.short_description = _('Sync selected wikimedia commons files')
     
     def delete_notes(self, request, queryset):
@@ -612,7 +612,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     
     def sync_object(self, request, queryset):
         openstreetmap_element_ids = [superlachaise_poi.openstreetmap_element.openstreetmap_id for superlachaise_poi in queryset]
-        return AdminUtils.execute_sync('sync_superlachaise_pois', request, {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)})
+        return AdminUtils.execute_sync('superlachaise_pois', request, {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)})
     sync_object.short_description = _('Sync selected superlachaise POIs')
     
     def delete_notes(self, request, queryset):
@@ -645,7 +645,7 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
     
     def sync_object(self, request, queryset):
         openstreetmap_element_ids = [superlachaise_localized_poi.superlachaise_poi.openstreetmap_element.openstreetmap_id for superlachaise_localized_poi in queryset]
-        return AdminUtils.execute_sync('sync_superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
+        return AdminUtils.execute_sync('superlachaise_pois', {"openstreetmap_element_ids": '|'.join(openstreetmap_element_ids)}, request)
     sync_object.short_description = _('Sync selected superlachaise localized POIs')
     
     actions = [delete_notes, sync_object]

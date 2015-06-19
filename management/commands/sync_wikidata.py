@@ -444,7 +444,8 @@ class Command(BaseCommand):
         if not wikidata_ids:
             # Delete pending creations if element was not fetched
             PendingModification.objects.filter(target_object_class="WikidataEntry", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-        
+            PendingModification.objects.filter(target_object_class="WikidataLocalizedEntry", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
+            
             # Look for deleted elements
             for wikidata_entry in WikidataEntry.objects.exclude(pk__in=self.fetched_objects_pks):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=json.dumps({"wikidata_id": wikidata_entry.wikidata_id}))

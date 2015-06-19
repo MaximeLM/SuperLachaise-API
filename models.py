@@ -552,7 +552,7 @@ class PendingModification(SuperLachaiseModel):
                         
                         # Lookup relations
                         field_type = model._meta.get_field(field_part).get_internal_type()
-                        if field_type == 'ForeignKey':
+                        if field_type in ['ForeignKey', 'OneToOneField']:
                             model = model._meta.get_field(field_part).rel.to
                         else:
                             loop = False

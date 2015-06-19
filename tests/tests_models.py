@@ -339,6 +339,17 @@ class PendingModificationTestCase(TestCase):
         except ValidationError:
             self.fail()
     
+    def test_validation_succeeds_if_target_object_id_has_field_following_target_object_model_one_to_one_relation(self):
+        target_object_class = "SuperLachaisePOI"
+        target_object_id = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
+        
+        try:
+            pending_modification.full_clean()
+        except ValidationError:
+            self.fail()
+    
     def test_validation_fails_if_modified_fields_is_not_json(self):
         target_object_class = "OpenStreetMapElement"
         target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
@@ -382,6 +393,18 @@ class PendingModificationTestCase(TestCase):
         target_object_class = "WikidataOccupation"
         target_object_id = '{"wikidata_id":"wikidata_id"}'
         modified_fields = '{"superlachaise_category__code":"code"}'
+        
+        pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
+        
+        try:
+            pending_modification.full_clean()
+        except ValidationError:
+            self.fail()
+    
+    def test_validation_succeeds_if_modified_fields_has_field_following_target_object_model_one_to_one_relation(self):
+        target_object_class = "SuperLachaisePOI"
+        target_object_id = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id"}'
+        modified_fields = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id"}'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
         
@@ -512,6 +535,20 @@ class PendingModificationTestCase(TestCase):
         value = wikidata_entry_id
         
         self.assertEqual(('wikidata_entry', wikidata_entry), PendingModification.resolve_field_relation(object_model, field, value))
+    
+    def test_resolve_field_relation_returns_field_and_destination_value_if_field_is_one_to_one_relation_and_destination_value_exists(self):
+        wikidata_entry_id = "wikidata_entry_id"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_entry_id)
+        wikidata_entry.save()
+        language = Language(code="code")
+        language.save()
+        wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
+        wikidata_localized_entry.save()
+        object_model = WikipediaPage
+        field = 'wikidata_localized_entry__wikidata_entry__wikidata_id'
+        value = wikidata_entry_id
+        
+        self.assertEqual(('wikidata_localized_entry', wikidata_localized_entry), PendingModification.resolve_field_relation(object_model, field, value))
     
     def test_resolve_field_relation_raises_field_does_not_exist_if_field_is_relation_and_destination_value_does_not_exist(self):
         wikidata_entry_id = "wikidata_entry_id"
