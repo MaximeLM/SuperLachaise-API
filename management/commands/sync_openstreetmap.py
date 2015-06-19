@@ -148,7 +148,7 @@ class Command(BaseCommand):
     
     def get_wiki_values(self, overpass_element, field_name):
         result = []
-        for key, value in {key:value for (key,value) in overpass_element.tags.iteritems() if field_name in key}.iteritems():
+        for key, value in {key:value for (key,value) in overpass_element.tags.iteritems() if field_name in key.split(':')}.iteritems():
             wiki_value = []
             for key_part in key.split(':'):
                 if not key_part == field_name:
@@ -180,16 +180,16 @@ class Command(BaseCommand):
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
         }
         
-        wikipedia = none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia'))
-        wikidata = none_to_blank(self.get_wiki_values(overpass_element, 'wikidata'))
+        element_wikipedia = none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia'))
+        element_wikidata = none_to_blank(self.get_wiki_values(overpass_element, 'wikidata'))
         
         result['nature'] = self.get_nature(overpass_element)
         
         # Get combined wikidata field
         wikidata_combined = []
         
-        if wikipedia:
-            for wikipedia in wikipedia.split(';'):
+        if element_wikipedia:
+            for wikipedia in element_wikipedia.split(';'):
                 if ':' in wikipedia:
                     language_code = wikipedia.split(':')[-2]
                     link = wikipedia.split(':')[-1]
@@ -201,8 +201,8 @@ class Command(BaseCommand):
                     else:
                         self.errors.append(_('Error: The wikipedia page {language_code}{link} does not exist').format(language_code=language_code, link=link))
         
-        if wikidata:
-            for wikidata_link in wikidata.split(';'):
+        if element_wikidata:
+            for wikidata_link in element_wikidata.split(';'):
                 if not wikidata_link in wikidata_combined:
                     wikidata_combined.append(wikidata_link)
         
