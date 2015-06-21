@@ -27,9 +27,10 @@ from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.db.models.query import QuerySet
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.views.decorators.http import require_http_methods
 from django.utils import encoding, timezone, dateparse
+from django.utils.translation import ugettext as _
 
 from superlachaise_api import conf
 from superlachaise_api.models import *
@@ -117,7 +118,7 @@ class SuperLachaiseEncoder(object):
     
     def superlachaise_poi_dict(self, superlachaise_poi):
         result = {
-            'id': superlachaise_poi.openstreetmap_element_id,
+            'openstreetmap_id': superlachaise_poi.openstreetmap_element.openstreetmap_id,
         }
         
         if self.languages:
@@ -136,7 +137,7 @@ class SuperLachaiseEncoder(object):
         for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
             if not wikidata_entry_relation.relation_type in wikidata_entries:
                 wikidata_entries[wikidata_entry_relation.relation_type] = []
-            wikidata_entries[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry_id)
+            wikidata_entries[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry.wikidata_id)
         
         superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
         
@@ -151,7 +152,7 @@ class SuperLachaiseEncoder(object):
     
     def superlachaise_category_dict(self, superlachaise_category):
         result = {
-            'id': superlachaise_category.code,
+            'code': superlachaise_category.code,
             'type': superlachaise_category.type,
         }
         
@@ -167,14 +168,14 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
-                'wikidata_occupations': [wikidata_occupation.id for wikidata_occupation in superlachaise_category.wikidata_occupations.all()],
+                'wikidata_occupations': ['Q%s' % wikidata_occupation.id for wikidata_occupation in superlachaise_category.wikidata_occupations.all()],
             })
         
         return result
     
     def openstreetmap_element_dict(self, openstreetmap_element):
         result = {
-            'id': openstreetmap_element.id,
+            'openstreetmap_id': openstreetmap_element.openstreetmap_id,
             'type': openstreetmap_element.type,
             'latitude': openstreetmap_element.latitude,
             'longitude': openstreetmap_element.longitude,
@@ -182,7 +183,7 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=encoding.escape_uri_path(openstreetmap_element.id)),
+                'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=encoding.escape_uri_path(openstreetmap_element.openstreetmap_id)),
                 'name': openstreetmap_element.name,
                 'sorting_name': openstreetmap_element.sorting_name,
                 'nature': openstreetmap_element.nature,
@@ -194,7 +195,7 @@ class SuperLachaiseEncoder(object):
     
     def wikidata_entry_dict(self, wikidata_entry):
         result = {
-            'id': wikidata_entry.id,
+            'wikidata_id': wikidata_entry.wikidata_id,
             'burial_plot_reference': wikidata_entry.burial_plot_reference,
         }
         
@@ -208,7 +209,7 @@ class SuperLachaiseEncoder(object):
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://www.wikidata.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikidata_entry.id)),
+                'url': u'https://www.wikidata.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikidata_entry.wikidata_id)),
                 'instance_of': wikidata_entry.instance_of.split(';'),
                 'wikimedia_commons_category': wikidata_entry.wikimedia_commons_category,
             })
@@ -261,13 +262,13 @@ class SuperLachaiseEncoder(object):
     def wikimedia_commons_category_dict(self, wikimedia_commons_category):
         if wikimedia_commons_category:
             result = {
-                'id': wikimedia_commons_category.id,
+                'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
                 'main_image': wikimedia_commons_category.main_image,
             }
         
             if not self.restrict_fields:
                 result.update({
-                    'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.id)),
+                    'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.wikimedia_commons_id)),
                     'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.main_image)),
                 })
         else:
@@ -277,12 +278,12 @@ class SuperLachaiseEncoder(object):
     
     def wikimedia_commons_file_dict(self, wikimedia_commons_file):
         result = {
-            'id': wikimedia_commons_file.id,
+            'wikimedia_commons_id': wikimedia_commons_file.id,
         }
         
         if not self.restrict_fields:
             result.update({
-                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_file.id)),
+                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_file.wikimedia_commons_id)),
             })
         
         return result
@@ -417,7 +418,10 @@ def openstreetmap_element_list(request):
 def openstreetmap_element(request, id):
     restrict_fields = get_restrict_fields(request)
     
-    openstreetmap_element = OpenStreetMapElement.objects.get(id=id)
+    try:
+        openstreetmap_element = OpenStreetMapElement.objects.get(openstreetmap_id=id)
+    except OpenStreetMapElement.DoesNotExist:
+        raise Http404(_('OpenStreetMap element does not exist'))
     
     content = SuperLachaiseEncoder(request, restrict_fields=restrict_fields).encode({'openstreetmap_element': openstreetmap_element})
     
@@ -469,7 +473,10 @@ def wikidata_entry(request, id):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     
-    wikidata_entry = WikidataEntry.objects.get(id=id)
+    try:
+        wikidata_entry = WikidataEntry.objects.get(wikidata_id=id)
+    except WikidataEntry.DoesNotExist:
+        raise Http404(_('Wikidata entry does not exist'))
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'wikidata_entry': wikidata_entry})
     
@@ -520,7 +527,10 @@ def wikimedia_commons_category(request, id):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     
-    wikimedia_commons_category = WikimediaCommonsCategory.objects.get(id=id)
+    try:
+        wikimedia_commons_category = WikimediaCommonsCategory.objects.get(wikimedia_commons_id=id)
+    except WikimediaCommonsCategory.DoesNotExist:
+        raise Http404(_('Wikimedia Commons category does not exist'))
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'wikimedia_commons_category': wikimedia_commons_category})
     
@@ -573,7 +583,10 @@ def superlachaise_category(request, id):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     
-    superlachaise_category = SuperLachaiseCategory.objects.get(code=id)
+    try:
+        superlachaise_category = SuperLachaiseCategory.objects.get(code=id)
+    except SuperLachaiseCategory.DoesNotExist:
+        raise Http404(_('SuperLachaise category does not exist'))
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'superlachaise_category': superlachaise_category})
     
@@ -657,7 +670,11 @@ def superlachaise_poi(request, id):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request, True)
     
-    superlachaise_poi = SuperLachaisePOI.objects.get(openstreetmap_element_id=id)
+    try:
+        superlachaise_poi = SuperLachaisePOI.objects.get(openstreetmap_element__openstreetmap_id=id)
+    except SuperLachaisePOI.DoesNotExist:
+        raise Http404(_('SuperLachaise POI does not exist'))
+    
     wikidata_entries = superlachaise_poi.wikidata_entries.all()
     superlachaise_categories = superlachaise_poi.superlachaise_categories.all()
     
