@@ -323,6 +323,11 @@ class SuperLachaisePOI(SuperLachaiseModel):
     wikimedia_commons_category = models.ForeignKey('WikimediaCommonsCategory', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('wikimedia commons category'))
     main_image = models.ForeignKey('WikimediaCommonsFile', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('main image'))
     superlachaise_categories = models.ManyToManyField('SuperLachaiseCategory', blank=True, related_name='members', through='SuperLachaiseCategoryRelation', verbose_name=_('superlachaise categories'))
+    date_of_birth = models.DateField(blank=True, null=True, verbose_name=_('date of birth'))
+    date_of_death = models.DateField(blank=True, null=True, verbose_name=_('date of death'))
+    date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=WikidataEntry.accuracy_choices, verbose_name=_('date of birth accuracy'))
+    date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=WikidataEntry.accuracy_choices, verbose_name=_('date of death accuracy'))
+    burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
     
     def __unicode__(self):
         return unicode(self.openstreetmap_element)

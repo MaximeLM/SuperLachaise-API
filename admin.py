@@ -122,6 +122,17 @@ class AdminUtils():
         """ Return an HTML link for an URL with an  image """
         if url:
             return mark_safe(cls.HTML_IMAGE_LINK_FORMAT.format(url=url.replace("'","%27"), image_url=image_url.replace("'","%27") if image_url else url.replace("'","%27"), width=width, height=height))
+    
+    DATE_WITH_ACCURACY_FORMAT = u'{date} ({accuracy})'
+    DATE_WITHOUT_ACCURACY_FORMAT = u'{date}'
+    
+    @classmethod
+    def date_with_accuracy(cls, date, accuracy):
+        if date:
+            if accuracy:
+                return cls.DATE_WITH_ACCURACY_FORMAT.format(date=date, accuracy=accuracy)
+            else:
+                return cls.DATE_WITHOUT_ACCURACY_FORMAT.format(date=date)
 
 class LocalizedSynchronizationInline(admin.StackedInline):
     model = LocalizedSynchronization
@@ -342,16 +353,12 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'
     
     def date_of_birth_with_accuracy(self, obj):
-        if obj.date_of_birth:
-            accuracy = u' (%s)' % obj.date_of_birth_accuracy if obj.date_of_birth_accuracy else u''
-            return u'{date}{accuracy}'.format(accuracy=accuracy, date=obj.date_of_birth)
+        return AdminUtils.date_with_accuracy(obj.date_of_birth, obj.date_of_birth_accuracy)
     date_of_birth_with_accuracy.short_description = _('date of birth')
     date_of_birth_with_accuracy.admin_order_field = 'date_of_birth'
     
     def date_of_death_with_accuracy(self, obj):
-        if obj.date_of_death:
-            accuracy = u' (%s)' % obj.date_of_death_accuracy if obj.date_of_death_accuracy else u''
-            return u'{date}{accuracy}'.format(accuracy=accuracy, date=obj.date_of_death)
+        return AdminUtils.date_with_accuracy(obj.date_of_death, obj.date_of_death_accuracy)
     date_of_death_with_accuracy.short_description = _('date of death')
     date_of_death_with_accuracy.admin_order_field = 'date_of_death'
     
@@ -564,15 +571,15 @@ class SuperLachaiseCategoryRelationInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'wikimedia_commons_category_link', 'main_image_link', 'notes')
+    list_display = ('__unicode__', 'openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'wikimedia_commons_category_link', 'main_image_link', 'notes')
     list_filter = ('superlachaise_categories',)
-    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
+    search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'burial_plot_reference', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['openstreetmap_element', 'wikimedia_commons_category', 'main_image']}),
+        (None, {'fields': ['openstreetmap_element', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'wikimedia_commons_category', 'main_image']}),
     ]
-    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'wikimedia_commons_category_link', 'main_image_link', 'created', 'modified')
+    readonly_fields = ('openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'wikimedia_commons_category_link', 'main_image_link', 'created', 'modified')
     
     inlines = [
         SuperLachaiseLocalizedPOIInline,
@@ -597,6 +604,16 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     superlachaise_categories_link.allow_tags = True
     superlachaise_categories_link.short_description = _('superlachaise categories')
     superlachaise_categories_link.admin_order_field = 'superlachaise_categories'
+    
+    def date_of_birth_with_accuracy(self, obj):
+        return AdminUtils.date_with_accuracy(obj.date_of_birth, obj.date_of_birth_accuracy)
+    date_of_birth_with_accuracy.short_description = _('date of birth')
+    date_of_birth_with_accuracy.admin_order_field = 'date_of_birth'
+    
+    def date_of_death_with_accuracy(self, obj):
+        return AdminUtils.date_with_accuracy(obj.date_of_death, obj.date_of_death_accuracy)
+    date_of_death_with_accuracy.short_description = _('date of death')
+    date_of_death_with_accuracy.admin_order_field = 'date_of_death'
     
     def wikimedia_commons_category_link(self, obj):
         return AdminUtils.html_link(AdminUtils.change_page_url(obj.wikimedia_commons_category), unicode(obj.wikimedia_commons_category))

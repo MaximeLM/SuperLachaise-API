@@ -7,6 +7,7 @@ Documentation
 Synchronization
 - Use pending modifications when synchronizing Wikidata Occupations
 - Control many-to-many relations for deletion when synchronizing SuperLachaise POIs in admin
+- Improve SuperLachaise POI synchronization by prefetching Wikidata entries
 
 Admin
 - Allow Wikidata Occupations synchronization from change screen in admin

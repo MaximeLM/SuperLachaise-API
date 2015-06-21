@@ -119,6 +119,11 @@ class SuperLachaiseEncoder(object):
     def superlachaise_poi_dict(self, superlachaise_poi):
         result = {
             'id': superlachaise_poi.pk,
+            'burial_plot_reference': superlachaise_poi.burial_plot_reference,
+            'date_of_birth': superlachaise_poi.date_of_birth,
+            'date_of_birth_accuracy': superlachaise_poi.date_of_birth_accuracy,
+            'date_of_death': superlachaise_poi.date_of_death,
+            'date_of_death_accuracy': superlachaise_poi.date_of_death_accuracy,
         }
         
         if self.languages:
@@ -196,7 +201,6 @@ class SuperLachaiseEncoder(object):
     def wikidata_entry_dict(self, wikidata_entry):
         result = {
             'wikidata_id': wikidata_entry.wikidata_id,
-            'burial_plot_reference': wikidata_entry.burial_plot_reference,
         }
         
         if 'Q5' in wikidata_entry.instance_of.split(';'):
@@ -211,6 +215,7 @@ class SuperLachaiseEncoder(object):
             result.update({
                 'url': u'https://www.wikidata.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikidata_entry.wikidata_id)),
                 'instance_of': wikidata_entry.instance_of.split(';'),
+                'burial_plot_reference': wikidata_entry.burial_plot_reference,
                 'wikimedia_commons_category': wikidata_entry.wikimedia_commons_category,
             })
             

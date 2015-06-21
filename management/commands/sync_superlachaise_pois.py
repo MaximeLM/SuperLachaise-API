@@ -31,6 +31,9 @@ from superlachaise_api.models import *
 def print_unicode(str):
     print str.encode('utf-8')
 
+def date_handler(obj):
+    return obj.isoformat() if hasattr(obj, 'isoformat') else obj
+
 class Command(BaseCommand):
     
     def get_wikidata_entries(self, openstreetmap_element):
@@ -137,19 +140,41 @@ class Command(BaseCommand):
         result.sort()
         return result
     
-    def get_existing_wikidata_entries(self, superlachaise_poi):
-        result = []
-        for wikidata_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
-            result.append(wikidata_relation.relation_type + u':' + str(wikidata_relation.wikidata_entry_id))
+    def get_dates(self, wikidata_fetched_entries):
+        unique_wikidata_entry = None
+        for wikidata_fetched_entry in wikidata_fetched_entries:
+            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                if not unique_wikidata_entry:
+                    unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
+                else:
+                    unique_wikidata_entry = None
+                    break
         
-        result.sort()
+        result = {}
+        if unique_wikidata_entry:
+            result = {
+                "date_of_birth": unique_wikidata_entry.date_of_birth,
+                "date_of_death": unique_wikidata_entry.date_of_death,
+                "date_of_birth_accuracy": unique_wikidata_entry.date_of_birth_accuracy,
+                "date_of_death_accuracy": unique_wikidata_entry.date_of_death_accuracy,
+            }
+        
         return result
     
-    def get_existing_superlachaise_categories(self, superlachaise_poi):
-        result = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
+    def get_burial_plot_reference(self, wikidata_fetched_entries):
+        result = u''
         
-        result = list(set(result))
-        result.sort()
+        for wikidata_fetched_entry in wikidata_fetched_entries:
+            wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
+            
+            if wikidata_entry.burial_plot_reference:
+                if not result:
+                    result = wikidata_entry.burial_plot_reference
+                elif not result == wikidata_entry.burial_plot_reference:
+                    # Multiple burial plot references in wikidata entries
+                    result = None
+                    break
+        
         return result
     
     def get_values_for_openstreetmap_element(self, openstreetmap_element, wikidata_entries):
@@ -157,9 +182,12 @@ class Command(BaseCommand):
         main_image = self.get_main_image(wikimedia_commons_category)
         
         result = {
+            'burial_plot_reference': self.get_burial_plot_reference(wikidata_entries),
             'wikimedia_commons_category_id': wikimedia_commons_category.id if wikimedia_commons_category else None,
             'main_image_id': main_image.id if main_image else None,
         }
+        
+        result.update(self.get_dates(wikidata_entries))
         
         return result
     
@@ -485,7 +513,7 @@ class Command(BaseCommand):
             self.fetched_pending_modifications_pks.append(pendingModification.pk)
             
             pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            pendingModification.modified_fields = json.dumps(values_dict)
+            pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)
             
             pendingModification.full_clean()
             pendingModification.save()
@@ -507,7 +535,7 @@ class Command(BaseCommand):
                 # Get or create a modification
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps(target_object_id_dict))
                 self.fetched_pending_modifications_pks.append(pendingModification.pk)
-                pendingModification.modified_fields = json.dumps(modified_values)
+                pendingModification.modified_fields = json.dumps(modified_values, default=date_handler)
                 pendingModification.action = PendingModification.CREATE_OR_UPDATE
                 
                 pendingModification.full_clean()

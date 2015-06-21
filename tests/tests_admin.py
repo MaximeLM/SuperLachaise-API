@@ -349,3 +349,21 @@ class AdminUtilsTestCase(TestCase):
         html_image_link = AdminUtils.html_image_link(url, image_url, width, height)
         
         self.assertEqual(html_image_link, AdminUtils.HTML_IMAGE_LINK_FORMAT.format(url=url, image_url=image_url.replace("'", "%27"), width=width, height=height))
+    
+    def test_date_with_accuracy_returns_none_if_date_is_none(self):
+        date = None
+        accuracy = 'Day'
+        
+        self.assertIsNone(AdminUtils.date_with_accuracy(date, accuracy))
+    
+    def test_date_with_accuracy_returns_date_without_accuracy_if_date_is_not_none_and_accuracy_is_empty(self):
+        date = timezone.now().date()
+        accuracy = ''
+        
+        self.assertEqual(AdminUtils.date_with_accuracy(date, accuracy), AdminUtils.DATE_WITHOUT_ACCURACY_FORMAT.format(date=date))
+    
+    def test_date_with_accuracy_returns_date_with_accuracy_if_date_is_not_none_and_accuracy_is_not_empty(self):
+        date = timezone.now().date()
+        accuracy = 'Day'
+        
+        self.assertEqual(AdminUtils.date_with_accuracy(date, accuracy), AdminUtils.DATE_WITH_ACCURACY_FORMAT.format(date=date, accuracy=accuracy))
