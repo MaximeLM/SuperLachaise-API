@@ -675,7 +675,7 @@ def superlachaise_poi(request, id):
     restrict_fields = get_restrict_fields(request, True)
     
     try:
-        superlachaise_poi = SuperLachaisePOI.objects.get(openstreetmap_element__openstreetmap_id=id)
+        superlachaise_poi = SuperLachaisePOI.objects.get(pk=id)
     except SuperLachaisePOI.DoesNotExist:
         raise Http404(_('SuperLachaise POI does not exist'))
     

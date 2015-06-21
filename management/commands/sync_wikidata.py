@@ -277,11 +277,7 @@ class Command(BaseCommand):
             'description': self.get_description(entity, language_code),
         }
         
-        for key, value in result.iteritems():
-            if value != u'' and not value is None:
-                return result
-        
-        return None
+        return result
     
     def handle_localized_entity(self, code, language_code, localized_values_dict):
         target_object_id_dict = {"wikidata_entry__wikidata_id": code, "language__code": language_code}

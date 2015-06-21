@@ -367,11 +367,7 @@ class Command(BaseCommand):
             'description': self.get_description(language, openstreetmap_element, wikidata_entries),
         }
         
-        for key, value in result.iteritems():
-            if value != u'' and not value is None:
-                return result
-        
-        return None
+        return result
     
     def sync_superlachaise_wikidata_relation(self, openstreetmap_element_id, relation_type, wikidata_id):
         target_object_id_dict = {"superlachaise_poi__openstreetmap_element__openstreetmap_id": openstreetmap_element_id, "wikidata_entry__wikidata_id": wikidata_id, "relation_type": relation_type}
