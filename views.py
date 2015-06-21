@@ -118,7 +118,7 @@ class SuperLachaiseEncoder(object):
     
     def superlachaise_poi_dict(self, superlachaise_poi):
         result = {
-            'openstreetmap_id': superlachaise_poi.openstreetmap_element.openstreetmap_id,
+            'id': superlachaise_poi.pk,
         }
         
         if self.languages:
@@ -377,15 +377,18 @@ def licence(request):
     return HttpResponse('\n'.join(content), content_type='text/plain; charset=utf-8')
 
 @require_http_methods(["GET"])
-def openstreetmap_element_list(request):
+def openstreetmap_element_list(request, type=None):
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
     search = get_search(request)
-    
+    print type
     if modified_since:
         openstreetmap_elements = OpenStreetMapElement.objects.filter(modified__gt=modified_since)
     else:
         openstreetmap_elements = OpenStreetMapElement.objects.all()
+    
+    if type:
+        openstreetmap_elements = openstreetmap_elements.filter(type=type)
     
     for search_term in search.split():
         openstreetmap_elements = openstreetmap_elements.filter( \
@@ -415,11 +418,12 @@ def openstreetmap_element_list(request):
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
 @require_http_methods(["GET"])
-def openstreetmap_element(request, id):
+def openstreetmap_element(request, type, id):
     restrict_fields = get_restrict_fields(request)
-    
+    print type
+    print id
     try:
-        openstreetmap_element = OpenStreetMapElement.objects.get(openstreetmap_id=id)
+        openstreetmap_element = OpenStreetMapElement.objects.get(type=type, openstreetmap_id=id)
     except OpenStreetMapElement.DoesNotExist:
         raise Http404(_('OpenStreetMap element does not exist'))
     

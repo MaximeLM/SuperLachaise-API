@@ -172,7 +172,6 @@ class Command(BaseCommand):
     
     def get_values_from_element(self, overpass_element, coordinate):
         result = {
-            'type': overpass_element.__class__.__name__.lower(),
             'name': none_to_blank(overpass_element.tags.get("name")),
             'sorting_name': overpass_element.tags.get("sorting_name"),
             'latitude': coordinate['x'],
@@ -215,7 +214,7 @@ class Command(BaseCommand):
         return result
     
     def handle_element(self, overpass_element, coordinate):
-        target_object_id_dict = {"openstreetmap_id": overpass_element.id}
+        target_object_id_dict = {"type": overpass_element.__class__.__name__.lower(), "openstreetmap_id": overpass_element.id}
         
         # Get element in database if it exists
         openStreetMap_element = OpenStreetMapElement.objects.filter(**target_object_id_dict).first()
@@ -369,7 +368,7 @@ class Command(BaseCommand):
         
         # Look for deleted elements
         for openStreetMap_element in OpenStreetMapElement.objects.exclude(pk__in=self.fetched_objects_pks):
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps({"openstreetmap_id": openStreetMap_element.openstreetmap_id}))
+            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps({"type": openStreetMap_element.type, "openstreetmap_id": openStreetMap_element.openstreetmap_id}))
             
             pendingModification.action = PendingModification.DELETE
             pendingModification.modified_fields = u''

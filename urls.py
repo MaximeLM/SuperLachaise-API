@@ -28,7 +28,8 @@ urlpatterns = patterns('',
     url(r'^licence/$', views.licence),
     
     url(r'^openstreetmap_element/$', views.openstreetmap_element_list),
-    url(r'^openstreetmap_element/(?P<id>[0-9]*)/$', views.openstreetmap_element),
+    url(r'^openstreetmap_element/(?P<type>[^\/]*)/$', views.openstreetmap_element_list),
+    url(r'^openstreetmap_element/(?P<type>[^\/]*)/(?P<id>[0-9]*)/$', views.openstreetmap_element),
     
     url(r'^wikidata_entry/$', views.wikidata_entry_list),
     url(r'^wikidata_entry/(?P<id>Q[0-9]*)/$', views.wikidata_entry),

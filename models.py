@@ -138,8 +138,8 @@ class OpenStreetMapElement(SuperLachaiseModel):
         (RELATION, RELATION),
     )
     
-    openstreetmap_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('openstreetmap id'))
-    type = models.CharField(max_length=255, blank=True, choices=type_choices, verbose_name=_('type'))
+    openstreetmap_id = models.CharField(db_index=True, max_length=255, verbose_name=_('openstreetmap id'))
+    type = models.CharField(max_length=255, blank=True, db_index=True, choices=type_choices, verbose_name=_('type'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
     nature = models.CharField(max_length=255, blank=True, verbose_name=_('nature'))
@@ -170,6 +170,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
         ordering = ['sorting_name', 'openstreetmap_id']
         verbose_name = _('openstreetmap element')
         verbose_name_plural = _('openstreetmap elements')
+        unique_together = ('type', 'openstreetmap_id',)
 
 class WikidataEntry(SuperLachaiseModel):
     
