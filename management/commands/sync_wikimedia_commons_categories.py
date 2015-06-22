@@ -234,7 +234,7 @@ class Command(BaseCommand):
             PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
         
             # Look for deleted elements
-            for wikimedia_commons_category in WikimediaCommonsCategory.objects.exclude(pk__in=self.fetched_objects_pks):
+            for wikimedia_commons_category in WikimediaCommonsCategory.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=json.dumps({"wikimedia_commons_id": wikimedia_commons_category.wikimedia_commons_id}))
             
                 pendingModification.action = PendingModification.CREATE_OR_UPDATE

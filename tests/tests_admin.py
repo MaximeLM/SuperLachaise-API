@@ -367,3 +367,39 @@ class AdminUtilsTestCase(TestCase):
         accuracy = 'Day'
         
         self.assertEqual(AdminUtils.date_with_accuracy(date, accuracy), AdminUtils.DATE_WITH_ACCURACY_FORMAT.format(date=date, accuracy=accuracy))
+    
+    def test_name_with_bold_first_letter_of_sorting_name_returns_none_if_name_is_none(self):
+        name = None
+        sorting_name = 'my_sorting_name'
+        
+        self.assertIsNone(AdminUtils.name_with_bold_first_letter_of_sorting_name(name, sorting_name))
+    
+    def test_name_with_bold_first_letter_of_sorting_name_returns_name_if_sorting_name_is_none(self):
+        name = 'my_first_name my_name'
+        sorting_name = None
+        
+        self.assertEqual(AdminUtils.name_with_bold_first_letter_of_sorting_name(name, sorting_name), name)
+    
+    def test_name_with_bold_first_letter_of_sorting_name_returns_name_if_sorting_name_is_empty(self):
+        name = 'my_first_name my_name'
+        sorting_name = ''
+        
+        self.assertEqual(AdminUtils.name_with_bold_first_letter_of_sorting_name(name, sorting_name), name)
+    
+    def test_name_with_bold_first_letter_of_sorting_name_returns_name_if_first_part_of_sorting_name_splitted_by_comma_is_not_in_name(self):
+        name = 'my_first_name my_name'
+        sorting_name = 'my_name my_first_name'
+        
+        self.assertEqual(AdminUtils.name_with_bold_first_letter_of_sorting_name(name, sorting_name), name)
+    
+    def test_name_with_bold_first_letter_of_sorting_name_returns_name_with_first_letter_of_sorting_name_in_bold_if_first_part_of_sorting_name_splitted_by_comma_is_in_name(self):
+        name = 'my_first_name my_name'
+        sorting_name = 'my_name, my_first_name'
+        
+        self.assertEqual(AdminUtils.name_with_bold_first_letter_of_sorting_name(name, sorting_name), 'my_first_name <b>m</b>y_name')
+    
+    def test_name_with_bold_first_letter_of_sorting_name_returns_name_with_first_letter_of_last_occurence_of_sorting_name_in_bold_if_first_part_of_sorting_name_splitted_by_comma_is_multiple_times_in_name(self):
+        name = 'my_name my_name'
+        sorting_name = 'my_name, my_first_name'
+        
+        self.assertEqual(AdminUtils.name_with_bold_first_letter_of_sorting_name(name, sorting_name), 'my_name <b>m</b>y_name')

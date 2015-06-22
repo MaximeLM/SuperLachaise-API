@@ -368,7 +368,7 @@ class Command(BaseCommand):
         PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
         
         # Look for deleted elements
-        for openStreetMap_element in OpenStreetMapElement.objects.exclude(pk__in=self.fetched_objects_pks):
+        for openStreetMap_element in OpenStreetMapElement.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps({"type": openStreetMap_element.type, "openstreetmap_id": openStreetMap_element.openstreetmap_id}))
             
             pendingModification.action = PendingModification.CREATE_OR_UPDATE

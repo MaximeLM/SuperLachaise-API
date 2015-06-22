@@ -133,6 +133,17 @@ class AdminUtils():
                 return cls.DATE_WITH_ACCURACY_FORMAT.format(date=date, accuracy=accuracy)
             else:
                 return cls.DATE_WITHOUT_ACCURACY_FORMAT.format(date=date)
+    
+    @classmethod
+    def name_with_bold_first_letter_of_sorting_name(cls, name, sorting_name):
+        if name:
+            result = name
+            if sorting_name:
+                last_occurence = name.rfind(sorting_name.split(',')[0])
+                if not last_occurence == -1:
+                    result = name[:last_occurence] + u'<b>%s</b>' % (name[last_occurence]) + name[last_occurence+1:]
+            
+            return mark_safe(result)
 
 class LocalizedSynchronizationInline(admin.StackedInline):
     model = LocalizedSynchronization
@@ -643,7 +654,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
 
 @admin.register(SuperLachaiseLocalizedPOI)
 class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'superlachaise_poi_link', 'language', 'name', 'sorting_name', 'description', 'modified', 'notes')
+    list_display = ('__unicode__', 'superlachaise_poi_link', 'language', 'name_with_bold', 'sorting_name', 'description', 'modified', 'notes')
     list_filter = ('language',)
     search_fields = ('name', 'description', 'notes',)
     
@@ -651,13 +662,19 @@ class SuperLachaiseLocalizedPOIAdmin(admin.ModelAdmin):
         (None, {'fields': ['created', 'modified', 'notes']}),
         (None, {'fields': ['superlachaise_poi', 'language', 'name', 'sorting_name', 'description']}),
     ]
-    readonly_fields = ('superlachaise_poi_link', 'created', 'modified')
+    readonly_fields = ('superlachaise_poi_link', 'name_with_bold', 'created', 'modified')
     
     def superlachaise_poi_link(self, obj):
         return AdminUtils.html_link(AdminUtils.change_page_url(obj.superlachaise_poi), unicode(obj.superlachaise_poi))
     superlachaise_poi_link.allow_tags = True
     superlachaise_poi_link.short_description = _('superlachaise poi')
     superlachaise_poi_link.admin_order_field = 'superlachaise_poi'
+    
+    def name_with_bold(self, obj):
+        return AdminUtils.name_with_bold_first_letter_of_sorting_name(obj.name, obj.sorting_name)
+    name_with_bold.allow_tags = True
+    name_with_bold.short_description = _('name')
+    name_with_bold.admin_order_field = 'name'
     
     def delete_notes(self, request, queryset):
         AdminUtils.delete_notes(queryset)

@@ -23,6 +23,7 @@ limitations under the License.
 import datetime, json, os, sys, time, traceback
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
 
@@ -334,7 +335,7 @@ class Command(BaseCommand):
             result = openstreetmap_element.sorting_name
         
         if not result.split(',')[0] in name:
-            result = u''
+            result = name
         
         return result
     
@@ -595,7 +596,7 @@ class Command(BaseCommand):
             PendingModification.objects.filter(target_object_class="SuperLachaiseCategoryRelation", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
             
             # Look for deleted elements
-            for superlachaise_poi in SuperLachaisePOI.objects.exclude(pk__in=self.fetched_objects_pks):
+            for superlachaise_poi in SuperLachaisePOI.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps({"openstreetmap_element__openstreetmap_id": superlachaise_poi.openstreetmap_element.openstreetmap_id}))
                 
                 pendingModification.action = PendingModification.CREATE_OR_UPDATE
@@ -607,7 +608,7 @@ class Command(BaseCommand):
                 
                 if self.auto_apply:
                     pendingModification.apply_modification()
-            for superlachaise_localized_poi in SuperLachaiseLocalizedPOI.objects.exclude(pk__in=self.localized_fetched_objects_pks):
+            for superlachaise_localized_poi in SuperLachaiseLocalizedPOI.objects.exclude(Q(pk__in=self.localized_fetched_objects_pks) | ~Q(superlachaise_poi__pk__in=self.fetched_objects_pks)):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": superlachaise_localized_poi.superlachaise_poi.openstreetmap_element.openstreetmap_id, "language__code": superlachaise_localized_poi.language.code}))
                 
                 pendingModification.action = PendingModification.DELETE
@@ -619,7 +620,7 @@ class Command(BaseCommand):
                 
                 if self.auto_apply:
                     pendingModification.apply_modification()
-            for wikidata_relation in SuperLachaiseWikidataRelation.objects.exclude(pk__in=self.fetched_wikidata_relations_pks):
+            for wikidata_relation in SuperLachaiseWikidataRelation.objects.exclude(Q(pk__in=self.fetched_wikidata_relations_pks) | ~Q(superlachaise_poi__pk__in=self.fetched_objects_pks)):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseWikidataRelation", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": wikidata_relation.superlachaise_poi.openstreetmap_element.openstreetmap_id, "wikidata_entry__wikidata_id": wikidata_relation.wikidata_entry.wikidata_id, "relation_type": wikidata_relation.relation_type}))
                 
                 pendingModification.action = PendingModification.DELETE
@@ -631,7 +632,7 @@ class Command(BaseCommand):
                 
                 if self.auto_apply:
                     pendingModification.apply_modification()
-            for category_relation in SuperLachaiseCategoryRelation.objects.exclude(pk__in=self.fetched_category_relations_pks):
+            for category_relation in SuperLachaiseCategoryRelation.objects.exclude(Q(pk__in=self.fetched_category_relations_pks) | ~Q(superlachaise_poi__pk__in=self.fetched_objects_pks)):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseCategoryRelation", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": category_relation.superlachaise_poi.openstreetmap_element.openstreetmap_id, "superlachaise_category__code": category_relation.superlachaise_category.code}))
                 
                 pendingModification.action = PendingModification.DELETE
