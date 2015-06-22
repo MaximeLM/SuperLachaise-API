@@ -59,7 +59,10 @@ class SuperLachaiseEncoder(object):
         if isinstance(obj, datetime.date):
             result = obj.isoformat()
         elif isinstance(obj, Decimal):
-            result = str(obj)
+            if obj == 0:
+                result = "0"
+            else:
+                result = str(obj)
         elif isinstance(obj, basestring):
             result = obj
         else:
@@ -117,134 +120,159 @@ class SuperLachaiseEncoder(object):
         return result
     
     def superlachaise_poi_dict(self, superlachaise_poi):
-        result = {
-            'id': superlachaise_poi.pk,
-            'burial_plot_reference': superlachaise_poi.burial_plot_reference,
-            'date_of_birth': superlachaise_poi.date_of_birth,
-            'date_of_birth_accuracy': superlachaise_poi.date_of_birth_accuracy,
-            'date_of_death': superlachaise_poi.date_of_death,
-            'date_of_death_accuracy': superlachaise_poi.date_of_death_accuracy,
-        }
+        if superlachaise_poi.deleted:
+            result = {
+                'id': superlachaise_poi.pk,
+                'deleted': superlachaise_poi.deleted,
+            }
+        else:
+            result = {
+                'id': superlachaise_poi.pk,
+                'burial_plot_reference': superlachaise_poi.burial_plot_reference,
+                'date_of_birth': superlachaise_poi.date_of_birth,
+                'date_of_birth_accuracy': superlachaise_poi.date_of_birth_accuracy,
+                'date_of_death': superlachaise_poi.date_of_death,
+                'date_of_death_accuracy': superlachaise_poi.date_of_death_accuracy,
+            }
         
-        localizations = []
-        if self.languages:
-            for language in self.languages:
-                superlachaise_localized_poi = superlachaise_poi.localizations.filter(language=language).first()
-                if superlachaise_localized_poi:
-                    localizations.append({
-                        'language_code': language.code,
-                        'name': superlachaise_localized_poi.name,
-                        'sorting_name': superlachaise_localized_poi.sorting_name,
-                        'description': superlachaise_localized_poi.description,
-                    })
+            localizations = []
+            if self.languages:
+                for language in self.languages:
+                    superlachaise_localized_poi = superlachaise_poi.localizations.filter(language=language).first()
+                    if superlachaise_localized_poi:
+                        localizations.append({
+                            'language_code': language.code,
+                            'name': superlachaise_localized_poi.name,
+                            'sorting_name': superlachaise_localized_poi.sorting_name,
+                            'description': superlachaise_localized_poi.description,
+                        })
         
-        wikidata_entry_relations = []
-        for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
-            wikidata_entry_relations.append({
-                'relation_type': wikidata_entry_relation.relation_type,
-                'wikidata_entry': wikidata_entry_relation.wikidata_entry.wikidata_id,
+            wikidata_entry_relations = []
+            for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
+                wikidata_entry_relations.append({
+                    'relation_type': wikidata_entry_relation.relation_type,
+                    'wikidata_entry': wikidata_entry_relation.wikidata_entry.wikidata_id,
+                })
+        
+            superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
+        
+            result.update({
+                'openstreetmap_element': self.openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
+                'localizations': localizations,
+                'wikidata_entry_relations': wikidata_entry_relations,
+                'superlachaise_categories': self.obj_dict(superlachaise_categories),
+                'wikimedia_commons_category': self.wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category),
             })
-        
-        superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
-        
-        result.update({
-            'openstreetmap_element': self.openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
-            'localizations': localizations,
-            'wikidata_entry_relations': wikidata_entry_relations,
-            'superlachaise_categories': self.obj_dict(superlachaise_categories),
-            'wikimedia_commons_category': self.wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category),
-        })
         
         return result
     
     def superlachaise_category_dict(self, superlachaise_category):
-        result = {
-            'code': superlachaise_category.code,
-            'type': superlachaise_category.type,
-        }
+        if superlachaise_category.deleted:
+            result = {
+                'code': superlachaise_category.code,
+                'deleted': superlachaise_category.deleted,
+            }
+        else:
+            result = {
+                'code': superlachaise_category.code,
+                'type': superlachaise_category.type,
+            }
         
-        localizations = []
-        if self.languages:
-            for language in self.languages:
-                superlachaise_localized_category = superlachaise_category.localizations.filter(language=language).first()
-                if superlachaise_localized_category:
-                    localizations.append({
-                        'language_code': language.code,
-                        'name': superlachaise_localized_category.name,
-                    })
-        result['localizations'] = localizations
+            localizations = []
+            if self.languages:
+                for language in self.languages:
+                    superlachaise_localized_category = superlachaise_category.localizations.filter(language=language).first()
+                    if superlachaise_localized_category:
+                        localizations.append({
+                            'language_code': language.code,
+                            'name': superlachaise_localized_category.name,
+                        })
+            result['localizations'] = localizations
         
-        if not self.restrict_fields:
-            result.update({
-                'wikidata_occupations': ['Q%s' % wikidata_occupation.id for wikidata_occupation in superlachaise_category.wikidata_occupations.all()],
-            })
+            if not self.restrict_fields:
+                result.update({
+                    'wikidata_occupations': ['Q%s' % wikidata_occupation.id for wikidata_occupation in superlachaise_category.wikidata_occupations.all()],
+                })
         
         return result
     
     def openstreetmap_element_dict(self, openstreetmap_element):
-        result = {
-            'openstreetmap_id': openstreetmap_element.openstreetmap_id,
-            'type': openstreetmap_element.type,
-            'latitude': openstreetmap_element.latitude,
-            'longitude': openstreetmap_element.longitude,
-        }
+        if openstreetmap_element.deleted:
+            result = {
+                'openstreetmap_id': openstreetmap_element.openstreetmap_id,
+                'type': openstreetmap_element.type,
+                'deleted': openstreetmap_element.deleted,
+            }
+        else:
+            result = {
+                'openstreetmap_id': openstreetmap_element.openstreetmap_id,
+                'type': openstreetmap_element.type,
+                'latitude': openstreetmap_element.latitude,
+                'longitude': openstreetmap_element.longitude,
+            }
         
-        if not self.restrict_fields:
-            result.update({
-                'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=encoding.escape_uri_path(openstreetmap_element.openstreetmap_id)),
-                'name': openstreetmap_element.name,
-                'sorting_name': openstreetmap_element.sorting_name,
-                'nature': openstreetmap_element.nature,
-                'wikidata': openstreetmap_element.wikidata.split(';'),
-                'wikimedia_commons': openstreetmap_element.wikimedia_commons,
-            })
+            if not self.restrict_fields:
+                result.update({
+                    'url': u'https://www.openstreetmap.org/{type}/{id}'.format(type=openstreetmap_element.type, id=encoding.escape_uri_path(openstreetmap_element.openstreetmap_id)),
+                    'name': openstreetmap_element.name,
+                    'sorting_name': openstreetmap_element.sorting_name,
+                    'nature': openstreetmap_element.nature,
+                    'wikidata': openstreetmap_element.wikidata.split(';'),
+                    'wikimedia_commons': openstreetmap_element.wikimedia_commons,
+                })
         
         return result
     
     def wikidata_entry_dict(self, wikidata_entry):
-        result = {
-            'wikidata_id': wikidata_entry.wikidata_id,
-        }
+        if wikidata_entry.deleted:
+            result = {
+                'wikidata_id': wikidata_entry.wikidata_id,
+                'deleted': wikidata_entry.deleted,
+            }
+        else:
+            result = {
+                'wikidata_id': wikidata_entry.wikidata_id,
+            }
         
-        if 'Q5' in wikidata_entry.instance_of.split(';'):
-            result.update({
-                'date_of_birth': wikidata_entry.date_of_birth,
-                'date_of_birth_accuracy': wikidata_entry.date_of_birth_accuracy,
-                'date_of_death': wikidata_entry.date_of_death,
-                'date_of_death_accuracy': wikidata_entry.date_of_death_accuracy,
-            })
-        
-        if not self.restrict_fields:
-            result.update({
-                'url': u'https://www.wikidata.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikidata_entry.wikidata_id)),
-                'instance_of': wikidata_entry.instance_of.split(';'),
-                'burial_plot_reference': wikidata_entry.burial_plot_reference,
-                'wikimedia_commons_category': wikidata_entry.wikimedia_commons_category,
-            })
-            
             if 'Q5' in wikidata_entry.instance_of.split(';'):
                 result.update({
-                    'sex_or_gender': wikidata_entry.sex_or_gender,
-                    'occupations': wikidata_entry.occupations.split(';'),
-                    'wikimedia_commons_grave_category': wikidata_entry.wikimedia_commons_grave_category,
-                })
-            else:
-                result.update({
-                    'grave_of': wikidata_entry.grave_of_wikidata.split(';'),
+                    'date_of_birth': wikidata_entry.date_of_birth,
+                    'date_of_birth_accuracy': wikidata_entry.date_of_birth_accuracy,
+                    'date_of_death': wikidata_entry.date_of_death,
+                    'date_of_death_accuracy': wikidata_entry.date_of_death_accuracy,
                 })
         
-        localizations = []
-        if self.languages:
-            for language in self.languages:
-                wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
-                if wikidata_localized_entry:
-                    localizations.append({
-                        'language_code': language.code,
-                        'name': wikidata_localized_entry.wikipedia,
-                        'description': wikidata_localized_entry.description,
-                        'wikipedia': self.wikipedia_page_dict(wikidata_localized_entry),
+            if not self.restrict_fields:
+                result.update({
+                    'url': u'https://www.wikidata.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikidata_entry.wikidata_id)),
+                    'instance_of': wikidata_entry.instance_of.split(';'),
+                    'burial_plot_reference': wikidata_entry.burial_plot_reference,
+                    'wikimedia_commons_category': wikidata_entry.wikimedia_commons_category,
+                })
+            
+                if 'Q5' in wikidata_entry.instance_of.split(';'):
+                    result.update({
+                        'sex_or_gender': wikidata_entry.sex_or_gender,
+                        'occupations': wikidata_entry.occupations.split(';'),
+                        'wikimedia_commons_grave_category': wikidata_entry.wikimedia_commons_grave_category,
                     })
-        result['localizations'] = localizations
+                else:
+                    result.update({
+                        'grave_of': wikidata_entry.grave_of_wikidata.split(';'),
+                    })
+        
+            localizations = []
+            if self.languages:
+                for language in self.languages:
+                    wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
+                    if wikidata_localized_entry:
+                        localizations.append({
+                            'language_code': language.code,
+                            'name': wikidata_localized_entry.wikipedia,
+                            'description': wikidata_localized_entry.description,
+                            'wikipedia': self.wikipedia_page_dict(wikidata_localized_entry),
+                        })
+            result['localizations'] = localizations
         
         return result
     
@@ -267,17 +295,24 @@ class SuperLachaiseEncoder(object):
         return result
     
     def wikimedia_commons_category_dict(self, wikimedia_commons_category):
-        if wikimedia_commons_category:
-            result = {
-                'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
-                'main_image': wikimedia_commons_category.main_image,
-            }
         
-            if not self.restrict_fields:
-                result.update({
-                    'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.wikimedia_commons_id)),
-                    'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.main_image)),
-                })
+        if wikimedia_commons_category:
+            if wikimedia_commons_category.deleted:
+                result = {
+                    'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
+                    'deleted': wikimedia_commons_category.deleted,
+                }
+            else:
+                result = {
+                    'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
+                    'main_image': wikimedia_commons_category.main_image,
+                }
+        
+                if not self.restrict_fields:
+                    result.update({
+                        'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.wikimedia_commons_id)),
+                        'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.main_image)),
+                    })
         else:
             result = None
         
@@ -357,7 +392,6 @@ def get_born_after(request):
     
         return born_after
     except:
-        traceback.print_exc()
         raise SuspiciousOperation('Invalid parameter : born_after')
 
 def get_died_before(request):
@@ -388,11 +422,11 @@ def openstreetmap_element_list(request, type=None):
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
     search = get_search(request)
-    print type
+    
     if modified_since:
         openstreetmap_elements = OpenStreetMapElement.objects.filter(modified__gt=modified_since)
     else:
-        openstreetmap_elements = OpenStreetMapElement.objects.all()
+        openstreetmap_elements = OpenStreetMapElement.objects.filter(deleted=False)
     
     if type:
         openstreetmap_elements = openstreetmap_elements.filter(type=type)
@@ -427,10 +461,9 @@ def openstreetmap_element_list(request, type=None):
 @require_http_methods(["GET"])
 def openstreetmap_element(request, type, id):
     restrict_fields = get_restrict_fields(request)
-    print type
-    print id
+    
     try:
-        openstreetmap_element = OpenStreetMapElement.objects.get(type=type, openstreetmap_id=id)
+        openstreetmap_element = OpenStreetMapElement.objects.get(type=type, openstreetmap_id=id, deleted=False)
     except OpenStreetMapElement.DoesNotExist:
         raise Http404(_('OpenStreetMap element does not exist'))
     
@@ -448,7 +481,7 @@ def wikidata_entry_list(request):
     if modified_since:
         wikidata_entries = WikidataEntry.objects.filter(modified__gt=modified_since)
     else:
-        wikidata_entries = WikidataEntry.objects.all()
+        wikidata_entries = WikidataEntry.objects.filter(deleted=False)
     
     for search_term in search.split():
         wikidata_entries = wikidata_entries.filter( \
@@ -485,7 +518,7 @@ def wikidata_entry(request, id):
     restrict_fields = get_restrict_fields(request)
     
     try:
-        wikidata_entry = WikidataEntry.objects.get(wikidata_id=id)
+        wikidata_entry = WikidataEntry.objects.get(wikidata_id=id, deleted=False)
     except WikidataEntry.DoesNotExist:
         raise Http404(_('Wikidata entry does not exist'))
     
@@ -503,7 +536,7 @@ def wikimedia_commons_category_list(request):
     if modified_since:
         wikimedia_commons_categories = WikimediaCommonsCategory.objects.filter(modified__gt=modified_since)
     else:
-        wikimedia_commons_categories = WikimediaCommonsCategory.objects.all()
+        wikimedia_commons_categories = WikimediaCommonsCategory.objects.filter(deleted=False)
     
     for search_term in search.split():
         wikimedia_commons_categories = wikimedia_commons_categories.filter( \
@@ -539,7 +572,7 @@ def wikimedia_commons_category(request, id):
     restrict_fields = get_restrict_fields(request)
     
     try:
-        wikimedia_commons_category = WikimediaCommonsCategory.objects.get(wikimedia_commons_id=id)
+        wikimedia_commons_category = WikimediaCommonsCategory.objects.get(wikimedia_commons_id=id, deleted=False)
     except WikimediaCommonsCategory.DoesNotExist:
         raise Http404(_('Wikimedia Commons category does not exist'))
     
@@ -557,7 +590,7 @@ def superlachaise_category_list(request):
     if modified_since:
         superlachaise_categories = SuperLachaiseCategory.objects.filter(modified__gt=modified_since)
     else:
-        superlachaise_categories = SuperLachaiseCategory.objects.all()
+        superlachaise_categories = SuperLachaiseCategory.objects.filter(deleted=False)
     
     for search_term in search.split():
         superlachaise_categories = superlachaise_categories.filter( \
@@ -595,7 +628,7 @@ def superlachaise_category(request, id):
     restrict_fields = get_restrict_fields(request)
     
     try:
-        superlachaise_category = SuperLachaiseCategory.objects.get(code=id)
+        superlachaise_category = SuperLachaiseCategory.objects.get(code=id, deleted=False)
     except SuperLachaiseCategory.DoesNotExist:
         raise Http404(_('SuperLachaise category does not exist'))
     
@@ -617,7 +650,7 @@ def superlachaise_poi_list(request):
     if modified_since:
         superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=modified_since)
     else:
-        superlachaise_pois = SuperLachaisePOI.objects.all()
+        superlachaise_pois = SuperLachaisePOI.objects.filter(deleted=False)
     
     for search_term in search.split():
         superlachaise_pois = superlachaise_pois.filter( \
@@ -682,7 +715,7 @@ def superlachaise_poi(request, id):
     restrict_fields = get_restrict_fields(request, True)
     
     try:
-        superlachaise_poi = SuperLachaisePOI.objects.get(pk=id)
+        superlachaise_poi = SuperLachaisePOI.objects.get(pk=id, deleted=False)
     except SuperLachaisePOI.DoesNotExist:
         raise Http404(_('SuperLachaise POI does not exist'))
     
@@ -721,7 +754,7 @@ def objects(request):
         if modified_since:
             count = model.objects.filter(modified__gt=modified_since).count()
         else:
-            count = model.objects.all().count()
+            count = model.objects.filter(deleted=False).count()
         
         if request.GET:
             path = '?'.join([reverse(view), '&'.join('%s=%s' % (key, value) for key, value in request.GET.iteritems())])

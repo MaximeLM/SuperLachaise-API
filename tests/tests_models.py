@@ -149,6 +149,18 @@ class WikidataLocalizedEntryTestCase(TestCase):
         
         self.assertTrue(wikidata_entry.modified > now)
     
+    def test_delete_updates_wikidata_entry_modified(self):
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
+        language = Language(code="code")
+        language.save()
+        wikidata_localized_entry = WikidataLocalizedEntry.objects.create(wikidata_entry=wikidata_entry, language=language)
+        now = timezone.now()
+        
+        wikidata_localized_entry.delete()
+        
+        self.assertTrue(wikidata_entry.modified > now)
+    
     def test_wikipedia_url_returns_none_if_wikipedia_is_empty(self):
         wikidata_id = "wikidata_id"
         language_code = "language_code"
@@ -184,6 +196,20 @@ class WikipediaPageTestCase(TestCase):
         now = timezone.now()
         
         WikipediaPage(wikidata_localized_entry=wikidata_localized_entry).save()
+        
+        self.assertTrue(wikidata_localized_entry.modified > now)
+    
+    def test_delete_updates_wikidata_localized_entry_modified(self):
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
+        language = Language(code="code")
+        language.save()
+        wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
+        wikidata_localized_entry.save()
+        wikipedia_page = WikipediaPage.objects.create(wikidata_localized_entry=wikidata_localized_entry)
+        now = timezone.now()
+        
+        wikipedia_page.delete()
         
         self.assertTrue(wikidata_localized_entry.modified > now)
     
@@ -235,6 +261,20 @@ class SuperLachaiseLocalizedPOITestCase(TestCase):
         SuperLachaiseLocalizedPOI(superlachaise_poi=superlachaise_poi, language=language).save()
         
         self.assertTrue(superlachaise_poi.modified > now)
+    
+    def test_delete_updates_superlachaise_poi_modified(self):
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id", type="type", latitude=0, longitude=0)
+        openstreetmap_element.save()
+        superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
+        superlachaise_poi.save()
+        language = Language(code="code")
+        language.save()
+        superlachaise_localized_poi = SuperLachaiseLocalizedPOI.objects.create(superlachaise_poi=superlachaise_poi, language=language)
+        now = timezone.now()
+        
+        superlachaise_localized_poi.delete()
+        
+        self.assertTrue(superlachaise_poi.modified > now)
 
 class SuperLachaiseWikidataRelationTestCase(TestCase):
     
@@ -251,6 +291,21 @@ class SuperLachaiseWikidataRelationTestCase(TestCase):
         SuperLachaiseWikidataRelation(superlachaise_poi=superlachaise_poi, wikidata_entry=wikidata_entry, relation_type=relation_type).save()
         
         self.assertTrue(superlachaise_poi.modified > now)
+    
+    def test_delete_updates_superlachaise_poi_modified(self):
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id", type="type", latitude=0, longitude=0)
+        openstreetmap_element.save()
+        superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
+        superlachaise_poi.save()
+        wikidata_entry = WikidataEntry(wikidata_id="wikidata_id")
+        wikidata_entry.save()
+        relation_type = "relation_type"
+        superlachaise_wikidata_relation = SuperLachaiseWikidataRelation.objects.create(superlachaise_poi=superlachaise_poi, wikidata_entry=wikidata_entry, relation_type=relation_type)
+        now = timezone.now()
+        
+        superlachaise_wikidata_relation.delete()
+        
+        self.assertTrue(superlachaise_poi.modified > now)
 
 class SuperLachaiseLocalizedCategoryTestCase(TestCase):
     
@@ -263,6 +318,19 @@ class SuperLachaiseLocalizedCategoryTestCase(TestCase):
         now = timezone.now()
         
         SuperLachaiseLocalizedCategory(superlachaise_category=superlachaise_category, language=language).save()
+        
+        self.assertTrue(superlachaise_category.modified > now)
+    
+    def test_delete_updates_superlachaise_category_modified(self):
+        superlachaise_category = SuperLachaiseCategory(code="code")
+        superlachaise_category.save()
+        language = Language(code="code")
+        language.save()
+        superlachaise_category.save()
+        superlachaise_localized_category = SuperLachaiseLocalizedCategory.objects.create(superlachaise_category=superlachaise_category, language=language)
+        now = timezone.now()
+        
+        superlachaise_localized_category.delete()
         
         self.assertTrue(superlachaise_category.modified > now)
 
@@ -278,6 +346,20 @@ class SuperLachaiseCategoryRelationTestCase(TestCase):
         now = timezone.now()
         
         SuperLachaiseCategoryRelation(superlachaise_poi=superlachaise_poi, superlachaise_category=superlachaise_category).save()
+        
+        self.assertTrue(superlachaise_poi.modified > now)
+    
+    def test_delete_updates_superlachaise_poi_modified(self):
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id", type="type", latitude=0, longitude=0)
+        openstreetmap_element.save()
+        superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
+        superlachaise_poi.save()
+        superlachaise_category = SuperLachaiseCategory(code="code")
+        superlachaise_category.save()
+        superlachaise_category_relation = SuperLachaiseCategoryRelation.objects.create(superlachaise_poi=superlachaise_poi, superlachaise_category=superlachaise_category)
+        now = timezone.now()
+        
+        superlachaise_category_relation.delete()
         
         self.assertTrue(superlachaise_poi.modified > now)
 

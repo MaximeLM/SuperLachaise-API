@@ -144,6 +144,7 @@ class Command(BaseCommand):
         # Get values
         values_dict = {
             'main_image': self.get_main_image(page),
+            'deleted': False,
         }
         
         # Get element in database if it exists
@@ -236,8 +237,8 @@ class Command(BaseCommand):
             for wikimedia_commons_category in WikimediaCommonsCategory.objects.exclude(pk__in=self.fetched_objects_pks):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=json.dumps({"wikimedia_commons_id": wikimedia_commons_category.wikimedia_commons_id}))
             
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
+                pendingModification.modified_fields = json.dumps({"deleted": True})
             
                 pendingModification.full_clean()
                 pendingModification.save()

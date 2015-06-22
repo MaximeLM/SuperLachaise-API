@@ -147,6 +147,7 @@ class OpenStreetMapElement(SuperLachaiseModel):
     longitude = models.DecimalField(max_digits=10, default=0, decimal_places=7, verbose_name=_('longitude'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
+    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def openstreetmap_url(self):
         if self.type:
@@ -198,6 +199,7 @@ class WikidataEntry(SuperLachaiseModel):
     date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
+    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def wikidata_list(self, field):
         value = getattr(self, field)
@@ -244,6 +246,12 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         # Touch Wikidata entry
         self.wikidata_entry.save()
     
+    def delete(self):
+        # Touch Wikidata entry
+        self.wikidata_entry.save()
+        
+        super(WikidataLocalizedEntry, self).delete()
+    
     def __unicode__(self):
         return self.name + u' (' + unicode(self.language) + u')'
     
@@ -271,6 +279,12 @@ class WikipediaPage(SuperLachaiseModel):
         # Touch Wikidata localized entry
         self.wikidata_localized_entry.save()
     
+    def delete(self):
+        # Touch Wikidata localized entry
+        self.wikidata_localized_entry.save()
+        
+        super(WikipediaPage, self).delete()
+    
     def __unicode__(self):
         return self.wikidata_localized_entry.wikipedia + u' (' + unicode(self.wikidata_localized_entry.language) + u')'
     
@@ -285,6 +299,7 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
     
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
+    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def wikimedia_commons_url(self, field):
         if getattr(self, field):
@@ -328,6 +343,7 @@ class SuperLachaisePOI(SuperLachaiseModel):
     date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=WikidataEntry.accuracy_choices, verbose_name=_('date of birth accuracy'))
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=WikidataEntry.accuracy_choices, verbose_name=_('date of death accuracy'))
     burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
+    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def __unicode__(self):
         return unicode(self.openstreetmap_element)
@@ -351,6 +367,12 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
         
         # Touch SuperLachaise POIs
         self.superlachaise_poi.save()
+    
+    def delete(self):
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
+        
+        super(SuperLachaiseLocalizedPOI, self).delete()
     
     def __unicode__(self):
         return self.name + u' (' + unicode(self.language) + u')'
@@ -378,6 +400,12 @@ class SuperLachaiseWikidataRelation(SuperLachaiseModel):
         # Touch SuperLachaise POIs
         self.superlachaise_poi.save()
     
+    def delete(self):
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
+        
+        super(SuperLachaiseWikidataRelation, self).delete()
+    
     def __unicode__(self):
         return self.relation_type + u': ' + unicode(self.superlachaise_poi) + u' - ' + unicode(self.wikidata_entry)
     
@@ -397,6 +425,7 @@ class SuperLachaiseCategory(SuperLachaiseModel):
     code = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('code'))
     type = models.CharField(max_length=255, verbose_name=_('type'))
     values = models.CharField(max_length=255, blank=True, verbose_name=_('values'))
+    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def __unicode__(self):
         return self.code
@@ -419,6 +448,12 @@ class SuperLachaiseLocalizedCategory(SuperLachaiseModel):
         # Touch SuperLachaise categories
         self.superlachaise_category.save()
     
+    def delete(self):
+        # Touch SuperLachaise categories
+        self.superlachaise_category.save()
+        
+        super(SuperLachaiseLocalizedCategory, self).delete()
+    
     def __unicode__(self):
         return unicode(self.language) + u':' + self.name
     
@@ -439,6 +474,12 @@ class SuperLachaiseCategoryRelation(SuperLachaiseModel):
         
         # Touch SuperLachaise POIs
         self.superlachaise_poi.save()
+    
+    def delete(self):
+        # Touch SuperLachaise POIs
+        self.superlachaise_poi.save()
+        
+        super(SuperLachaiseCategoryRelation, self).delete()
     
     def __unicode__(self):
         return unicode(self.superlachaise_poi) + u' - ' + unicode(self.superlachaise_category)

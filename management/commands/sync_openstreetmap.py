@@ -177,6 +177,7 @@ class Command(BaseCommand):
             'latitude': coordinate['x'],
             'longitude': coordinate['y'],
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
+            'deleted': False,
         }
         
         element_wikipedia = none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia'))
@@ -370,8 +371,8 @@ class Command(BaseCommand):
         for openStreetMap_element in OpenStreetMapElement.objects.exclude(pk__in=self.fetched_objects_pks):
             pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps({"type": openStreetMap_element.type, "openstreetmap_id": openStreetMap_element.openstreetmap_id}))
             
-            pendingModification.action = PendingModification.DELETE
-            pendingModification.modified_fields = u''
+            pendingModification.action = PendingModification.CREATE_OR_UPDATE
+            pendingModification.modified_fields = json.dumps({"deleted": True})
             
             pendingModification.full_clean()
             pendingModification.save()

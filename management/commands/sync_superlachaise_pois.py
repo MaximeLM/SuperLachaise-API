@@ -42,7 +42,7 @@ class Command(BaseCommand):
         if openstreetmap_element.wikidata:
             for wikidata in openstreetmap_element.wikidata.split(';'):
                 wikidata_id = wikidata.split(':')[-1]
-                wikidata_entry = WikidataEntry.objects.filter(wikidata_id=wikidata_id).first()
+                wikidata_entry = WikidataEntry.objects.filter(wikidata_id=wikidata_id, deleted=False).first()
                 if wikidata_entry:
                     if len(wikidata.split(':')) == 2:
                         relation_type = wikidata.split(':')[0]
@@ -87,7 +87,7 @@ class Command(BaseCommand):
                         wikimedia_commons_categories.append(wikimedia_commons)
         
         if len(wikimedia_commons_categories) == 1:
-            return WikimediaCommonsCategory.objects.filter(wikimedia_commons_id=wikimedia_commons_categories[0]).first()
+            return WikimediaCommonsCategory.objects.filter(wikimedia_commons_id=wikimedia_commons_categories[0], deleted=False).first()
         else:
             return None
     
@@ -129,10 +129,10 @@ class Command(BaseCommand):
         for type, values in properties.iteritems():
             superlachaise_categories = []
             for value in values:
-                for superlachaise_category in SuperLachaiseCategory.objects.filter(type=type).exclude(code__in=superlachaise_categories, values__exact=''):
+                for superlachaise_category in SuperLachaiseCategory.objects.filter(type=type, deleted=False).exclude(code__in=superlachaise_categories, values__exact=''):
                     if value in superlachaise_category.values.split(';'):
                         superlachaise_categories.append(superlachaise_category.code)
-                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, wikidata_occupations__wikidata_id=value).exclude(code__in=superlachaise_categories).values_list('code', flat=True))
+                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, deleted=False, wikidata_occupations__wikidata_id=value).exclude(code__in=superlachaise_categories).values_list('code', flat=True))
             if not superlachaise_categories and type == SuperLachaiseCategory.OCCUPATION:
                 superlachaise_categories = [u'other']
             result.extend(superlachaise_categories)
@@ -185,6 +185,7 @@ class Command(BaseCommand):
             'burial_plot_reference': self.get_burial_plot_reference(wikidata_entries),
             'wikimedia_commons_category_id': wikimedia_commons_category.id if wikimedia_commons_category else None,
             'main_image_id': main_image.id if main_image else None,
+            'deleted': False,
         }
         
         result.update(self.get_dates(wikidata_entries))
@@ -565,7 +566,7 @@ class Command(BaseCommand):
             openstreetmap_element_ids = param_openstreetmap_element_ids.split('|')
         else:
             openstreetmap_element_ids = []
-            for openstreetmap_element in OpenStreetMapElement.objects.all():
+            for openstreetmap_element in OpenStreetMapElement.objects.filter(deleted=False):
                 openstreetmap_element_ids.append(openstreetmap_element.openstreetmap_id)
         
         self.fetched_objects_pks = []
@@ -597,8 +598,8 @@ class Command(BaseCommand):
             for superlachaise_poi in SuperLachaisePOI.objects.exclude(pk__in=self.fetched_objects_pks):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps({"openstreetmap_element__openstreetmap_id": superlachaise_poi.openstreetmap_element.openstreetmap_id}))
                 
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
+                pendingModification.modified_fields = json.dumps({"deleted": True})
                 
                 pendingModification.full_clean()
                 pendingModification.save()

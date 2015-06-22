@@ -231,7 +231,7 @@ class Command(BaseCommand):
             return u''
     
     def get_values_from_entity(self, entity):
-        result = {}
+        result = {'deleted': False}
         
         instance_of = self.get_instance_of(entity)
         result['instance_of'] = ';'.join(instance_of)
@@ -441,8 +441,8 @@ class Command(BaseCommand):
             for wikidata_entry in WikidataEntry.objects.exclude(pk__in=self.fetched_objects_pks):
                 pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikidataEntry", target_object_id=json.dumps({"wikidata_id": wikidata_entry.wikidata_id}))
             
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
+                pendingModification.action = PendingModification.CREATE_OR_UPDATE
+                pendingModification.modified_fields = json.dumps({"deleted": True})
             
                 pendingModification.full_clean()
                 pendingModification.save()
