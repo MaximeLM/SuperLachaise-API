@@ -430,13 +430,13 @@ class WikidataLocalizedEntryAdmin(admin.ModelAdmin):
 
 @admin.register(WikipediaPage)
 class WikipediaPageAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'wikidata_localized_entry_link', 'wikipedia_link', 'default_sort', 'intro_html', 'notes')
+    list_display = ('__unicode__', 'wikidata_localized_entry_link', 'wikipedia_link', 'title', 'default_sort', 'intro_html', 'notes')
     list_filter = ('wikidata_localized_entry__language',)
     search_fields = ('wikidata_localized_entry__name', 'wikidata_localized_entry__wikipedia', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['wikidata_localized_entry', 'wikipedia_link', 'default_sort', 'intro', 'intro_html']}),
+        (None, {'fields': ['wikidata_localized_entry', 'wikipedia_link', 'title', 'default_sort', 'intro', 'intro_html']}),
     ]
     readonly_fields = ('wikidata_localized_entry_link', 'wikipedia_link', 'intro_html', 'created', 'modified')
     

@@ -280,13 +280,13 @@ class SuperLachaiseEncoder(object):
         wikipedia_page = WikipediaPage.objects.filter(wikidata_localized_entry=wikidata_localized_entry).first()
         if wikipedia_page:
             result = {
-                'title': wikidata_localized_entry.wikipedia,
+                'title': wikipedia_page.title,
                 'intro': wikipedia_page.intro,
             }
             
             if not self.restrict_fields:
                 result.update({
-                    'default_sort': wikidata_localized_entry.wikipedia_page.default_sort,
+                    'default_sort': wikipedia_page.default_sort,
                     'url': u'https://{language}.wikipedia.org/wiki/{name}'.format(language=wikidata_localized_entry.language.code, name=encoding.escape_uri_path(wikidata_localized_entry.wikipedia)),
                 })
         else:

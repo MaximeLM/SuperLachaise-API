@@ -267,6 +267,7 @@ class WikipediaPage(SuperLachaiseModel):
     
     wikidata_localized_entry = models.OneToOneField('WikidataLocalizedEntry', related_name='wikipedia_page', verbose_name=_('wikidata localized entry'))
     default_sort = models.CharField(max_length=255, blank=True, verbose_name=_('default sort'))
+    title = models.CharField(max_length=255, verbose_name=_('title'))
     intro = models.TextField(blank=True, verbose_name=_('intro'))
     
     def clean(self):

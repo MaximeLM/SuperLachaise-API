@@ -234,6 +234,7 @@ class Command(BaseCommand):
         target_object_id_dict = {"wikidata_localized_entry_id": wikidata_localized_entry.pk}
         
         values_dict = {
+            'title': wikidata_localized_entry.wikipedia,
             'intro': self.get_wikipedia_intro(wikidata_localized_entry.language.code, wikidata_localized_entry.wikipedia),
         }
         
