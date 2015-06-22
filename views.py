@@ -126,29 +126,31 @@ class SuperLachaiseEncoder(object):
             'date_of_death_accuracy': superlachaise_poi.date_of_death_accuracy,
         }
         
+        localizations = []
         if self.languages:
             for language in self.languages:
                 superlachaise_localized_poi = superlachaise_poi.localizations.filter(language=language).first()
                 if superlachaise_localized_poi:
-                    result[language.code] = {
+                    localizations.append({
+                        'language_code': language.code,
                         'name': superlachaise_localized_poi.name,
                         'sorting_name': superlachaise_localized_poi.sorting_name,
                         'description': superlachaise_localized_poi.description,
-                    }
-                else:
-                    result[language.code] = None
+                    })
         
-        wikidata_entries = {}
+        wikidata_entry_relations = []
         for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
-            if not wikidata_entry_relation.relation_type in wikidata_entries:
-                wikidata_entries[wikidata_entry_relation.relation_type] = []
-            wikidata_entries[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry.wikidata_id)
+            wikidata_entry_relations.append({
+                'relation_type': wikidata_entry_relation.relation_type,
+                'wikidata_entry': wikidata_entry_relation.wikidata_entry.wikidata_id,
+            })
         
         superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
         
         result.update({
             'openstreetmap_element': self.openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
-            'wikidata_entries': wikidata_entries,
+            'localizations': localizations,
+            'wikidata_entry_relations': wikidata_entry_relations,
             'superlachaise_categories': self.obj_dict(superlachaise_categories),
             'wikimedia_commons_category': self.wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category),
         })
@@ -161,15 +163,16 @@ class SuperLachaiseEncoder(object):
             'type': superlachaise_category.type,
         }
         
+        localizations = []
         if self.languages:
             for language in self.languages:
                 superlachaise_localized_category = superlachaise_category.localizations.filter(language=language).first()
                 if superlachaise_localized_category:
-                    result[language.code] = {
+                    localizations.append({
+                        'language_code': language.code,
                         'name': superlachaise_localized_category.name,
-                    }
-                else:
-                    result[language.code] = None
+                    })
+        result['localizations'] = localizations
         
         if not self.restrict_fields:
             result.update({
@@ -230,19 +233,18 @@ class SuperLachaiseEncoder(object):
                     'grave_of': wikidata_entry.grave_of_wikidata.split(';'),
                 })
         
+        localizations = []
         if self.languages:
             for language in self.languages:
                 wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                 if wikidata_localized_entry:
-                    localized_result = {
+                    localizations.append({
+                        'language_code': language.code,
                         'name': wikidata_localized_entry.wikipedia,
                         'description': wikidata_localized_entry.description,
                         'wikipedia': self.wikipedia_page_dict(wikidata_localized_entry),
-                    }
-                    
-                    result[language.code] = localized_result
-                else:
-                    result[language.code] = None
+                    })
+        result['localizations'] = localizations
         
         return result
     
