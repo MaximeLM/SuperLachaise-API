@@ -61,7 +61,7 @@ class AdminUtilsTestCase(TestCase):
     
     def test_change_page_url_returns_admin_url_with_object_model_and_pk_if_object_is_saved(self):
         model = OpenStreetMapElement
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id", type="type", latitude=0, longitude=0)
         openstreetmap_element.save()
         
         url = AdminUtils.change_page_url(openstreetmap_element)
@@ -132,7 +132,7 @@ class AdminUtilsTestCase(TestCase):
         error = Exception("error")
         
         def side_effect(*args, **kwargs):
-            PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.DELETE).save()
+            PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1", "type":"type"}', action=PendingModification.DELETE).save()
         self.mock_call_command(side_effect=side_effect)
         
         AdminUtils.execute_sync(synchronization_name, request, args)
@@ -174,7 +174,7 @@ class AdminUtilsTestCase(TestCase):
         PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"1"}', action=PendingModification.DELETE).save()
         
         def side_effect(*args, **kwargs):
-            PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE).save()
+            PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1", "type":"type"}', action=PendingModification.CREATE_OR_UPDATE).save()
         self.mock_call_command(side_effect=side_effect)
         
         result = AdminUtils.execute_sync(synchronization_name, request, args)
@@ -191,7 +191,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertEqual('OpenStreetMapElement', pending_modifications[0].target_object_class)
     
     def test_apply_pending_modifications_calls_apply_modification_on_pending_modifications(self):
-        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1", "type":"type"}', action=PendingModification.CREATE_OR_UPDATE)
         pending_modification_2 = PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"1"}', action=PendingModification.DELETE)
         pending_modification_1.apply_modification = MagicMock(return_value=None)
         pending_modification_2.apply_modification = MagicMock(return_value=None)
@@ -203,7 +203,7 @@ class AdminUtilsTestCase(TestCase):
         self.assertTrue(pending_modification_2.apply_modification.called)
     
     def test_apply_pending_modifications_adds_success_message_to_request_if_at_least_one_pending_modification_raises_no_exception(self):
-        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1", "type":"type"}', action=PendingModification.CREATE_OR_UPDATE)
         pending_modification_2 = PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"1"}', action=PendingModification.DELETE)
         error_2 = Exception("error_2")
         pending_modification_1.apply_modification = MagicMock(return_value=None)
@@ -224,7 +224,7 @@ class AdminUtilsTestCase(TestCase):
             i += 1
     
     def test_apply_pending_modifications_adds_error_messages_to_request_for_exceptions_raised_by_pending_modifications(self):
-        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1"}', action=PendingModification.CREATE_OR_UPDATE)
+        pending_modification_1 = PendingModification(target_object_class="OpenStreetMapElement", target_object_id='{"openstreetmap_id":"1", "type":"type"}', action=PendingModification.CREATE_OR_UPDATE)
         pending_modification_2 = PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"1"}', action=PendingModification.DELETE)
         pending_modification_3 = PendingModification(target_object_class="WikidataEntry", target_object_id='{"wikidata_id":"2"}', action=PendingModification.DELETE)
         error_1 = Exception("error_1")

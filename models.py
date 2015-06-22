@@ -139,12 +139,12 @@ class OpenStreetMapElement(SuperLachaiseModel):
     )
     
     openstreetmap_id = models.CharField(db_index=True, max_length=255, verbose_name=_('openstreetmap id'))
-    type = models.CharField(max_length=255, blank=True, db_index=True, choices=type_choices, verbose_name=_('type'))
+    type = models.CharField(max_length=255, db_index=True, choices=type_choices, verbose_name=_('type'))
     name = models.CharField(max_length=255, blank=True, verbose_name=_('name'))
     sorting_name = models.CharField(max_length=255, blank=True, verbose_name=_('sorting name'))
     nature = models.CharField(max_length=255, blank=True, verbose_name=_('nature'))
-    latitude = models.DecimalField(max_digits=10, null=True, blank=True, decimal_places=7, verbose_name=_('latitude'))
-    longitude = models.DecimalField(max_digits=10, null=True, blank=True, decimal_places=7, verbose_name=_('longitude'))
+    latitude = models.DecimalField(max_digits=10, default=0, decimal_places=7, verbose_name=_('latitude'))
+    longitude = models.DecimalField(max_digits=10, default=0, decimal_places=7, verbose_name=_('longitude'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
     

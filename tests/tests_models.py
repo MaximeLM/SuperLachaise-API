@@ -224,7 +224,7 @@ class WikimediaCommonsFileTestCase(TestCase):
 class SuperLachaiseLocalizedPOITestCase(TestCase):
     
     def test_save_updates_superlachaise_poi_modified(self):
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id", type="type", latitude=0, longitude=0)
         openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
@@ -239,7 +239,7 @@ class SuperLachaiseLocalizedPOITestCase(TestCase):
 class SuperLachaiseWikidataRelationTestCase(TestCase):
     
     def test_save_updates_superlachaise_poi_modified(self):
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id", type="type", latitude=0, longitude=0)
         openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
@@ -269,7 +269,7 @@ class SuperLachaiseLocalizedCategoryTestCase(TestCase):
 class SuperLachaiseCategoryRelationTestCase(TestCase):
     
     def test_save_updates_superlachaise_poi_modified(self):
-        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id")
+        openstreetmap_element = OpenStreetMapElement(openstreetmap_id="openstreetmap_id", type="type", latitude=0, longitude=0)
         openstreetmap_element.save()
         superlachaise_poi = SuperLachaisePOI(openstreetmap_element=openstreetmap_element)
         superlachaise_poi.save()
@@ -341,7 +341,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_validation_succeeds_if_target_object_id_has_field_following_target_object_model_one_to_one_relation(self):
         target_object_class = "SuperLachaisePOI"
-        target_object_id = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id", "openstreetmap_element__type":"type"}'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
         
@@ -352,7 +352,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_validation_fails_if_modified_fields_is_not_json(self):
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         modified_fields = 'modified_fields'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
@@ -365,7 +365,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_validation_fails_if_modified_fields_is_not_json_dict(self):
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         modified_fields = '["modified_fields"]'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
@@ -378,7 +378,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_validation_fails_if_modified_fields_has_field_not_in_target_object_model_fields(self):
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         modified_fields = '{"field":"value"}'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
@@ -403,8 +403,8 @@ class PendingModificationTestCase(TestCase):
     
     def test_validation_succeeds_if_modified_fields_has_field_following_target_object_model_one_to_one_relation(self):
         target_object_class = "SuperLachaisePOI"
-        target_object_id = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id"}'
-        modified_fields = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id", "openstreetmap_element__type":"type"}'
+        modified_fields = '{"openstreetmap_element__openstreetmap_id":"openstreetmap_id", "openstreetmap_element__type":"type"}'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
         
@@ -415,7 +415,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_validation_fails_if_modified_fields_has_id_field(self):
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         modified_fields = '{"id:5"}'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
@@ -428,7 +428,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_validation_fails_if_modified_fields_has_pk_field(self):
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         modified_fields = '{"pk:5"}'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
@@ -449,7 +449,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_target_object_model_raises_lookup_error_if_model_does_not_exist(self):
         target_object_class = "target_object_class"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
@@ -477,7 +477,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_target_object_returns_none_if_target_object_class_is_not_valid(self):
         target_object_class = "target_object_class"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id)
         
@@ -564,7 +564,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_apply_modification_raises_validation_error_if_target_object_class_is_not_valid(self):
         target_object_class = "target_object_class"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
         pending_modification.save()
         
@@ -588,7 +588,7 @@ class PendingModificationTestCase(TestCase):
     
     def test_apply_modification_raises_validation_error_if_modified_fields_is_not_valid(self):
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"openstreetmap_id"}'
+        target_object_id = '{"openstreetmap_id":"openstreetmap_id", "type":"type"}'
         modified_fields = 'modified_fields'
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
         pending_modification.save()
@@ -619,9 +619,10 @@ class PendingModificationTestCase(TestCase):
     
     def test_apply_modification_deletes_target_object_if_action_is_delete_and_target_object_exists(self):
         openstreetmap_id = "openstreetmap_id"
-        OpenStreetMapElement(openstreetmap_id=openstreetmap_id).save()
+        type = "type"
+        OpenStreetMapElement(openstreetmap_id=openstreetmap_id, type="type", latitude=0, longitude=0).save()
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        target_object_id = '{"openstreetmap_id":"%s", "type":"%s"}' % (openstreetmap_id, type)
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.DELETE)
         pending_modification.save()
         
@@ -631,8 +632,9 @@ class PendingModificationTestCase(TestCase):
     
     def test_apply_modification_sets_modified_fields_values_if_action_is_create_or_update_and_target_object_does_not_exist(self):
         openstreetmap_id = "openstreetmap_id"
+        type = "type"
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        target_object_id = '{"openstreetmap_id":"%s", "type":"%s"}' % (openstreetmap_id, type)
         name = "foo"
         sorting_name = "bar"
         modified_fields = '{"name":"%s", "sorting_name":"%s"}' % (name, sorting_name)
@@ -647,9 +649,10 @@ class PendingModificationTestCase(TestCase):
     
     def test_apply_modification_sets_modified_fields_values_if_action_is_create_or_update_and_target_object_exists(self):
         openstreetmap_id = "openstreetmap_id"
-        OpenStreetMapElement(openstreetmap_id=openstreetmap_id, name="name", sorting_name="sorting_name").save()
+        type = "type"
+        OpenStreetMapElement(openstreetmap_id=openstreetmap_id, name="name", sorting_name="sorting_name", type="type", latitude=0, longitude=0).save()
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        target_object_id = '{"openstreetmap_id":"%s", "type":"%s"}' % (openstreetmap_id, type)
         name = "foo"
         sorting_name = "bar"
         modified_fields = '{"name":"%s", "sorting_name":"%s"}' % (name, sorting_name)
@@ -664,8 +667,9 @@ class PendingModificationTestCase(TestCase):
     
     def test_apply_modification_converts_none_char_fields_to_empty_char_fields(self):
         openstreetmap_id = "openstreetmap_id"
+        type = "type"
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        target_object_id = '{"openstreetmap_id":"%s", "type":"%s"}' % (openstreetmap_id, type)
         modified_fields = '{"name":null}'
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE, modified_fields=modified_fields)
         pending_modification.save()
@@ -677,8 +681,9 @@ class PendingModificationTestCase(TestCase):
     
     def test_apply_modification_deletes_pending_modification_if_modification_is_successful(self):
         openstreetmap_id = "openstreetmap_id"
+        type = "type"
         target_object_class = "OpenStreetMapElement"
-        target_object_id = '{"openstreetmap_id":"%s"}' % (openstreetmap_id)
+        target_object_id = '{"openstreetmap_id":"%s", "type":"%s"}' % (openstreetmap_id, type)
         pending_modification = PendingModification(target_object_class=target_object_class, target_object_id=target_object_id, action=PendingModification.CREATE_OR_UPDATE)
         pending_modification.save()
         
