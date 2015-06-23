@@ -334,7 +334,7 @@ class WikimediaCommonsFile(SuperLachaiseModel):
 class SuperLachaisePOI(SuperLachaiseModel):
     """ An object linking multiple data sources for representing a single Point Of Interest """
     
-    openstreetmap_element = models.OneToOneField('OpenStreetMapElement', unique=True, related_name='superlachaise_poi', verbose_name=_('openstreetmap element'))
+    openstreetmap_element = models.OneToOneField('OpenStreetMapElement', blank=True, null=True, on_delete=models.SET_NULL, unique=True, related_name='superlachaise_poi', verbose_name=_('openstreetmap element'))
     wikidata_entries = models.ManyToManyField('WikidataEntry', related_name='superlachaise_pois', through='SuperLachaiseWikidataRelation', verbose_name=_('wikidata entries'))
     wikimedia_commons_category = models.ForeignKey('WikimediaCommonsCategory', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('wikimedia commons category'))
     main_image = models.ForeignKey('WikimediaCommonsFile', null=True, blank=True, related_name='superlachaise_pois', on_delete=models.SET_NULL, verbose_name=_('main image'))

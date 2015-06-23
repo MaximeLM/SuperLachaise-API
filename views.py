@@ -155,13 +155,24 @@ class SuperLachaiseEncoder(object):
                 })
         
             superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
-        
+            
+            if superlachaise_poi.openstreetmap_element:
+                result['openstreetmap_element'] = {
+                    'openstreetmap_id': superlachaise_poi.openstreetmap_element.openstreetmap_id,
+                    'type': superlachaise_poi.openstreetmap_element.type,
+                }
+            else:
+                result['openstreetmap_element'] = None
+            
+            if superlachaise_poi.wikimedia_commons_category:
+                result['wikimedia_commons_category'] = superlachaise_poi.wikimedia_commons_category.wikimedia_commons_id
+            else:
+                result['wikimedia_commons_category'] = None
+            
             result.update({
-                'openstreetmap_element': self.openstreetmap_element_dict(superlachaise_poi.openstreetmap_element),
                 'localizations': localizations,
                 'wikidata_entry_relations': wikidata_entry_relations,
                 'superlachaise_categories': self.obj_dict(superlachaise_categories),
-                'wikimedia_commons_category': self.wikimedia_commons_category_dict(superlachaise_poi.wikimedia_commons_category),
             })
         
         return result
@@ -364,6 +375,18 @@ def get_restrict_fields(request, default=False):
         restrict_fields = default
     
     return restrict_fields
+
+def get_related_objects(request, default=False):
+    related_objects = request.GET.get('related_objects', default)
+    
+    if related_objects == 'False' or related_objects == 'false' or related_objects == '0' or related_objects == 0:
+        related_objects = False
+    elif related_objects or related_objects == '':
+        related_objects = True
+    else:
+        related_objects = default
+    
+    return related_objects
 
 def get_search(request):
     search = request.GET.get('search', u'')
@@ -639,13 +662,14 @@ def superlachaise_category(request, id):
 @require_http_methods(["GET"])
 def superlachaise_poi_list(request):
     languages = get_languages(request)
-    restrict_fields = get_restrict_fields(request, True)
+    restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
     search = get_search(request)
     categories = get_categories(request)
     sector = get_sector(request)
     born_after = get_born_after(request)
     died_before = get_died_before(request)
+    related_objects = get_related_objects(request, False)
     
     if modified_since:
         superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=modified_since)
@@ -676,7 +700,7 @@ def superlachaise_poi_list(request):
     
     superlachaise_pois = superlachaise_pois.order_by('openstreetmap_element_id').distinct('openstreetmap_element_id')
     
-    paginator = Paginator(superlachaise_pois, 10)
+    paginator = Paginator(superlachaise_pois, 25)
     page = request.GET.get('page')
     try:
         page_content = paginator.page(page)
@@ -697,13 +721,20 @@ def superlachaise_poi_list(request):
         'page': page_content,
     }
     
-    if wikidata_entries or superlachaise_categories:
-        related_objects = {}
-        if wikidata_entries:
-            related_objects['wikidata_entries'] = wikidata_entries
-        if superlachaise_categories:
-            related_objects['superlachaise_categories'] = superlachaise_categories
-        obj_to_encode['related_objects'] = related_objects
+    if related_objects:
+        if page_content.object_list:
+            openstreetmap_elements = [superlachaise_poi.openstreetmap_element for superlachaise_poi in page_content.object_list if superlachaise_poi.openstreetmap_element]
+            wikimedia_commons_categories = [superlachaise_poi.wikimedia_commons_category for superlachaise_poi in page_content.object_list if superlachaise_poi.wikimedia_commons_category]
+            wikidata_entries = WikidataEntry.objects.filter(superlachaisewikidatarelation__superlachaise_poi__in=page_content.object_list).distinct()
+            superlachaise_categories = SuperLachaiseCategory.objects.filter(superlachaisecategoryrelation__superlachaise_poi__in=page_content.object_list).distinct()
+            obj_to_encode['related_objects'] = {
+                'openstreetmap_elements': openstreetmap_elements,
+                'wikimedia_commons_categories': wikimedia_commons_categories,
+                'wikidata_entries': wikidata_entries,
+                'superlachaise_categories': superlachaise_categories,
+            }
+        else:
+            obj_to_encode['related_objects'] = None
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
@@ -712,27 +743,25 @@ def superlachaise_poi_list(request):
 @require_http_methods(["GET"])
 def superlachaise_poi(request, id):
     languages = get_languages(request)
-    restrict_fields = get_restrict_fields(request, True)
+    restrict_fields = get_restrict_fields(request)
+    related_objects = get_related_objects(request, False)
     
     try:
         superlachaise_poi = SuperLachaisePOI.objects.get(pk=id, deleted=False)
     except SuperLachaisePOI.DoesNotExist:
         raise Http404(_('SuperLachaise POI does not exist'))
     
-    wikidata_entries = superlachaise_poi.wikidata_entries.all()
-    superlachaise_categories = superlachaise_poi.superlachaise_categories.all()
-    
     obj_to_encode = {
         'superlachaise_poi': superlachaise_poi,
     }
     
-    if wikidata_entries or superlachaise_categories:
-        related_objects = {}
-        if wikidata_entries:
-            related_objects['wikidata_entries'] = wikidata_entries
-        if superlachaise_categories:
-            related_objects['superlachaise_categories'] = superlachaise_categories
-        obj_to_encode['related_objects'] = related_objects
+    if related_objects:
+        obj_to_encode['related_objects'] = {
+            'openstreetmap_element': superlachaise_poi.openstreetmap_element if superlachaise_poi.openstreetmap_element else None,
+            'wikimedia_commons_category': superlachaise_poi.wikimedia_commons_category if superlachaise_poi.wikimedia_commons_category else None,
+            'wikidata_entries': superlachaise_poi.wikidata_entries.all(),
+            'superlachaise_categories': superlachaise_poi.superlachaise_categories.all(),
+        }
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
