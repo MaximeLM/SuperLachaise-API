@@ -102,14 +102,7 @@ class WikidataEntryTestCase(TestCase):
         
         self.assertIsNone(wikidata_entry.wikidata_list("occupations"))
     
-    def test_wikidata_list_returns_field_value_if_field_value_has_no_semicolon(self):
-        wikidata_id = "wikidata_id"
-        occupations = "occupations"
-        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id, occupations=occupations)
-        
-        self.assertEqual([occupations], wikidata_entry.wikidata_list("occupations"))
-    
-    def test_wikidata_list_returns_field_value_splitted_by_semicolon_if_field_value_has_semicolon(self):
+    def test_wikidata_list_returns_field_value_splitted_by_semicolon_if_field_value_is_not_empty(self):
         wikidata_id = "wikidata_id"
         occupation_1 = "occupation_1"
         occupation_2 = "occupation_2"
@@ -220,7 +213,7 @@ class WikipediaPageTestCase(TestCase):
         language.save()
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language)
         wikidata_localized_entry.save()
-        wikipedia_page = WikipediaPage(wikidata_localized_entry=wikidata_localized_entry, intro="intro\r\nnext\n")
+        wikipedia_page = WikipediaPage(wikidata_localized_entry=wikidata_localized_entry, intro="intro\r\nnext\n", title="title")
         
         wikipedia_page.full_clean()
         
@@ -228,16 +221,30 @@ class WikipediaPageTestCase(TestCase):
 
 class WikimediaCommonsCategoryTestCase(TestCase):
     
+    def test_category_members_list_returns_none_if_field_value_is_empty(self):
+        wikimedia_commons_id = "some_wikimedia_commons_id"
+        wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id=wikimedia_commons_id)
+        
+        self.assertIsNone(wikimedia_commons_category.category_members_list())
+    
+    def test_category_members_list_returns_field_value_splitted_by_pipe_if_field_value_is_not_empty(self):
+        wikimedia_commons_id = "some_wikimedia_commons_id"
+        member_1 = "some_member_1"
+        member_2 = "some_member_2"
+        wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id=wikimedia_commons_id, category_members='|'.join([member_1, member_2]))
+        
+        self.assertEqual([member_1, member_2], wikimedia_commons_category.category_members_list())
+    
     def test_wikimedia_commons_url_returns_none_if_field_value_is_empty(self):
         wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id="wikimedia_commons_id")
         
-        self.assertIsNone(wikimedia_commons_category.wikimedia_commons_url("main_image"))
+        self.assertIsNone(wikimedia_commons_category.wikimedia_commons_url(""))
     
     def test_wikimedia_commons_url_returns_wikimedia_commons_url_with_field_value_if_field_value_is_not_empty(self):
         main_image = "image"
         wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id="wikimedia_commons_id", main_image=main_image)
         
-        self.assertEqual(WikimediaCommonsCategory.URL_FORMAT.format(title=main_image), wikimedia_commons_category.wikimedia_commons_url("main_image"))
+        self.assertEqual(WikimediaCommonsCategory.URL_FORMAT.format(title=main_image), wikimedia_commons_category.wikimedia_commons_url(main_image))
 
 class WikimediaCommonsFileTestCase(TestCase):
     

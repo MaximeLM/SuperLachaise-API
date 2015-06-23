@@ -317,6 +317,7 @@ class SuperLachaiseEncoder(object):
                 result = {
                     'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
                     'main_image': wikimedia_commons_category.main_image,
+                    'category_members': wikimedia_commons_category.category_members_list(),
                 }
         
                 if not self.restrict_fields:
@@ -326,18 +327,6 @@ class SuperLachaiseEncoder(object):
                     })
         else:
             result = None
-        
-        return result
-    
-    def wikimedia_commons_file_dict(self, wikimedia_commons_file):
-        result = {
-            'wikimedia_commons_id': wikimedia_commons_file.id,
-        }
-        
-        if not self.restrict_fields:
-            result.update({
-                'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_file.wikimedia_commons_id)),
-            })
         
         return result
 

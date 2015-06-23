@@ -69,27 +69,23 @@ class Command(BaseCommand):
         
         return pages
     
-    def request_image_list(self, wikimedia_commons_category):
+    def request_category_members(self, wikimedia_commons_category):
         category_members = []
-        pages = {}
         
         last_continue = {
             'continue': '',
         }
         
-        category = 'Category:%s' % wikimedia_commons_category.encode('utf8')
+        category = wikimedia_commons_category.encode('utf8')
         
         while True:
             # Request properties
             params = {
                 'action': 'query',
-                'prop': 'revisions',
                 'list': 'categorymembers',
                 'cmtype': 'file',
-                'rvprop': 'content',
                 'format': 'json',
                 'cmtitle': category,
-                'titles': category,
             }
             params.update(last_continue)
             
@@ -102,21 +98,12 @@ class Command(BaseCommand):
             
             if 'categorymembers' in json_result['query']:
                 category_members.extend(json_result['query']['categorymembers'])
-            if 'pages' in json_result['query']:
-                pages.update(json_result['query']['pages'])
             
             if 'continue' not in json_result: break
             
             last_continue = json_result['continue']
         
-        return (category_members, pages)
-    
-    def get_files(self, category_members):
-        result = []
-        for category_member in category_members:
-            result.append(category_member['title']) 
-        
-        return result
+        return [category_member['title'] for category_member in category_members]
     
     def get_main_image(self, page):
         try:
@@ -144,6 +131,7 @@ class Command(BaseCommand):
         # Get values
         values_dict = {
             'main_image': self.get_main_image(page),
+            'category_members': '|'.join(self.request_category_members(page['title'])),
             'deleted': False,
         }
         

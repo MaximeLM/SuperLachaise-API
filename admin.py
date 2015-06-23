@@ -471,27 +471,34 @@ class WikipediaPageAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsCategory)
 class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'deleted', 'wikimedia_commons_link', 'main_image_link', 'notes')
+    list_display = ('__unicode__', 'deleted', 'wikimedia_commons_link', 'main_image_link', 'category_members_link', 'notes')
     list_filter = ('deleted',)
-    search_fields = ('wikimedia_commons_id', 'main_image', 'notes',)
+    search_fields = ('wikimedia_commons_id', 'main_image', 'category_members', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['deleted', 'wikimedia_commons_id', 'wikimedia_commons_link', 'main_image', 'main_image_link']}),
+        (None, {'fields': ['deleted', 'wikimedia_commons_id', 'wikimedia_commons_link', 'main_image', 'main_image_link', 'category_members', 'category_members_link']}),
     ]
-    readonly_fields = ('wikimedia_commons_link', 'main_image_link', 'created', 'modified')
+    readonly_fields = ('wikimedia_commons_link', 'main_image_link', 'category_members_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
-        return AdminUtils.html_link(obj.wikimedia_commons_url("wikimedia_commons_id"), obj.wikimedia_commons_id)
+        return AdminUtils.html_link(obj.wikimedia_commons_url(obj.wikimedia_commons_id), obj.wikimedia_commons_id)
     wikimedia_commons_link.allow_tags = True
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons_id'
     
     def main_image_link(self, obj):
-        return AdminUtils.html_link(obj.wikimedia_commons_url("main_image"), obj.main_image)
+        return AdminUtils.html_link(obj.wikimedia_commons_url(obj.main_image), obj.main_image)
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
+    
+    def category_members_link(self, obj):
+        if obj.category_members:
+            return '|'.join([AdminUtils.html_link(obj.wikimedia_commons_url(category_member), category_member) for category_member in obj.category_members_list()])
+    category_members_link.allow_tags = True
+    category_members_link.short_description = _('category members')
+    category_members_link.admin_order_field = 'category_members'
     
     def sync_object(self, request, queryset):
         wikimedia_commons_categories = [wikimedia_commons_category.wikimedia_commons_id for wikimedia_commons_category in queryset]

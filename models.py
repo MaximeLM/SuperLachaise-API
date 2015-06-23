@@ -209,11 +209,6 @@ class WikidataEntry(SuperLachaiseModel):
     def wikidata_url(self, language_code, wikidata):
         return WikidataEntry.URL_FORMAT.format(id=wikidata, language_code=language_code)
     
-    def wikidata_urls(self, language_code, field):
-        value = getattr(self, field)
-        if value:
-           return [(wikidata, WikidataEntry.URL_FORMAT.format(id=wikidata, language_code=language_code)) for wikidata in value.split(';')]
-    
     def wikimedia_commons_category_url(self, field):
         value = getattr(self, field)
         if value:
@@ -301,10 +296,15 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
     deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
+    category_members = models.TextField(blank=True, verbose_name=_('category members'))
     
-    def wikimedia_commons_url(self, field):
-        if getattr(self, field):
-            return WikimediaCommonsCategory.URL_FORMAT.format(title=getattr(self, field))
+    def category_members_list(self):
+        if self.category_members:
+            return self.category_members.split('|')
+    
+    def wikimedia_commons_url(self, field_value):
+        if field_value:
+            return WikimediaCommonsCategory.URL_FORMAT.format(title=field_value)
     
     def __unicode__(self):
         return self.wikimedia_commons_id
