@@ -141,6 +141,7 @@ class SuperLachaiseEncoder(object):
                     superlachaise_localized_poi = superlachaise_poi.localizations.filter(language=language).first()
                     if superlachaise_localized_poi:
                         localizations.append({
+                            'id': superlachaise_localized_poi.pk,
                             'language_code': language.code,
                             'name': superlachaise_localized_poi.name,
                             'sorting_name': superlachaise_localized_poi.sorting_name,
@@ -150,6 +151,7 @@ class SuperLachaiseEncoder(object):
             wikidata_entry_relations = []
             for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
                 wikidata_entry_relations.append({
+                    'id': wikidata_entry_relation.pk,
                     'relation_type': wikidata_entry_relation.relation_type,
                     'wikidata_entry': wikidata_entry_relation.wikidata_entry.wikidata_id,
                 })
@@ -195,6 +197,7 @@ class SuperLachaiseEncoder(object):
                     superlachaise_localized_category = superlachaise_category.localizations.filter(language=language).first()
                     if superlachaise_localized_category:
                         localizations.append({
+                            'id': superlachaise_localized_category.pk,
                             'language_code': language.code,
                             'name': superlachaise_localized_category.name,
                         })
@@ -278,6 +281,7 @@ class SuperLachaiseEncoder(object):
                     wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                     if wikidata_localized_entry:
                         localizations.append({
+                            'id': wikidata_localized_entry.pk,
                             'language_code': language.code,
                             'name': wikidata_localized_entry.wikipedia,
                             'description': wikidata_localized_entry.description,
@@ -291,6 +295,7 @@ class SuperLachaiseEncoder(object):
         wikipedia_page = WikipediaPage.objects.filter(wikidata_localized_entry=wikidata_localized_entry).first()
         if wikipedia_page:
             result = {
+                'id': wikipedia_page.pk,
                 'title': wikipedia_page.title,
                 'intro': wikipedia_page.intro,
             }
