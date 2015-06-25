@@ -148,11 +148,14 @@ class SuperLachaiseEncoder(object):
                             'description': superlachaise_localized_poi.description,
                         })
         
-            wikidata_entry_relations = {}
+            wikidata_entry_relations = {
+                'person': [],
+                'artist': [],
+                'no_type': [],
+            }
             for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
-                if not wikidata_entry_relation.relation_type in wikidata_entry_relations:
-                    wikidata_entry_relations[wikidata_entry_relation.relation_type] = []
-                wikidata_entry_relations[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry.wikidata_id)
+                if wikidata_entry_relation.relation_type in wikidata_entry_relations:
+                    wikidata_entry_relations[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry.wikidata_id)
         
             superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
             
@@ -162,12 +165,15 @@ class SuperLachaiseEncoder(object):
                     'type': superlachaise_poi.openstreetmap_element.type,
                 }
             else:
-                result['openstreetmap_element'] = None
+                result['openstreetmap_element'] = {
+                    'openstreetmap_id': '',
+                    'type': '',
+                }
             
             if superlachaise_poi.wikimedia_commons_category:
                 result['wikimedia_commons_category'] = superlachaise_poi.wikimedia_commons_category.wikimedia_commons_id
             else:
-                result['wikimedia_commons_category'] = None
+                result['wikimedia_commons_category'] = ''
             
             result.update({
                 'localizations': localizations,
