@@ -387,9 +387,9 @@ class SuperLachaiseLocalizedPOI(SuperLachaiseModel):
 class SuperLachaiseWikidataRelation(SuperLachaiseModel):
     """ A relation between a Super Lachaise POI and a Wikidata entry """
     
-    NO_TYPE = 'no_type'
-    PERSON = 'person'
-    ARTIST = 'artist'
+    PERSONS = 'persons'
+    ARTISTS = 'artists'
+    OTHERS = 'others'
     
     superlachaise_poi = models.ForeignKey('SuperLachaisePOI', verbose_name=_('superlachaise poi'))
     wikidata_entry = models.ForeignKey('WikidataEntry', verbose_name=_('wikidata entry'))

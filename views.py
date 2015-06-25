@@ -37,7 +37,7 @@ from superlachaise_api.models import *
 
 class SuperLachaiseEncoder(object):
     
-    def __init__(self, request, languages=None, restrict_fields=True):
+    def __init__(self, request, languages=None, restrict_fields=False):
         self.request = request
         self.languages = languages
         self.restrict_fields = restrict_fields
@@ -149,9 +149,9 @@ class SuperLachaiseEncoder(object):
                         })
         
             wikidata_entry_relations = {
-                'person': [],
-                'artist': [],
-                'no_type': [],
+                'persons': [],
+                'artists': [],
+                'others': [],
             }
             for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
                 if wikidata_entry_relation.relation_type in wikidata_entry_relations:
@@ -350,41 +350,29 @@ def get_languages(request):
 
 def get_modified_since(request):
     try:
-        modified_since = request.GET.get('modified_since', None)
-        if modified_since:
+        result = request.GET.get('modified_since', None)
+        if result:
             # Parse date
-            modified_since = dateparse.parse_date(modified_since)
+            result = dateparse.parse_date(result)
             
             # Convert to datetime with 00:00 for server time zone
-            modified_since = datetime.datetime.combine(modified_since, datetime.time()).replace(tzinfo=timezone.get_current_timezone())
+            result = datetime.datetime.combine(result, datetime.time()).replace(tzinfo=timezone.get_current_timezone())
     
-        return modified_since
+        return result
     except:
         raise SuspiciousOperation('Invalid parameter : modified_since')
 
 def get_restrict_fields(request, default=False):
-    restrict_fields = request.GET.get('restrict_fields', default)
+    result = request.GET.get('restrict_fields', default)
     
-    if restrict_fields == 'False' or restrict_fields == 'false' or restrict_fields == '0' or restrict_fields == 0:
-        restrict_fields = False
-    elif restrict_fields or restrict_fields == '':
-        restrict_fields = True
+    if result == 'False' or result == 'false' or result == '0' or result == 0:
+        result = False
+    elif result or result == '':
+        result = True
     else:
-        restrict_fields = default
+        result = default
     
-    return restrict_fields
-
-def get_related_objects(request, default=False):
-    related_objects = request.GET.get('related_objects', default)
-    
-    if related_objects == 'False' or related_objects == 'false' or related_objects == '0' or related_objects == 0:
-        related_objects = False
-    elif related_objects or related_objects == '':
-        related_objects = True
-    else:
-        related_objects = default
-    
-    return related_objects
+    return result
 
 def get_search(request):
     search = request.GET.get('search', u'')
@@ -403,29 +391,57 @@ def get_sector(request):
 
 def get_born_after(request):
     try:
-        born_after = request.GET.get('born_after', None)
-        if born_after:
+        result = request.GET.get('born_after', None)
+        if result:
             # Parse date
-            born_after = datetime.date(int(born_after), 1, 1)
+            result = datetime.date(int(result), 1, 1)
             
             # Convert to datetime with 00:00 for server time zone
-            born_after = datetime.datetime.combine(born_after, datetime.time()).replace(tzinfo=timezone.get_current_timezone()).date()
+            result = datetime.datetime.combine(result, datetime.time()).replace(tzinfo=timezone.get_current_timezone()).date()
     
-        return born_after
+        return result
     except:
         raise SuspiciousOperation('Invalid parameter : born_after')
 
-def get_died_before(request):
+def get_born_before(request):
     try:
-        died_before = request.GET.get('died_before', None)
-        if died_before:
+        result = request.GET.get('born_before', None)
+        if result:
             # Parse date
-            died_before = datetime.date(int(died_before), 12, 31)
+            result = datetime.date(int(result), 1, 1)
             
             # Convert to datetime with 00:00 for server time zone
-            died_before = datetime.datetime.combine(died_before, datetime.time()).replace(tzinfo=timezone.get_current_timezone()).date()
+            result = datetime.datetime.combine(result, datetime.time()).replace(tzinfo=timezone.get_current_timezone()).date()
     
-        return died_before
+        return result
+    except:
+        raise SuspiciousOperation('Invalid parameter : born_after')
+
+def get_died_after(request):
+    try:
+        result = request.GET.get('died_after', None)
+        if result:
+            # Parse date
+            result = datetime.date(int(result), 12, 31)
+            
+            # Convert to datetime with 00:00 for server time zone
+            result = datetime.datetime.combine(result, datetime.time()).replace(tzinfo=timezone.get_current_timezone()).date()
+    
+        return result
+    except:
+        raise SuspiciousOperation('Invalid parameter : died_before')
+
+def get_died_before(request):
+    try:
+        result = request.GET.get('died_before', None)
+        if result:
+            # Parse date
+            result = datetime.date(int(result), 12, 31)
+            
+            # Convert to datetime with 00:00 for server time zone
+            result = datetime.datetime.combine(result, datetime.time()).replace(tzinfo=timezone.get_current_timezone()).date()
+    
+        return result
     except:
         raise SuspiciousOperation('Invalid parameter : died_before')
 
@@ -471,7 +487,7 @@ def openstreetmap_element_list(request, type=None):
         page_content = paginator.page(paginator.num_pages)
     
     obj_to_encode = {
-        'openstreetmap_elements': page_content.object_list,
+        'result': page_content.object_list,
         'page': page_content,
     }
     
@@ -480,20 +496,26 @@ def openstreetmap_element_list(request, type=None):
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
 @require_http_methods(["GET"])
-def openstreetmap_element(request, type, id):
+def openstreetmap_element(request, type=None, id=None, superlachaisepoi_id=None):
     restrict_fields = get_restrict_fields(request)
     
     try:
-        openstreetmap_element = OpenStreetMapElement.objects.get(type=type, openstreetmap_id=id, deleted=False)
+        if superlachaisepoi_id:
+            superlachaise_poi = SuperLachaisePOI.objects.get(pk=superlachaisepoi_id, deleted=False)
+            openstreetmap_element = superlachaise_poi.openstreetmap_element
+            if not openstreetmap_element:
+                raise OpenStreetMapElement.DoesNotExist
+        else:
+            openstreetmap_element = OpenStreetMapElement.objects.get(type=type, openstreetmap_id=id, deleted=False)
     except OpenStreetMapElement.DoesNotExist:
         raise Http404(_('OpenStreetMap element does not exist'))
     
-    content = SuperLachaiseEncoder(request, restrict_fields=restrict_fields).encode({'openstreetmap_element': openstreetmap_element})
+    content = SuperLachaiseEncoder(request, restrict_fields=restrict_fields).encode({'result': openstreetmap_element})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
 @require_http_methods(["GET"])
-def wikidata_entry_list(request):
+def wikidata_entry_list(request, superlachaisepoi_id=None, relation_type=None):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
@@ -503,6 +525,9 @@ def wikidata_entry_list(request):
         wikidata_entries = WikidataEntry.objects.filter(modified__gt=modified_since)
     else:
         wikidata_entries = WikidataEntry.objects.filter(deleted=False)
+    
+    if superlachaisepoi_id and relation_type:
+        wikidata_entries = wikidata_entries.filter(superlachaisewikidatarelation__relation_type=relation_type, superlachaisewikidatarelation__superlachaise_poi__pk=superlachaisepoi_id)
     
     for search_term in search.split():
         wikidata_entries = wikidata_entries.filter( \
@@ -525,7 +550,7 @@ def wikidata_entry_list(request):
         page_content = paginator.page(paginator.num_pages)
     
     obj_to_encode = {
-        'wikidata_entries': page_content.object_list,
+        'result': page_content.object_list,
         'page': page_content,
     }
     
@@ -543,7 +568,7 @@ def wikidata_entry(request, id):
     except WikidataEntry.DoesNotExist:
         raise Http404(_('Wikidata entry does not exist'))
     
-    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'wikidata_entry': wikidata_entry})
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'result': wikidata_entry})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -579,7 +604,7 @@ def wikimedia_commons_category_list(request):
         page_content = paginator.page(paginator.num_pages)
     
     obj_to_encode = {
-        'wikimedia_commons_categories': page_content.object_list,
+        'result': page_content.object_list,
         'page': page_content,
     }
     
@@ -588,21 +613,27 @@ def wikimedia_commons_category_list(request):
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
 @require_http_methods(["GET"])
-def wikimedia_commons_category(request, id):
+def wikimedia_commons_category(request, id=None, superlachaisepoi_id=None):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     
     try:
-        wikimedia_commons_category = WikimediaCommonsCategory.objects.get(wikimedia_commons_id=id, deleted=False)
+        if superlachaisepoi_id:
+            superlachaise_poi = SuperLachaisePOI.objects.get(pk=superlachaisepoi_id, deleted=False)
+            wikimedia_commons_category = superlachaise_poi.wikimedia_commons_category
+            if not wikimedia_commons_category:
+                raise WikimediaCommonsCategory.DoesNotExist
+        else:
+            wikimedia_commons_category = WikimediaCommonsCategory.objects.get(wikimedia_commons_id=id, deleted=False)
     except WikimediaCommonsCategory.DoesNotExist:
         raise Http404(_('Wikimedia Commons category does not exist'))
     
-    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'wikimedia_commons_category': wikimedia_commons_category})
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'result': wikimedia_commons_category})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
 @require_http_methods(["GET"])
-def superlachaise_category_list(request):
+def superlachaise_category_list(request, superlachaisepoi_id=None):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
     modified_since = get_modified_since(request)
@@ -612,6 +643,9 @@ def superlachaise_category_list(request):
         superlachaise_categories = SuperLachaiseCategory.objects.filter(modified__gt=modified_since)
     else:
         superlachaise_categories = SuperLachaiseCategory.objects.filter(deleted=False)
+    
+    if superlachaisepoi_id:
+        superlachaise_categories = superlachaise_categories.filter(superlachaisecategoryrelation__superlachaise_poi__pk=superlachaisepoi_id)
     
     for search_term in search.split():
         superlachaise_categories = superlachaise_categories.filter( \
@@ -635,7 +669,7 @@ def superlachaise_category_list(request):
         page_content = paginator.page(paginator.num_pages)
     
     obj_to_encode = {
-        'superlachaise_categories': page_content.object_list,
+        'result': page_content.object_list,
         'page': page_content,
     }
     
@@ -653,7 +687,7 @@ def superlachaise_category(request, id):
     except SuperLachaiseCategory.DoesNotExist:
         raise Http404(_('SuperLachaise category does not exist'))
     
-    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'superlachaise_category': superlachaise_category})
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'result': superlachaise_category})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 
@@ -666,8 +700,9 @@ def superlachaise_poi_list(request):
     categories = get_categories(request)
     sector = get_sector(request)
     born_after = get_born_after(request)
+    born_before = get_born_before(request)
+    died_after = get_died_after(request)
     died_before = get_died_before(request)
-    related_objects = get_related_objects(request, False)
     
     if modified_since:
         superlachaise_pois = SuperLachaisePOI.objects.filter(modified__gt=modified_since)
@@ -693,6 +728,10 @@ def superlachaise_poi_list(request):
     
     if born_after:
         superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_birth__gte=born_after)
+    if born_before:
+        superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_birth__lte=born_before)
+    if died_after:
+        superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_death__gte=died_after)
     if died_before:
         superlachaise_pois = superlachaise_pois.filter(wikidata_entries__date_of_death__lte=died_before)
     
@@ -715,24 +754,9 @@ def superlachaise_poi_list(request):
         superlachaise_categories = SuperLachaiseCategory.objects.filter(superlachaisecategoryrelation__superlachaise_poi__in=page_content.object_list).distinct()
     
     obj_to_encode = {
-        'superlachaise_pois': page_content.object_list,
+        'result': page_content.object_list,
         'page': page_content,
     }
-    
-    if related_objects:
-        if page_content.object_list:
-            openstreetmap_elements = [superlachaise_poi.openstreetmap_element for superlachaise_poi in page_content.object_list if superlachaise_poi.openstreetmap_element]
-            wikimedia_commons_categories = [superlachaise_poi.wikimedia_commons_category for superlachaise_poi in page_content.object_list if superlachaise_poi.wikimedia_commons_category]
-            wikidata_entries = WikidataEntry.objects.filter(superlachaisewikidatarelation__superlachaise_poi__in=page_content.object_list).distinct()
-            superlachaise_categories = SuperLachaiseCategory.objects.filter(superlachaisecategoryrelation__superlachaise_poi__in=page_content.object_list).distinct()
-            obj_to_encode['related_objects'] = {
-                'openstreetmap_elements': openstreetmap_elements,
-                'wikimedia_commons_categories': wikimedia_commons_categories,
-                'wikidata_entries': wikidata_entries,
-                'superlachaise_categories': superlachaise_categories,
-            }
-        else:
-            obj_to_encode['related_objects'] = None
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
@@ -742,7 +766,6 @@ def superlachaise_poi_list(request):
 def superlachaise_poi(request, id):
     languages = get_languages(request)
     restrict_fields = get_restrict_fields(request)
-    related_objects = get_related_objects(request, False)
     
     try:
         superlachaise_poi = SuperLachaisePOI.objects.get(pk=id, deleted=False)
@@ -750,16 +773,8 @@ def superlachaise_poi(request, id):
         raise Http404(_('SuperLachaise POI does not exist'))
     
     obj_to_encode = {
-        'superlachaise_poi': superlachaise_poi,
+        'result': superlachaise_poi,
     }
-    
-    if related_objects:
-        obj_to_encode['related_objects'] = {
-            'openstreetmap_element': superlachaise_poi.openstreetmap_element if superlachaise_poi.openstreetmap_element else None,
-            'wikimedia_commons_category': superlachaise_poi.wikimedia_commons_category if superlachaise_poi.wikimedia_commons_category else None,
-            'wikidata_entries': superlachaise_poi.wikidata_entries.all(),
-            'superlachaise_categories': superlachaise_poi.superlachaise_categories.all(),
-        }
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
     
@@ -794,7 +809,7 @@ def objects(request):
         }
     
     obj_to_encode = {
-        'objects': objects,
+        'result': objects,
     }
     
     content = SuperLachaiseEncoder(request).encode(obj_to_encode)

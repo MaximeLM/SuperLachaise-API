@@ -48,16 +48,16 @@ class Command(BaseCommand):
                     if len(wikidata.split(':')) == 2:
                         relation_type = wikidata.split(':')[0]
                     elif 'Q5' in wikidata_entry.instance_of.split(';'):
-                        relation_type = SuperLachaiseWikidataRelation.PERSON
+                        relation_type = SuperLachaiseWikidataRelation.PERSONS
                     else:
-                        relation_type = SuperLachaiseWikidataRelation.NO_TYPE
+                        relation_type = SuperLachaiseWikidataRelation.OTHERS
                     result.append(relation_type + u':' + str(wikidata_entry.wikidata_id))
                     
                     if wikidata_entry.grave_of_wikidata:
                         for grave_of_wikidata in wikidata_entry.grave_of_wikidata.split(';'):
                             grave_of_wikidata_entry = WikidataEntry.objects.filter(wikidata_id=grave_of_wikidata).first()
                             if grave_of_wikidata_entry:
-                                relation_type = SuperLachaiseWikidataRelation.PERSON
+                                relation_type = SuperLachaiseWikidataRelation.PERSONS
                                 result.append(relation_type + u':' + str(grave_of_wikidata_entry.wikidata_id))
         
         result.sort()
@@ -71,8 +71,8 @@ class Command(BaseCommand):
                 wikimedia_commons_categories.append(wikimedia_commons)
         for wikidata_fetched_entry in wikidata_fetched_entries:
             wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
-            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON and wikidata_entry.wikimedia_commons_grave_category:
-                # Person relation
+            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSONS and wikidata_entry.wikimedia_commons_grave_category:
+                # PERSONS relation
                 wikimedia_commons = 'Category:' + wikidata_entry.wikimedia_commons_grave_category
                 if not wikimedia_commons in wikimedia_commons_categories:
                     wikimedia_commons_categories.append(wikimedia_commons)
@@ -110,8 +110,8 @@ class Command(BaseCommand):
         
         for wikidata_fetched_entry in wikidata_fetched_entries:
             wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
-            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
-                # Person relation
+            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSONS:
+                # PERSONS relation
                 if not SuperLachaiseCategory.OCCUPATION in properties:
                     properties[SuperLachaiseCategory.OCCUPATION] = []
                 
@@ -144,7 +144,7 @@ class Command(BaseCommand):
     def get_dates(self, wikidata_fetched_entries):
         unique_wikidata_entry = None
         for wikidata_fetched_entry in wikidata_fetched_entries:
-            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+            if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSONS:
                 if not unique_wikidata_entry:
                     unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                 else:
@@ -196,11 +196,11 @@ class Command(BaseCommand):
     def get_name(self, language, openstreetmap_element, wikidata_fetched_entries):
         result = u''
         
-        # Use person localized wikidata entry if unique
+        # Use PERSONS localized wikidata entry if unique
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSONS:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
@@ -218,7 +218,7 @@ class Command(BaseCommand):
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NO_TYPE:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.OTHERS:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
@@ -236,22 +236,22 @@ class Command(BaseCommand):
         if not result and language.code == self.openstreetmap_name_tag_language:
             result = openstreetmap_element.name
         
-        # Concatenate names of person wikidata entries
+        # Concatenate names of PERSONS wikidata entries
         if not result:
             error = False
-            person_localized_entries = []
+            PERSONS_localized_entries = []
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSONS:
                     wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                     if wikidata_localized_entry and (wikidata_localized_entry.name or wikidata_localized_entry.wikipedia):
-                        person_localized_entries.append(wikidata_localized_entry)
+                        PERSONS_localized_entries.append(wikidata_localized_entry)
                     else:
                         # No localization or no name for this entry
                         error = True
                         break
-            if person_localized_entries:
-                sorted_list = sorted(person_localized_entries, key=lambda wikidata_localized_entry: wikidata_localized_entry.wikipedia_page.default_sort if hasattr(wikidata_localized_entry, 'wikipedia_page') and wikidata_localized_entry.wikipedia_page.default_sort else (wikidata_localized_entry.wikipedia if wikidata_localized_entry.wikipedia else wikidata_localized_entry.name))
+            if PERSONS_localized_entries:
+                sorted_list = sorted(PERSONS_localized_entries, key=lambda wikidata_localized_entry: wikidata_localized_entry.wikipedia_page.default_sort if hasattr(wikidata_localized_entry, 'wikipedia_page') and wikidata_localized_entry.wikipedia_page.default_sort else (wikidata_localized_entry.wikipedia if wikidata_localized_entry.wikipedia else wikidata_localized_entry.name))
                 
                 sorted_list_names = [entry.wikipedia if entry.wikipedia else entry.name for entry in sorted_list]
                 last_part = language.last_enumeration_separator.join(sorted_list_names[-2:])
@@ -267,11 +267,11 @@ class Command(BaseCommand):
     def get_sorting_name(self, language, name, openstreetmap_element, wikidata_fetched_entries):
         result = u''
         
-        # Use person localized wikidata entry if unique
+        # Use PERSONS localized wikidata entry if unique
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSONS:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
@@ -290,7 +290,7 @@ class Command(BaseCommand):
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NO_TYPE:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.OTHERS:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
@@ -305,22 +305,22 @@ class Command(BaseCommand):
         if not result.split(',')[0] in name:
             result = u''
         
-        # Use first default_sort of list of person contained in name
+        # Use first default_sort of list of PERSONS contained in name
         if not result:
             error = False
-            person_wikipedia_pages = []
+            PERSONS_wikipedia_pages = []
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSONS:
                     wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                     if wikidata_localized_entry and hasattr(wikidata_localized_entry, 'wikipedia_page') and wikidata_localized_entry.wikipedia_page.default_sort:
-                        person_wikipedia_pages.append(wikidata_localized_entry.wikipedia_page)
+                        PERSONS_wikipedia_pages.append(wikidata_localized_entry.wikipedia_page)
                     else:
                         # No localization or no name for this entry
                         error = True
                         break
-            if person_wikipedia_pages:
-                sorted_list = sorted(person_wikipedia_pages, key=lambda wikipedia_page: wikipedia_page.default_sort)
+            if PERSONS_wikipedia_pages:
+                sorted_list = sorted(PERSONS_wikipedia_pages, key=lambda wikipedia_page: wikipedia_page.default_sort)
                 
                 for wikipedia_page in sorted_list:
                     if wikipedia_page.default_sort.split(',')[0] in name:
@@ -342,11 +342,11 @@ class Command(BaseCommand):
     def get_description(self, language, openstreetmap_element, wikidata_fetched_entries):
         result = u''
         
-        # Use person localized wikidata entry if unique
+        # Use PERSONS localized wikidata entry if unique
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSON:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.PERSONS:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
@@ -361,7 +361,7 @@ class Command(BaseCommand):
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.NO_TYPE:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.OTHERS:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
@@ -376,7 +376,7 @@ class Command(BaseCommand):
         if not result:
             unique_wikidata_entry = None
             for wikidata_fetched_entry in wikidata_fetched_entries:
-                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.ARTIST:
+                if wikidata_fetched_entry.split(':')[0] == SuperLachaiseWikidataRelation.ARTISTS:
                     if not unique_wikidata_entry:
                         unique_wikidata_entry = WikidataEntry.objects.get(wikidata_id=wikidata_fetched_entry.split(':')[-1])
                     else:
