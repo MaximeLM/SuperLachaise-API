@@ -171,7 +171,7 @@ class SuperLachaiseEncoder(object):
             
             result.update({
                 'localizations': localizations,
-                'wikidata_entry_relations': wikidata_entry_relations,
+                'wikidata_entries': wikidata_entry_relations,
                 'superlachaise_categories': self.obj_dict(superlachaise_categories),
             })
         
