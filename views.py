@@ -148,13 +148,11 @@ class SuperLachaiseEncoder(object):
                             'description': superlachaise_localized_poi.description,
                         })
         
-            wikidata_entry_relations = []
+            wikidata_entry_relations = {}
             for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
-                wikidata_entry_relations.append({
-                    'id': wikidata_entry_relation.pk,
-                    'relation_type': wikidata_entry_relation.relation_type,
-                    'wikidata_entry': wikidata_entry_relation.wikidata_entry.wikidata_id,
-                })
+                if not wikidata_entry_relation.relation_type in wikidata_entry_relations:
+                    wikidata_entry_relations[wikidata_entry_relation.relation_type] = []
+                wikidata_entry_relations[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry.wikidata_id)
         
             superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
             
