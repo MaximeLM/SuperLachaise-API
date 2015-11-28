@@ -1,0 +1,73 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>API Super Lachaise</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="Keywords" content="API, Père-Lachaise, Père Lachaise, OpenStreetMap, Wikidata, Wikipedia, Wikipédia, Wikimedia Commons, SuperLachaise, Super Lachaise">
+<meta name="Description" content="Une base de données touristique avec API pour le cimetière du Père-Lachaise à Paris, enrichie en continu par les contributeurs d&#8217;OpenStreetMap et Wikimedia">
+
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="/static/markdown-css-themes-gh-pages/markdown10.css">
+
+</head>
+
+<body>
+<h1 id="api_super_lachaise">API Super Lachaise</h1>
+
+<p>Une base de données touristique avec API pour le cimetière du Père-Lachaise à Paris, enrichie en continu par les contributeurs d&#8217;<a href="https://www.openstreetmap.org/">OpenStreetMap</a> et Wikimedia (<a href="https://fr.wikipedia.org/">Wikipédia</a>, <a href="https://www.wikidata.org/">Wikidata</a>, <a href="https://commons.wikimedia.org/">Wikimedia Commons</a>).</p>
+
+<p>L&#8217;application récupère les tombes et mémoriaux référencés au Père-Lachaise par OpenStreetMap, puis établit un lien vers les entrées correspondantes dans la base Wikidata, qu&#8217;il s&#8217;agisse des personnes ou des lieux. Les pages Wikipédia en plusieurs langues ainsi que les photographies issues de Wikimedia Commons sont aussi référencées.</p>
+
+<p>Vous souhaitez réutiliser l&#8217;API ou y contribuer ? Retrouvez le projet sur <a href="https://github.com/MaximeLM/superlachaise_api">Github</a>.</p>
+
+<p>Super Lachaise, c&#8217;est aussi une <a href="http://www.superlachaise.fr">application mobile</a> qui vous accompagne dans votre visite du Père-Lachaise.</p>
+
+<h2 id="exemples_d8217utilisation">Exemples d&#8217;utilisation</h2>
+
+<p>Afficher la liste des rubriques de l&#8217;API : <br />
+<a href="https://api.superlachaise.fr/perelachaise/api/">https://api.superlachaise.fr/perelachaise/api/</a></p>
+
+<p>Lister les entrées correspondant à Oscar Wilde dans les différentes rubriques :</p>
+
+<ul>
+<li>OpenStreetMap : <a href="https://api.superlachaise.fr/perelachaise/api/openstreetmap_elements/?search=Oscar+Wilde">https://api.superlachaise.fr/perelachaise/api/openstreetmap_elements/?search=Oscar+Wilde</a></li>
+<li>Wikidata et Wikipédia : <a href="https://api.superlachaise.fr/perelachaise/api/wikidata_entries/?search=Oscar+Wilde">https://api.superlachaise.fr/perelachaise/api/wikidata_entries/?search=Oscar+Wilde</a></li>
+<li>Wikimedia Commons : <a href="https://api.superlachaise.fr/perelachaise/api/wikimedia_commons_categories/?search=Oscar+Wilde">https://api.superlachaise.fr/perelachaise/api/wikimedia_commons_categories/?search=Oscar+Wilde</a></li>
+</ul>
+
+<p>Afficher les données agrégées pour Oscar Wilde : <br />
+<a href="https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?search=Oscar+Wilde">https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?search=Oscar+Wilde</a></p>
+
+<h3 id="recherche_avance">Recherche avancée</h3>
+
+<h4 id="par_division">Par division</h4>
+
+<p>Lister les tombes et mémoriaux des divisions 76 et 97 du cimetière : <br />
+<a href="https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?sector=76+97">https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?sector=76+97</a></p>
+
+<h4 id="par_catgorie_profession_hommes_ou_femmes_tombes_ou_mmoriaux">Par catégorie : profession, hommes ou femmes, tombes ou mémoriaux</h4>
+
+<p>Lister les tombes de personnalités liées au cinéma : <br />
+<a href="https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?category=cinema">https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?category=cinema</a></p>
+
+<p>Lister les tombes de femmes liées au cinéma ou au théâtre : <br />
+<a href="https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?category=women&amp;category=cinema+theatre">https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?category=women&amp;category=cinema+theatre</a></p>
+
+<p>Lister les mémoriaux : <br />
+<a href="https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?category=memorial">https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?category=memorial</a></p>
+
+<h4 id="par_dates_de_naissance_ou_de_dcs">Par dates de naissance ou de décès</h4>
+
+<p>Lister les tombes de personnalités ayant vécu au XIX<sup>e</sup> siècle : <br />
+<a href="https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?born_after=1800&amp;died_before=1900">https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?born_after=1800&amp;died_before=1900</a></p>
+
+<h4 id="par_date_de_dernire_modification">Par date de dernière modification</h4>
+
+<p>Lister les entrées modifiées après une certaine date : <br />
+<a href="https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?modified_since=2015-06-12">https://api.superlachaise.fr/perelachaise/api/superlachaise_pois/?modified_since=2015-06-12</a></p>
+
+</body>
+</html>
