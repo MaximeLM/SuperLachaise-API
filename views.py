@@ -92,9 +92,9 @@ class SuperLachaiseEncoder(object):
     def page_dict(self, page):
         result = {
             'current_page': page.number,
-            'number_of_results_on_page': len(page.object_list),
-            'number_of_pages': page.paginator.num_pages,
-            'number_of_results': page.paginator.count,
+            'per_page': len(page.object_list),
+            'page_count': page.paginator.num_pages,
+            'object_count': page.paginator.count,
         }
         
         if page.has_previous():
@@ -784,7 +784,7 @@ def superlachaise_poi(request, id):
 def objects(request):
     modified_since = get_modified_since(request)
     
-    objects = {}
+    objects = []
     
     for model, view in [
         (OpenStreetMapElement, openstreetmap_element_list),
@@ -803,10 +803,11 @@ def objects(request):
         else:
             path = reverse(view)
         
-        objects[model.__name__] = {
+        objects.append({
+            'model': model.__name__,
             'count': count,
             'url': request.build_absolute_uri(path.replace(' ', '+')),
-        }
+        })
     
     obj_to_encode = {
         'result': objects,
