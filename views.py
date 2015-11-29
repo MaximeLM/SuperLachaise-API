@@ -43,14 +43,15 @@ class SuperLachaiseEncoder(object):
         self.restrict_fields = restrict_fields
     
     def encode(self, obj):
-        obj['about'] = self.about_dict()
+        if 'about' not in obj:
+            obj['about'] = self.about_dict()
         return json.dumps(self.obj_dict(obj), ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True, default=self.default)
     
     def about_dict(self):
         result = {
             'licence': self.request.build_absolute_uri(reverse(licence)),
             'source': self.request.build_absolute_uri(reverse(objects)),
-            'version': conf.VERSION,
+            'api_version': conf.VERSION,
         }
         
         return result
@@ -536,7 +537,7 @@ def wikidata_entry_list(request, superlachaisepoi_id=None, relation_type=None):
             | Q(localizations__wikipedia__icontains=search_term) \
         )
     
-    wikidata_entries = wikidata_entries.order_by('id').distinct('id')
+    wikidata_entries = wikidata_entries.order_by('wikidata_id').distinct('wikidata_id')
     
     paginator = Paginator(wikidata_entries, 25)
     page = request.GET.get('page')
@@ -590,7 +591,7 @@ def wikimedia_commons_category_list(request):
             | Q(main_image__icontains=search_term) \
         )
     
-    wikimedia_commons_categories = wikimedia_commons_categories.order_by('id').distinct('id')
+    wikimedia_commons_categories = wikimedia_commons_categories.order_by('wikimedia_commons_id').distinct('wikimedia_commons_id')
     
     paginator = Paginator(wikimedia_commons_categories, 25)
     page = request.GET.get('page')

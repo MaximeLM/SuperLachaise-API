@@ -672,7 +672,7 @@ class DBVersion(SuperLachaiseModel):
     version_id = models.IntegerField(unique=True, db_index=True, verbose_name=_('version id'))
     
     def __unicode__(self):
-        return self.version_id
+        return unicode(self.version_id)
     
     class Meta:
         ordering = ['version_id']
