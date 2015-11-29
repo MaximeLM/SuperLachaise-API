@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-29 13:35+0100\n"
+"POT-Creation-Date: 2015-11-29 18:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,7 +56,7 @@ msgstr "Exécuter les commandes admin sélectionnées"
 
 #: admin.py:185 admin.py:202 admin.py:238 admin.py:275 admin.py:384
 #: admin.py:427 admin.py:468 admin.py:510 admin.py:550 admin.py:658
-#: admin.py:688 admin.py:730 admin.py:767 admin.py:799
+#: admin.py:688 admin.py:730 admin.py:767 admin.py:799 admin.py:816
 msgid "Delete notes"
 msgstr "Supprimer les notes"
 
@@ -285,6 +285,7 @@ msgid "== End %s =="
 msgstr "== Fin %s =="
 
 #: management/commands/sync_openstreetmap.py:202
+#, python-brace-format
 msgid "Error: The wikipedia page {language_code}:{link} does not exist"
 msgstr "Erreur : La page Wikipédia {language_code}:{link} n'existe pas"
 
@@ -622,6 +623,18 @@ msgstr "modification en attente"
 #: models.py:666
 msgid "pending modifications"
 msgstr "modifications en attente"
+
+#: models.py:672
+msgid "version id"
+msgstr "id version"
+
+#: models.py:679
+msgid "DB version"
+msgstr "version BDD"
+
+#: models.py:680
+msgid "DB versions"
+msgstr "versions BDD"
 
 #: views.py:511
 msgid "OpenStreetMap element does not exist"

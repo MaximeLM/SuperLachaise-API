@@ -799,3 +799,20 @@ class PendingModificationAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete notes')
     
     actions=[delete_notes, apply_modifications]
+
+@admin.register(DBVersion)
+class DBVersionAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'modified', 'notes')
+    search_fields = ('version_id', 'notes',)
+    
+    fieldsets = [
+        (None, {'fields': ['created', 'modified', 'notes']}),
+        (None, {'fields': ['version_id']}),
+    ]
+    readonly_fields = ('created', 'modified')
+    
+    def delete_notes(self, request, queryset):
+        AdminUtils.delete_notes(queryset)
+    delete_notes.short_description = _('Delete notes')
+    
+    actions=[delete_notes]

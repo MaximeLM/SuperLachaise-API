@@ -665,3 +665,16 @@ class PendingModification(SuperLachaiseModel):
         verbose_name = _('pending modification')
         verbose_name_plural = _('pending modifications')
         unique_together = ('target_object_class', 'target_object_id',)
+    
+class DBVersion(SuperLachaiseModel):
+    """ A numbered version of the database """
+    
+    version_id = models.IntegerField(unique=True, db_index=True, verbose_name=_('version id'))
+    
+    def __unicode__(self):
+        return self.version_id
+    
+    class Meta:
+        ordering = ['version_id']
+        verbose_name = _('DB version')
+        verbose_name_plural = _('DB versions')
