@@ -113,7 +113,7 @@ class Command(BaseCommand):
             pending_modification.save()
             
             if self.auto_apply:
-                pendingModification.apply_modification()
+                pending_modification.apply_modification()
         else:
             self.fetched_objects_pks.append(wikimedia_commons_file.pk)
             

@@ -199,7 +199,7 @@ class Command(BaseCommand):
                         if not wikidata_link in wikidata_combined:
                             wikidata_combined.append(wikidata_link)
                     else:
-                        self.errors.append(_('Error: The wikipedia page {language_code}{link} does not exist').format(language_code=language_code, link=link))
+                        self.errors.append(_('Error: The wikipedia page {language_code}:{link} does not exist').format(language_code=language_code, link=link))
         
         if element_wikidata:
             for wikidata_link in element_wikidata.split(';'):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-23 06:43+0200\n"
+"POT-Creation-Date: 2015-11-29 13:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -285,9 +285,8 @@ msgid "== End %s =="
 msgstr "== Fin %s =="
 
 #: management/commands/sync_openstreetmap.py:202
-#, python-brace-format
-msgid "Error: The wikipedia page {language_code}{link} does not exist"
-msgstr "Erreur : La page Wikipédia {language_code}{link} n'existe pas"
+msgid "Error: The wikipedia page {language_code}:{link} does not exist"
+msgstr "Erreur : La page Wikipédia {language_code}:{link} n'existe pas"
 
 #: management/commands/sync_openstreetmap.py:298
 msgid "no outer way for relation found"
@@ -624,22 +623,22 @@ msgstr "modification en attente"
 msgid "pending modifications"
 msgstr "modifications en attente"
 
-#: views.py:491
+#: views.py:511
 msgid "OpenStreetMap element does not exist"
 msgstr "L'élément OpenStreetMap n'existe pas"
 
-#: views.py:546
+#: views.py:569
 msgid "Wikidata entry does not exist"
 msgstr "L'entrée Wikidata n'existe pas"
 
-#: views.py:600
+#: views.py:629
 msgid "Wikimedia Commons category does not exist"
 msgstr "La catégorie Wikimedia Commons n'existe pas"
 
-#: views.py:656
+#: views.py:688
 msgid "SuperLachaise category does not exist"
 msgstr "La catégorie SuperLachaise n'existe pas"
 
-#: views.py:752
+#: views.py:773
 msgid "SuperLachaise POI does not exist"
 msgstr "Le POI SuperLachaise n'existe pas"
