@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
+
+    replaces = [(b'superlachaise_api', '0001_squashed_0002_auto_20150619_1723'), (b'superlachaise_api', '0002_auto_20150621_1645'), (b'superlachaise_api', '0003_auto_20150621_1818'), (b'superlachaise_api', '0004_auto_20150622_1840'), (b'superlachaise_api', '0005_auto_20150622_1855'), (b'superlachaise_api', '0006_auto_20150622_1902'), (b'superlachaise_api', '0007_delete_deletedobject'), (b'superlachaise_api', '0008_auto_20150622_2049'), (b'superlachaise_api', '0009_auto_20150623_0052'), (b'superlachaise_api', '0010_wikipediapage_title'), (b'superlachaise_api', '0011_auto_20150623_0557'), (b'superlachaise_api', '0012_auto_20150623_0608')]
 
     dependencies = [
     ]
@@ -69,8 +71,8 @@ class Migration(migrations.Migration):
                 ('notes', models.TextField(verbose_name='notes', blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
-                ('openstreetmap_id', models.CharField(unique=True, max_length=255, verbose_name='openstreetmap id', db_index=True)),
-                ('type', models.CharField(blank=True, max_length=255, verbose_name='type', choices=[(b'node', b'node'), (b'way', b'way'), (b'relation', b'relation')])),
+                ('openstreetmap_id', models.CharField(max_length=255, verbose_name='openstreetmap id', db_index=True)),
+                ('type', models.CharField(blank=True, max_length=255, verbose_name='type', db_index=True, choices=[(b'node', b'node'), (b'way', b'way'), (b'relation', b'relation')])),
                 ('name', models.CharField(max_length=255, verbose_name='name', blank=True)),
                 ('sorting_name', models.CharField(max_length=255, verbose_name='sorting name', blank=True)),
                 ('nature', models.CharField(max_length=255, verbose_name='nature', blank=True)),
@@ -309,6 +311,8 @@ class Migration(migrations.Migration):
                 ('modified', models.DateTimeField(auto_now=True, verbose_name='modified')),
                 ('wikimedia_commons_id', models.CharField(unique=True, max_length=255, verbose_name='wikimedia commons id', db_index=True)),
                 ('main_image', models.CharField(max_length=255, verbose_name='main image', blank=True)),
+                ('deleted', models.BooleanField(default=False, verbose_name='deleted')),
+                ('category_members', models.TextField(verbose_name='category members', blank=True)),
             ],
             options={
                 'ordering': ['wikimedia_commons_id'],
@@ -343,6 +347,7 @@ class Migration(migrations.Migration):
                 ('default_sort', models.CharField(max_length=255, verbose_name='default sort', blank=True)),
                 ('intro', models.TextField(verbose_name='intro', blank=True)),
                 ('wikidata_localized_entry', models.OneToOneField(related_name='wikipedia_page', verbose_name='wikidata localized entry', to='superlachaise_api.WikidataLocalizedEntry')),
+                ('title', models.CharField(default='title', max_length=255, verbose_name='title')),
             ],
             options={
                 'ordering': ['default_sort', 'wikidata_localized_entry'],
@@ -363,7 +368,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='superlachaisepoi',
             name='openstreetmap_element',
-            field=models.OneToOneField(related_name='superlachaise_poi', verbose_name='openstreetmap element', to='superlachaise_api.OpenStreetMapElement'),
+            field=models.OneToOneField(related_name='superlachaise_poi', null=True, on_delete=django.db.models.deletion.SET_NULL, blank=True, to='superlachaise_api.OpenStreetMapElement', verbose_name='openstreetmap element'),
         ),
         migrations.AddField(
             model_name='superlachaisepoi',
@@ -436,5 +441,86 @@ class Migration(migrations.Migration):
             model_name='pendingmodification',
             name='target_object_class',
             field=models.CharField(max_length=255, verbose_name='target object class', choices=[(b'Language', 'language'), (b'Synchronization', 'synchronization'), (b'LocalizedSynchronization', 'localized synchronization'), (b'Setting', 'setting'), (b'LocalizedSetting', 'localized setting'), (b'SuperLachaiseCategory', 'superlachaise category'), (b'SuperLachaiseLocalizedCategory', 'superlachaise localized category'), (b'WikidataOccupation', 'wikidata occupation'), (b'OpenStreetMapElement', 'openstreetmap element'), (b'WikidataEntry', 'wikidata entry'), (b'WikidataLocalizedEntry', 'wikidata localized entry'), (b'WikipediaPage', 'wikipedia page'), (b'WikimediaCommonsCategory', 'wikimedia commons category'), (b'WikimediaCommonsFile', 'wikimedia commons file'), (b'SuperLachaisePOI', 'superlachaise POI'), (b'SuperLachaiseLocalizedPOI', 'superlachaise localized POI'), (b'SuperLachaiseWikidataRelation', 'superlachaisepoi-wikidataentry relationship'), (b'SuperLachaiseCategoryRelation', 'superlachaisepoi-superlachaisecategory relationship')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='openstreetmapelement',
+            unique_together=set([('type', 'openstreetmap_id')]),
+        ),
+        migrations.AddField(
+            model_name='superlachaisepoi',
+            name='burial_plot_reference',
+            field=models.CharField(max_length=255, verbose_name='burial plot reference', blank=True),
+        ),
+        migrations.AddField(
+            model_name='superlachaisepoi',
+            name='date_of_birth',
+            field=models.DateField(null=True, verbose_name='date of birth', blank=True),
+        ),
+        migrations.AddField(
+            model_name='superlachaisepoi',
+            name='date_of_birth_accuracy',
+            field=models.CharField(blank=True, max_length=255, verbose_name='date of birth accuracy', choices=[(b'Year', 'Year'), (b'Month', 'Month'), (b'Day', 'Day')]),
+        ),
+        migrations.AddField(
+            model_name='superlachaisepoi',
+            name='date_of_death',
+            field=models.DateField(null=True, verbose_name='date of death', blank=True),
+        ),
+        migrations.AddField(
+            model_name='superlachaisepoi',
+            name='date_of_death_accuracy',
+            field=models.CharField(blank=True, max_length=255, verbose_name='date of death accuracy', choices=[(b'Year', 'Year'), (b'Month', 'Month'), (b'Day', 'Day')]),
+        ),
+        migrations.AlterField(
+            model_name='openstreetmapelement',
+            name='latitude',
+            field=models.DecimalField(default=0, verbose_name='latitude', max_digits=10, decimal_places=7),
+            preserve_default=False,
+        ),
+        migrations.AlterField(
+            model_name='openstreetmapelement',
+            name='longitude',
+            field=models.DecimalField(default=0, verbose_name='longitude', max_digits=10, decimal_places=7),
+            preserve_default=False,
+        ),
+        migrations.AlterField(
+            model_name='openstreetmapelement',
+            name='type',
+            field=models.CharField(db_index=True, max_length=255, verbose_name='type', choices=[(b'node', b'node'), (b'way', b'way'), (b'relation', b'relation')]),
+        ),
+        migrations.AlterField(
+            model_name='openstreetmapelement',
+            name='latitude',
+            field=models.DecimalField(default=0, verbose_name='latitude', max_digits=10, decimal_places=7),
+        ),
+        migrations.AlterField(
+            model_name='openstreetmapelement',
+            name='longitude',
+            field=models.DecimalField(default=0, verbose_name='longitude', max_digits=10, decimal_places=7),
+        ),
+        migrations.AddField(
+            model_name='openstreetmapelement',
+            name='deleted',
+            field=models.BooleanField(default=False, verbose_name='deleted'),
+        ),
+        migrations.AddField(
+            model_name='superlachaisecategory',
+            name='deleted',
+            field=models.BooleanField(default=False, verbose_name='deleted'),
+        ),
+        migrations.AddField(
+            model_name='superlachaisepoi',
+            name='deleted',
+            field=models.BooleanField(default=False, verbose_name='deleted'),
+        ),
+        migrations.AddField(
+            model_name='wikidataentry',
+            name='deleted',
+            field=models.BooleanField(default=False, verbose_name='deleted'),
+        ),
+        migrations.AlterField(
+            model_name='superlachaiselocalizedpoi',
+            name='sorting_name',
+            field=models.CharField(max_length=255, verbose_name='sorting name'),
         ),
     ]
