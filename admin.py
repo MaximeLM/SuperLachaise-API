@@ -811,8 +811,12 @@ class DBVersionAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('created', 'modified')
     
+    def create_db_version(self, request, queryset):
+        django.core.management.call_command("create_db_version")
+    create_db_version.short_description = _('Create DB version')
+    
     def delete_notes(self, request, queryset):
         AdminUtils.delete_notes(queryset)
     delete_notes.short_description = _('Delete notes')
     
-    actions=[delete_notes]
+    actions=[create_db_version, delete_notes]

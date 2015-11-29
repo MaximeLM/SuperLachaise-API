@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-29 22:05+0100\n"
+"POT-Creation-Date: 2015-11-29 23:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,7 +56,7 @@ msgstr "Exécuter les commandes admin sélectionnées"
 
 #: admin.py:185 admin.py:202 admin.py:238 admin.py:275 admin.py:384
 #: admin.py:427 admin.py:468 admin.py:510 admin.py:550 admin.py:658
-#: admin.py:688 admin.py:730 admin.py:767 admin.py:799 admin.py:816
+#: admin.py:688 admin.py:730 admin.py:767 admin.py:799 admin.py:820
 msgid "Delete notes"
 msgstr "Supprimer les notes"
 
@@ -217,9 +217,30 @@ msgstr "objet cible"
 msgid "Apply selected pending modifications"
 msgstr "Appliquer les modifications en attente sélectionnées"
 
+#: admin.py:816
+msgid "Create DB version"
+msgstr "Créer une version BDD"
+
 #: apps.py:28
 msgid "SuperLachaise API"
 msgstr "API SuperLachaise"
+
+#: management/commands/create_db_version.py:48
+#: management/commands/write_diff_data.py:193
+msgid "The full file for the current version does not exist: "
+msgstr "Le fichier full pour la version courante n'existe pas : "
+
+#: management/commands/create_db_version.py:53
+msgid "Creating new version..."
+msgstr "Création d'une nouvelle version..."
+
+#: management/commands/create_db_version.py:57
+msgid "Writing full file..."
+msgstr "Écriture du fichier full..."
+
+#: management/commands/create_db_version.py:62
+msgid "Writing diff file..."
+msgstr "Écriture du fichier diff..."
 
 #: management/commands/sync_all.py:51
 #, python-brace-format
@@ -327,32 +348,28 @@ msgstr "Requête des révisions Wikipédia..."
 msgid "Requesting Wikipedia page content..."
 msgstr "Requête du contenu des pages de Wikipédia..."
 
-#: management/commands/write_diff_data.py:99
+#: management/commands/write_diff_data.py:100
 msgid "Unknown list name: "
 msgstr "Nom de liste inconnu"
 
-#: management/commands/write_diff_data.py:179
-#: management/commands/write_full_data.py:43
+#: management/commands/write_diff_data.py:182
+#: management/commands/write_full_data.py:46
 msgid "No DB version found"
 msgstr "Aucune version BDD trouvée"
 
-#: management/commands/write_diff_data.py:182
+#: management/commands/write_diff_data.py:185
 msgid "A diff file for this version already exists: "
 msgstr "Un fichier diff pour cette version existe déjà : "
 
-#: management/commands/write_diff_data.py:186
+#: management/commands/write_diff_data.py:189
 msgid "The full file for the previous version does not exist: "
 msgstr "Le fichier full pour la version précédente n'existe pas : "
 
-#: management/commands/write_diff_data.py:190
-msgid "The full file for the current version does not exist: "
-msgstr "Le fichier full pour la version courante n'existe pas : "
-
-#: management/commands/write_diff_data.py:213
+#: management/commands/write_diff_data.py:216
 msgid "The diff file is incorrect"
 msgstr "Le fichier diff est incorrect"
 
-#: management/commands/write_full_data.py:46
+#: management/commands/write_full_data.py:49
 msgid "A full file for this version already exists: "
 msgstr "Un fichier full pour cette version existe déjà : "
 

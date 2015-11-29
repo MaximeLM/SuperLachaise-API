@@ -25,6 +25,7 @@ import os.path
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Max
+from django.utils import formats, timezone, translation
 from django.utils.translation import ugettext as _
 
 from superlachaise_api import conf
@@ -173,53 +174,63 @@ class Command(BaseCommand):
             return diff_list
     
     def handle(self, *args, **options):
-        # Compute file path
-        currentVersion = DBVersion.objects.all().aggregate(Max('version_id'))['version_id__max']
-        if not currentVersion:
-            raise CommandError(_(u'No DB version found'))
-        diff_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_diff_" + str(currentVersion-1) + "-" + str(currentVersion) + ".json"
-        if os.path.isfile(diff_file_path):
-            raise CommandError(_(u'A diff file for this version already exists: ') + diff_file_path)
+        translation.activate(settings.LANGUAGE_CODE)
+        try:
+            # Compute file path
+            currentVersion = DBVersion.objects.all().aggregate(Max('version_id'))['version_id__max']
+            if not currentVersion:
+                raise CommandError(_(u'No DB version found'))
+            diff_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_diff_" + str(currentVersion-1) + "-" + str(currentVersion) + ".json"
+            if os.path.isfile(diff_file_path):
+                raise CommandError(_(u'A diff file for this version already exists: ') + diff_file_path)
         
-        previous_full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(currentVersion-1) + ".json"
-        if not os.path.isfile(previous_full_file_path):
-            raise CommandError(_(u'The full file for the previous version does not exist: ') + previous_full_file_path)
+            previous_full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(currentVersion-1) + ".json"
+            if not os.path.isfile(previous_full_file_path):
+                raise CommandError(_(u'The full file for the previous version does not exist: ') + previous_full_file_path)
         
-        current_full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(currentVersion) + ".json"
-        if not os.path.isfile(current_full_file_path):
-            raise CommandError(_(u'The full file for the current version does not exist: ') + current_full_file_path)
+            current_full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(currentVersion) + ".json"
+            if not os.path.isfile(current_full_file_path):
+                raise CommandError(_(u'The full file for the current version does not exist: ') + current_full_file_path)
         
-        with open(previous_full_file_path) as previous_full_file:    
-            previous_full_data = json.load(previous_full_file)
+            with open(previous_full_file_path) as previous_full_file:    
+                previous_full_data = json.load(previous_full_file)
         
-        with open(current_full_file_path) as current_full_file:    
-            current_full_data = json.load(current_full_file)
+            with open(current_full_file_path) as current_full_file:    
+                current_full_data = json.load(current_full_file)
         
-        diff_dict = self.diff_json_dict(previous_full_data, current_full_data)
+            diff_dict = self.diff_json_dict(previous_full_data, current_full_data)
         
-        # Assert that the diff dict applied to the previous file is equal to the current file
-        with open(previous_full_file_path) as previous_full_file:    
-            previous_full_data = json.load(previous_full_file)
+            # Assert that the diff dict applied to the previous file is equal to the current file
+            with open(previous_full_file_path) as previous_full_file:    
+                previous_full_data = json.load(previous_full_file)
         
-        with open(current_full_file_path) as current_full_file:    
-            current_full_data = json.load(current_full_file)
+            with open(current_full_file_path) as current_full_file:    
+                current_full_data = json.load(current_full_file)
         
-        updated_previous_data = self.apply_diff_dict(previous_full_data, diff_dict)
+            updated_previous_data = self.apply_diff_dict(previous_full_data, diff_dict)
         
-        error_file_path = diff_file_path.replace('.json', '-error.json')
-        if updated_previous_data != current_full_data:
-            with open(error_file_path, 'w') as error_file:
-                error_file.write(json.dumps(updated_previous_data, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True).encode('utf8'))
-            raise CommandError(_(u'The diff file is incorrect'))
-        elif os.path.isfile(error_file_path):
-            os.remove(error_file_path)
+            error_file_path = diff_file_path.replace('.json', '-error.json')
+            if updated_previous_data != current_full_data:
+                with open(error_file_path, 'w') as error_file:
+                    error_file.write(json.dumps(updated_previous_data, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True).encode('utf8'))
+                raise CommandError(_(u'The diff file is incorrect'))
+            elif os.path.isfile(error_file_path):
+                os.remove(error_file_path)
         
-        diff_dict['about'] = {
-            'licence': "https://api.superlachaise.fr/perelachaise/api/licence/",
-            'api_version': conf.VERSION,
-            'db_version': str(currentVersion-1) + "-" + str(currentVersion),
-            'type': 'diff',
-        }
+            diff_dict['about'] = {
+                'licence': "https://api.superlachaise.fr/perelachaise/api/licence/",
+                'api_version': conf.VERSION,
+                'db_version': str(currentVersion-1) + "-" + str(currentVersion),
+                'type': 'diff',
+            }
+            
+            for key in ['openstreetmap_elements', 'wikidata_entries', 'wikimedia_commons_categories', 'superlachaise_categories', 'superlachaise_pois']:
+                if not diff_dict.has_key(key):
+                    diff_dict[key] = []
         
-        with open(diff_file_path, 'w') as diff_file:
-            diff_file.write(json.dumps(diff_dict, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True).encode('utf8'))
+            with open(diff_file_path, 'w') as diff_file:
+                diff_file.write(json.dumps(diff_dict, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True).encode('utf8'))
+        except:
+            translation.deactivate()
+            raise CommandError(sys.exc_info()[1])
+        translation.deactivate()
