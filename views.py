@@ -134,6 +134,7 @@ class SuperLachaiseEncoder(object):
                 'date_of_birth_accuracy': superlachaise_poi.date_of_birth_accuracy,
                 'date_of_death': superlachaise_poi.date_of_death,
                 'date_of_death_accuracy': superlachaise_poi.date_of_death_accuracy,
+                'deleted': superlachaise_poi.deleted,
             }
         
             localizations = []
@@ -194,6 +195,7 @@ class SuperLachaiseEncoder(object):
             result = {
                 'code': superlachaise_category.code,
                 'type': superlachaise_category.type,
+                'deleted': superlachaise_category.deleted,
             }
         
             localizations = []
@@ -228,6 +230,7 @@ class SuperLachaiseEncoder(object):
                 'type': openstreetmap_element.type,
                 'latitude': openstreetmap_element.latitude,
                 'longitude': openstreetmap_element.longitude,
+                'deleted': openstreetmap_element.deleted,
             }
         
             if not self.restrict_fields:
@@ -251,6 +254,7 @@ class SuperLachaiseEncoder(object):
         else:
             result = {
                 'wikidata_id': wikidata_entry.wikidata_id,
+                'deleted': wikidata_entry.deleted,
             }
         
             if 'Q5' in wikidata_entry.instance_of.split(';'):
@@ -328,6 +332,7 @@ class SuperLachaiseEncoder(object):
                     'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
                     'main_image': wikimedia_commons_category.main_image,
                     'category_members': wikimedia_commons_category.category_members_list(),
+                    'deleted': wikimedia_commons_category.deleted,
                 }
         
                 if not self.restrict_fields:

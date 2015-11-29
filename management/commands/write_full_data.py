@@ -43,7 +43,7 @@ class Command(BaseCommand):
             raise CommandError(_(u'No DB version found'))
         file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(currentVersion) + ".json"
         if os.path.isfile(file_path):
-            raise CommandError(_(u'A file for this version already exists: ' + file_path))
+            raise CommandError(_(u'A full file for this version already exists: ') + file_path)
         
         obj_to_encode = {
             'about': {

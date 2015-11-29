@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-29 18:16+0100\n"
+"POT-Creation-Date: 2015-11-29 22:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -327,6 +327,35 @@ msgstr "Requête des révisions Wikipédia..."
 msgid "Requesting Wikipedia page content..."
 msgstr "Requête du contenu des pages de Wikipédia..."
 
+#: management/commands/write_diff_data.py:99
+msgid "Unknown list name: "
+msgstr "Nom de liste inconnu"
+
+#: management/commands/write_diff_data.py:179
+#: management/commands/write_full_data.py:43
+msgid "No DB version found"
+msgstr "Aucune version BDD trouvée"
+
+#: management/commands/write_diff_data.py:182
+msgid "A diff file for this version already exists: "
+msgstr "Un fichier diff pour cette version existe déjà : "
+
+#: management/commands/write_diff_data.py:186
+msgid "The full file for the previous version does not exist: "
+msgstr "Le fichier full pour la version précédente n'existe pas : "
+
+#: management/commands/write_diff_data.py:190
+msgid "The full file for the current version does not exist: "
+msgstr "Le fichier full pour la version courante n'existe pas : "
+
+#: management/commands/write_diff_data.py:213
+msgid "The diff file is incorrect"
+msgstr "Le fichier diff est incorrect"
+
+#: management/commands/write_full_data.py:46
+msgid "A full file for this version already exists: "
+msgstr "Un fichier full pour cette version existe déjà : "
+
 #: models.py:33
 msgid "notes"
 msgstr "notes"
@@ -636,22 +665,22 @@ msgstr "version BDD"
 msgid "DB versions"
 msgstr "versions BDD"
 
-#: views.py:511
+#: views.py:517
 msgid "OpenStreetMap element does not exist"
 msgstr "L'élément OpenStreetMap n'existe pas"
 
-#: views.py:569
+#: views.py:575
 msgid "Wikidata entry does not exist"
 msgstr "L'entrée Wikidata n'existe pas"
 
-#: views.py:629
+#: views.py:635
 msgid "Wikimedia Commons category does not exist"
 msgstr "La catégorie Wikimedia Commons n'existe pas"
 
-#: views.py:688
+#: views.py:694
 msgid "SuperLachaise category does not exist"
 msgstr "La catégorie SuperLachaise n'existe pas"
 
-#: views.py:773
+#: views.py:779
 msgid "SuperLachaise POI does not exist"
 msgstr "Le POI SuperLachaise n'existe pas"
