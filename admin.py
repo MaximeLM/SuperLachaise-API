@@ -802,7 +802,7 @@ class PendingModificationAdmin(admin.ModelAdmin):
 
 @admin.register(DBVersion)
 class DBVersionAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'modified', 'notes')
+    list_display = ('version_id', 'modified', 'notes')
     search_fields = ('version_id', 'notes',)
     
     fieldsets = [

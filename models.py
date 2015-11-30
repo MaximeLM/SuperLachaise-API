@@ -675,6 +675,6 @@ class DBVersion(SuperLachaiseModel):
         return unicode(self.version_id)
     
     class Meta:
-        ordering = ['version_id']
+        ordering = ['-version_id']
         verbose_name = _('DB version')
         verbose_name_plural = _('DB versions')

@@ -147,18 +147,18 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         try:
             # Compute file path
-            currentVersion = DBVersion.objects.all().aggregate(Max('version_id'))['version_id__max']
-            if not currentVersion:
+            current_version = DBVersion.objects.all().aggregate(Max('version_id'))['version_id__max']
+            if not current_version:
                 raise CommandError(_(u'No DB version found'))
-            diff_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_diff_" + str(currentVersion-1) + "-" + str(currentVersion) + ".json"
+            diff_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_diff_" + str(current_version-1) + "-" + str(current_version) + ".json"
             if os.path.isfile(diff_file_path):
                 raise CommandError(_(u'A diff file for this version already exists: ') + diff_file_path)
         
-            previous_full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(currentVersion-1) + ".json"
+            previous_full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(current_version-1) + ".json"
             if not os.path.isfile(previous_full_file_path):
                 raise CommandError(_(u'The full file for the previous version does not exist: ') + previous_full_file_path)
         
-            current_full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(currentVersion) + ".json"
+            current_full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(current_version) + ".json"
             if not os.path.isfile(current_full_file_path):
                 raise CommandError(_(u'The full file for the current version does not exist: ') + current_full_file_path)
         
@@ -173,7 +173,7 @@ class Command(BaseCommand):
             diff_dict['about'] = {
                 'licence': "https://api.superlachaise.fr/perelachaise/api/licence/",
                 'api_version': conf.VERSION,
-                'db_version': str(currentVersion-1) + "-" + str(currentVersion),
+                'db_version': str(current_version-1) + "-" + str(current_version),
                 'type': 'diff',
             }
             

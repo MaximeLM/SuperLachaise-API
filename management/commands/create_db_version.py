@@ -57,6 +57,14 @@ class Command(BaseCommand):
             print_unicode(_(u'Writing full file...'))
             call_command("write_full_data")
             
+            # Update symbolic link
+            full_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(current_version+1) + ".json"
+            latest_file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_latest.json"
+            command = "ln -s " + full_file_path + " " + latest_file_path
+            if os.path.islink(latest_file_path):
+                os.remove(latest_file_path)
+            os.system(command)
+            
             if current_version > 0:
                 # Write diff data
                 print_unicode(_(u'Writing diff file...'))

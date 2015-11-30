@@ -41,10 +41,10 @@ class Command(BaseCommand):
         translation.activate(settings.LANGUAGE_CODE)
         try:
             # Compute file path
-            currentVersion = DBVersion.objects.all().aggregate(Max('version_id'))['version_id__max']
-            if not currentVersion:
+            current_version = DBVersion.objects.all().aggregate(Max('version_id'))['version_id__max']
+            if not current_version:
                 raise CommandError(_(u'No DB version found'))
-            file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(currentVersion) + ".json"
+            file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(current_version) + ".json"
             if os.path.isfile(file_path):
                 raise CommandError(_(u'A full file for this version already exists: ') + file_path)
         
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 'about': {
                     'licence': "https://api.superlachaise.fr/perelachaise/api/licence/",
                     'api_version': conf.VERSION,
-                    'db_version': currentVersion,
+                    'db_version': current_version,
                     'type': 'full',
                 },
                 'openstreetmap_elements': OpenStreetMapElement.objects.all().order_by('sorting_name'),
