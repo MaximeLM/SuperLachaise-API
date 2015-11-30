@@ -75,7 +75,7 @@ class Command(BaseCommand):
     
     def key_for_object(self, list_name, object):
         if list_name == 'openstreetmap_elements':
-            return object['openstreetmap_id']
+            return object['type'] + ':' + object['openstreetmap_id']
         elif list_name == 'superlachaise_categories' and isinstance(object, dict):
             return object['code']
         elif list_name == 'superlachaise_pois':
@@ -110,7 +110,9 @@ class Command(BaseCommand):
             else:
                 diffValue = value
             if list_name == 'openstreetmap_elements':
-                diffValue['openstreetmap_id'] = key
+                splitKey = key.split(':')
+                diffValue['type'] = splitKey[0]
+                diffValue['openstreetmap_id'] = splitKey[1]
                 diff_list.append(diffValue)
             elif list_name == 'superlachaise_categories' and isinstance(value, dict):
                 diffValue['code'] = key
@@ -141,38 +143,6 @@ class Command(BaseCommand):
         
         return diff_list
     
-    def apply_diff_dict(self, original_dict, diff_dict):
-        for key, value in diff_dict.iteritems():
-            if isinstance(value, dict):
-                original_dict[key] = self.apply_diff_dict(original_dict[key], value)
-            elif isinstance(value, list):
-                original_dict[key] = self.apply_diff_list(key, original_dict[key], value)
-            else:
-                original_dict[key] = value
-        
-        return original_dict
-    
-    def apply_diff_list(self, list_name, original_list, diff_list):
-        if list_name in [
-            'openstreetmap_elements', 'superlachaise_categories', 'superlachaise_pois', 'wikidata_entries', 'wikimedia_commons_categories']:
-            original_dict = {}
-            for object in original_list:
-                original_dict[self.key_for_object(list_name, object)] = object
-            for diff in diff_list:
-                original_dict[self.key_for_object(list_name, diff)] = self.apply_diff_dict(original_dict[self.key_for_object(list_name, diff)], diff)
-            return original_list
-        elif list_name == 'localizations':
-            original_dict = {}
-            for object in original_list:
-                original_dict[self.key_for_object(list_name, object)] = object
-            updated_list = []
-            for diff in diff_list:
-                updated_dict = self.apply_diff_dict(original_dict[diff['id']], diff)
-                updated_list.append(updated_dict)
-            return updated_list
-        else:
-            return diff_list
-    
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
         try:
@@ -199,24 +169,7 @@ class Command(BaseCommand):
                 current_full_data = json.load(current_full_file)
         
             diff_dict = self.diff_json_dict(previous_full_data, current_full_data)
-        
-            # Assert that the diff dict applied to the previous file is equal to the current file
-            with open(previous_full_file_path) as previous_full_file:    
-                previous_full_data = json.load(previous_full_file)
-        
-            with open(current_full_file_path) as current_full_file:    
-                current_full_data = json.load(current_full_file)
-        
-            updated_previous_data = self.apply_diff_dict(previous_full_data, diff_dict)
-        
-            error_file_path = diff_file_path.replace('.json', '-error.json')
-            if updated_previous_data != current_full_data:
-                with open(error_file_path, 'w') as error_file:
-                    error_file.write(json.dumps(updated_previous_data, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True).encode('utf8'))
-                raise CommandError(_(u'The diff file is incorrect'))
-            elif os.path.isfile(error_file_path):
-                os.remove(error_file_path)
-        
+            
             diff_dict['about'] = {
                 'licence': "https://api.superlachaise.fr/perelachaise/api/licence/",
                 'api_version': conf.VERSION,
