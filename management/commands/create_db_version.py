@@ -66,6 +66,7 @@ class Command(BaseCommand):
                 os.remove(current_full_file)
             
         except:
+            print_unicode(traceback.format_exc())
             translation.deactivate()
             raise CommandError(sys.exc_info()[1])
         translation.deactivate()

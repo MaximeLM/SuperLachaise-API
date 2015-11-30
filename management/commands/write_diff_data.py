@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, os
+import json, os, sys
 import os.path
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -231,6 +231,7 @@ class Command(BaseCommand):
             with open(diff_file_path, 'w') as diff_file:
                 diff_file.write(json.dumps(diff_dict, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True).encode('utf8'))
         except:
+            print_unicode(traceback.format_exc())
             translation.deactivate()
             raise CommandError(sys.exc_info()[1])
         translation.deactivate()
