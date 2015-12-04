@@ -157,9 +157,15 @@ class SuperLachaiseEncoder(object):
             }
             for wikidata_entry_relation in superlachaise_poi.superlachaisewikidatarelation_set.all():
                 if wikidata_entry_relation.relation_type in wikidata_entry_relations:
-                    wikidata_entry_relations[wikidata_entry_relation.relation_type].append(wikidata_entry_relation.wikidata_entry.wikidata_id)
-        
-            superlachaise_categories = superlachaise_poi.superlachaise_categories.all().values_list('code', flat=True)
+                    wikidata_entry_relations[wikidata_entry_relation.relation_type].append({
+                        'wikidata_id': wikidata_entry_relation.wikidata_entry.wikidata_id,
+                    })
+            
+            superlachaise_categories = []
+            for superlachaise_category in superlachaise_poi.superlachaise_categories.all():
+                superlachaise_categories.append({
+                    'code': superlachaise_category.code,
+                })
             
             if superlachaise_poi.openstreetmap_element:
                 result['openstreetmap_element'] = {
@@ -167,15 +173,14 @@ class SuperLachaiseEncoder(object):
                     'type': superlachaise_poi.openstreetmap_element.type,
                 }
             else:
-                result['openstreetmap_element'] = {
-                    'openstreetmap_id': '',
-                    'type': '',
-                }
+                result['openstreetmap_element'] = None
             
             if superlachaise_poi.wikimedia_commons_category:
-                result['wikimedia_commons_category'] = superlachaise_poi.wikimedia_commons_category.wikimedia_commons_id
+                result['wikimedia_commons_category'] = {
+                    'wikimedia_commons_id': superlachaise_poi.wikimedia_commons_category.wikimedia_commons_id,
+                }
             else:
-                result['wikimedia_commons_category'] = ''
+                result['wikimedia_commons_category'] = None
             
             result.update({
                 'localizations': localizations,
@@ -330,8 +335,8 @@ class SuperLachaiseEncoder(object):
             else:
                 result = {
                     'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
-                    'main_image': wikimedia_commons_category.main_image,
-                    'category_members': wikimedia_commons_category.category_members_list(),
+                    'main_image': {'wikimedia_commons_id': wikimedia_commons_category.main_image},
+                    'category_members': [{'wikimedia_commons_id': member} for member in wikimedia_commons_category.category_members_list()],
                     'deleted': wikimedia_commons_category.deleted,
                 }
         

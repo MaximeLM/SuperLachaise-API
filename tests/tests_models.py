@@ -221,11 +221,11 @@ class WikipediaPageTestCase(TestCase):
 
 class WikimediaCommonsCategoryTestCase(TestCase):
     
-    def test_category_members_list_returns_none_if_field_value_is_empty(self):
+    def test_category_members_list_returns_empty_list_if_field_value_is_empty(self):
         wikimedia_commons_id = "some_wikimedia_commons_id"
         wikimedia_commons_category = WikimediaCommonsCategory(wikimedia_commons_id=wikimedia_commons_id)
         
-        self.assertIsNone(wikimedia_commons_category.category_members_list())
+        self.assertEqual([], wikimedia_commons_category.category_members_list())
     
     def test_category_members_list_returns_field_value_splitted_by_pipe_if_field_value_is_not_empty(self):
         wikimedia_commons_id = "some_wikimedia_commons_id"

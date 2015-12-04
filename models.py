@@ -301,6 +301,8 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
     def category_members_list(self):
         if self.category_members:
             return self.category_members.split('|')
+        else:
+            return []
     
     def wikimedia_commons_url(self, field_value):
         if field_value:
