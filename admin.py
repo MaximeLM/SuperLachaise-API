@@ -53,8 +53,7 @@ class AdminUtils():
         url = reverse(reverse_path)
         return url
     
-    EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT = _('{synchronization_name}: no pending modifications')
-    EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT = _('{synchronization_name}: {count} new pending modification(s)')
+    EXECUTE_SYNC_DONE_FORMAT = _('{synchronization_name}: done')
     EXECUTE_SYNC_ERROR_FORMAT = _('{synchronization_name}: {error}')
     
     @classmethod
@@ -64,33 +63,9 @@ class AdminUtils():
             sync_start = timezone.now()
             django.core.management.call_command(Synchronization.PREFIX + synchronization_name, **args)
             
-            # Redirect to pending modifications scren if needed
-            pending_modifications = PendingModification.objects.filter(modified__gte=sync_start)
-            if pending_modifications:
-                messages.success(request, cls.EXECUTE_SYNC_NEW_PENDING_MODIFICATIONS_FORMAT.format(synchronization_name=synchronization_name, count=len(pending_modifications)))
-                redirect_url = u'{url}?modified__gte={modified_gte}'.format(url=cls.changelist_page_url(PendingModification), modified_gte=sync_start.isoformat())
-                return HttpResponseRedirect(redirect_url)
-            else:
-                messages.success(request, cls.EXECUTE_SYNC_NO_PENDING_MODIFICATIONS_FORMAT.format(synchronization_name=synchronization_name))
+            messages.success(request, cls.EXECUTE_SYNC_DONE_FORMAT.format(synchronization_name=synchronization_name))
         except:
             messages.error(request, cls.EXECUTE_SYNC_ERROR_FORMAT.format(synchronization_name=synchronization_name, error=sys.exc_info()[1]))
-            return
-    
-    APPLY_PENDING_MODIFICATIONS_SUCCESS_FORMAT = _('Modifications applied with success')
-    APPLY_PENDING_MODIFICATIONS_ERROR_FORMAT = _('Error when applying modification {pending_modification}: {error}')
-    
-    @classmethod
-    def apply_pending_modifications(cls, pending_modifications, request):
-        """ Apply pending modifications and add success/error messages to the request """
-        success = False
-        for pending_modification in pending_modifications:
-            try:
-                pending_modification.apply_modification()
-                success = True
-            except:
-                messages.error(request, cls.APPLY_PENDING_MODIFICATIONS_ERROR_FORMAT.format(pending_modification=unicode(pending_modification), error=sys.exc_info()[1]))
-        if success:
-            messages.success(request, cls.APPLY_PENDING_MODIFICATIONS_SUCCESS_FORMAT)
     
     @classmethod
     def current_localization(cls, object):
@@ -767,38 +742,6 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
-
-@admin.register(PendingModification)
-class PendingModificationAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'action', 'target_object_class', 'target_object_id', 'target_object_link', 'modified_fields', 'modified', 'notes')
-    list_filter = ('action','target_object_class',)
-    search_fields = ('target_object_id', 'modified_fields', 'notes',)
-    
-    fieldsets = [
-        (None, {'fields': ['created', 'modified', 'notes']}),
-        (_('Target object'), {'fields': ['target_object_class', 'target_object_id', 'target_object_link']}),
-        (None, {'fields': ['action', 'modified_fields']}),
-    ]
-    readonly_fields = ('target_object_link', 'created', 'modified')
-    
-    def target_object_link(self, obj):
-        target_object = obj.target_object()
-        try:
-            return AdminUtils.html_link(AdminUtils.change_page_url(target_object), unicode(target_object))
-        except:
-            pass
-    target_object_link.allow_tags = True
-    target_object_link.short_description = _('target object')
-    
-    def apply_modifications(self, request, queryset):
-        AdminUtils.apply_pending_modifications(queryset, request)
-    apply_modifications.short_description = _('Apply selected pending modifications')
-    
-    def delete_notes(self, request, queryset):
-        AdminUtils.delete_notes(queryset)
-    delete_notes.short_description = _('Delete notes')
-    
-    actions=[delete_notes, apply_modifications]
 
 @admin.register(DBVersion)
 class DBVersionAdmin(admin.ModelAdmin):

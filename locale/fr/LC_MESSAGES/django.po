@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-29 23:19+0100\n"
+"POT-Creation-Date: 2015-12-12 16:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,205 +19,175 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: admin.py:56
-#, python-brace-format
-msgid "{synchronization_name}: no pending modifications"
-msgstr "{synchronization_name} : aucune modification en attente"
+msgid "{synchronization_name}: done"
+msgstr "{synchronization_name} : terminé"
 
 #: admin.py:57
-#, python-brace-format
-msgid "{synchronization_name}: {count} new pending modification(s)"
-msgstr ""
-"{synchronization_name} : {count} nouvelle(s) modification(s) en attente"
-
-#: admin.py:58
 #, python-brace-format
 msgid "{synchronization_name}: {error}"
 msgstr "{synchronization_name} : {error}"
 
-#: admin.py:79
-msgid "Modifications applied with success"
-msgstr "Modifications appliquées avec succès"
-
-#: admin.py:80
-#, python-brace-format
-msgid "Error when applying modification {pending_modification}: {error}"
-msgstr ""
-"Erreur en appliquant la modification en attente \"{pending_modification}\" : "
-"{error}"
-
-#: admin.py:176 admin.py:234 models.py:66 models.py:81 models.py:116
-#: models.py:232 models.py:364
+#: admin.py:151 admin.py:209 models.py:66 models.py:81 models.py:116
+#: models.py:232 models.py:366
 msgid "description"
 msgstr "description"
 
-#: admin.py:181
+#: admin.py:156
 msgid "Execute selected admin commands"
 msgstr "Exécuter les commandes admin sélectionnées"
 
-#: admin.py:185 admin.py:202 admin.py:238 admin.py:275 admin.py:384
-#: admin.py:427 admin.py:468 admin.py:510 admin.py:550 admin.py:658
-#: admin.py:688 admin.py:730 admin.py:767 admin.py:799 admin.py:820
+#: admin.py:160 admin.py:177 admin.py:213 admin.py:250 admin.py:359
+#: admin.py:402 admin.py:443 admin.py:485 admin.py:525 admin.py:633
+#: admin.py:663 admin.py:705 admin.py:742 admin.py:763
 msgid "Delete notes"
 msgstr "Supprimer les notes"
 
-#: admin.py:257
+#: admin.py:232
 msgid "openstreetmap"
 msgstr "openstreetmap"
 
-#: admin.py:264 admin.py:320 admin.py:411 admin.py:752 models.py:148
+#: admin.py:239 admin.py:295 admin.py:386 admin.py:727 models.py:148
 msgid "wikidata"
 msgstr "wikidata"
 
-#: admin.py:270 admin.py:487 admin.py:528 models.py:149
+#: admin.py:245 admin.py:462 admin.py:503 models.py:149
 msgid "wikimedia commons"
 msgstr "wikimedia commons"
 
-#: admin.py:291 admin.py:417 admin.py:452 models.py:231
+#: admin.py:266 admin.py:392 admin.py:427 models.py:231
 msgid "wikipedia"
 msgstr "wikipédia"
 
-#: admin.py:314 admin.py:576 admin.py:683 models.py:45 models.py:143
-#: models.py:230 models.py:362 models.py:444 models.py:498
+#: admin.py:289 admin.py:551 admin.py:658 models.py:45 models.py:143
+#: models.py:230 models.py:364 models.py:446 models.py:500
 msgid "name"
 msgstr "nom"
 
-#: admin.py:328 models.py:191
+#: admin.py:303 models.py:191
 msgid "instance of"
 msgstr "nature"
 
-#: admin.py:336 models.py:193
+#: admin.py:311 models.py:193
 msgid "occupations"
 msgstr "occupations"
 
-#: admin.py:344 models.py:192
+#: admin.py:319 models.py:192
 msgid "sex or gender"
 msgstr "sexe ou genre"
 
-#: admin.py:352 models.py:196
+#: admin.py:327 models.py:196
 msgid "grave_of:wikidata"
 msgstr "grave_of:wikidata"
 
-#: admin.py:358 admin.py:641 models.py:194 models.py:314 models.py:339
+#: admin.py:333 admin.py:616 models.py:194 models.py:316 models.py:341
 msgid "wikimedia commons category"
 msgstr "catégorie wikimedia commons"
 
-#: admin.py:364 models.py:195
+#: admin.py:339 models.py:195
 msgid "wikimedia commons grave category"
 msgstr "catégorie tombe wikimedia commons"
 
-#: admin.py:369 admin.py:630 models.py:197 models.py:342
+#: admin.py:344 admin.py:605 models.py:197 models.py:344
 msgid "date of birth"
 msgstr "date de naissance"
 
-#: admin.py:374 admin.py:635 models.py:198 models.py:343
+#: admin.py:349 admin.py:610 models.py:198 models.py:345
 msgid "date of death"
 msgstr "date de décès"
 
-#: admin.py:380
+#: admin.py:355
 msgid "Sync selected wikidata entries"
 msgstr "Synchroniser les entrées wikidata sélectionnées"
 
-#: admin.py:403 models.py:222 models.py:228 models.py:395
+#: admin.py:378 models.py:222 models.py:228 models.py:397
 msgid "wikidata entry"
 msgstr "entrée wikidata"
 
-#: admin.py:423
+#: admin.py:398
 msgid "Sync selected localized wikidata entries"
 msgstr "Synchroniser les entrées wikidata localisées sélectionnées"
 
-#: admin.py:446 models.py:255 models.py:263
+#: admin.py:421 models.py:255 models.py:263
 msgid "wikidata localized entry"
 msgstr "entrée wikidata localisée"
 
-#: admin.py:458 models.py:266
+#: admin.py:433 models.py:266
 msgid "intro"
 msgstr "intro"
 
-#: admin.py:464
+#: admin.py:439
 msgid "Sync selected wikipedia pages"
 msgstr "Synchroniser les pages wikipédia sélectionnées"
 
-#: admin.py:493 admin.py:648 models.py:297 models.py:340
+#: admin.py:468 admin.py:623 models.py:297 models.py:342
 msgid "main image"
 msgstr "image principale"
 
-#: admin.py:500 models.py:299
+#: admin.py:475 models.py:299
 msgid "category members"
 msgstr "membres"
 
-#: admin.py:506
+#: admin.py:481
 msgid "Sync selected wikimedia commons categories"
 msgstr "Synchroniser les catégories wikimedia commons sélectionnées"
 
-#: admin.py:532
+#: admin.py:507
 msgid "original image"
 msgstr "image originale"
 
-#: admin.py:534 models.py:320
+#: admin.py:509 models.py:322
 msgid "original url"
 msgstr "url original"
 
-#: admin.py:540 models.py:321
+#: admin.py:515 models.py:323
 msgid "thumbnail url"
 msgstr "url vignette"
 
-#: admin.py:546
+#: admin.py:521
 msgid "Sync selected wikimedia commons files"
 msgstr "Synchroniser les fichiers wikimedia commons sélectionnés"
 
-#: admin.py:613 models.py:172 models.py:337
+#: admin.py:588 models.py:172 models.py:339
 msgid "openstreetmap element"
 msgstr "élément OpenStreetMap"
 
-#: admin.py:619 models.py:223 models.py:338
+#: admin.py:594 models.py:223 models.py:340
 msgid "wikidata entries"
 msgstr "entrées wikidata"
 
-#: admin.py:625 models.py:341 models.py:437
+#: admin.py:600 models.py:343 models.py:439
 msgid "superlachaise categories"
 msgstr "catégories SuperLachaise"
 
-#: admin.py:654
+#: admin.py:629
 msgid "Sync selected superlachaise POIs"
 msgstr "Synchroniser les POIs SuperLachaise sélectionnés"
 
-#: admin.py:677 models.py:361 models.py:394 models.py:470
+#: admin.py:652 models.py:363 models.py:396 models.py:472
 msgid "superlachaise poi"
 msgstr "poi SuperLachaise"
 
-#: admin.py:693
+#: admin.py:668
 msgid "Sync selected superlachaise localized POIs"
 msgstr "Synchroniser les POIs localisés SuperLachaise sélectionnés"
 
-#: admin.py:722
+#: admin.py:697
 msgid "members count"
 msgstr "nombre de membres"
 
-#: admin.py:726
+#: admin.py:701
 msgid "wikidata occupations count"
 msgstr "nombre d'occupations wikidata"
 
-#: admin.py:757
+#: admin.py:732
 msgid "used in count"
 msgstr "nombre d'utilisations"
 
-#: admin.py:762 models.py:500
+#: admin.py:737 models.py:502
 msgid "used in"
 msgstr "utilisé dans"
 
-#: admin.py:779
-msgid "Target object"
-msgstr "Objet cible"
-
-#: admin.py:791
-msgid "target object"
-msgstr "objet cible"
-
-#: admin.py:795
-msgid "Apply selected pending modifications"
-msgstr "Appliquer les modifications en attente sélectionnées"
-
-#: admin.py:816
+#: admin.py:759
 msgid "Create DB version"
 msgstr "Créer une version BDD"
 
@@ -226,7 +196,7 @@ msgid "SuperLachaise API"
 msgstr "API SuperLachaise"
 
 #: management/commands/create_db_version.py:48
-#: management/commands/write_diff_data.py:193
+#: management/commands/write_diff_data.py:163
 msgid "The full file for the current version does not exist: "
 msgstr "Le fichier full pour la version courante n'existe pas : "
 
@@ -238,7 +208,7 @@ msgstr "Création d'une nouvelle version..."
 msgid "Writing full file..."
 msgstr "Écriture du fichier full..."
 
-#: management/commands/create_db_version.py:62
+#: management/commands/create_db_version.py:70
 msgid "Writing diff file..."
 msgstr "Écriture du fichier diff..."
 
@@ -282,25 +252,25 @@ msgid "Admin commands results"
 msgstr "Résultats des commandes admin"
 
 #: management/commands/sync_all.py:100
-#: management/commands/sync_openstreetmap.py:406
-#: management/commands/sync_superlachaise_pois.py:674
-#: management/commands/sync_wikidata.py:491
+#: management/commands/sync_openstreetmap.py:366
+#: management/commands/sync_superlachaise_pois.py:545
+#: management/commands/sync_wikidata.py:423
 #: management/commands/sync_wikidata_occupations.py:138
-#: management/commands/sync_wikimedia_commons_categories.py:263
-#: management/commands/sync_wikimedia_commons_files.py:210
-#: management/commands/sync_wikipedia.py:369
+#: management/commands/sync_wikimedia_commons_categories.py:227
+#: management/commands/sync_wikimedia_commons_files.py:180
+#: management/commands/sync_wikipedia.py:335
 #, python-format
 msgid "== Start %s =="
 msgstr "== Début %s =="
 
 #: management/commands/sync_all.py:103
-#: management/commands/sync_openstreetmap.py:408
-#: management/commands/sync_superlachaise_pois.py:676
-#: management/commands/sync_wikidata.py:493
+#: management/commands/sync_openstreetmap.py:368
+#: management/commands/sync_superlachaise_pois.py:547
+#: management/commands/sync_wikidata.py:425
 #: management/commands/sync_wikidata_occupations.py:140
-#: management/commands/sync_wikimedia_commons_categories.py:265
-#: management/commands/sync_wikimedia_commons_files.py:212
-#: management/commands/sync_wikipedia.py:371
+#: management/commands/sync_wikimedia_commons_categories.py:229
+#: management/commands/sync_wikimedia_commons_files.py:182
+#: management/commands/sync_wikipedia.py:337
 #, python-format
 msgid "== End %s =="
 msgstr "== Fin %s =="
@@ -310,41 +280,37 @@ msgstr "== Fin %s =="
 msgid "Error: The wikipedia page {language_code}:{link} does not exist"
 msgstr "Erreur : La page Wikipédia {language_code}:{link} n'existe pas"
 
-#: management/commands/sync_openstreetmap.py:298
+#: management/commands/sync_openstreetmap.py:272
 msgid "no outer way for relation found"
 msgstr "Aucun chemin extérieur trouvé pour la relation"
 
-#: management/commands/sync_openstreetmap.py:319
+#: management/commands/sync_openstreetmap.py:293
 msgid "Requesting Overpass API..."
 msgstr "Requête de l'API Overpass..."
 
-#: management/commands/sync_openstreetmap.py:335
+#: management/commands/sync_openstreetmap.py:309
 #: management/commands/sync_wikidata_occupations.py:88
 msgid "Requesting Wikidata..."
 msgstr "Requête de Wikidata..."
 
-#: management/commands/sync_superlachaise_pois.py:579
-msgid "Preparing objects..."
-msgstr "Préparation des objets..."
-
-#: management/commands/sync_wikidata.py:401
+#: management/commands/sync_wikidata.py:357
 msgid "Requesting Wikidata codes from OpenStreetMap elements..."
 msgstr "Requête des codes Wikidata issus des éléments OpenStreetMap..."
 
-#: management/commands/sync_wikidata.py:421
+#: management/commands/sync_wikidata.py:376
 msgid "Requesting new Wikidata codes from grave_of..."
 msgstr "Requête des nouveaux codes Wikidata issus de grave_of..."
 
-#: management/commands/sync_wikimedia_commons_categories.py:204
-#: management/commands/sync_wikimedia_commons_files.py:153
+#: management/commands/sync_wikimedia_commons_categories.py:182
+#: management/commands/sync_wikimedia_commons_files.py:136
 msgid "Requesting Wikimedia Commons..."
 msgstr "Requête de Wikimedia commons..."
 
-#: management/commands/sync_wikipedia.py:296
+#: management/commands/sync_wikipedia.py:277
 msgid "Requesting Wikipedia revisions..."
 msgstr "Requête des révisions Wikipédia..."
 
-#: management/commands/sync_wikipedia.py:313
+#: management/commands/sync_wikipedia.py:294
 msgid "Requesting Wikipedia page content..."
 msgstr "Requête du contenu des pages de Wikipédia..."
 
@@ -352,22 +318,18 @@ msgstr "Requête du contenu des pages de Wikipédia..."
 msgid "Unknown list name: "
 msgstr "Nom de liste inconnu"
 
-#: management/commands/write_diff_data.py:182
+#: management/commands/write_diff_data.py:152
 #: management/commands/write_full_data.py:46
 msgid "No DB version found"
 msgstr "Aucune version BDD trouvée"
 
-#: management/commands/write_diff_data.py:185
+#: management/commands/write_diff_data.py:155
 msgid "A diff file for this version already exists: "
 msgstr "Un fichier diff pour cette version existe déjà : "
 
-#: management/commands/write_diff_data.py:189
+#: management/commands/write_diff_data.py:159
 msgid "The full file for the previous version does not exist: "
 msgstr "Le fichier full pour la version précédente n'existe pas : "
-
-#: management/commands/write_diff_data.py:216
-msgid "The diff file is incorrect"
-msgstr "Le fichier diff est incorrect"
 
 #: management/commands/write_full_data.py:49
 msgid "A full file for this version already exists: "
@@ -417,8 +379,8 @@ msgstr "synchronisation"
 msgid "synchronizations"
 msgstr "synchronisations"
 
-#: models.py:64 models.py:94 models.py:114 models.py:229 models.py:360
-#: models.py:442
+#: models.py:64 models.py:94 models.py:114 models.py:229 models.py:362
+#: models.py:444
 msgid "language"
 msgstr "langage"
 
@@ -430,7 +392,7 @@ msgstr "synchronisation localisé"
 msgid "localized synchronizations"
 msgstr "synchronisation localisées"
 
-#: models.py:80 models.py:426
+#: models.py:80 models.py:428
 msgid "code"
 msgstr "code"
 
@@ -478,11 +440,11 @@ msgstr "paramètres localisés"
 msgid "openstreetmap id"
 msgstr "id OpenStreetMap"
 
-#: models.py:142 models.py:427
+#: models.py:142 models.py:429
 msgid "type"
 msgstr "type"
 
-#: models.py:144 models.py:363
+#: models.py:144 models.py:365
 msgid "sorting name"
 msgstr "nom pour tri"
 
@@ -498,7 +460,7 @@ msgstr "latitude"
 msgid "longitude"
 msgstr "longitude"
 
-#: models.py:150 models.py:202 models.py:298 models.py:347 models.py:429
+#: models.py:150 models.py:202 models.py:298 models.py:349 models.py:431
 msgid "deleted"
 msgstr "supprimé"
 
@@ -518,19 +480,19 @@ msgstr "Mois"
 msgid "Day"
 msgstr "Jour"
 
-#: models.py:190 models.py:497
+#: models.py:190 models.py:499
 msgid "wikidata id"
 msgstr "id wikidata"
 
-#: models.py:199 models.py:344
+#: models.py:199 models.py:346
 msgid "date of birth accuracy"
 msgstr "précision date de naissance"
 
-#: models.py:200 models.py:345
+#: models.py:200 models.py:347
 msgid "date of death accuracy"
 msgstr "précision date de décès"
 
-#: models.py:201 models.py:346
+#: models.py:201 models.py:348
 msgid "burial plot reference"
 msgstr "numéro de division"
 
@@ -554,150 +516,110 @@ msgstr "page wikipédia"
 msgid "wikipedia pages"
 msgstr "pages wikipédia"
 
-#: models.py:296 models.py:319
+#: models.py:296 models.py:321
 msgid "wikimedia commons id"
 msgstr "id wikimedia commons"
 
-#: models.py:315
+#: models.py:317
 msgid "wikimedia commons categories"
 msgstr "catégories wikimedia commons"
 
-#: models.py:331
+#: models.py:333
 msgid "wikimedia commons file"
 msgstr "fichier wikimedia commons"
 
-#: models.py:332
+#: models.py:334
 msgid "wikimedia commons files"
 msgstr "fichiers wikimedia commons"
 
-#: models.py:354
+#: models.py:356
 msgid "superlachaise POI"
 msgstr "POI SuperLachaise"
 
-#: models.py:355
+#: models.py:357
 msgid "superlachaise POIs"
 msgstr "POIs SuperLachaise"
 
-#: models.py:383
+#: models.py:385
 msgid "superlachaise localized POI"
 msgstr "POI SuperLachaise localisé"
 
-#: models.py:384
+#: models.py:386
 msgid "superlachaise localized POIs"
 msgstr "POIs SuperLachaise localisés"
 
-#: models.py:396
+#: models.py:398
 msgid "relation type"
 msgstr "type de relation"
 
-#: models.py:416
+#: models.py:418
 msgid "superlachaisepoi-wikidataentry relationship"
 msgstr "relation superlachaisepoi-wikidataentry"
 
-#: models.py:417
+#: models.py:419
 msgid "superlachaisepoi-wikidataentry relationships"
 msgstr "relations superlachaisepoi-wikidataentry"
 
-#: models.py:428
+#: models.py:430
 msgid "values"
 msgstr "valeurs"
 
-#: models.py:436 models.py:443 models.py:471 models.py:499
+#: models.py:438 models.py:445 models.py:473 models.py:501
 msgid "superlachaise category"
 msgstr "catégorie SuperLachaise"
 
-#: models.py:463
+#: models.py:465
 msgid "superlachaise localized category"
 msgstr "catégorie SuperLachaise localisée"
 
-#: models.py:464
+#: models.py:466
 msgid "superlachaise localized categories"
 msgstr "catégories SuperLachaise localisées"
 
-#: models.py:491
+#: models.py:493
 msgid "superlachaisepoi-superlachaisecategory relationship"
 msgstr "relation superlachaisepoi-superlachaisecategory"
 
-#: models.py:492
+#: models.py:494
 msgid "superlachaisepoi-superlachaisecategory relationships"
 msgstr "relations superlachaisepoi-superlachaisecategory"
 
-#: models.py:510
+#: models.py:512
 msgid "wikidata occupation"
 msgstr "occupations wikidata"
 
-#: models.py:511
+#: models.py:513
 msgid "wikidata occupations"
 msgstr "occupations wikidata"
 
-#: models.py:545
-msgid "target object class"
-msgstr "classe de l'objet cible"
-
-#: models.py:546
-msgid "target object id"
-msgstr "id de l'objet cible"
-
-#: models.py:547
-msgid "action"
-msgstr "action"
-
-#: models.py:548
-msgid "modified fields"
-msgstr "champs modifiés"
-
-#: models.py:573 models.py:576
-msgid "The value must be a JSON dictionary."
-msgstr "La valeur doit être un dictionnaire JSON."
-
-#: models.py:587
-#, python-format
-msgid "The following fields are not valid for modification: %s."
-msgstr "Les champs suivants ne sont pas valides pour la modification : %s."
-
-#: models.py:610
-#, python-format
-msgid "The following fields are not fields of the target object model: %s."
-msgstr ""
-"Les champs suivants ne font pas partie des champs du modèle de l'objet "
-"cible : %s."
-
-#: models.py:665
-msgid "pending modification"
-msgstr "modification en attente"
-
-#: models.py:666
-msgid "pending modifications"
-msgstr "modifications en attente"
-
-#: models.py:672
+#: models.py:518
 msgid "version id"
 msgstr "id version"
 
-#: models.py:679
+#: models.py:525
 msgid "DB version"
 msgstr "version BDD"
 
-#: models.py:680
+#: models.py:526
 msgid "DB versions"
 msgstr "versions BDD"
 
-#: views.py:517
+#: views.py:522
 msgid "OpenStreetMap element does not exist"
 msgstr "L'élément OpenStreetMap n'existe pas"
 
-#: views.py:575
+#: views.py:580
 msgid "Wikidata entry does not exist"
 msgstr "L'entrée Wikidata n'existe pas"
 
-#: views.py:635
+#: views.py:640
 msgid "Wikimedia Commons category does not exist"
 msgstr "La catégorie Wikimedia Commons n'existe pas"
 
-#: views.py:694
+#: views.py:699
 msgid "SuperLachaise category does not exist"
 msgstr "La catégorie SuperLachaise n'existe pas"
 
-#: views.py:779
+#: views.py:784
 msgid "SuperLachaise POI does not exist"
 msgstr "Le POI SuperLachaise n'existe pas"
