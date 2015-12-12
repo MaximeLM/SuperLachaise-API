@@ -13,7 +13,7 @@ TODO ; see [api.superlachaise.fr](https://api.superlachaise.fr) for examples
 Required :
 
  * [python 2.7](https://www.python.org)
- * [django 1.8](https://www.djangoproject.com)
+ * [django 1.9](https://www.djangoproject.com)
  * [pip](https://pypi.python.org/pypi/pip)
  * git
  * a database
@@ -62,28 +62,36 @@ Edit the settings file *<project_name>/settings.py* :
 
 ```python
 # User agent header added to mediawiki requests ; see https://meta.wikimedia.org/wiki/User-Agent_policy
-# Synchronisation may be blocked if this setting is empty
+# Synchronisation may fail if this setting is empty
 MEDIAWIKI_USER_AGENT = ''
 
-# Uncomment and edit to enable email updates about object synchronisation
-'''
-# SMTP
+# Send an email to managers at the end of the sync_all operation
+EMAIL_ENABLED = False
 EMAIL_HOST = 'smpt.example.com'
-EMAIL_HOST_USER = 'user@example.com'
-EMAIL_HOST_PASSWORD = 'password'
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False &#35; TLS and SSL are mutually exclusive
 EMAIL_PORT = 587      &#35; or something else
-
+EMAIL_USE_SSL = False &#35; TLS and SSL are mutually exclusive
+EMAIL_USE_TLS = True
 EMAIL_SUBJECT_PREFIX = '[SuperLachaise API] '
 SERVER_EMAIL = 'from@example.com'
+EMAIL_HOST_USER = 'user@example.com'
+EMAIL_HOST_PASSWORD = 'password'
 
-# The list of managers who should receive object synchronisation updates
+# The list of managers who should receive synchronisation updates by email
 MANAGERS = (
     ('Manager 1', 'manager1@example.com',),
     ('Manager 2', 'manager2@example.com',),
 )
-'''
+
+# Dump the database at the end of the sync_all operation
+DUMP_DATABASE = False
+DATABASE_DUMP_NAME = 'superlachaise_database.json'
+DATABASE_DUMP_DIR = '/home/user/superlachaise_api_/database/'
+
+# Commit the database dump ; there must be a git repo in DATABASE_DUMP_DIR
+COMMIT_DATABASE_DUMP_DIR = False
+COMMIT_DATABASE_DUMP_MESSAGE = '[SuperLachaise API] Dump database'
+COMMIT_DATABASE_DUMP_PUSH = False
+COMMIT_DATABASE_DUMP_REMOTE_NAME = 'origin'
 ```
 
 Edit the URLs file *<project_name>/urls.py* and include the application URLs in *urlpatterns* :
@@ -122,7 +130,7 @@ Open the admin interface in a browser (http://yoursite.com/admin/ or [http://127
 
 The application is now ready to synchronize data and serve requests.
 
- * Go to the **Synchronizations** and **Settings** screens to begin synchronising data.
+ * Go to the **Settings** and **Synchronizations** screens to begin synchronising data.
  * The API is located at http://yoursite.com/api/
 
 ## Administration

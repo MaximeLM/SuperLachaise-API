@@ -65,6 +65,8 @@ class Command(BaseCommand):
                 mail_content.append('')
         
         if mail_content:
+            print_unicode(_('Sending email to managers'))
+            
             end_date = timezone.now()
             duration = end_date - self.start_date
             (minutes, seconds) = divmod(duration.days * 86400 + duration.seconds, 60)
@@ -99,7 +101,8 @@ class Command(BaseCommand):
             
             print_unicode(_('== Start %s ==') % self.synchronization.name)
             self.sync_all()
-            self.send_mail_to_managers()
+            if settings.EMAIL_ENABLED:
+                self.send_mail_to_managers()
             if settings.DUMP_DATABASE:
                 print_unicode(_('Dump database'))
                 call_command('dump_database')

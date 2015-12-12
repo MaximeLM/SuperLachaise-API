@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-12 18:19+0100\n"
+"POT-Creation-Date: 2015-12-12 18:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -222,16 +222,20 @@ msgstr "objets modifiés : {count}"
 msgid "Deleted objects: {count}"
 msgstr "objets supprimés : {count}"
 
-#: management/commands/sync_all.py:72
+#: management/commands/sync_all.py:68
+msgid "Sending email to managers"
+msgstr "Envoi d'un email aux managers"
+
+#: management/commands/sync_all.py:74
 #, python-brace-format
 msgid "Duration: {minutes} minute(s) and {seconds} second(s)"
 msgstr "Durée du traitement: {minutes} minute(s) et {seconds} seconde(s)"
 
-#: management/commands/sync_all.py:76
+#: management/commands/sync_all.py:78
 msgid "Admin commands results"
 msgstr "Résultats des commandes admin"
 
-#: management/commands/sync_all.py:100
+#: management/commands/sync_all.py:102
 #: management/commands/sync_openstreetmap.py:366
 #: management/commands/sync_superlachaise_pois.py:545
 #: management/commands/sync_wikidata.py:423
@@ -243,11 +247,11 @@ msgstr "Résultats des commandes admin"
 msgid "== Start %s =="
 msgstr "== Début %s =="
 
-#: management/commands/sync_all.py:104
+#: management/commands/sync_all.py:107
 msgid "Dump database"
 msgstr "Dump base de données"
 
-#: management/commands/sync_all.py:106
+#: management/commands/sync_all.py:109
 #: management/commands/sync_openstreetmap.py:368
 #: management/commands/sync_superlachaise_pois.py:547
 #: management/commands/sync_wikidata.py:425
