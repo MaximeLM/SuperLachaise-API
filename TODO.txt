@@ -14,8 +14,3 @@ Admin
 Tests & refactor
 - Refactor & test synchronizations
 - Test views
-
-Upgrade
-pip install -r requirements.txt
-modifier urls.py
-collectstatic
