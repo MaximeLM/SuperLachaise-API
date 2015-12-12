@@ -25,6 +25,41 @@ from django.core.management.base import BaseCommand, CommandError
 
 from superlachaise_api.models import *
 
+configuration_models = {
+    Synchronization: {
+        'id_fields': ['name'],
+        'other_fields': ['dependency_order'],
+    },
+    LocalizedSynchronization: {
+        'id_fields': ['synchronization__name', 'language__code'],
+        'other_fields': ['description'],
+    },
+    Language: {
+        'id_fields': ['code'],
+        'other_fields': ['description', 'enumeration_separator', 'last_enumeration_separator', 'artist_prefix'],
+    },
+    Setting: {
+        'id_fields': ['key'],
+        'other_fields': ['default'],
+    },
+    LocalizedSetting: {
+        'id_fields': ['setting__key', 'language__code'],
+        'other_fields': ['description'],
+    },
+    SuperLachaiseCategory: {
+        'id_fields': ['code'],
+        'other_fields': ['type', 'values'],
+    },
+    SuperLachaiseLocalizedCategory: {
+        'id_fields': ['superlachaise_category__code', 'language__code'],
+        'other_fields': ['name'],
+    },
+    WikidataOccupation: {
+        'id_fields': ['wikidata_id'],
+        'other_fields': ['name', 'superlachaise_category__code'],
+    },
+}
+
 class Command(BaseCommand):
     
     def resolve_field_relation(self, object, field):
@@ -32,65 +67,26 @@ class Command(BaseCommand):
             resolved_field = field.split('__')[0]
             value = getattr(object, resolved_field)
             if value:
-                result = (field, getattr(value, field.split('__')[1]))
+                result = getattr(value, field.split('__')[1])
             else:
-                result = (resolved_field, None)
+                result = None
         else:
-            result = (field, getattr(object, field))
+            result = getattr(object, field)
         return result
     
     def handle(self, *args, **options):
-        models = {
-            Synchronization: {
-                'id_fields': ['name'],
-                'other_fields': ['dependency_order'],
-            },
-            LocalizedSynchronization: {
-                'id_fields': ['synchronization__name', 'language__code'],
-                'other_fields': ['description'],
-            },
-            Language: {
-                'id_fields': ['code'],
-                'other_fields': ['description', 'enumeration_separator', 'last_enumeration_separator', 'artist_prefix'],
-            },
-            Setting: {
-                'id_fields': ['key'],
-                'other_fields': ['value'],
-            },
-            LocalizedSetting: {
-                'id_fields': ['setting__key', 'language__code'],
-                'other_fields': ['description'],
-            },
-            SuperLachaiseCategory: {
-                'id_fields': ['code'],
-                'other_fields': ['type', 'values'],
-            },
-            SuperLachaiseLocalizedCategory: {
-                'id_fields': ['superlachaise_category__code', 'language__code'],
-                'other_fields': ['name'],
-            },
-            WikidataOccupation: {
-                'id_fields': ['wikidata_id'],
-                'other_fields': ['name', 'superlachaise_category__code'],
-            },
-        }
-        
         result = {}
-        for model, fields in models.iteritems():
-            pending_modifications = []
+        for model, fields in configuration_models.iteritems():
+            objects_dicts = []
             for object in model.objects.all():
-                target_object_id_dict = {field:value for (field, value) in [self.resolve_field_relation(object, field) for field in fields['id_fields']]}
-                modified_fields_dict = {field:value for (field, value) in [self.resolve_field_relation(object, field) for field in fields['other_fields']]}
+                object_dict = {}
+                for field in fields['id_fields']:
+                    object_dict[field] = self.resolve_field_relation(object, field)
+                for field in fields['other_fields']:
+                    object_dict[field] = self.resolve_field_relation(object, field)
                 
-                pending_modification = {
-                    'action': PendingModification.CREATE_OR_UPDATE,
-                    'target_object_class': model.__name__,
-                    'target_object_id': json.dumps(target_object_id_dict),
-                    'modified_fields': json.dumps(modified_fields_dict),
-                }
-                
-                pending_modifications.append(pending_modification)
-            result[model.__name__] = pending_modifications
+                objects_dicts.append(object_dict)
+            result[model.__name__] = objects_dicts
         
         with open(os.path.dirname(__file__) + '/../../configuration/configuration.json', 'w') as configuration_file:
             configuration_file.write(json.dumps(result, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=True).encode('utf8'))

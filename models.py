@@ -21,7 +21,6 @@ limitations under the License.
 """
 
 import json, traceback
-from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import models
@@ -99,9 +98,16 @@ class Setting(SuperLachaiseModel):
     
     key = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('key'))
     value = models.CharField(max_length=255, blank=True, verbose_name=_('value'))
+    default = models.CharField(max_length=255, blank=True, verbose_name=_('default'))
     
     def __unicode__(self):
         return self.key
+    
+    def save(self, *args, **kwargs):
+        # Set value with default if empty
+        if not self.value:
+            self.value = self.default
+        super(Setting, self).save(*args, **kwargs)
     
     class Meta:
         ordering = ['key']

@@ -189,12 +189,12 @@ class LocalizedSettingInline(admin.StackedInline):
 
 @admin.register(Setting)
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'key', 'value', 'description', 'notes')
-    search_fields = ('key', 'value', 'notes',)
+    list_display = ('__unicode__', 'key', 'value', 'default', 'description', 'notes')
+    search_fields = ('key', 'value', 'default', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['key', 'value']}),
+        (None, {'fields': ['key', 'value', 'default']}),
     ]
     readonly_fields = ('description', 'created', 'modified')
     

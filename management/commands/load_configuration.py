@@ -25,6 +25,7 @@ from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 
 from superlachaise_api.models import *
+from superlachaise_api.management.commands.dump_configuration import configuration_models
 
 class Command(BaseCommand):
     
@@ -32,26 +33,10 @@ class Command(BaseCommand):
         with open(os.path.dirname(__file__) + '/../../configuration/configuration.json', 'r') as configuration_file:
             configuration = json.load(configuration_file)
             
-            models = [
-                Language,
-                Synchronization,
-                LocalizedSynchronization,
-                Setting,
-                LocalizedSetting,
-                SuperLachaiseCategory,
-                SuperLachaiseLocalizedCategory,
-                WikidataOccupation,
-            ]
-            
-            for model in models:
-                objects = configuration[model.__name__]
-                
-                synced_objects = []
-                PendingModification.objects.filter(target_object_class=model.__name__).delete()
-                for pending_modification_dict in objects:
-                    pending_modification = PendingModification(**pending_modification_dict)
-                    pending_modification.apply_modification()
-                    
-                    synced_objects.append(pending_modification.target_object().pk)
-                    
-                model.objects.exclude(pk__in=synced_objects).delete()
+            for model, fields in configuration_models.iteritems():
+                for object_fields in configuration[model.__name__]:
+                    target_object_id_dict = {field: object_fields[field] for field in fields['id_fields']}
+                    object, created = model.objects.get_or_create(**target_object_id_dict)
+                    for field in fields['other_fields']:
+                        setattr(object, field, object_fields[field])
+                    object.save()
