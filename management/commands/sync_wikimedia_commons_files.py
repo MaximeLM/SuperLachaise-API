@@ -31,6 +31,11 @@ from superlachaise_api.models import *
 def print_unicode(str):
     print str.encode('utf-8')
 
+def none_to_blank(s):
+    if s is None:
+        return u''
+    return unicode(s)
+
 class Command(BaseCommand):
     
     def request_wikimedia_commons_files(self, wikimedia_commons_files):
@@ -76,7 +81,7 @@ class Command(BaseCommand):
             if not len(image_info) == 1:
                 raise BaseException
             
-            return image_info[0]['url']
+            return none_to_blank(image_info[0]['url'])
         except:
             return u''
     
@@ -86,64 +91,42 @@ class Command(BaseCommand):
             if not len(image_info) == 1:
                 raise BaseException
             
-            return image_info[0]['thumburl']
+            return none_to_blank(image_info[0]['thumburl'])
         except:
             return u''
     
     def handle_wikimedia_commons_file(self, id, wikimedia_commons_file):
-        target_object_id_dict = {"wikimedia_commons_id": id}
-        # Get data
+        # Get values
         values_dict = {
             'original_url': self.get_original_url(wikimedia_commons_file),
             'thumbnail_url': self.get_thumbnail_url(wikimedia_commons_file),
         }
         
         # Get element in database if it exists
-        wikimedia_commons_file = WikimediaCommonsFile.objects.filter(**target_object_id_dict).first()
+        target_object_id_dict = {"wikimedia_commons_id": id}
+        wikimedia_commons_file, created = WikimediaCommonsFile.objects.get_or_create(**target_object_id_dict)
+        self.fetched_objects_pks.append(wikimedia_commons_file.pk)
+        modified = False
         
-        if not wikimedia_commons_file:
-            # Creation
-            pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsFile", target_object_id=json.dumps(target_object_id_dict))
-            self.fetched_pending_modifications_pks.append(pending_modification.pk)
-            pending_modification.action = PendingModification.CREATE_OR_UPDATE
-            
+        if created:
             self.created_objects = self.created_objects + 1
-            pending_modification.modified_fields = json.dumps(values_dict)
-            pending_modification.full_clean()
-            pending_modification.save()
-            
-            if self.auto_apply:
-                pending_modification.apply_modification()
         else:
-            self.fetched_objects_pks.append(wikimedia_commons_file.pk)
-            
-            modified_fields = {}
+            # Search for modifications
             for field, value in values_dict.iteritems():
                 if value != getattr(wikimedia_commons_file, field):
-                    modified_fields[field] = value
-            
-            if modified_fields:
-                # Modification
-                pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsFile", target_object_id=json.dumps(target_object_id_dict))
-                self.fetched_pending_modifications_pks.append(pending_modification.pk)
-                pending_modification.action = PendingModification.CREATE_OR_UPDATE
-                
-                self.modified_objects = self.modified_objects + 1
-                pending_modification.modified_fields = json.dumps(modified_fields)
-                pending_modification.full_clean()
-                pending_modification.save()
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
-            else:
-                # Delete previous modification if any
-                PendingModification.objects.filter(target_object_class="WikimediaCommonsFile", target_object_id=json.dumps(target_object_id_dict)).delete()
+                    modified = True
+                    self.modified_objects = self.modified_objects + 1
+                    break
+        
+        if created or modified:
+            for field, value in values_dict.iteritems():
+                setattr(wikimedia_commons_file, field, value)
+            wikimedia_commons_file.save()
     
     def sync_wikimedia_commons_files(self, param_wikimedia_commons_files):
         # Get wikimedia commons files
         files_to_fetch = []
         self.fetched_objects_pks = []
-        self.fetched_pending_modifications_pks = []
         
         if param_wikimedia_commons_files:
             files_to_fetch = param_wikimedia_commons_files.split('|')
@@ -165,22 +148,10 @@ class Command(BaseCommand):
         print_unicode(str(count) + u'/' + str(total))
         
         if not param_wikimedia_commons_files:
-            # Delete pending creations if element was not downloaded
-            PendingModification.objects.filter(target_object_class="WikimediaCommonsFile", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-        
             # Look for deleted elements
             for wikimedia_commons_file in WikimediaCommonsFile.objects.exclude(pk__in=self.fetched_objects_pks):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsFile", target_object_id=json.dumps({"wikimedia_commons_id": wikimedia_commons_file.wikimedia_commons_id}))
-            
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
-            
-                pendingModification.full_clean()
-                pendingModification.save()
                 self.deleted_objects = self.deleted_objects + 1
-            
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                wikimedia_commons_file.delete()
     
     def add_arguments(self, parser):
         parser.add_argument('--wikimedia_commons_files',
@@ -199,7 +170,6 @@ class Command(BaseCommand):
         try:
             translation.activate(settings.LANGUAGE_CODE)
             
-            self.auto_apply = (Setting.objects.get(key=u'wikimedia_commons:auto_apply_modifications').value == 'true')
             self.thumbnail_width = int(Setting.objects.get(key=u'wikimedia_commons:thumbnail_width').value)
             
             self.created_objects = 0

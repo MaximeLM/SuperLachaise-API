@@ -32,6 +32,11 @@ from superlachaise_api.models import *
 def print_unicode(str):
     print str.encode('utf-8')
 
+def none_to_blank(s):
+    if s is None:
+        return u''
+    return unicode(s)
+
 class WikipediaIntroHTMLParser(HTMLParser):
     
     def __init__(self, language_code):
@@ -207,7 +212,7 @@ class Command(BaseCommand):
         parser = WikipediaIntroHTMLParser(language_code)
         parser.feed(pre_section)
         
-        return parser.get_data()
+        return none_to_blank(parser.get_data())
     
     def get_default_sort(self, page):
         try:
@@ -231,61 +236,37 @@ class Command(BaseCommand):
             return u''
     
     def hande_wikidata_localized_entry(self, wikidata_localized_entry):
-        target_object_id_dict = {"wikidata_localized_entry_id": wikidata_localized_entry.pk}
-        
+        # Get values
         values_dict = {
             'title': wikidata_localized_entry.wikipedia,
             'intro': self.get_wikipedia_intro(wikidata_localized_entry.language.code, wikidata_localized_entry.wikipedia),
         }
+        
+        # Get or create object in database
+        target_object_id_dict = {"wikidata_localized_entry_id": wikidata_localized_entry.pk}
+        wikipedia_page, created = WikipediaPage.objects.get_or_create(**target_object_id_dict)
+        self.fetched_objects_pks.append(wikipedia_page.pk)
+        modified = False
         
         if wikidata_localized_entry.language.code in self.default_sort and wikidata_localized_entry.wikipedia in self.default_sort[wikidata_localized_entry.language.code]:
             values_dict['default_sort'] = self.default_sort[wikidata_localized_entry.language.code][wikidata_localized_entry.wikipedia]
         else:
             values_dict['default_sort'] = u''
         
-        # Get element in database if it exists
-        wikipedia_page = WikipediaPage.objects.filter(**target_object_id_dict).first()
-        
-        if not wikipedia_page:
-            # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=json.dumps(target_object_id_dict))
-            self.fetched_pending_modifications_pks.append(pendingModification.pk)
-            
-            pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            pendingModification.modified_fields = json.dumps(values_dict)
-            
-            pendingModification.full_clean()
-            pendingModification.save()
+        if created:
             self.created_objects = self.created_objects + 1
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
         else:
-            self.fetched_objects_pks.append(wikipedia_page.pk)
-            
             # Search for modifications
-            modified_values = {}
-            
             for field, value in values_dict.iteritems():
                 if value != getattr(wikipedia_page, field):
-                    modified_values[field] = value
-            
-            if modified_values:
-                # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=json.dumps(target_object_id_dict))
-                self.fetched_pending_modifications_pks.append(pendingModification.pk)
-                pendingModification.modified_fields = json.dumps(modified_values)
-                pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.modified_objects = self.modified_objects + 1
-            
-                if self.auto_apply:
-                    pendingModification.apply_modification()
-            else:
-                # Delete the previous modification if any
-                PendingModification.objects.filter(target_object_class="WikipediaPage", target_object_id=json.dumps(target_object_id_dict)).delete()
+                    modified = True
+                    self.modified_objects = self.modified_objects + 1
+                    break
+        
+        if created or modified:
+            for field, value in values_dict.iteritems():
+                setattr(wikipedia_page, field, value)
+            wikipedia_page.save()
     
     def sync_wikipedia(self, wikidata_localized_entry_ids):
         if wikidata_localized_entry_ids:
@@ -315,7 +296,6 @@ class Command(BaseCommand):
         count = 0
         max_count_per_request = 25
         self.fetched_objects_pks = []
-        self.fetched_pending_modifications_pks = []
         for chunk in [wikidata_localized_entries[i:i+max_count_per_request] for i in range(0,len(wikidata_localized_entries),max_count_per_request)]:
             print_unicode(str(count) + u'/' + str(total))
             count += len(chunk)
@@ -325,22 +305,10 @@ class Command(BaseCommand):
         print_unicode(str(count) + u'/' + str(total))
         
         if not wikidata_localized_entry_ids:
-            # Delete pending creations if element was not fetched
-            PendingModification.objects.filter(target_object_class="WikipediaPage", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-        
             # Look for deleted elements
             for wikipedia_page in WikipediaPage.objects.exclude(pk__in=self.fetched_objects_pks):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikipediaPage", target_object_id=json.dumps({"wikidata_localized_entry_id": wikipedia_page.wikidata_localized_entry.pk}))
-                
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
-            
-                pendingModification.full_clean()
-                pendingModification.save()
                 self.deleted_objects = self.deleted_objects + 1
-            
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                wikipedia_page.delete()
     
     def add_arguments(self, parser):
         parser.add_argument('--wikidata_localized_entry_ids',
@@ -358,8 +326,6 @@ class Command(BaseCommand):
         
         try:
             translation.activate(settings.LANGUAGE_CODE)
-            
-            self.auto_apply = (Setting.objects.get(key=u'wikipedia:auto_apply_modifications').value == 'true')
             
             self.created_objects = 0
             self.modified_objects = 0

@@ -173,7 +173,7 @@ class Command(BaseCommand):
                     result = wikidata_entry.burial_plot_reference
                 elif not result == wikidata_entry.burial_plot_reference:
                     # Multiple burial plot references in wikidata entries
-                    result = None
+                    result = u''
                     break
         
         return result
@@ -400,155 +400,71 @@ class Command(BaseCommand):
         return result
     
     def sync_superlachaise_wikidata_relation(self, openstreetmap_element_id, relation_type, wikidata_id):
+        # Get or create object in database
         target_object_id_dict = {"superlachaise_poi__openstreetmap_element__openstreetmap_id": openstreetmap_element_id, "wikidata_entry__wikidata_id": wikidata_id, "relation_type": relation_type}
+        wikidata_relation, created = SuperLachaiseWikidataRelation.objects.get_or_create(**target_object_id_dict)
+        self.fetched_wikidata_relations_pks.append(wikidata_relation.pk)
         
-        # Get element in database if it exists
-        wikidata_relation = SuperLachaiseWikidataRelation.objects.filter(**target_object_id_dict).first()
-        
-        if not wikidata_relation:
-            # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseWikidataRelation", target_object_id=json.dumps(target_object_id_dict))
-            self.fetched_pending_modifications_pks.append(pendingModification.pk)
-            
-            pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            pendingModification.modified_fields = u''
-            
-            pendingModification.full_clean()
-            pendingModification.save()
+        if created:
             self.created_objects = self.created_objects + 1
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
-        else:
-            self.fetched_wikidata_relations_pks.append(wikidata_relation.pk)
-            
-            # Delete the previous modification if any
-            pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaiseWikidataRelation", target_object_id=json.dumps(target_object_id_dict)).delete()
     
     def sync_superlachaise_category_relation(self, openstreetmap_element_id, category_code):
+        # Get or create object in database
         target_object_id_dict = {"superlachaise_poi__openstreetmap_element__openstreetmap_id": openstreetmap_element_id, "superlachaise_category__code": category_code}
+        category_relation, created = SuperLachaiseCategoryRelation.objects.get_or_create(**target_object_id_dict)
+        self.fetched_category_relations_pks.append(category_relation.pk)
         
-        # Get element in database if it exists
-        category_relation = SuperLachaiseCategoryRelation.objects.filter(**target_object_id_dict).first()
-        
-        if not category_relation:
-            # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseCategoryRelation", target_object_id=json.dumps(target_object_id_dict))
-            self.fetched_pending_modifications_pks.append(pendingModification.pk)
-            
-            pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            pendingModification.modified_fields = u''
-            
-            pendingModification.full_clean()
-            pendingModification.save()
+        if created:
             self.created_objects = self.created_objects + 1
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
-        else:
-            self.fetched_category_relations_pks.append(category_relation.pk)
-            
-            # Delete the previous modification if any
-            pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaiseCategoryRelation", target_object_id=json.dumps(target_object_id_dict)).delete()
     
     def sync_superlachaise_localized_poi(self, openstreetmap_element_id, language_code, values_dict):
+        # Get or create object in database
         target_object_id_dict = {"superlachaise_poi__openstreetmap_element__openstreetmap_id": openstreetmap_element_id, "language__code": language_code}
+        superlachaise_localized_poi, created = SuperLachaiseLocalizedPOI.objects.get_or_create(**target_object_id_dict)
+        self.localized_fetched_objects_pks.append(superlachaise_localized_poi.pk)
+        modified = False
         
-        # Get element in database if it exists
-        superlachaise_localized_poi = SuperLachaiseLocalizedPOI.objects.filter(**target_object_id_dict).first()
-        
-        if not superlachaise_localized_poi:
-            # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps(target_object_id_dict))
-            self.fetched_pending_modifications_pks.append(pendingModification.pk)
-            
-            pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            pendingModification.modified_fields = json.dumps(values_dict)
-            
-            pendingModification.full_clean()
-            pendingModification.save()
+        if created:
             self.created_objects = self.created_objects + 1
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
         else:
-            self.localized_fetched_objects_pks.append(superlachaise_localized_poi.pk)
-            
             # Search for modifications
-            modified_values = {}
-            
             for field, value in values_dict.iteritems():
                 if value != getattr(superlachaise_localized_poi, field):
-                    modified_values[field] = value
-            
-            if modified_values:
-                # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps(target_object_id_dict))
-                self.fetched_pending_modifications_pks.append(pendingModification.pk)
-                pendingModification.modified_fields = json.dumps(modified_values)
-                pendingModification.action = PendingModification.CREATE_OR_UPDATE
-                
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.modified_objects = self.modified_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
-            else:
-                # Delete the previous modification if any
-                pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps(target_object_id_dict)).delete()
+                    modified = True
+                    self.modified_objects = self.modified_objects + 1
+                    break
+        
+        if created or modified:
+            for field, value in values_dict.iteritems():
+                setattr(superlachaise_localized_poi, field, value)
+            superlachaise_localized_poi.save()
     
     def sync_superlachaise_poi(self, openstreetmap_element_id):
-        target_object_id_dict = {"openstreetmap_element__openstreetmap_id": openstreetmap_element_id}
-        
+        # Get values
         openstreetmap_element = OpenStreetMapElement.objects.get(openstreetmap_id=openstreetmap_element_id)
-        
         wikidata_entries = self.get_wikidata_entries(openstreetmap_element)
         values_dict = self.get_values_for_openstreetmap_element(openstreetmap_element, wikidata_entries)
         
-        # Get element in database if it exists
-        superlachaise_poi = SuperLachaisePOI.objects.filter(**target_object_id_dict).first()
+        # Get or create object in database
+        target_object_id_dict = {"openstreetmap_element__openstreetmap_id": openstreetmap_element_id}
+        superlachaise_poi, created = SuperLachaisePOI.objects.get_or_create(**target_object_id_dict)
+        self.fetched_objects_pks.append(superlachaise_poi.pk)
+        modified = False
         
-        if not superlachaise_poi:
-            # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps(target_object_id_dict))
-            self.fetched_pending_modifications_pks.append(pendingModification.pk)
-            
-            pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            pendingModification.modified_fields = json.dumps(values_dict, default=date_handler)
-            
-            pendingModification.full_clean()
-            pendingModification.save()
+        if created:
             self.created_objects = self.created_objects + 1
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
         else:
-            self.fetched_objects_pks.append(superlachaise_poi.pk)
-            
             # Search for modifications
-            modified_values = {}
-            
             for field, value in values_dict.iteritems():
                 if value != getattr(superlachaise_poi, field):
-                    modified_values[field] = value
-            
-            if modified_values:
-                # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps(target_object_id_dict))
-                self.fetched_pending_modifications_pks.append(pendingModification.pk)
-                pendingModification.modified_fields = json.dumps(modified_values, default=date_handler)
-                pendingModification.action = PendingModification.CREATE_OR_UPDATE
-                
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.modified_objects = self.modified_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
-            else:
-                # Delete the previous modification if any
-                pendingModification = PendingModification.objects.filter(target_object_class="SuperLachaisePOI", target_object_id=json.dumps(target_object_id_dict)).delete()
+                    modified = True
+                    self.modified_objects = self.modified_objects + 1
+                    break
+        
+        if created or modified:
+            for field, value in values_dict.iteritems():
+                setattr(superlachaise_poi, field, value)
+            superlachaise_poi.save()
         
         for language in Language.objects.all():
             localized_values_dict = self.get_localized_values_for_openstreetmap_element(language, openstreetmap_element, wikidata_entries)
@@ -574,9 +490,7 @@ class Command(BaseCommand):
         self.localized_fetched_objects_pks = []
         self.fetched_wikidata_relations_pks = []
         self.fetched_category_relations_pks = []
-        self.fetched_pending_modifications_pks = []
         
-        print_unicode(_('Preparing objects...'))
         total = len(openstreetmap_element_ids)
         count = 0
         max_count_per_request = 25
@@ -589,61 +503,19 @@ class Command(BaseCommand):
         print_unicode(str(count) + u'/' + str(total))
         
         if not param_openstreetmap_element_ids:
-            # Delete pending creations if element was not fetched
-            PendingModification.objects.filter(target_object_class="SuperLachaisePOI", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-            PendingModification.objects.filter(target_object_class="SuperLachaiseLocalizedPOI", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-            PendingModification.objects.filter(target_object_class="SuperLachaiseWikidataRelation", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-            PendingModification.objects.filter(target_object_class="SuperLachaiseCategoryRelation", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-            
             # Look for deleted elements
             for superlachaise_poi in SuperLachaisePOI.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaisePOI", target_object_id=json.dumps({"openstreetmap_element__openstreetmap_id": superlachaise_poi.openstreetmap_element.openstreetmap_id}))
-                
-                pendingModification.action = PendingModification.CREATE_OR_UPDATE
-                pendingModification.modified_fields = json.dumps({"deleted": True})
-                
-                pendingModification.full_clean()
-                pendingModification.save()
                 self.deleted_objects = self.deleted_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                superlachaise_poi.delete()
             for superlachaise_localized_poi in SuperLachaiseLocalizedPOI.objects.exclude(Q(pk__in=self.localized_fetched_objects_pks) | ~Q(superlachaise_poi__pk__in=self.fetched_objects_pks)):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseLocalizedPOI", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": superlachaise_localized_poi.superlachaise_poi.openstreetmap_element.openstreetmap_id, "language__code": superlachaise_localized_poi.language.code}))
-                
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
-                
-                pendingModification.full_clean()
-                pendingModification.save()
                 self.deleted_objects = self.deleted_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                superlachaise_localized_poi.delete()
             for wikidata_relation in SuperLachaiseWikidataRelation.objects.exclude(Q(pk__in=self.fetched_wikidata_relations_pks) | ~Q(superlachaise_poi__pk__in=self.fetched_objects_pks)):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseWikidataRelation", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": wikidata_relation.superlachaise_poi.openstreetmap_element.openstreetmap_id, "wikidata_entry__wikidata_id": wikidata_relation.wikidata_entry.wikidata_id, "relation_type": wikidata_relation.relation_type}))
-                
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
-                
-                pendingModification.full_clean()
-                pendingModification.save()
                 self.deleted_objects = self.deleted_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                wikidata_relation.delete()
             for category_relation in SuperLachaiseCategoryRelation.objects.exclude(Q(pk__in=self.fetched_category_relations_pks) | ~Q(superlachaise_poi__pk__in=self.fetched_objects_pks)):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="SuperLachaiseCategoryRelation", target_object_id=json.dumps({"superlachaise_poi__openstreetmap_element__openstreetmap_id": category_relation.superlachaise_poi.openstreetmap_element.openstreetmap_id, "superlachaise_category__code": category_relation.superlachaise_category.code}))
-                
-                pendingModification.action = PendingModification.DELETE
-                pendingModification.modified_fields = u''
-                
-                pendingModification.full_clean()
-                pendingModification.save()
                 self.deleted_objects = self.deleted_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                category_relation.delete()
     
     def add_arguments(self, parser):
         parser.add_argument('--openstreetmap_element_ids',
@@ -662,7 +534,6 @@ class Command(BaseCommand):
         try:
             translation.activate(settings.LANGUAGE_CODE)
             
-            self.auto_apply = (Setting.objects.get(key=u'superlachaise_poi:auto_apply_modifications').value == 'true')
             self.openstreetmap_name_tag_language = Setting.objects.get(key=u'openstreetmap:name_tag_language').value
             self.synced_instance_of = json.loads(Setting.objects.get(key=u'wikimedia_commons:synced_instance_of').value)
             

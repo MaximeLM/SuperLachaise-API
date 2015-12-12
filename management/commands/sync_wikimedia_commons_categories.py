@@ -126,8 +126,6 @@ class Command(BaseCommand):
             return u''
     
     def handle_wikimedia_commons_category(self, page):
-        target_object_id_dict = {"wikimedia_commons_id": page['title']}
-        
         # Get values
         values_dict = {
             'main_image': self.get_main_image(page),
@@ -135,46 +133,26 @@ class Command(BaseCommand):
             'deleted': False,
         }
         
-        # Get element in database if it exists
-        wikimedia_commons_category = WikimediaCommonsCategory.objects.filter(**target_object_id_dict).first()
+        # Get or create object in database
+        target_object_id_dict = {"wikimedia_commons_id": page['title']}
+        wikimedia_commons_category, created = WikimediaCommonsCategory.objects.get_or_create(**target_object_id_dict)
+        self.fetched_objects_pks.append(wikimedia_commons_category.pk)
+        modified = False
         
-        if not wikimedia_commons_category:
-            # Creation
-            pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=json.dumps(target_object_id_dict))
-            self.fetched_pending_modifications_pks.append(pending_modification.pk)
-            pending_modification.action = PendingModification.CREATE_OR_UPDATE
-            
+        if created:
             self.created_objects = self.created_objects + 1
-            pending_modification.modified_fields = json.dumps(values_dict)
-            pending_modification.full_clean()
-            pending_modification.save()
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
         else:
-            self.fetched_objects_pks.append(wikimedia_commons_category.pk)
-            
-            modified_fields = {}
+            # Search for modifications
             for field, value in values_dict.iteritems():
                 if value != getattr(wikimedia_commons_category, field):
-                    modified_fields[field] = value
-            
-            if modified_fields:
-                # Modification
-                pending_modification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=json.dumps(target_object_id_dict))
-                self.fetched_pending_modifications_pks.append(pending_modification.pk)
-                pending_modification.action = PendingModification.CREATE_OR_UPDATE
-                
-                self.modified_objects = self.modified_objects + 1
-                pending_modification.modified_fields = json.dumps(modified_fields)
-                pending_modification.full_clean()
-                pending_modification.save()
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
-            else:
-                # Delete previous modification if any
-                pending_modification = PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", target_object_id=json.dumps(target_object_id_dict)).delete()
+                    modified = True
+                    self.modified_objects = self.modified_objects + 1
+                    break
+        
+        if created or modified:
+            for field, value in values_dict.iteritems():
+                setattr(wikimedia_commons_category, field, value)
+            wikimedia_commons_category.save()
     
     def sync_wikimedia_commons_categories(self, param_wikimedia_commons_categories):
         # Get wikimedia commons categories
@@ -207,7 +185,6 @@ class Command(BaseCommand):
         count = 0
         max_count_per_request = 25
         self.fetched_objects_pks = []
-        self.fetched_pending_modifications_pks = []
         for chunk in [wikimedia_commons_categories[i:i+max_count_per_request] for i in range(0,len(wikimedia_commons_categories),max_count_per_request)]:
             print_unicode(str(count) + u'/' + str(total))
             count += len(chunk)
@@ -218,22 +195,10 @@ class Command(BaseCommand):
         print_unicode(str(count) + u'/' + str(total))
         
         if not param_wikimedia_commons_categories:
-            # Delete pending creations if element was not downloaded
-            PendingModification.objects.filter(target_object_class="WikimediaCommonsCategory", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-        
             # Look for deleted elements
             for wikimedia_commons_category in WikimediaCommonsCategory.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="WikimediaCommonsCategory", target_object_id=json.dumps({"wikimedia_commons_id": wikimedia_commons_category.wikimedia_commons_id}))
-            
-                pendingModification.action = PendingModification.CREATE_OR_UPDATE
-                pendingModification.modified_fields = json.dumps({"deleted": True})
-            
-                pendingModification.full_clean()
-                pendingModification.save()
                 self.deleted_objects = self.deleted_objects + 1
-            
-                if self.auto_apply:
-                    pendingModification.apply_modification()
+                wikimedia_commons_category.delete()
     
     def add_arguments(self, parser):
         parser.add_argument('--wikimedia_commons_categories',
@@ -252,7 +217,6 @@ class Command(BaseCommand):
         try:
             translation.activate(settings.LANGUAGE_CODE)
             
-            self.auto_apply = (Setting.objects.get(key=u'wikimedia_commons:auto_apply_modifications').value == 'true')
             self.synced_instance_of = json.loads(Setting.objects.get(key=u'wikimedia_commons:synced_instance_of').value)
             
             self.created_objects = 0

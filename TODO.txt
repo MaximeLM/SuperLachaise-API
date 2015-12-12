@@ -5,7 +5,6 @@ Documentation
 - Write administration documentation
 
 Synchronization
-- Use pending modifications when synchronizing Wikidata Occupations
 - Control many-to-many relations for deletion when synchronizing SuperLachaise POIs in admin
 - Improve SuperLachaise POI synchronization by prefetching Wikidata entries
 
@@ -23,6 +22,7 @@ Trouver un meilleur moyen de lancer les create db version
 utiliser un repo git pour le suivi de modif et la màj de l'appli
 tout en auto-apply (supprimer la conf)
 supprimer pending modifications
+changer les messages admin liés aux pending modifications
 
 Upgrade
 pip install -r requirements.txt

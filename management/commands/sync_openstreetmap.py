@@ -173,7 +173,7 @@ class Command(BaseCommand):
     def get_values_from_element(self, overpass_element, coordinate):
         result = {
             'name': none_to_blank(overpass_element.tags.get("name")),
-            'sorting_name': overpass_element.tags.get("sorting_name"),
+            'sorting_name': none_to_blank(overpass_element.tags.get("sorting_name")),
             'latitude': coordinate['x'],
             'longitude': coordinate['y'],
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
@@ -183,7 +183,7 @@ class Command(BaseCommand):
         element_wikipedia = none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia'))
         element_wikidata = none_to_blank(self.get_wiki_values(overpass_element, 'wikidata'))
         
-        result['nature'] = self.get_nature(overpass_element)
+        result['nature'] = none_to_blank(self.get_nature(overpass_element))
         
         # Get combined wikidata field
         wikidata_combined = []
@@ -215,55 +215,29 @@ class Command(BaseCommand):
         return result
     
     def handle_element(self, overpass_element, coordinate):
+        # Get values
+        values_dict = self.get_values_from_element(overpass_element, coordinate)
+        
+        # Get or create object in database
         target_object_id_dict = {"type": overpass_element.__class__.__name__.lower(), "openstreetmap_id": overpass_element.id}
+        openStreetMap_element, created = OpenStreetMapElement.objects.get_or_create(**target_object_id_dict)
+        self.fetched_objects_pks.append(openStreetMap_element.pk)
+        modified = False
         
-        # Get element in database if it exists
-        openStreetMap_element = OpenStreetMapElement.objects.filter(**target_object_id_dict).first()
-        
-        if not openStreetMap_element:
-            # Creation
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps(target_object_id_dict))
-            self.fetched_pending_modifications_pks.append(pendingModification.pk)
-            
-            values_dict = self.get_values_from_element(overpass_element, coordinate)
-            
-            pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            pendingModification.modified_fields = json.dumps(values_dict, default=decimal_handler)
-            
-            pendingModification.full_clean()
-            pendingModification.save()
+        if created:
             self.created_objects = self.created_objects + 1
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
         else:
-            self.fetched_objects_pks.append(openStreetMap_element.pk)
-            
             # Search for modifications
-            modified_values = {}
-            
-            values_dict = self.get_values_from_element(overpass_element, coordinate)
             for field, value in values_dict.iteritems():
                 if value != getattr(openStreetMap_element, field):
-                    modified_values[field] = value
-            
-            if modified_values:
-                # Get or create a modification
-                pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps(target_object_id_dict))
-                self.fetched_pending_modifications_pks.append(pendingModification.pk)
-                
-                pendingModification.modified_fields = json.dumps(modified_values, default=decimal_handler)
-                pendingModification.action = PendingModification.CREATE_OR_UPDATE
-                
-                pendingModification.full_clean()
-                pendingModification.save()
-                self.modified_objects = self.modified_objects + 1
-                
-                if self.auto_apply:
-                    pendingModification.apply_modification()
-            else:
-                # Delete the previous modification if any
-                PendingModification.objects.filter(target_object_class="OpenStreetMapElement", target_object_id=json.dumps(target_object_id_dict)).delete()
+                    modified = True
+                    self.modified_objects = self.modified_objects + 1
+                    break
+        
+        if created or modified:
+            for field, value in values_dict.iteritems():
+                setattr(openStreetMap_element, field, value)
+            openStreetMap_element.save()
     
     def handle_way(self, overpass_way):
         # Get way centroid
@@ -353,7 +327,6 @@ class Command(BaseCommand):
         
         # Handle downloaded elements
         self.fetched_objects_pks = []
-        self.fetched_pending_modifications_pks = []
         for element in result.nodes:
             if self.element_accepted(element):
                 self.handle_element(element, {'x': element.lat, 'y': element.lon})
@@ -364,22 +337,10 @@ class Command(BaseCommand):
             if self.element_accepted(element):
                 self.handle_relation(element)
         
-        # Delete pending creations if element was deleted in OSM
-        PendingModification.objects.filter(target_object_class="OpenStreetMapElement", action=PendingModification.CREATE_OR_UPDATE).exclude(pk__in=self.fetched_pending_modifications_pks).delete()
-        
         # Look for deleted elements
         for openStreetMap_element in OpenStreetMapElement.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
-            pendingModification, created = PendingModification.objects.get_or_create(target_object_class="OpenStreetMapElement", target_object_id=json.dumps({"type": openStreetMap_element.type, "openstreetmap_id": openStreetMap_element.openstreetmap_id}))
-            
-            pendingModification.action = PendingModification.CREATE_OR_UPDATE
-            pendingModification.modified_fields = json.dumps({"deleted": True})
-            
-            pendingModification.full_clean()
-            pendingModification.save()
             self.deleted_objects = self.deleted_objects + 1
-            
-            if self.auto_apply:
-                pendingModification.apply_modification()
+            openStreetMap_element.delete()
     
     def handle(self, *args, **options):
         
@@ -393,7 +354,6 @@ class Command(BaseCommand):
         try:
             translation.activate(settings.LANGUAGE_CODE)
             
-            self.auto_apply = (Setting.objects.get(key=u'openstreetmap:auto_apply_modifications').value == 'true')
             self.bounding_box = Setting.objects.get(key=u'openstreetmap:bounding_box').value
             self.exclude_ids = json.loads(Setting.objects.get(key=u'openstreetmap:exclude_ids').value)
             self.synced_tags = json.loads(Setting.objects.get(key=u'openstreetmap:synced_tags').value)
