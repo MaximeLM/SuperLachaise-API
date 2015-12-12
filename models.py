@@ -517,16 +517,3 @@ class WikidataOccupation(SuperLachaiseModel):
         ordering = ['wikidata_id']
         verbose_name = _('wikidata occupation')
         verbose_name_plural = _('wikidata occupations')
-
-class DBVersion(SuperLachaiseModel):
-    """ A numbered version of the database """
-    
-    version_id = models.IntegerField(unique=True, db_index=True, verbose_name=_('version id'))
-    
-    def __unicode__(self):
-        return unicode(self.version_id)
-    
-    class Meta:
-        ordering = ['-version_id']
-        verbose_name = _('DB version')
-        verbose_name_plural = _('DB versions')

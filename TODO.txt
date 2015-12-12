@@ -28,3 +28,10 @@ collectstatic
 vues json
 commandes admin
 pages admin
+
+supprimer les format string en %
+
+renommer repos en :
+superlachaise-api
+superlachaise-database
+superlachaise-ios

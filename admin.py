@@ -742,24 +742,3 @@ class WikidataOccupationAdmin(admin.ModelAdmin):
     delete_notes.short_description = _('Delete notes')
     
     actions = [delete_notes]
-
-@admin.register(DBVersion)
-class DBVersionAdmin(admin.ModelAdmin):
-    list_display = ('version_id', 'modified', 'notes')
-    search_fields = ('version_id', 'notes',)
-    
-    fieldsets = [
-        (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['version_id']}),
-    ]
-    readonly_fields = ('created', 'modified')
-    
-    def create_db_version(self, request, queryset):
-        django.core.management.call_command("create_db_version")
-    create_db_version.short_description = _('Create DB version')
-    
-    def delete_notes(self, request, queryset):
-        AdminUtils.delete_notes(queryset)
-    delete_notes.short_description = _('Delete notes')
-    
-    actions=[create_db_version, delete_notes]

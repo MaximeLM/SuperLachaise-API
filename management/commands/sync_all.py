@@ -100,6 +100,9 @@ class Command(BaseCommand):
             print_unicode(_('== Start %s ==') % self.synchronization.name)
             self.sync_all()
             self.send_mail_to_managers()
+            if settings.DUMP_DATABASE:
+                print_unicode(_('Dump database'))
+                call_command('dump_database')
             print_unicode(_('== End %s ==') % self.synchronization.name)
             
             self.synchronization.created_objects = self.created_objects

@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, os, sys
+import json, errno, os, sys
 import os.path
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -35,25 +35,23 @@ from superlachaise_api.views import *
 def print_unicode(str):
     print str.encode('utf-8')
 
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else: raise
+
 class Command(BaseCommand):
     
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
         try:
-            # Compute file path
-            current_version = DBVersion.objects.all().aggregate(Max('version_id'))['version_id__max']
-            if not current_version:
-                raise CommandError(_(u'No DB version found'))
-            file_path = settings.STATIC_ROOT + "superlachaise_api/data/data_full_" + str(current_version) + ".json"
-            if os.path.isfile(file_path):
-                raise CommandError(_(u'A full file for this version already exists: ') + file_path)
-        
             obj_to_encode = {
                 'about': {
                     'licence': "https://api.superlachaise.fr/perelachaise/api/licence/",
                     'api_version': conf.VERSION,
-                    'db_version': current_version,
-                    'type': 'full',
                 },
                 'openstreetmap_elements': OpenStreetMapElement.objects.all().order_by('sorting_name'),
                 'wikidata_entries': WikidataEntry.objects.all().order_by('wikidata_id'),
@@ -63,9 +61,18 @@ class Command(BaseCommand):
             }
         
             content = SuperLachaiseEncoder(None, languages=Language.objects.all(), restrict_fields=True).encode(obj_to_encode)
-        
-            with open(file_path, 'w') as full_data_file:
-                full_data_file.write(content.encode('utf8'))
+            
+            mkdir_p(settings.DATABASE_DUMP_DIR)
+            with open(settings.DATABASE_DUMP_DIR + settings.DATABASE_DUMP_NAME, 'w') as database_dump_file:
+                database_dump_file.write(content.encode('utf8'))
+            
+            if settings.COMMIT_DATABASE_DUMP_DIR:
+                if os.path.isdir(settings.DATABASE_DUMP_DIR + ".git"):
+                    os.system('cd {0} ; git add . ; git commit -a -m "{1}"'.format(settings.DATABASE_DUMP_DIR, settings.COMMIT_DATABASE_DUMP_MESSAGE))
+                    if settings.COMMIT_DATABASE_DUMP_PUSH:
+                        os.system('cd {0} ; git push {1}'.format(settings.DATABASE_DUMP_DIR, settings.COMMIT_DATABASE_DUMP_REMOTE_NAME))
+                else:
+                    print u'Unable to commit database dump dir: ' + settings.DATABASE_DUMP_DIR + '.git does not exist'
         except:
             print_unicode(traceback.format_exc())
             translation.deactivate()

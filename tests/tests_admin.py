@@ -122,7 +122,6 @@ class AdminUtilsTestCase(TestCase):
         
         self.assertEqual(1, len(request._messages))
         for message in request._messages:
-            print message.message
             self.assertEqual(SUCCESS, message.level)
             self.assertEqual(AdminUtils.EXECUTE_SYNC_DONE_FORMAT.format(synchronization_name=synchronization_name), message.message)
     
