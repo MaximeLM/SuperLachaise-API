@@ -243,7 +243,7 @@ class Command(BaseCommand):
         }
         
         # Get or create object in database
-        target_object_id_dict = {"wikidata_localized_entry_id": wikidata_localized_entry.pk}
+        target_object_id_dict = {"wikidata_localized_entry": wikidata_localized_entry}
         wikipedia_page, created = WikipediaPage.objects.get_or_create(**target_object_id_dict)
         self.fetched_objects_pks.append(wikipedia_page.pk)
         modified = False

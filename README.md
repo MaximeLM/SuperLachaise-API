@@ -122,7 +122,6 @@ python manage.py createsuperuser
 Start the developement server :
 
 ```sh
-cd <project_path>
 python manage.py runserver
 ```
 
@@ -132,6 +131,8 @@ The application is now ready to synchronize data and serve requests.
 
  * Go to the **Settings** and **Synchronizations** screens to begin synchronising data.
  * The API is located at http://yoursite.com/api/
+
+When you are done working with the project, use the command `deactivate` to exit virtualenv.
 
 ## Administration
 

@@ -283,9 +283,9 @@ class Command(BaseCommand):
         
         return result
     
-    def handle_localized_entity(self, code, language_code, localized_values_dict):
+    def handle_localized_entity(self, wikidata_entry, language, localized_values_dict):
         # Get or create object in database
-        target_object_id_dict = {"wikidata_entry__wikidata_id": code, "language__code": language_code}
+        target_object_id_dict = {"wikidata_entry": wikidata_entry, "language": language}
         wikidata_localized_entry, created = WikidataLocalizedEntry.objects.get_or_create(**target_object_id_dict)
         self.localized_fetched_objects_pks.append(wikidata_localized_entry.pk)
         modified = False
@@ -333,7 +333,7 @@ class Command(BaseCommand):
         for language in Language.objects.all():
             localized_values_dict = self.get_localized_values_from_entity(entity, language.code)
             if localized_values_dict:
-                self.handle_localized_entity(code, language.code, localized_values_dict)
+                self.handle_localized_entity(wikidata_entry, language, localized_values_dict)
     
     def sync_wikidata(self, wikidata_ids):
         self.wikidata_codes = []
