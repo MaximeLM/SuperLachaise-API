@@ -52,13 +52,13 @@ pip install -r superlachaise_api/requirements.txt
 
 ### Configure the project
 
-Edit the settings file *<project_name>/settings.py* :
+Edit the settings file *project_name/settings.py* :
 
  * Add *'superlachaise_api',* to **INSTALLED_APPS**
  * Make sure that *'django.contrib.admin',* and *'django.contrib.messages',* are listed in **INSTALLED_APPS**
- * Configure **DATABASES** with your database info ([documentation](https://docs.djangoproject.com/en/1.8/ref/settings/#databases))
+ * Configure **DATABASES** with your database info ([documentation](https://docs.djangoproject.com/en/1.9/ref/settings/#databases))
  * Set **LANGUAGE_CODE** and **TIME_ZONE** to your locale e.g. *'fr-FR'* and *'Europe/Paris'*. The admin interface is available in english and french.
- * Copy, paste and edit the following settings :
+ * Copy, paste and edit the following settings at the end of the file :
 
 ```python
 # User agent header added to mediawiki requests ; see https://meta.wikimedia.org/wiki/User-Agent_policy
@@ -68,8 +68,8 @@ MEDIAWIKI_USER_AGENT = ''
 # Send an email to managers at the end of the sync_all operation
 EMAIL_ENABLED = False
 EMAIL_HOST = 'smpt.example.com'
-EMAIL_PORT = 587      &#35; or something else
-EMAIL_USE_SSL = False &#35; TLS and SSL are mutually exclusive
+EMAIL_PORT = 587      # or something else
+EMAIL_USE_SSL = False # TLS and SSL are mutually exclusive
 EMAIL_USE_TLS = True
 EMAIL_SUBJECT_PREFIX = '[SuperLachaise API] '
 SERVER_EMAIL = 'from@example.com'
@@ -92,12 +92,13 @@ COMMIT_DATABASE_DUMP_DIR = False
 COMMIT_DATABASE_DUMP_MESSAGE = '[SuperLachaise API] Dump database'
 COMMIT_DATABASE_DUMP_PUSH = False
 COMMIT_DATABASE_DUMP_REMOTE_NAME = 'origin'
-```
-
-Edit the URLs file *<project_name>/urls.py* and include the application URLs in *urlpatterns* :
 
 ```
-from django.conf.urls import patterns, include, url
+
+Edit the URLs file *project_name/urls.py* and include the application URLs in *urlpatterns* :
+
+```
+from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
@@ -111,7 +112,6 @@ urlpatterns = [
 Create the database structure, configuration objects, and super user :
 
 ```sh
-cd <project_path>
 python manage.py migrate
 python manage.py load_configuration
 python manage.py createsuperuser

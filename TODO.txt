@@ -15,10 +15,6 @@ Tests & refactor
 - Refactor & test synchronizations
 - Test views
 
-Trouver un meilleur moyen de lancer les create db version
-
-utiliser un repo git pour le suivi de modif et la màj de l'appli
-
 Upgrade
 pip install -r requirements.txt
 modifier urls.py
