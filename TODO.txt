@@ -19,3 +19,17 @@ Tests & refactor
 
 Différence de comportement sync_superlachaise_poi si auto apply
 Trouver un meilleur moyen de lancer les create db version
+
+utiliser un repo git pour le suivi de modif et la màj de l'appli
+tout en auto-apply (supprimer la conf)
+supprimer pending modifications
+
+Upgrade
+pip install -r requirements.txt
+modifier urls.py
+collectstatic
+
+-> tester
+vues json
+commandes admin
+pages admin

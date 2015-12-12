@@ -24,7 +24,7 @@ from django.conf.urls import patterns, url
 
 from superlachaise_api import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^licence/$', views.licence),
     
     url(r'^openstreetmap_elements/$', views.openstreetmap_element_list),
@@ -48,4 +48,4 @@ urlpatterns = patterns('',
     url(r'^superlachaise_pois/(?P<superlachaisepoi_id>[0-9]*)/wikidata_entries/(?P<relation_type>[^\/]*)/$', views.wikidata_entry_list),
     
     url(r'^$', views.objects),
-)
+]
