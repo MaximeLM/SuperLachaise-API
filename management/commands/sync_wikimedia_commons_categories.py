@@ -130,7 +130,6 @@ class Command(BaseCommand):
         values_dict = {
             'main_image': self.get_main_image(page),
             'category_members': '|'.join(self.request_category_members(page['title'])),
-            'deleted': False,
         }
         
         # Get or create object in database
@@ -196,7 +195,7 @@ class Command(BaseCommand):
         
         if not param_wikimedia_commons_categories:
             # Look for deleted elements
-            for wikimedia_commons_category in WikimediaCommonsCategory.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
+            for wikimedia_commons_category in WikimediaCommonsCategory.objects.exclude(pk__in=self.fetched_objects_pks):
                 self.deleted_objects = self.deleted_objects + 1
                 wikimedia_commons_category.delete()
     

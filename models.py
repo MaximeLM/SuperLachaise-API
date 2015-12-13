@@ -153,7 +153,6 @@ class OpenStreetMapElement(SuperLachaiseModel):
     longitude = models.DecimalField(max_digits=10, default=0, decimal_places=7, verbose_name=_('longitude'))
     wikidata = models.CharField(max_length=255, blank=True, verbose_name=_('wikidata'))
     wikimedia_commons = models.CharField(max_length=255, blank=True, verbose_name=_('wikimedia commons'))
-    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def openstreetmap_url(self):
         if self.type:
@@ -205,7 +204,6 @@ class WikidataEntry(SuperLachaiseModel):
     date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of birth accuracy'))
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=accuracy_choices, verbose_name=_('date of death accuracy'))
     burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
-    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def wikidata_list(self, field):
         value = getattr(self, field)
@@ -301,7 +299,6 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
     
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
     main_image = models.CharField(max_length=255, blank=True, verbose_name=_('main image'))
-    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     category_members = models.TextField(blank=True, verbose_name=_('category members'))
     
     def category_members_list(self):
@@ -352,7 +349,6 @@ class SuperLachaisePOI(SuperLachaiseModel):
     date_of_birth_accuracy = models.CharField(max_length=255, blank=True, choices=WikidataEntry.accuracy_choices, verbose_name=_('date of birth accuracy'))
     date_of_death_accuracy = models.CharField(max_length=255, blank=True, choices=WikidataEntry.accuracy_choices, verbose_name=_('date of death accuracy'))
     burial_plot_reference = models.CharField(max_length=255, blank=True, verbose_name=_('burial plot reference'))
-    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def __unicode__(self):
         return unicode(self.openstreetmap_element)
@@ -434,7 +430,6 @@ class SuperLachaiseCategory(SuperLachaiseModel):
     code = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('code'))
     type = models.CharField(max_length=255, verbose_name=_('type'))
     values = models.CharField(max_length=255, blank=True, verbose_name=_('values'))
-    deleted = models.BooleanField(default=False, verbose_name=_('deleted'))
     
     def __unicode__(self):
         return self.code

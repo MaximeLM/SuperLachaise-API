@@ -216,13 +216,13 @@ class SettingAdmin(admin.ModelAdmin):
 
 @admin.register(OpenStreetMapElement)
 class OpenStreetMapElementAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'deleted', 'name', 'sorting_name', 'openstreetmap_id', 'type', 'openstreetmap_link', 'wikidata_links', 'wikimedia_commons_link', 'latitude', 'longitude', 'modified', 'notes')
-    list_filter = ('type', 'nature', 'deleted',)
+    list_display = ('__unicode__', 'name', 'sorting_name', 'openstreetmap_id', 'type', 'openstreetmap_link', 'wikidata_links', 'wikimedia_commons_link', 'latitude', 'longitude', 'modified', 'notes')
+    list_filter = ('type', 'nature',)
     search_fields = ('name', 'openstreetmap_id', 'wikidata', 'wikimedia_commons', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['deleted', 'name', 'sorting_name', 'openstreetmap_id', 'type', 'nature', 'latitude', 'longitude', 'wikidata', 'wikidata_links', 'wikimedia_commons', 'wikimedia_commons_link']}),
+        (None, {'fields': ['name', 'sorting_name', 'openstreetmap_id', 'type', 'nature', 'latitude', 'longitude', 'wikidata', 'wikidata_links', 'wikimedia_commons', 'wikimedia_commons_link']}),
     ]
     readonly_fields = ('created', 'modified', 'openstreetmap_link', 'wikidata_links', 'wikimedia_commons_link')
     
@@ -268,13 +268,12 @@ class WikidataLocalizedEntryInline(admin.StackedInline):
 
 @admin.register(WikidataEntry)
 class WikidataEntryAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'deleted', 'name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'grave_of_wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'modified', 'notes')
-    list_filter = ('deleted',)
+    list_display = ('__unicode__', 'name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'grave_of_wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'modified', 'notes')
     search_fields = ('localizations__name', 'wikidata_id', 'instance_of', 'sex_or_gender', 'occupations', 'wikimedia_commons_category', 'wikimedia_commons_grave_category', 'grave_of_wikidata', 'burial_plot_reference', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['deleted', 'wikidata_id', 'wikidata_link', 'instance_of', 'instance_of_link', 'sex_or_gender', 'sex_or_gender_link', 'occupations', 'occupations_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
+        (None, {'fields': ['wikidata_id', 'wikidata_link', 'instance_of', 'instance_of_link', 'sex_or_gender', 'sex_or_gender_link', 'occupations', 'occupations_link', 'grave_of_wikidata', 'grave_of_wikidata_link', 'wikimedia_commons_category', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category', 'wikimedia_commons_grave_category_link', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy']}),
     ]
     readonly_fields = ('name', 'wikidata_link', 'instance_of_link', 'sex_or_gender_link', 'occupations_link', 'grave_of_wikidata_link', 'wikimedia_commons_category_link', 'wikimedia_commons_grave_category_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'created', 'modified')
     
@@ -446,13 +445,12 @@ class WikipediaPageAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsCategory)
 class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'deleted', 'wikimedia_commons_link', 'main_image_link', 'category_members_link', 'modified', 'notes')
-    list_filter = ('deleted',)
+    list_display = ('__unicode__', 'wikimedia_commons_link', 'main_image_link', 'category_members_link', 'modified', 'notes')
     search_fields = ('wikimedia_commons_id', 'main_image', 'category_members', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['deleted', 'wikimedia_commons_id', 'wikimedia_commons_link', 'main_image', 'main_image_link', 'category_members', 'category_members_link']}),
+        (None, {'fields': ['wikimedia_commons_id', 'wikimedia_commons_link', 'main_image', 'main_image_link', 'category_members', 'category_members_link']}),
     ]
     readonly_fields = ('wikimedia_commons_link', 'main_image_link', 'category_members_link', 'created', 'modified')
     
@@ -566,13 +564,13 @@ class SuperLachaiseCategoryRelationInline(admin.StackedInline):
 
 @admin.register(SuperLachaisePOI)
 class SuperLachaisePOIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'pk', 'deleted', 'openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'wikimedia_commons_category_link', 'main_image_link', 'modified', 'notes')
-    list_filter = ('superlachaise_categories', 'deleted',)
+    list_display = ('__unicode__', 'pk', 'openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'burial_plot_reference', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'wikimedia_commons_category_link', 'main_image_link', 'modified', 'notes')
+    list_filter = ('superlachaise_categories',)
     search_fields = ('openstreetmap_element__name', 'wikidata_entries__id', 'wikidata_entries__localizations__name', 'burial_plot_reference', 'wikimedia_commons_category__id', 'main_image__id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['deleted', 'pk', 'openstreetmap_element', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'wikimedia_commons_category', 'main_image']}),
+        (None, {'fields': ['pk', 'openstreetmap_element', 'burial_plot_reference', 'date_of_birth', 'date_of_birth_accuracy', 'date_of_death', 'date_of_death_accuracy', 'wikimedia_commons_category', 'main_image']}),
     ]
     readonly_fields = ('pk', 'openstreetmap_element_link', 'wikidata_entries_link', 'superlachaise_categories_link', 'date_of_birth_with_accuracy', 'date_of_death_with_accuracy', 'wikimedia_commons_category_link', 'main_image_link', 'created', 'modified')
     
@@ -679,13 +677,13 @@ class SuperLachaiseLocalizedCategoryInline(admin.StackedInline):
 
 @admin.register(SuperLachaiseCategory)
 class SuperLachaiseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'deleted', 'code', 'type', 'values', 'members_count', 'wikidata_occupations_count', 'modified', 'notes')
-    list_filter = ('type', 'deleted',)
+    list_display = ('__unicode__', 'code', 'type', 'values', 'members_count', 'wikidata_occupations_count', 'modified', 'notes')
+    list_filter = ('type',)
     search_fields = ('code', 'type', 'values', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['deleted', 'code', 'type', 'values']}),
+        (None, {'fields': ['code', 'type', 'values']}),
     ]
     readonly_fields = ('code', 'members_count', 'wikidata_occupations_count', 'created', 'modified')
     inlines = [

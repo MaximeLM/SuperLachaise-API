@@ -177,7 +177,6 @@ class Command(BaseCommand):
             'latitude': coordinate['x'],
             'longitude': coordinate['y'],
             'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
-            'deleted': False,
         }
         
         element_wikipedia = none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia'))
@@ -338,7 +337,7 @@ class Command(BaseCommand):
                 self.handle_relation(element)
         
         # Look for deleted elements
-        for openStreetMap_element in OpenStreetMapElement.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
+        for openStreetMap_element in OpenStreetMapElement.objects.exclude(pk__in=self.fetched_objects_pks):
             self.deleted_objects = self.deleted_objects + 1
             openStreetMap_element.delete()
     

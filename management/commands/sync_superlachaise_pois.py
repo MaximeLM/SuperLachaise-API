@@ -43,7 +43,7 @@ class Command(BaseCommand):
         if openstreetmap_element.wikidata:
             for wikidata in openstreetmap_element.wikidata.split(';'):
                 wikidata_id = wikidata.split(':')[-1]
-                wikidata_entry = WikidataEntry.objects.filter(wikidata_id=wikidata_id, deleted=False).first()
+                wikidata_entry = WikidataEntry.objects.filter(wikidata_id=wikidata_id).first()
                 if wikidata_entry:
                     if len(wikidata.split(':')) == 2:
                         relation_type = wikidata.split(':')[0]
@@ -87,7 +87,7 @@ class Command(BaseCommand):
                         wikimedia_commons_categories.append(wikimedia_commons)
         
         if len(wikimedia_commons_categories) == 1:
-            return WikimediaCommonsCategory.objects.filter(wikimedia_commons_id=wikimedia_commons_categories[0], deleted=False).first()
+            return WikimediaCommonsCategory.objects.filter(wikimedia_commons_id=wikimedia_commons_categories[0]).first()
         else:
             return None
     
@@ -128,10 +128,10 @@ class Command(BaseCommand):
         for type, values in properties.iteritems():
             superlachaise_categories = []
             for value in values:
-                for superlachaise_category in SuperLachaiseCategory.objects.filter(type=type, deleted=False).exclude(code__in=superlachaise_categories, values__exact=''):
+                for superlachaise_category in SuperLachaiseCategory.objects.filter(type=type).exclude(code__in=superlachaise_categories, values__exact=''):
                     if value in superlachaise_category.values.split(';'):
                         superlachaise_categories.append(superlachaise_category)
-                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, deleted=False, wikidata_occupations__wikidata_id=value).exclude(code__in=superlachaise_categories))
+                superlachaise_categories.extend(SuperLachaiseCategory.objects.filter(type=type, wikidata_occupations__wikidata_id=value).exclude(code__in=superlachaise_categories))
             if not superlachaise_categories and type == SuperLachaiseCategory.OCCUPATION:
                 superlachaise_categories = SuperLachaiseCategory.objects.filter(code=u'other')
             result.extend(superlachaise_categories)
@@ -182,7 +182,6 @@ class Command(BaseCommand):
             'burial_plot_reference': self.get_burial_plot_reference(wikidata_entries),
             'wikimedia_commons_category_id': wikimedia_commons_category.id if wikimedia_commons_category else None,
             'main_image_id': main_image.id if main_image else None,
-            'deleted': False,
         }
         
         result.update(self.get_dates(wikidata_entries))
@@ -471,7 +470,7 @@ class Command(BaseCommand):
             for openstreetmap_id in openstreetmap_ids.split('|'):
                 openstreetmap_elements.append(OpenStreetMapElement.objects.filter(openstreetmap_id=openstreetmap_id).first())
         else:
-            openstreetmap_elements = OpenStreetMapElement.objects.filter(deleted=False)
+            openstreetmap_elements = OpenStreetMapElement.objects.all()
         
         self.fetched_objects_pks = []
         self.localized_fetched_objects_pks = []
@@ -491,7 +490,7 @@ class Command(BaseCommand):
         
         if not openstreetmap_ids:
             # Look for deleted elements
-            for superlachaise_poi in SuperLachaisePOI.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
+            for superlachaise_poi in SuperLachaisePOI.objects.exclude(pk__in=self.fetched_objects_pks):
                 self.deleted_objects = self.deleted_objects + 1
                 superlachaise_poi.delete()
             for superlachaise_localized_poi in SuperLachaiseLocalizedPOI.objects.exclude(Q(pk__in=self.localized_fetched_objects_pks) | ~Q(superlachaise_poi__pk__in=self.fetched_objects_pks)):

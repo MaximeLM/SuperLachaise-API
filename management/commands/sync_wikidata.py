@@ -236,7 +236,7 @@ class Command(BaseCommand):
             return u''
     
     def get_values_from_entity(self, entity):
-        result = {'deleted': False}
+        result = {}
         
         instance_of = self.get_instance_of(entity)
         result['instance_of'] = ';'.join(instance_of)
@@ -389,7 +389,7 @@ class Command(BaseCommand):
         
         if not wikidata_ids:
             # Look for deleted elements
-            for wikidata_entry in WikidataEntry.objects.filter(deleted=False).exclude(pk__in=self.fetched_objects_pks):
+            for wikidata_entry in WikidataEntry.objects.exclude(pk__in=self.fetched_objects_pks):
                 self.deleted_objects = self.deleted_objects + 1
                 wikidata_entry.delete()
             for wikidata_localized_entry in WikidataLocalizedEntry.objects.exclude(Q(pk__in=self.localized_fetched_objects_pks) | ~Q(wikidata_entry__pk__in=self.fetched_objects_pks)):
