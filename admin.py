@@ -333,7 +333,7 @@ class WikidataEntryAdmin(admin.ModelAdmin):
     wikimedia_commons_category_link.admin_order_field = 'wikimedia_commons_category'
     
     def wikimedia_commons_grave_category_link(self, obj):
-        return AdminUtils.html_link(obj.wikimedia_commons_category_url("wikimedia_commons_grave_category"), obj.wikimedia_commons_category)
+        return AdminUtils.html_link(obj.wikimedia_commons_category_url("wikimedia_commons_grave_category"), obj.wikimedia_commons_grave_category)
     wikimedia_commons_grave_category_link.allow_tags = True
     wikimedia_commons_grave_category_link.short_description = _('wikimedia commons grave category')
     wikimedia_commons_grave_category_link.admin_order_field = 'wikimedia_commons_grave_category'

@@ -33,9 +33,12 @@ class Command(BaseCommand):
         """ Convert a field/value pair to object/value if needed e.g. language__code=fr => language=<Language> """
         if '__' in field:
             resolved_field = field.split('__')[0]
-            model = object_model._meta.get_field(resolved_field).rel.to
-            resolved_value = model.objects.get(**{'__'.join(field.split('__')[1:]): value})
-            result = (resolved_field, resolved_value)
+            if value:
+                model = object_model._meta.get_field(resolved_field).rel.to
+                resolved_value = model.objects.get(**{'__'.join(field.split('__')[1:]): value})
+                result = (resolved_field, resolved_value)
+            else:
+                result = (resolved_field, None)
         else:
             # Assert field exists
             object_model._meta.get_field(field)
@@ -46,13 +49,15 @@ class Command(BaseCommand):
         with open(os.path.dirname(__file__) + '/../../configuration/configuration.json', 'r') as configuration_file:
             configuration = json.load(configuration_file)
             
-            for model, fields in configuration_models.iteritems():
+            for configuration_model in configuration_models:
+                model = configuration_model['model']
                 for object_fields in configuration[model.__name__]:
                     target_object_id_dict = {}
-                    for field in fields['id_fields']:
+                    for field in configuration_model['id_fields']:
                         resolved_field, resolved_value = self.resolve_field_relation(model, field, object_fields[field])
                         target_object_id_dict[resolved_field] = resolved_value
                     object, created = model.objects.get_or_create(**target_object_id_dict)
-                    for field in fields['other_fields']:
-                        setattr(object, field, object_fields[field])
+                    for field in configuration_model['other_fields']:
+                        resolved_field, resolved_value = self.resolve_field_relation(model, field, object_fields[field])
+                        setattr(object, resolved_field, resolved_value)
                     object.save()

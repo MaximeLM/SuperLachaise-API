@@ -25,40 +25,48 @@ from django.core.management.base import BaseCommand, CommandError
 
 from superlachaise_api.models import *
 
-configuration_models = {
-    Synchronization: {
-        'id_fields': ['name'],
-        'other_fields': ['dependency_order'],
-    },
-    LocalizedSynchronization: {
-        'id_fields': ['synchronization__name', 'language__code'],
-        'other_fields': ['description'],
-    },
-    Language: {
+configuration_models = [
+    {
+        'model': Language,
         'id_fields': ['code'],
         'other_fields': ['description', 'enumeration_separator', 'last_enumeration_separator', 'artist_prefix'],
     },
-    Setting: {
+    {
+        'model': Synchronization,
+        'id_fields': ['name'],
+        'other_fields': ['dependency_order'],
+    },
+    {
+        'model': LocalizedSynchronization,
+        'id_fields': ['synchronization__name', 'language__code'],
+        'other_fields': ['description'],
+    },
+    {
+        'model': Setting,
         'id_fields': ['key'],
         'other_fields': ['default'],
     },
-    LocalizedSetting: {
+    {
+        'model': LocalizedSetting,
         'id_fields': ['setting__key', 'language__code'],
         'other_fields': ['description'],
     },
-    SuperLachaiseCategory: {
+    {
+        'model': SuperLachaiseCategory,
         'id_fields': ['code'],
         'other_fields': ['type', 'values'],
     },
-    SuperLachaiseLocalizedCategory: {
+    {
+        'model': SuperLachaiseLocalizedCategory,
         'id_fields': ['superlachaise_category__code', 'language__code'],
         'other_fields': ['name'],
     },
-    WikidataOccupation: {
+    {
+        'model': WikidataOccupation,
         'id_fields': ['wikidata_id'],
         'other_fields': ['name', 'superlachaise_category__code'],
     },
-}
+]
 
 class Command(BaseCommand):
     
@@ -76,13 +84,14 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         result = {}
-        for model, fields in configuration_models.iteritems():
+        for configuration_model in configuration_models:
+            model = configuration_model['model']
             objects_dicts = []
             for object in model.objects.all():
                 object_dict = {}
-                for field in fields['id_fields']:
+                for field in configuration_model['id_fields']:
                     object_dict[field] = self.resolve_field_relation(object, field)
-                for field in fields['other_fields']:
+                for field in configuration_model['other_fields']:
                     object_dict[field] = self.resolve_field_relation(object, field)
                 
                 objects_dicts.append(object_dict)

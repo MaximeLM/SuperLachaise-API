@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-13 12:44+0100\n"
+"POT-Creation-Date: 2016-01-30 16:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -237,12 +237,12 @@ msgstr "Résultats des commandes admin"
 
 #: management/commands/sync_all.py:102
 #: management/commands/sync_openstreetmap.py:365
-#: management/commands/sync_superlachaise_pois.py:531
+#: management/commands/sync_superlachaise_pois.py:533
 #: management/commands/sync_wikidata.py:423
 #: management/commands/sync_wikidata_occupations.py:138
 #: management/commands/sync_wikimedia_commons_categories.py:226
 #: management/commands/sync_wikimedia_commons_files.py:180
-#: management/commands/sync_wikipedia.py:335
+#: management/commands/sync_wikipedia.py:338
 #, python-format
 msgid "== Start %s =="
 msgstr "== Début %s =="
@@ -253,12 +253,12 @@ msgstr "Dump base de données"
 
 #: management/commands/sync_all.py:109
 #: management/commands/sync_openstreetmap.py:367
-#: management/commands/sync_superlachaise_pois.py:533
+#: management/commands/sync_superlachaise_pois.py:535
 #: management/commands/sync_wikidata.py:425
 #: management/commands/sync_wikidata_occupations.py:140
 #: management/commands/sync_wikimedia_commons_categories.py:228
 #: management/commands/sync_wikimedia_commons_files.py:182
-#: management/commands/sync_wikipedia.py:337
+#: management/commands/sync_wikipedia.py:340
 #, python-format
 msgid "== End %s =="
 msgstr "== Fin %s =="
@@ -281,6 +281,13 @@ msgstr "Requête de l'API Overpass..."
 msgid "Requesting Wikidata..."
 msgstr "Requête de Wikidata..."
 
+#: management/commands/sync_superlachaise_pois.py:93
+#, python-brace-format
+msgid ""
+"Error: The POI {openstreetmap_element_name} has multiple wikimedia commons "
+"categories"
+msgstr "Erreur : Le POI {openstreetmap_element_name} a plusieurs catégories Wikimedia Commons"
+
 #: management/commands/sync_wikidata.py:357
 msgid "Requesting Wikidata codes from OpenStreetMap elements..."
 msgstr "Requête des codes Wikidata issus des éléments OpenStreetMap..."
@@ -294,11 +301,11 @@ msgstr "Requête des nouveaux codes Wikidata issus de grave_of..."
 msgid "Requesting Wikimedia Commons..."
 msgstr "Requête de Wikimedia commons..."
 
-#: management/commands/sync_wikipedia.py:277
+#: management/commands/sync_wikipedia.py:280
 msgid "Requesting Wikipedia revisions..."
 msgstr "Requête des révisions Wikipédia..."
 
-#: management/commands/sync_wikipedia.py:294
+#: management/commands/sync_wikipedia.py:297
 msgid "Requesting Wikipedia page content..."
 msgstr "Requête du contenu des pages de Wikipédia..."
 

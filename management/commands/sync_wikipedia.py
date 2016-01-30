@@ -85,6 +85,9 @@ class WikipediaIntroHTMLParser(HTMLParser):
                 for attr in opened_tag['attrs']:
                     if attr[0] in ['id', 'class']:
                         return False
+            for attr in opened_tag['attrs']:
+                if attr[0] == 'style' and 'display:none' in attr[1]:
+                    return False
         
         return True
     
