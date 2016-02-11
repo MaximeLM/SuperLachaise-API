@@ -84,14 +84,7 @@ MANAGERS = (
 
 # Dump the database at the end of the sync_all operation
 DUMP_DATABASE = False
-DATABASE_DUMP_NAME = 'superlachaise_database.json'
 DATABASE_DUMP_DIR = '/home/user/superlachaise_api_/database/'
-
-# Commit the database dump ; there must be a git repo in DATABASE_DUMP_DIR
-COMMIT_DATABASE_DUMP_DIR = False
-COMMIT_DATABASE_DUMP_MESSAGE = '[SuperLachaise API] Dump database'
-COMMIT_DATABASE_DUMP_PUSH = False
-COMMIT_DATABASE_DUMP_REMOTE_NAME = 'origin'
 
 ```
 
