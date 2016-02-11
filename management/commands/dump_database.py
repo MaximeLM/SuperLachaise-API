@@ -48,31 +48,30 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         translation.activate(settings.LANGUAGE_CODE)
         try:
-            obj_to_encode = {
-                'about': {
-                    'licence': "https://api.superlachaise.fr/perelachaise/api/licence/",
-                    'api_version': conf.VERSION,
-                },
-                'openstreetmap_elements': OpenStreetMapElement.objects.all().order_by('sorting_name'),
-                'wikidata_entries': WikidataEntry.objects.all().order_by('wikidata_id'),
-                'wikimedia_commons_categories': WikimediaCommonsCategory.objects.all().order_by('wikimedia_commons_id'),
-                'superlachaise_categories': SuperLachaiseCategory.objects.all().order_by('code'),
-                'superlachaise_pois': SuperLachaisePOI.objects.all().order_by('openstreetmap_element_id'),
-            }
+            models_to_dump = [
+                (OpenStreetMapElement, 'openstreetmap_elements', 'sorting_name', 'openstreetmap_elements.json'),
+                (WikimediaCommonsCategory, 'wikimedia_commons_categories', 'wikimedia_commons_id', 'wikimedia_commons_categories.json'),
+                (SuperLachaiseCategory, 'superlachaise_categories', 'code', 'superlachaise_categories.json'),
+                (WikidataEntry, 'wikidata_entries', 'wikidata_id', 'wikidata_entries.json'),
+                (SuperLachaisePOI, 'superlachaise_pois', 'openstreetmap_element_id', 'superlachaise_pois.json'),
+            ]
+            
+            for (model, key, order_field, file_name) in models_to_dump:
+                obj_to_encode = {
+                    'about': {
+                        'licence': "https://api.superlachaise.fr/perelachaise/api/licence/",
+                        'source': 'https://api.superlachaise.fr',
+                        'api_version': conf.VERSION,
+                    },
+                    key: model.objects.all().order_by(order_field),
+                }
         
-            content = SuperLachaiseEncoder(None, languages=Language.objects.all(), restrict_fields=True).encode(obj_to_encode)
+                content = SuperLachaiseEncoder(None, languages=Language.objects.all(), restrict_fields=True).encode(obj_to_encode)
             
-            mkdir_p(settings.DATABASE_DUMP_DIR)
-            with open(settings.DATABASE_DUMP_DIR + settings.DATABASE_DUMP_NAME, 'w') as database_dump_file:
-                database_dump_file.write(content.encode('utf8'))
+                mkdir_p(settings.DATABASE_DUMP_DIR)
+                with open(settings.DATABASE_DUMP_DIR + file_name, 'w') as database_dump_file:
+                    database_dump_file.write(content.encode('utf8'))
             
-            if settings.COMMIT_DATABASE_DUMP_DIR:
-                if os.path.isdir(settings.DATABASE_DUMP_DIR + ".git"):
-                    os.system('cd {0} ; git add . ; git commit -a -m "{1}"'.format(settings.DATABASE_DUMP_DIR, settings.COMMIT_DATABASE_DUMP_MESSAGE))
-                    if settings.COMMIT_DATABASE_DUMP_PUSH:
-                        os.system('cd {0} ; git push {1}'.format(settings.DATABASE_DUMP_DIR, settings.COMMIT_DATABASE_DUMP_REMOTE_NAME))
-                else:
-                    print u'Unable to commit database dump dir: ' + settings.DATABASE_DUMP_DIR + '.git does not exist'
         except:
             print_unicode(traceback.format_exc())
             translation.deactivate()
