@@ -300,9 +300,15 @@ class SuperLachaiseEncoder(object):
         if wikimedia_commons_category:
             result = {
                 'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
-                'main_image': {'wikimedia_commons_id': wikimedia_commons_category.main_image},
                 'category_members': [{'wikimedia_commons_id': member} for member in wikimedia_commons_category.category_members_list()],
             }
+            
+            if wikimedia_commons_category.main_image:
+                result['main_image'] = {
+                    'wikimedia_commons_id': wikimedia_commons_category.main_image,
+                }
+            else:
+                result['main_image'] = None
     
             if not self.restrict_fields:
                 result.update({
