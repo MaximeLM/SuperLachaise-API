@@ -65,10 +65,6 @@ class Command(BaseCommand):
     
     def get_wikimedia_commons_category(self, openstreetmap_element, wikidata_entries):
         wikimedia_commons_categories = []
-        if openstreetmap_element.wikimedia_commons:
-            wikimedia_commons = openstreetmap_element.wikimedia_commons
-            if not wikimedia_commons in wikimedia_commons_categories:
-                wikimedia_commons_categories.append(wikimedia_commons)
         for relation_type, wikidata_entry in wikidata_entries:
             if relation_type == SuperLachaiseWikidataRelation.PERSONS and wikidata_entry.wikimedia_commons_grave_category:
                 # PERSONS relation
@@ -85,12 +81,16 @@ class Command(BaseCommand):
                     wikimedia_commons = 'Category:' + wikidata_entry.wikimedia_commons_category
                     if not wikimedia_commons in wikimedia_commons_categories:
                         wikimedia_commons_categories.append(wikimedia_commons)
+        if openstreetmap_element.wikimedia_commons:
+            wikimedia_commons = openstreetmap_element.wikimedia_commons
+            if not wikimedia_commons in wikimedia_commons_categories:
+                wikimedia_commons_categories.append(wikimedia_commons)
         
-        if len(wikimedia_commons_categories) == 1:
+        if len(wikimedia_commons_categories) > 1:
+            self.errors.append(_('Error: The POI {openstreetmap_element_name} has multiple wikimedia commons categories').format(openstreetmap_element_name=openstreetmap_element.name))
+        if wikimedia_commons_categories:
             return WikimediaCommonsCategory.objects.filter(wikimedia_commons_id=wikimedia_commons_categories[0]).first()
         else:
-            if len(wikimedia_commons_categories) > 1:
-                self.errors.append(_('Error: The POI {openstreetmap_element_name} has multiple wikimedia commons categories').format(openstreetmap_element_name=openstreetmap_element.name))
             return None
     
     def get_main_image(self, wikimedia_commons_category):
