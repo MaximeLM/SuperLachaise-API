@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, math, os, overpy, requests, sys, traceback
+import json, math, os, requests, sys, traceback
 from decimal import Decimal
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -35,30 +35,6 @@ def print_unicode(str):
 
 def decimal_handler(obj):
     return str(obj) if isinstance(obj, Decimal) else obj
-
-def area_for_polygon(polygon):
-    result = 0
-    imax = len(polygon) - 1
-    for i in range(0,imax):
-        result += (polygon[i]['x'] * polygon[i+1]['y']) - (polygon[i+1]['x'] * polygon[i]['y'])
-    result += (polygon[imax]['x'] * polygon[0]['y']) - (polygon[0]['x'] * polygon[imax]['y'])
-    return result / 2.
-
-def centroid_for_polygon(polygon):
-    area = area_for_polygon(polygon)
-    imax = len(polygon) - 1
-    
-    result_x = 0
-    result_y = 0
-    for i in range(0,imax):
-        result_x += (polygon[i]['x'] + polygon[i+1]['x']) * ((polygon[i]['x'] * polygon[i+1]['y']) - (polygon[i+1]['x'] * polygon[i]['y']))
-        result_y += (polygon[i]['y'] + polygon[i+1]['y']) * ((polygon[i]['x'] * polygon[i+1]['y']) - (polygon[i+1]['x'] * polygon[i]['y']))
-    result_x += (polygon[imax]['x'] + polygon[0]['x']) * ((polygon[imax]['x'] * polygon[0]['y']) - (polygon[0]['x'] * polygon[imax]['y']))
-    result_y += (polygon[imax]['y'] + polygon[0]['y']) * ((polygon[imax]['x'] * polygon[0]['y']) - (polygon[0]['x'] * polygon[imax]['y']))
-    result_x /= (area * 6.0)
-    result_y /= (area * 6.0)
-    
-    return {'x': result_x, 'y': result_y}
 
 def none_to_blank(s):
     if s is None:
@@ -112,71 +88,57 @@ class Command(BaseCommand):
         except:
             return None
     
-    def download_data(self, bounding_box):
-        query_string_list = ['(\n']
+    def request_overpass(self, bounding_box):
+        query_string_list = ['[out:json];\n', '(\n']
         for synced_tag in self.synced_tags:
             query_string_list.append(""\
                 "\tnode[{tag}]({bounding_box});\n" \
                 "\tway[{tag}]({bounding_box});\n" \
                 "\trelation[{tag}]({bounding_box});\n".format(tag=synced_tag, bounding_box=bounding_box)
                 )
-        query_string_list.append(');\n(._;>;);out body;')
+        query_string_list.append(');\n(._;>;);out center;')
         query_string = "".join(query_string_list)
-        
-        api = overpy.Overpass()
         
         # Kill any other query
         requests.get('http://overpass-api.de/api/kill_my_queries')
         
-        MAX_REQUEST = 5
-        count = 0
-        while count < MAX_REQUEST:
-            try:
-                result = api.query(query_string)
-                break
-            except OverpassTooManyRequests as exc:
-                count += 1
-                print_unicode(u'OverpassTooManyRequests %s/%s' % (count, MAX_REQUEST))
-                
-                if count < MAX_REQUEST:
-                    # Kill any other query
-                    requests.get('http://overpass-api.de/api/kill_my_queries')
-                else:
-                    raise exc
+        result = requests.get('http://overpass-api.de/api/interpreter', data=query_string).json()
         
         return result
     
     def get_wiki_values(self, overpass_element, field_name):
         result = []
-        for key, value in {key:value for (key,value) in overpass_element.tags.iteritems() if field_name in key.split(':')}.iteritems():
-            wiki_value = []
-            for key_part in key.split(':'):
-                if not key_part == field_name:
-                    wiki_value.append(key_part)
+        if 'tags' in overpass_element:
+            for key, value in {key:value for (key,value) in overpass_element['tags'].iteritems() if field_name in key.split(':')}.iteritems():
+                wiki_value = []
+                for key_part in key.split(':'):
+                    if not key_part == field_name:
+                        wiki_value.append(key_part)
             
-            value_field = value
-            if len(value_field.split(':')) == 2:
-                # fr:foo;bar
-                wiki_value.append(value.split(':')[0])
-                value_field = value.split(':')[1]
+                value_field = value
+                if len(value_field.split(':')) == 2:
+                    # fr:foo;bar
+                    wiki_value.append(value.split(':')[0])
+                    value_field = value.split(':')[1]
             
-            for sub_value in value_field.split(';'):
-                sub_list = list(wiki_value)
-                sub_list.extend(sub_value.split(':'))
-                result.append(':'.join(sub_list))
+                for sub_value in value_field.split(';'):
+                    sub_list = list(wiki_value)
+                    sub_list.extend(sub_value.split(':'))
+                    result.append(':'.join(sub_list))
         
         return ';'.join(result)
     
     def get_nature(self, overpass_element):
-        return overpass_element.tags.get("historic")
+        return overpass_element['tags'].get("historic")
     
-    def get_values_from_element(self, overpass_element, coordinate):
+    def get_values_from_element(self, overpass_element, center):
+        tags = overpass_element['tags']
         result = {
-            'name': none_to_blank(overpass_element.tags.get("name")),
-            'sorting_name': none_to_blank(overpass_element.tags.get("sorting_name")),
-            'latitude': coordinate['x'],
-            'longitude': coordinate['y'],
-            'wikimedia_commons': none_to_blank(overpass_element.tags.get("wikimedia_commons")),
+            'name': none_to_blank(tags.get("name", None)),
+            'sorting_name': none_to_blank(tags.get("sorting_name", None)),
+            'latitude': Decimal(center['lat']).quantize(Decimal('.0000001')),
+            'longitude': Decimal(center['lon']).quantize(Decimal('.0000001')),
+            'wikimedia_commons': none_to_blank(tags.get("wikimedia_commons", None)),
         }
         
         element_wikipedia = none_to_blank(self.get_wiki_values(overpass_element, 'wikipedia'))
@@ -213,12 +175,12 @@ class Command(BaseCommand):
         
         return result
     
-    def handle_element(self, overpass_element, coordinate):
+    def handle_element(self, overpass_element, center):
         # Get values
-        values_dict = self.get_values_from_element(overpass_element, coordinate)
+        values_dict = self.get_values_from_element(overpass_element, center)
         
         # Get or create object in database
-        target_object_id_dict = {"type": overpass_element.__class__.__name__.lower(), "openstreetmap_id": overpass_element.id}
+        target_object_id_dict = {"type": overpass_element['type'], "openstreetmap_id": overpass_element['id']}
         openStreetMap_element, created = OpenStreetMapElement.objects.get_or_create(**target_object_id_dict)
         self.fetched_objects_pks.append(openStreetMap_element.pk)
         modified = False
@@ -238,38 +200,6 @@ class Command(BaseCommand):
                 setattr(openStreetMap_element, field, value)
             openStreetMap_element.save()
     
-    def handle_way(self, overpass_way):
-        # Get way centroid
-        polygon = []
-        for node in overpass_way.nodes:
-            polygon.append({'x': float(node.lat), 'y': float(node.lon)})
-        centroid = centroid_for_polygon(polygon)
-        coordinate = {'x': Decimal(centroid['x']).quantize(Decimal('.0000001')), 'y': Decimal(centroid['y']).quantize(Decimal('.0000001'))}
-        
-        # Handle element
-        self.handle_element(overpass_way, coordinate)
-    
-    def handle_relation(self, overpass_relation):
-        # Search for outer way
-        outer_way = None
-        for member in overpass_relation.members:
-            if member.role == 'outer' and member.__class__.__name__ == 'RelationWay':
-                outer_way = member
-                break
-        
-        if outer_way:
-            # Get outer way centroid
-            polygon = []
-            for node in member.resolve().nodes:
-                polygon.append({'x': float(node.lat), 'y': float(node.lon)})
-            centroid = centroid_for_polygon(polygon)
-            coordinate = {'x': Decimal(centroid['x']).quantize(Decimal('.0000001')), 'y': Decimal(centroid['y']).quantize(Decimal('.0000001'))}
-            
-            # Handle element
-            self.handle_element(overpass_relation, coordinate)
-        else:
-            raise Exception(_('no outer way for relation found'))
-    
     def element_accepted(self, element):
         result = False
         
@@ -281,30 +211,31 @@ class Command(BaseCommand):
         # Check if tag is to be synced
         for synced_tag in self.synced_tags:
             tag_splitted = synced_tag.split("=")
-            if element.tags.get(tag_splitted[0]) == tag_splitted[1]:
-                result = True
-                break
+            if 'tags' in element:
+                if element['tags'].get(tag_splitted[0]) == tag_splitted[1]:
+                    result = True
+                    break
         
         return result
     
     def sync_openstreetmap(self):
         # Download data from OSM
         print_unicode(_('Requesting Overpass API...'))
-        result = self.download_data(self.bounding_box)
+        result = self.request_overpass(self.bounding_box)
         
         wikipedia_to_fetch = {}
         self.wikidata_codes = {}
-        for element_type in [result.nodes, result.ways, result.relations]:
-            for element in element_type:
-                wikipedias = self.get_wiki_values(element, 'wikipedia')
-                for wikipedia in wikipedias.split(';'):
-                    if ':' in wikipedia:
-                        language_code = wikipedia.split(':')[-2]
-                        link = wikipedia.split(':')[-1]
-                        if not language_code in wikipedia_to_fetch:
-                            wikipedia_to_fetch[language_code] = []
-                        if not link in wikipedia_to_fetch[language_code]:
-                            wikipedia_to_fetch[language_code].append(link)
+        for element in result['elements']:
+            wikipedias = self.get_wiki_values(element, 'wikipedia')
+            for wikipedia in wikipedias.split(';'):
+                if ':' in wikipedia:
+                    language_code = wikipedia.split(':')[-2]
+                    link = wikipedia.split(':')[-1]
+                    if not language_code in wikipedia_to_fetch:
+                        wikipedia_to_fetch[language_code] = []
+                    if not link in wikipedia_to_fetch[language_code]:
+                        wikipedia_to_fetch[language_code].append(link)
+        
         print_unicode(_('Requesting Wikidata...'))
         total = 0
         for language, wikipedia_links in wikipedia_to_fetch.iteritems():
@@ -326,15 +257,12 @@ class Command(BaseCommand):
         
         # Handle downloaded elements
         self.fetched_objects_pks = []
-        for element in result.nodes:
+        for element in result['elements']:
             if self.element_accepted(element):
-                self.handle_element(element, {'x': element.lat, 'y': element.lon})
-        for element in result.ways:
-            if self.element_accepted(element):
-                self.handle_way(element)
-        for element in result.relations:
-            if self.element_accepted(element):
-                self.handle_relation(element)
+                if 'center' in element:
+                    self.handle_element(element, element['center'])
+                else:
+                    self.handle_element(element, element)
         
         # Look for deleted elements
         for openStreetMap_element in OpenStreetMapElement.objects.exclude(pk__in=self.fetched_objects_pks):
