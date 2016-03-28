@@ -26,7 +26,6 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
-from overpy.exception import OverpassTooManyRequests
 
 from superlachaise_api.models import *
 
@@ -205,7 +204,7 @@ class Command(BaseCommand):
         
         # Check if tag is explicitky excluded
         for excluded_id in self.exclude_ids:
-            if excluded_id['type'] == element.__class__.__name__.lower() and excluded_id['id'] == element.id:
+            if excluded_id['type'] == element['type'] and excluded_id['id'] == element['id']:
                 return False
         
         # Check if tag is to be synced
