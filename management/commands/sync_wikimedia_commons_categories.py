@@ -125,11 +125,36 @@ class Command(BaseCommand):
         except:
             return u''
     
+    def get_redirect(self, page):
+        try:
+            if len(page['revisions']) != 1:
+                raise BaseException
+            wikitext = page['revisions'][0]['*']
+            
+            for line in wikitext.split('\n'):
+                match_obj = re.search(r'^[\s]*{{Category redirect\|(.*)}}[\s]*$', line)
+                if match_obj:
+                    redirect = match_obj.group(1).strip()
+                    self.errors.append(_('{title} is a redirection for {redirect}').format(title=page['title'], redirect=redirect))
+                    pages = self.request_wikimedia_commons_categories([redirect])
+                    if len(pages.values()) != 1:
+                        raise BaseException
+                    
+                    redirect_page = pages.values()[0]
+                    return redirect_page
+            
+            return page
+        except:
+            print_unicode(traceback.format_exc())
+            return page
+    
     def handle_wikimedia_commons_category(self, page):
+        computed_page = self.get_redirect(page)
+        
         # Get values
         values_dict = {
-            'main_image': self.get_main_image(page),
-            'category_members': '|'.join(self.request_category_members(page['title'])),
+            'main_image': self.get_main_image(computed_page),
+            'category_members': '|'.join(self.request_category_members(computed_page['title'])),
         }
         
         # Get or create object in database
