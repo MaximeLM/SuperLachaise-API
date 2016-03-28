@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-30 16:31+0100\n"
+"POT-Creation-Date: 2016-03-28 14:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -236,11 +236,11 @@ msgid "Admin commands results"
 msgstr "Résultats des commandes admin"
 
 #: management/commands/sync_all.py:102
-#: management/commands/sync_openstreetmap.py:365
+#: management/commands/sync_openstreetmap.py:292
 #: management/commands/sync_superlachaise_pois.py:533
 #: management/commands/sync_wikidata.py:423
 #: management/commands/sync_wikidata_occupations.py:138
-#: management/commands/sync_wikimedia_commons_categories.py:226
+#: management/commands/sync_wikimedia_commons_categories.py:251
 #: management/commands/sync_wikimedia_commons_files.py:180
 #: management/commands/sync_wikipedia.py:338
 #, python-format
@@ -252,41 +252,39 @@ msgid "Dump database"
 msgstr "Dump base de données"
 
 #: management/commands/sync_all.py:109
-#: management/commands/sync_openstreetmap.py:367
+#: management/commands/sync_openstreetmap.py:294
 #: management/commands/sync_superlachaise_pois.py:535
 #: management/commands/sync_wikidata.py:425
 #: management/commands/sync_wikidata_occupations.py:140
-#: management/commands/sync_wikimedia_commons_categories.py:228
+#: management/commands/sync_wikimedia_commons_categories.py:253
 #: management/commands/sync_wikimedia_commons_files.py:182
 #: management/commands/sync_wikipedia.py:340
 #, python-format
 msgid "== End %s =="
 msgstr "== Fin %s =="
 
-#: management/commands/sync_openstreetmap.py:201
+#: management/commands/sync_openstreetmap.py:162
 #, python-brace-format
 msgid "Error: The wikipedia page {language_code}:{link} does not exist"
 msgstr "Erreur : La page Wikipédia {language_code}:{link} n'existe pas"
 
-#: management/commands/sync_openstreetmap.py:271
-msgid "no outer way for relation found"
-msgstr "Aucun chemin extérieur trouvé pour la relation"
-
-#: management/commands/sync_openstreetmap.py:292
+#: management/commands/sync_openstreetmap.py:222
 msgid "Requesting Overpass API..."
 msgstr "Requête de l'API Overpass..."
 
-#: management/commands/sync_openstreetmap.py:308
+#: management/commands/sync_openstreetmap.py:238
 #: management/commands/sync_wikidata_occupations.py:88
 msgid "Requesting Wikidata..."
 msgstr "Requête de Wikidata..."
 
-#: management/commands/sync_superlachaise_pois.py:93
+#: management/commands/sync_superlachaise_pois.py:90
 #, python-brace-format
 msgid ""
 "Error: The POI {openstreetmap_element_name} has multiple wikimedia commons "
 "categories"
-msgstr "Erreur : Le POI {openstreetmap_element_name} a plusieurs catégories Wikimedia Commons"
+msgstr ""
+"Erreur : Le POI {openstreetmap_element_name} a plusieurs catégories "
+"Wikimedia Commons"
 
 #: management/commands/sync_wikidata.py:357
 msgid "Requesting Wikidata codes from OpenStreetMap elements..."
@@ -296,7 +294,12 @@ msgstr "Requête des codes Wikidata issus des éléments OpenStreetMap..."
 msgid "Requesting new Wikidata codes from grave_of..."
 msgstr "Requête des nouveaux codes Wikidata issus de grave_of..."
 
-#: management/commands/sync_wikimedia_commons_categories.py:181
+#: management/commands/sync_wikimedia_commons_categories.py:138
+#, python-brace-format
+msgid "{title} is a redirection for {redirect}"
+msgstr "{title} est une redirection pour {redirect}"
+
+#: management/commands/sync_wikimedia_commons_categories.py:206
 #: management/commands/sync_wikimedia_commons_files.py:136
 msgid "Requesting Wikimedia Commons..."
 msgstr "Requête de Wikimedia commons..."
@@ -566,22 +569,25 @@ msgstr "occupations wikidata"
 msgid "wikidata occupations"
 msgstr "occupations wikidata"
 
-#: views.py:486
+#: views.py:492
 msgid "OpenStreetMap element does not exist"
 msgstr "L'élément OpenStreetMap n'existe pas"
 
-#: views.py:544
+#: views.py:550
 msgid "Wikidata entry does not exist"
 msgstr "L'entrée Wikidata n'existe pas"
 
-#: views.py:604
+#: views.py:610
 msgid "Wikimedia Commons category does not exist"
 msgstr "La catégorie Wikimedia Commons n'existe pas"
 
-#: views.py:663
+#: views.py:669
 msgid "SuperLachaise category does not exist"
 msgstr "La catégorie SuperLachaise n'existe pas"
 
-#: views.py:748
+#: views.py:754
 msgid "SuperLachaise POI does not exist"
 msgstr "Le POI SuperLachaise n'existe pas"
+
+#~ msgid "no outer way for relation found"
+#~ msgstr "Aucun chemin extérieur trouvé pour la relation"
