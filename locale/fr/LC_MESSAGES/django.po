@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-17 21:18+0200\n"
+"POT-Creation-Date: 2016-04-17 23:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -133,16 +133,16 @@ msgid "Sync selected wikimedia commons categories"
 msgstr "Synchroniser les catégories wikimedia commons sélectionnées"
 
 #: admin.py:507
-msgid "thumbnail link 512"
-msgstr "url vignette 512"
+msgid "link 512px"
+msgstr "lien 512px"
 
 #: admin.py:513
-msgid "thumbnail link 1024"
-msgstr "url vignette 1024"
+msgid "link 1024px"
+msgstr "lien 1024px"
 
 #: admin.py:519
-msgid "thumbnail link 2048"
-msgstr "url vignette 2048"
+msgid "link 2048px"
+msgstr "lien 2048px"
 
 #: admin.py:525
 msgid "Sync selected wikimedia commons files"
@@ -501,9 +501,17 @@ msgstr "id wikimedia commons"
 msgid "wikimedia commons categories"
 msgstr "catégories wikimedia commons"
 
-#: models.py:325 models.py:326 models.py:327
-msgid "thumbnail url"
-msgstr "url vignette"
+#: models.py:325
+msgid "url 512px"
+msgstr "url 512px"
+
+#: models.py:326
+msgid "url 1024px"
+msgstr "url 1024px"
+
+#: models.py:327
+msgid "url 2048px"
+msgstr "url 2048px"
 
 #: models.py:337
 msgid "wikimedia commons file"
@@ -573,31 +581,26 @@ msgstr "occupations wikidata"
 msgid "wikidata occupations"
 msgstr "occupations wikidata"
 
-#: views.py:492
+#: views.py:510
 msgid "OpenStreetMap element does not exist"
 msgstr "L'élément OpenStreetMap n'existe pas"
 
-#: views.py:550
+#: views.py:568
 msgid "Wikidata entry does not exist"
 msgstr "L'entrée Wikidata n'existe pas"
 
-#: views.py:610
+#: views.py:628
 msgid "Wikimedia Commons category does not exist"
 msgstr "La catégorie Wikimedia Commons n'existe pas"
 
-#: views.py:669
+#: views.py:681
+msgid "Wikimedia Commons file does not exist"
+msgstr "Le fichier Wikimedia Commons n'existe pas"
+
+#: views.py:740
 msgid "SuperLachaise category does not exist"
 msgstr "La catégorie SuperLachaise n'existe pas"
 
-#: views.py:754
+#: views.py:825
 msgid "SuperLachaise POI does not exist"
 msgstr "Le POI SuperLachaise n'existe pas"
-
-#~ msgid "original image"
-#~ msgstr "image originale"
-
-#~ msgid "original url"
-#~ msgstr "url original"
-
-#~ msgid "no outer way for relation found"
-#~ msgstr "Aucun chemin extérieur trouvé pour la relation"
