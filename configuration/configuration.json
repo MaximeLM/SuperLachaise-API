@@ -47,11 +47,6 @@
             "setting__key": "wikimedia_commons:synced_instance_of"
         },
         {
-            "description": "The thumbnail size of the synchronized Wikimedia Commons file. Used to get the thumbnail URL.",
-            "language__code": "en",
-            "setting__key": "wikimedia_commons:thumbnail_width"
-        },
-        {
             "description": "La région géographique où seront requêtés les éléments OpenStreetMap pour la synchronisation.",
             "language__code": "fr",
             "setting__key": "openstreetmap:bounding_box"
@@ -80,11 +75,6 @@
             "description": "Les catégories Wikimedia Commons sont toujours synchronisées pour les valeurs du champ \"catégorie tombe Wikimedia Commons\" des entrées Wikidata. Par contre, les valeurs du champ \"catégorie Wikimedia Commons\" ne donneront lieu à une synchronisation que si la valeur du champ \"nature\" de l'entrée Wikidata contient une des valeurs de cette liste.",
             "language__code": "fr",
             "setting__key": "wikimedia_commons:synced_instance_of"
-        },
-        {
-            "description": "La taille de la miniature du fichier Wikimedia Commons synchronisée. Utilisé pour récupérer l'URL de la miniature.",
-            "language__code": "fr",
-            "setting__key": "wikimedia_commons:thumbnail_width"
         }
     ],
     "LocalizedSynchronization": [
@@ -193,10 +183,6 @@
         {
             "default": "[\"Q173387\", \"Q16423655\", \"Q575759\", \"Q860861\", \"Q42948\"]",
             "key": "wikimedia_commons:synced_instance_of"
-        },
-        {
-            "default": "350",
-            "key": "wikimedia_commons:thumbnail_width"
         }
     ],
     "SuperLachaiseCategory": [

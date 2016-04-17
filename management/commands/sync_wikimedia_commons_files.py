@@ -50,10 +50,9 @@ class Command(BaseCommand):
             params = {
                 'action': 'query',
                 'prop': 'imageinfo',
-                'iiprop': 'url',
-                'iiprop': 'url',
+                'iiprop': 'url|size',
                 'format': 'json',
-                'iiurlwidth': self.thumbnail_width,
+                'iiurlwidth': 50,
                 'titles': titles,
             }
             params.update(last_continue)
@@ -75,16 +74,6 @@ class Command(BaseCommand):
         
         return result
     
-    def get_original_url(self, wikimedia_commons_file):
-        try:
-            image_info = wikimedia_commons_file['imageinfo']
-            if not len(image_info) == 1:
-                raise BaseException
-            
-            return none_to_blank(image_info[0]['url'])
-        except:
-            return u''
-    
     def get_thumbnail_url(self, wikimedia_commons_file):
         try:
             image_info = wikimedia_commons_file['imageinfo']
@@ -95,12 +84,45 @@ class Command(BaseCommand):
         except:
             return u''
     
+    def get_image_width(self, wikimedia_commons_file):
+        try:
+            image_info = wikimedia_commons_file['imageinfo']
+            if not len(image_info) == 1:
+                raise BaseException
+            
+            return image_info[0]['width']
+        except:
+            return 0
+    
+    def get_original_url(self, wikimedia_commons_file):
+        try:
+            image_info = wikimedia_commons_file['imageinfo']
+            if not len(image_info) == 1:
+                raise BaseException
+            
+            return none_to_blank(image_info[0]['url'])
+        except:
+            return u''
+    
     def handle_wikimedia_commons_file(self, id, wikimedia_commons_file):
         # Get values
-        values_dict = {
-            'original_url': self.get_original_url(wikimedia_commons_file),
-            'thumbnail_url': self.get_thumbnail_url(wikimedia_commons_file),
-        }
+        thumbnail_url = self.get_thumbnail_url(wikimedia_commons_file)
+        original_url = self.get_original_url(wikimedia_commons_file)
+        image_width = self.get_image_width(wikimedia_commons_file)
+        
+        values_dict = {}
+        if image_width >= 512:
+            values_dict['thumbnail_url_512'] = thumbnail_url.replace('50px-', '512px-')
+        else:
+            values_dict['thumbnail_url_512'] = original_url
+        if image_width >= 1024:
+            values_dict['thumbnail_url_1024'] = thumbnail_url.replace('50px-', '1024px-')
+        else:
+            values_dict['thumbnail_url_1024'] = original_url
+        if image_width >= 2048:
+            values_dict['thumbnail_url_2048'] = thumbnail_url.replace('50px-', '2048px-')
+        else:
+            values_dict['thumbnail_url_2048'] = original_url
         
         # Get element in database if it exists
         target_object_id_dict = {"wikimedia_commons_id": id}
@@ -131,7 +153,17 @@ class Command(BaseCommand):
         if param_wikimedia_commons_files:
             files_to_fetch = param_wikimedia_commons_files.split('|')
         else:
-            files_to_fetch = WikimediaCommonsCategory.objects.exclude(main_image__exact='').values_list('main_image', flat=True)
+            files_to_fetch = []
+            for wikimedia_commons_category in WikimediaCommonsCategory.objects.all():
+                main_image = wikimedia_commons_category.main_image
+                if main_image and not main_image in files_to_fetch:
+                    files_to_fetch.append(main_image)
+                category_members = wikimedia_commons_category.category_members
+                if category_members:
+                    for category_member in category_members.split('|'):
+                        if not category_member in files_to_fetch:
+                            files_to_fetch.append(category_member)
+            files_to_fetch.extend(WikimediaCommonsCategory.objects.exclude(category_members__exact='').values_list('category_members', flat=True))
         
         print_unicode(_('Requesting Wikimedia Commons...'))
         files_to_fetch = list(set(files_to_fetch))
@@ -169,8 +201,6 @@ class Command(BaseCommand):
         
         try:
             translation.activate(settings.LANGUAGE_CODE)
-            
-            self.thumbnail_width = int(Setting.objects.get(key=u'wikimedia_commons:thumbnail_width').value)
             
             self.created_objects = 0
             self.modified_objects = 0

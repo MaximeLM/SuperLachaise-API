@@ -322,8 +322,9 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
 class WikimediaCommonsFile(SuperLachaiseModel):
     
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
-    original_url = models.CharField(max_length=500, blank=True, verbose_name=_('original url'))
-    thumbnail_url = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
+    thumbnail_url_512 = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
+    thumbnail_url_1024 = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
+    thumbnail_url_2048 = models.CharField(max_length=500, blank=True, verbose_name=_('thumbnail url'))
     
     def wikimedia_commons_url(self):
         return WikimediaCommonsCategory.URL_FORMAT.format(title=self.wikimedia_commons_id)
