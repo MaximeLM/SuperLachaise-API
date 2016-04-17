@@ -83,6 +83,8 @@ class SuperLachaiseEncoder(object):
             return self.wikidata_entry_dict(obj)
         elif isinstance(obj, WikimediaCommonsCategory):
             return self.wikimedia_commons_category_dict(obj)
+        elif isinstance(obj, WikimediaCommonsFile):
+            return self.wikimedia_commons_file_dict(obj)
         elif isinstance(obj, list) or isinstance(obj, QuerySet):
             return [self.obj_dict(list_item) for list_item in obj]
         elif isinstance(obj, dict):
@@ -296,7 +298,6 @@ class SuperLachaiseEncoder(object):
         return result
     
     def wikimedia_commons_category_dict(self, wikimedia_commons_category):
-        
         if wikimedia_commons_category:
             result = {
                 'wikimedia_commons_id': wikimedia_commons_category.wikimedia_commons_id,
@@ -313,7 +314,24 @@ class SuperLachaiseEncoder(object):
             if not self.restrict_fields:
                 result.update({
                     'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.wikimedia_commons_id)),
-                    'url_main_image': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_category.main_image)),
+                })
+        else:
+            result = None
+        
+        return result
+    
+    def wikimedia_commons_file_dict(self, wikimedia_commons_file):
+        if wikimedia_commons_file:
+            result = {
+                'wikimedia_commons_id': wikimedia_commons_file.wikimedia_commons_id,
+                'url_512px': wikimedia_commons_file.url_512px,
+                'url_1024px': wikimedia_commons_file.url_1024px,
+                'url_2048px': wikimedia_commons_file.url_2048px,
+            }
+            
+            if not self.restrict_fields:
+                result.update({
+                    'url': u'https://commons.wikimedia.org/wiki/{name}'.format(name=encoding.escape_uri_path(wikimedia_commons_file.wikimedia_commons_id)),
                 })
         else:
             result = None
@@ -567,7 +585,7 @@ def wikimedia_commons_category_list(request):
     
     for search_term in search.split():
         wikimedia_commons_categories = wikimedia_commons_categories.filter( \
-            Q(id__icontains=search_term) \
+            Q(wikimedia_commons_id__icontains=search_term) \
             | Q(main_image__icontains=search_term) \
         )
     
@@ -610,6 +628,59 @@ def wikimedia_commons_category(request, id=None, superlachaisepoi_id=None):
         raise Http404(_('Wikimedia Commons category does not exist'))
     
     content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'result': wikimedia_commons_category})
+    
+    return HttpResponse(content, content_type='application/json; charset=utf-8')
+
+@require_http_methods(["GET"])
+def wikimedia_commons_file_list(request):
+    languages = get_languages(request)
+    restrict_fields = get_restrict_fields(request)
+    modified_since = get_modified_since(request)
+    search = get_search(request)
+    
+    if modified_since:
+        wikimedia_commons_files = WikimediaCommonsFile.objects.filter(modified__gt=modified_since)
+    else:
+        wikimedia_commons_files = WikimediaCommonsFile.objects.all()
+    
+    for search_term in search.split():
+        wikimedia_commons_files = wikimedia_commons_files.filter( \
+            Q(wikimedia_commons_id__icontains=search_term)
+        )
+    
+    wikimedia_commons_files = wikimedia_commons_files.order_by('wikimedia_commons_id').distinct('wikimedia_commons_id')
+    
+    paginator = Paginator(wikimedia_commons_files, 25)
+    page = request.GET.get('page')
+    try:
+        page_content = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_content = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_content = paginator.page(paginator.num_pages)
+    
+    obj_to_encode = {
+        'result': page_content.object_list,
+        'page': page_content,
+    }
+    
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode(obj_to_encode)
+    
+    return HttpResponse(content, content_type='application/json; charset=utf-8')
+
+@require_http_methods(["GET"])
+def wikimedia_commons_file(request, id=None):
+    languages = get_languages(request)
+    restrict_fields = get_restrict_fields(request)
+    
+    try:
+        wikimedia_commons_file = WikimediaCommonsFile.objects.get(wikimedia_commons_id=id)
+    except WikimediaCommonsFile.DoesNotExist:
+        raise Http404(_('Wikimedia Commons file does not exist'))
+    
+    content = SuperLachaiseEncoder(request, languages=languages, restrict_fields=restrict_fields).encode({'result': wikimedia_commons_file})
     
     return HttpResponse(content, content_type='application/json; charset=utf-8')
 

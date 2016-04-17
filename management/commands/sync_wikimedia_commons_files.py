@@ -112,17 +112,17 @@ class Command(BaseCommand):
         
         values_dict = {}
         if image_width >= 512:
-            values_dict['thumbnail_url_512'] = thumbnail_url.replace('50px-', '512px-')
+            values_dict['url_512px'] = thumbnail_url.replace('50px-', '512px-')
         else:
-            values_dict['thumbnail_url_512'] = original_url
+            values_dict['url_512px'] = original_url
         if image_width >= 1024:
-            values_dict['thumbnail_url_1024'] = thumbnail_url.replace('50px-', '1024px-')
+            values_dict['url_1024px'] = thumbnail_url.replace('50px-', '1024px-')
         else:
-            values_dict['thumbnail_url_1024'] = original_url
+            values_dict['url_1024px'] = original_url
         if image_width >= 2048:
-            values_dict['thumbnail_url_2048'] = thumbnail_url.replace('50px-', '2048px-')
+            values_dict['url_2048px'] = thumbnail_url.replace('50px-', '2048px-')
         else:
-            values_dict['thumbnail_url_2048'] = original_url
+            values_dict['url_2048px'] = original_url
         
         # Get element in database if it exists
         target_object_id_dict = {"wikimedia_commons_id": id}

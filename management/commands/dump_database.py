@@ -51,6 +51,7 @@ class Command(BaseCommand):
             models_to_dump = [
                 (OpenStreetMapElement, 'openstreetmap_elements', 'sorting_name', 'openstreetmap_elements.json'),
                 (WikimediaCommonsCategory, 'wikimedia_commons_categories', 'wikimedia_commons_id', 'wikimedia_commons_categories.json'),
+                (WikimediaCommonsFile, 'wikimedia_commons_files', 'wikimedia_commons_id', 'wikimedia_commons_files.json'),
                 (SuperLachaiseCategory, 'superlachaise_categories', 'code', 'superlachaise_categories.json'),
                 (WikidataEntry, 'wikidata_entries', 'wikidata_id', 'wikidata_entries.json'),
                 (SuperLachaisePOI, 'superlachaise_pois', 'openstreetmap_element_id', 'superlachaise_pois.json'),

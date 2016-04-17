@@ -486,14 +486,14 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsFile)
 class WikimediaCommonsFileAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'wikimedia_commons_link', 'thumbnail_url_512_link', 'modified', 'notes')
+    list_display = ('__unicode__', 'wikimedia_commons_link', 'url_512px_link', 'modified', 'notes')
     search_fields = ('wikimedia_commons_id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['wikimedia_commons_id', 'wikimedia_commons_link', 'thumbnail_url_512', 'thumbnail_url_512_link', 'thumbnail_url_1024', 'thumbnail_url_1024_link', 'thumbnail_url_2048', 'thumbnail_url_2048_link']}),
+        (None, {'fields': ['wikimedia_commons_id', 'wikimedia_commons_link', 'url_512px', 'url_512px_link', 'url_1024px', 'url_1024px_link', 'url_2048px', 'url_2048px_link']}),
     ]
-    readonly_fields = ('wikimedia_commons_link', 'thumbnail_url_512_link', 'thumbnail_url_1024_link', 'thumbnail_url_2048_link', 'created', 'modified')
+    readonly_fields = ('wikimedia_commons_link', 'url_512px_link', 'url_1024px_link', 'url_2048px_link', 'created', 'modified')
     
     def wikimedia_commons_link(self, obj):
         return AdminUtils.html_link(obj.wikimedia_commons_url(), obj.wikimedia_commons_id)
@@ -501,23 +501,23 @@ class WikimediaCommonsFileAdmin(admin.ModelAdmin):
     wikimedia_commons_link.short_description = _('wikimedia commons')
     wikimedia_commons_link.admin_order_field = 'wikimedia_commons_id'
     
-    def thumbnail_url_512_link(self, obj):
-        return AdminUtils.html_image_link(obj.thumbnail_url_512)
-    thumbnail_url_512_link.allow_tags = True
-    thumbnail_url_512_link.short_description = _('thumbnail link 512')
-    thumbnail_url_512_link.admin_order_field = 'thumbnail_url_512'
+    def url_512px_link(self, obj):
+        return AdminUtils.html_image_link(obj.url_512px)
+    url_512px_link.allow_tags = True
+    url_512px_link.short_description = _('link 512px')
+    url_512px_link.admin_order_field = 'url_512px'
     
-    def thumbnail_url_1024_link(self, obj):
-        return AdminUtils.html_image_link(obj.thumbnail_url_1024)
-    thumbnail_url_1024_link.allow_tags = True
-    thumbnail_url_1024_link.short_description = _('thumbnail link 1024')
-    thumbnail_url_1024_link.admin_order_field = 'thumbnail_url_1024'
+    def url_1024px_link(self, obj):
+        return AdminUtils.html_image_link(obj.url_1024px)
+    url_1024px_link.allow_tags = True
+    url_1024px_link.short_description = _('link 1024px')
+    url_1024px_link.admin_order_field = 'url_1024px'
     
-    def thumbnail_url_2048_link(self, obj):
-        return AdminUtils.html_image_link(obj.thumbnail_url_2048)
-    thumbnail_url_2048_link.allow_tags = True
-    thumbnail_url_2048_link.short_description = _('thumbnail link 2048')
-    thumbnail_url_2048_link.admin_order_field = 'thumbnail_url_2048'
+    def url_2048px_link(self, obj):
+        return AdminUtils.html_image_link(obj.url_2048px)
+    url_2048px_link.allow_tags = True
+    url_2048px_link.short_description = _('link 2048px')
+    url_2048px_link.admin_order_field = 'url_2048px'
     
     def sync_object(self, request, queryset):
         wikimedia_commons_files = [wikimedia_commons_file.wikimedia_commons_id for wikimedia_commons_file in queryset]
@@ -622,7 +622,7 @@ class SuperLachaisePOIAdmin(admin.ModelAdmin):
     
     def main_image_link(self, obj):
         if obj.main_image:
-            return AdminUtils.html_image_link(AdminUtils.change_page_url(obj.main_image), obj.main_image.thumbnail_url)
+            return AdminUtils.html_image_link(AdminUtils.change_page_url(obj.main_image), obj.main_image.url_512px)
     main_image_link.allow_tags = True
     main_image_link.short_description = _('main image')
     main_image_link.admin_order_field = 'main_image'
