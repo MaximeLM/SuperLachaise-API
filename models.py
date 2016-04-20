@@ -239,6 +239,13 @@ class WikidataLocalizedEntry(SuperLachaiseModel):
         if self.wikipedia:
             return WikipediaPage.URL_FORMAT.format(language_code=self.language.code, title=self.wikipedia)
     
+    def sorting_name(self):
+        if hasattr(self, 'wikipedia_page') and self.wikipedia_page.default_sort:
+            result = self.wikipedia_page.default_sort
+        else:
+            result = self.name
+        return result
+    
     def save(self, *args, **kwargs):
         super(WikidataLocalizedEntry, self).save(*args, **kwargs)
         

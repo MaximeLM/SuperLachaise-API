@@ -267,13 +267,16 @@ class SuperLachaiseEncoder(object):
             for language in self.languages:
                 wikidata_localized_entry = wikidata_entry.localizations.filter(language=language).first()
                 if wikidata_localized_entry:
-                    localizations.append({
+                    localization = {
                         'id': wikidata_localized_entry.pk,
                         'language_code': language.code,
-                        'name': wikidata_localized_entry.wikipedia,
+                        'name': wikidata_localized_entry.name,
+                        'sorting_name': wikidata_localized_entry.sorting_name(),
                         'description': wikidata_localized_entry.description,
                         'wikipedia': self.wikipedia_page_dict(wikidata_localized_entry),
-                    })
+                    }
+                    localizations.append(localization)
+        
         result['localizations'] = localizations
         
         return result

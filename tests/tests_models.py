@@ -176,6 +176,50 @@ class WikidataLocalizedEntryTestCase(TestCase):
         wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language, wikipedia=wikipedia)
         
         self.assertEqual(WikipediaPage.URL_FORMAT.format(language_code=language.code, title=wikipedia), wikidata_localized_entry.wikipedia_url())
+    
+    def test_sorting_name_returns_name_if_wikipedia_page_is_none(self):
+        wikidata_id = "wikidata_id"
+        language_code = "language_code"
+        name = "name"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id)
+        wikidata_entry.save()
+        language = Language(code=language_code)
+        language.save()
+        wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language, name=name)
+        
+        self.assertEqual(name, wikidata_localized_entry.sorting_name())
+    
+    def test_sorting_name_returns_name_if_wikipedia_page_default_sort_is_blank(self):
+        wikidata_id = "wikidata_id"
+        language_code = "language_code"
+        name = "name"
+        default_sort = ""
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id)
+        wikidata_entry.save()
+        language = Language(code=language_code)
+        language.save()
+        wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language, name=name)
+        wikidata_localized_entry.save()
+        wikipedia_page = WikipediaPage(wikidata_localized_entry=wikidata_localized_entry, default_sort=default_sort)
+        wikipedia_page.save()
+        
+        self.assertEqual(name, wikidata_localized_entry.sorting_name())
+    
+    def test_sorting_name_returns_default_sort_if_wikipedia_page_default_sort_is_not_blank(self):
+        wikidata_id = "wikidata_id"
+        language_code = "language_code"
+        name = "name"
+        default_sort = "default_sort"
+        wikidata_entry = WikidataEntry(wikidata_id=wikidata_id)
+        wikidata_entry.save()
+        language = Language(code=language_code)
+        language.save()
+        wikidata_localized_entry = WikidataLocalizedEntry(wikidata_entry=wikidata_entry, language=language, name=name)
+        wikidata_localized_entry.save()
+        wikipedia_page = WikipediaPage(wikidata_localized_entry=wikidata_localized_entry, default_sort=default_sort)
+        wikipedia_page.save()
+        
+        self.assertEqual(default_sort, wikidata_localized_entry.sorting_name())
 
 class WikipediaPageTestCase(TestCase):
     
