@@ -486,12 +486,12 @@ class WikimediaCommonsCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(WikimediaCommonsFile)
 class WikimediaCommonsFileAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'wikimedia_commons_link', 'url_512px_link', 'modified', 'notes')
+    list_display = ('__unicode__', 'wikimedia_commons_link', 'attribution', 'url_512px_link', 'modified', 'notes')
     search_fields = ('wikimedia_commons_id', 'notes',)
     
     fieldsets = [
         (None, {'fields': ['created', 'modified', 'notes']}),
-        (None, {'fields': ['wikimedia_commons_id', 'wikimedia_commons_link', 'url_512px', 'url_512px_link', 'url_1024px', 'url_1024px_link', 'url_2048px', 'url_2048px_link']}),
+        (None, {'fields': ['wikimedia_commons_id', 'wikimedia_commons_link', 'attribution', 'url_512px', 'url_512px_link', 'url_1024px', 'url_1024px_link', 'url_2048px', 'url_2048px_link']}),
     ]
     readonly_fields = ('wikimedia_commons_link', 'url_512px_link', 'url_1024px_link', 'url_2048px_link', 'created', 'modified')
     

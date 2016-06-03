@@ -329,6 +329,7 @@ class WikimediaCommonsCategory(SuperLachaiseModel):
 class WikimediaCommonsFile(SuperLachaiseModel):
     
     wikimedia_commons_id = models.CharField(unique=True, db_index=True, max_length=255, verbose_name=_('wikimedia commons id'))
+    attribution = models.CharField(max_length=255, blank=True, verbose_name=_('attribution'))
     url_512px = models.CharField(max_length=500, blank=True, verbose_name=_('url 512px'))
     url_1024px = models.CharField(max_length=500, blank=True, verbose_name=_('url 1024px'))
     url_2048px = models.CharField(max_length=500, blank=True, verbose_name=_('url 2048px'))

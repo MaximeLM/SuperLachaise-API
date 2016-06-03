@@ -327,6 +327,7 @@ class SuperLachaiseEncoder(object):
         if wikimedia_commons_file:
             result = {
                 'wikimedia_commons_id': wikimedia_commons_file.wikimedia_commons_id,
+                'attribution': wikimedia_commons_file.attribution,
                 'url_512px': wikimedia_commons_file.url_512px,
                 'url_1024px': wikimedia_commons_file.url_1024px,
                 'url_2048px': wikimedia_commons_file.url_2048px,
