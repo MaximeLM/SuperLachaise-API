@@ -25,8 +25,23 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone, translation
 from django.utils.translation import ugettext as _
+from HTMLParser import HTMLParser
 
 from superlachaise_api.models import *
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 def print_unicode(str):
     print str.encode('utf-8')
@@ -50,7 +65,7 @@ class Command(BaseCommand):
             params = {
                 'action': 'query',
                 'prop': 'imageinfo',
-                'iiprop': 'url|size',
+                'iiprop': 'url|size|extmetadata',
                 'format': 'json',
                 'iiurlwidth': 50,
                 'titles': titles,
@@ -104,6 +119,59 @@ class Command(BaseCommand):
         except:
             return u''
     
+    def get_author(self, wikimedia_commons_file):
+        try:
+            image_info = wikimedia_commons_file['imageinfo']
+            if not len(image_info) == 1:
+                raise BaseException
+            extmetadata = image_info[0]['extmetadata']
+            
+            author = u''
+            
+            if not author and 'Artist' in extmetadata:
+                author = strip_tags(extmetadata['Artist']['value'])
+            
+            # Extract derivative work
+            match_obj = re.search(r'.*[Dd]erivative work:(.*)$', author)
+            if match_obj:
+                author = match_obj.group(1).strip()
+            
+            # Extract user
+            match_obj = re.search(r'.*[Uu]ser:(.*)$', author)
+            if match_obj:
+                author = match_obj.group(1).strip()
+            
+            # Remove talk link
+            author = author.replace('(talk)', '')
+            
+            # Remove new lines, strip
+            author = author.replace('\n', ' ').strip()
+            
+            # Remove leading ~
+            if len(author) > 1 and author[0] == '~':
+                author = author[1:]
+            
+            # Remove multiple spaces
+            while '  ' in author:
+                author = author.replace('  ', ' ')
+            
+            return none_to_blank(author)
+        except:
+            return u''
+    
+    def get_license(self, wikimedia_commons_file):
+        try:
+            image_info = wikimedia_commons_file['imageinfo']
+            if not len(image_info) == 1:
+                raise BaseException
+            extmetadata = image_info[0]['extmetadata']
+            
+            license_short_name = extmetadata['LicenseShortName']['value']
+            
+            return none_to_blank(license_short_name)
+        except:
+            return u''
+    
     def handle_wikimedia_commons_file(self, id, wikimedia_commons_file):
         # Get values
         thumbnail_url = self.get_thumbnail_url(wikimedia_commons_file)
@@ -111,6 +179,8 @@ class Command(BaseCommand):
         image_width = self.get_image_width(wikimedia_commons_file)
         
         values_dict = {}
+        values_dict['author'] = self.get_author(wikimedia_commons_file)
+        values_dict['license'] = self.get_license(wikimedia_commons_file)
         if image_width >= 512:
             values_dict['url_512px'] = thumbnail_url.replace('50px-', '512px-')
         else:
