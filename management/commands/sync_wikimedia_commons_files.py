@@ -181,15 +181,15 @@ class Command(BaseCommand):
         values_dict = {}
         values_dict['author'] = self.get_author(wikimedia_commons_file)
         values_dict['license'] = self.get_license(wikimedia_commons_file)
-        if image_width >= 512:
+        if image_width > 512:
             values_dict['url_512px'] = thumbnail_url.replace('50px-', '512px-')
         else:
             values_dict['url_512px'] = original_url
-        if image_width >= 1024:
+        if image_width > 1024:
             values_dict['url_1024px'] = thumbnail_url.replace('50px-', '1024px-')
         else:
             values_dict['url_1024px'] = original_url
-        if image_width >= 2048:
+        if image_width > 2048:
             values_dict['url_2048px'] = thumbnail_url.replace('50px-', '2048px-')
         else:
             values_dict['url_2048px'] = original_url
