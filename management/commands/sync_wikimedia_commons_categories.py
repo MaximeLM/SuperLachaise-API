@@ -135,6 +135,8 @@ class Command(BaseCommand):
                 match_obj = re.search(r'^[\s]*{{Category redirect\|(.*)}}[\s]*$', line)
                 if match_obj:
                     redirect = match_obj.group(1).strip()
+                    if not redirect.startswith('Category:'):
+                        redirect = 'Category:' + redirect
                     self.errors.append(_('{title} is a redirection for {redirect}').format(title=page['title'], redirect=redirect))
                     pages = self.request_wikimedia_commons_categories([redirect])
                     if len(pages.values()) != 1:
